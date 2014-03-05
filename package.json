@@ -1,0 +1,8 @@
+{
+  "name": "process-boss",
+  "version": "0.0.1",
+  "prefer-global": true,
+  "dependencies": {
+    "commander": "^2.0"
+  }
+}
