@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "prefer-global": true,
   "dependencies": {
-    "commander": "^2.0"
+    "commander": "^2.0",
+    "wantsit": "^1.0"
   }
 }
