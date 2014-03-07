@@ -6,11 +6,11 @@ var should = require("should"),
 	sinon = require("sinon"),
 	path = require("path"),
 	proxyquire = require("proxyquire"),
-	ProcessStarter = proxyquire(path.resolve(__dirname, "../lib/ProcessStarter"), stubs);
+	DaemonStarter = proxyquire(path.resolve(__dirname, "../lib/DaemonStarter"), stubs);
 
-var processStarter = new ProcessStarter();
+var daemonStarter = new DaemonStarter();
 
-describe("ProcessStarter", function(){
+describe("DaemonStarter", function(){
 	describe("_startDaemon", function(){
 		it("should start the process starter daemon", function(done) {
 			var starter = {
@@ -24,10 +24,10 @@ describe("ProcessStarter", function(){
 				return starter;
 			};
 
-			processStarter.on("daemonrunning", done);
+			daemonStarter.on("daemonrunning", done);
 
 			// the method under test
-			processStarter._startDaemon();
+			daemonStarter._startDaemon();
 
 			starter.unref.callCount.should.equal(1);
 

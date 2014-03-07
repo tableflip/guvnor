@@ -1,0 +1,5 @@
+[boss]
+	socket = /tmp/boss-bs-socket
+
+[process]
+	socket = /tmp/boss-ps-socket
