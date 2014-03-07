@@ -10,9 +10,13 @@ lib-cov
 pids
 logs
 results
+coverage
 
 npm-debug.log
 node_modules
 
 .idea
 *.iml
+
+.DS_Store
+Thumbs.db

@@ -2,8 +2,23 @@
   "name": "process-boss",
   "version": "0.0.1",
   "prefer-global": true,
+  "scripts": {
+    "test": "istanbul cover _mocha",
+    "coveralls": "istanbul cover _mocha && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js"
+  },
   "dependencies": {
     "commander": "^2.0",
-    "wantsit": "^1.0"
+    "wantsit": "^1.0",
+    "rc": "^0.3",
+    "dnode": "^1.0",
+    "wildemitter": "^1.0"
+  },
+  "devDependencies": {
+    "mocha": "^1.0",
+    "should": "^3.1",
+    "sinon": "^1.8",
+    "istanbul": "^0.2",
+    "coveralls": "^2.8",
+    "proxyquire": "^0.5"
   }
 }

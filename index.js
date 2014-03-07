@@ -1,8 +1,11 @@
 
-var Container = require("wantsit").Container;
+var Container = require("wantsit").Container,
+	path = require("path"),
+	pkg = require(path.resolve("package.json"))
 
 var container = new Container();
-container.createAndRegister("cli", require(__dirname + "/lib/CLI"));
-container.createAndRegister("connection", require(__dirname + "/lib/api/Connection"), {
-	socket: "/tmp/boss"
-});
+container.register("config", require("rc")(pkg.name, {
+	socket: "/tmp/boss-ps"
+}));
+container.createAndRegister("cli", require(path.resolve("lib/CLI")));
+container.createAndRegister("connection", require(path.resolve("lib/ProcessStarter")));
