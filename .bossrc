@@ -1,5 +1,9 @@
 [boss]
 	socket = /tmp/boss-bs-socket
+	infolog = /tmp/boss-info
+	errorlog = /tmp/boss-error
 
 [process]
 	socket = /tmp/boss-ps-socket
+	infolog = /tmp/boss-ps-info
+	errorlog = /tmp/boss-ps-error
