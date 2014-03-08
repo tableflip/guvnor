@@ -1,8 +1,8 @@
 var Container = require("wantsit").Container,
 	path = require("path");
 
-var config = require("rc")("boss");
+var config = require("rc")("boss", path.resolve(__dirname, ".bossrc"));
 
 var container = new Container();
 container.register("config", config);
-container.createAndRegister("process", require(path.resolve("lib/ProcessRPC")));
+container.createAndRegister("process", require(path.resolve(__dirname, "lib/ProcessRPC")));

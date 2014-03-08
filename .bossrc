@@ -1,9 +1,9 @@
 [boss]
-	socket = /tmp/boss-bs-socket
-	infolog = /tmp/boss-info
-	errorlog = /tmp/boss-error
+	socket = /var/run/boss/bs
+	infolog = /var/log/boss/boss-info.log
+	errorlog = /var/log/boss/boss-error.log
 
 [process]
-	socket = /tmp/boss-ps-socket
-	infolog = /tmp/boss-ps-info
-	errorlog = /tmp/boss-ps-error
+	socket = /var/run/boss/ps
+	infolog = /var/log/boss/ps-info.log
+	errorlog = /var/log/boss/ps-error.log

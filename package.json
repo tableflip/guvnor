@@ -12,7 +12,8 @@
     "rc": "^0.3",
     "dnode": "^1.0",
     "wildemitter": "^1.0",
-    "async": "^0.2"
+    "async": "^0.2",
+    "file": "^0.2"
   },
   "devDependencies": {
     "mocha": "^1.0",
