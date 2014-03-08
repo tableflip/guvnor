@@ -4,7 +4,7 @@
   "prefer-global": true,
   "scripts": {
     "test": "istanbul cover _mocha",
-    "coveralls": "istanbul cover _mocha && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js"
+    "coveralls": "istanbul cover _mocha && cat ./coverage/lcov.info | coveralls"
   },
   "dependencies": {
     "commander": "^2.0",
