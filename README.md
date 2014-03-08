@@ -4,3 +4,5 @@ boss [![Build Status](https://img.shields.io/travis/tableflip/boss/master.svg)](
 A node process manager that isn't spanners all the way down
 
 ![Control your processes like a boss](https://raw.github.com/tableflip/boss/master/img/boss.png)
+
+Discuss: [gitter.im/tableflip/boss](https://gitter.im/tableflip/boss)
