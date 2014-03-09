@@ -5,4 +5,4 @@ var config = require("rc")("boss", path.resolve(__dirname, ".bossrc"));
 
 var container = new Container();
 container.register("config", config);
-container.createAndRegister("process", require(path.resolve(__dirname, "lib/ProcessRPC")));
+container.createAndRegister("process", require("./lib/ProcessRPC"));
