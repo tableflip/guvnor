@@ -3,11 +3,5 @@
 	infolog = /var/log/boss/boss-info.log
 	errorlog = /var/log/boss/boss-error.log
 
-[process]
-	socket = /var/run/boss/ps
-	infolog = /var/log/boss/ps-info.log
-	errorlog = /var/log/boss/ps-error.log
-
 [logging]
 	directory = /var/log/boss
-
