@@ -1,6 +1,5 @@
 var stubs = {
-	child_process: {},
-	process: {}
+	child_process: {}
 };
 
 var should = require("should"),

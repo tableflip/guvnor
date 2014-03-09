@@ -7,3 +7,7 @@
 	socket = /var/run/boss/ps
 	infolog = /var/log/boss/ps-info.log
 	errorlog = /var/log/boss/ps-error.log
+
+[logging]
+	directory = /var/log/boss
+
