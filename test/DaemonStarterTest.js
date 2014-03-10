@@ -10,8 +10,8 @@ var should = require("should"),
 
 var daemonStarter = new DaemonStarter();
 
-describe("DaemonStarter", function(){
-	describe("_startDaemon", function(){
+describe("DaemonStarter", function() {
+	describe("_startDaemon", function() {
 		it("should start the process starter daemon", function(done) {
 			var starter = {
 				once: sinon.stub(),
