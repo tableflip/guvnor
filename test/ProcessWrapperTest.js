@@ -1,7 +1,7 @@
 var stubs = {
 	path: {},
 	"./LogRedirector": function() {
-		this.on = function(event, func) {
+		this.once = function(event, func) {
 			func();
 		}
 	}
