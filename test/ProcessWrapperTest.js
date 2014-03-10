@@ -23,7 +23,8 @@ describe("ProcessWrapper", function() {
 		process.nextTick = function(){};
 		process.send = function(){};
 
-		proxyquire(path.resolve(__dirname, "../lib/ProcessWrapper"), stubs);
+		var ProcessWrapper = proxyquire(path.resolve(__dirname, "../lib/ProcessWrapper"), stubs);
+		new ProcessWrapper();
 
 		process.title.should.equal(processTitle);
 
@@ -38,7 +39,8 @@ describe("ProcessWrapper", function() {
 		process.nextTick = function(){};
 		process.send = function(){};
 
-		proxyquire(path.resolve(__dirname, "../lib/ProcessWrapper"), stubs);
+		var ProcessWrapper = proxyquire(path.resolve(__dirname, "../lib/ProcessWrapper"), stubs);
+		new ProcessWrapper();
 
 		should(process.env.BOSS_TEST_PROPERTY).be.undefined;
 
