@@ -1,5 +1,10 @@
 var stubs = {
-	path: {}
+	path: {},
+	"./LogRedirector": function() {
+		this.on = function(event, func) {
+			func();
+		}
+	}
 };
 
 var should = require("should"),

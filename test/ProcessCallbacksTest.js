@@ -1,5 +1,5 @@
 var stubs = {
-	usage: {}
+
 };
 
 var should = require("should"),
@@ -30,31 +30,10 @@ describe("ProcessCallbacks", function() {
 	});
 
 	describe("message", function() {
-		it("should return process status", function(done) {
-			process.send = sinon.stub();
-			process.listeners = sinon.stub();
-			process.listeners.withArgs("message").returns([{}, {}]);
-
-			stubs.usage.lookup = sinon.stub();
-			stubs.usage.lookup.callsArgWith(2, null, {cpu: 10});
-
-			processCallbacks.message({type: "boss:status"});
-
-			process.send.callCount.should.equal(1);
-
-			var event = process.send.getCall(0).args[0];
-			event.type.should.equal("process:status");
-			event.status.usage.cpu.should.equal(10);
-
-			done();
-		});
-
 		it("should survive bad messages", function(done) {
 			process.send = sinon.stub();
 			process.listeners = sinon.stub();
 			process.listeners.withArgs("message").returns([{}, {}]);
-
-			stubs.usage.lookup = sinon.stub();
 
 			processCallbacks.message();
 
@@ -63,6 +42,18 @@ describe("ProcessCallbacks", function() {
 			processCallbacks.message({});
 
 			process.send.callCount.should.equal(0);
+
+			done();
+		});
+
+		it("should delegate to message handler", function(done) {
+			processCallbacks._messageHandler = {
+				"foo:bar": sinon.stub()
+			};
+
+			processCallbacks.message({type: "foo:bar"});
+
+			processCallbacks._messageHandler["foo:bar"].callCount.should.equal(1);
 
 			done();
 		});
