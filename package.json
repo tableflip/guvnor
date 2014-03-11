@@ -1,5 +1,6 @@
 {
   "name": "process-boss",
+  "description": "A node process manager that isn't spanners all the way down",
   "version": "1.0.0",
   "prefer-global": true,
   "scripts": {
