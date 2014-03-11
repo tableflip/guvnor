@@ -4,7 +4,8 @@ var stubs = {
 		this.once = function(event, func) {
 			func();
 		}
-	}
+	},
+	usage: {}
 };
 
 var should = require("should"),
@@ -62,7 +63,7 @@ describe("ProcessWrapper", function() {
 			process.send.callCount.should.equal(1);
 
 			var event = process.send.getCall(0).args[0];
-			event.type.should.equal("uncaughtException");
+			event.type.should.equal("process:uncaughtexception");
 
 			done();
 		});
@@ -77,11 +78,11 @@ describe("ProcessWrapper", function() {
 			var ProcessWrapper = proxyquire(path.resolve(__dirname, "../lib/ProcessWrapper"), stubs);
 			var processWrapper = new ProcessWrapper();
 
-			processWrapper._onMessage();
+			process.emit("message");
 
 			process.send.callCount.should.equal(0);
 
-			processWrapper._onMessage({});
+			process.emit("message", {});
 
 			process.send.callCount.should.equal(0);
 
@@ -91,13 +92,35 @@ describe("ProcessWrapper", function() {
 		it("should delegate to message handler", function(done) {
 			var ProcessWrapper = proxyquire(path.resolve(__dirname, "../lib/ProcessWrapper"), stubs);
 			var processWrapper = new ProcessWrapper();
-			processWrapper._messageHandler = {
-				"foo:bar": sinon.stub()
-			};
+			processWrapper["foo:bar"] = sinon.stub();
 
-			processWrapper._onMessage({type: "foo:bar"});
+			process.emit("message", {type: "foo:bar"});
 
-			processWrapper._messageHandler["foo:bar"].callCount.should.equal(1);
+			processWrapper["foo:bar"].callCount.should.equal(1);
+
+			done();
+		});
+	});
+
+	describe("boss:status", function() {
+		it("should return process status", function(done) {
+			process.send = sinon.stub();
+			process.listeners = sinon.stub();
+			process.listeners.withArgs("message").returns([{}, {}]);
+
+			stubs.usage.lookup = sinon.stub();
+			stubs.usage.lookup.callsArgWith(2, null, {cpu: 10});
+
+			var ProcessWrapper = proxyquire(path.resolve(__dirname, "../lib/ProcessWrapper"), stubs);
+			var processWrapper = new ProcessWrapper();
+
+			processWrapper["boss:status"]({type: "boss:status"});
+
+			process.send.callCount.should.equal(1);
+
+			var event = process.send.getCall(0).args[0];
+			event.type.should.equal("process:status");
+			event.status.usage.cpu.should.equal(10);
 
 			done();
 		});
