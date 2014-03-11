@@ -46,4 +46,60 @@ describe("ProcessWrapper", function() {
 
 		done();
 	});
+
+	describe("_onUncaughtException", function() {
+		it("should notify of uncaught exceptions", function(done) {
+			process.send = sinon.stub();
+
+			process.listeners = sinon.stub();
+			process.listeners.withArgs("uncaughtException").returns([{}, {}]);
+
+			var ProcessWrapper = proxyquire(path.resolve(__dirname, "../lib/ProcessWrapper"), stubs);
+			var processWrapper = new ProcessWrapper();
+
+			processWrapper._onUncaughtException({});
+
+			process.send.callCount.should.equal(1);
+
+			var event = process.send.getCall(0).args[0];
+			event.type.should.equal("uncaughtException");
+
+			done();
+		});
+	});
+
+	describe("_onMessage", function() {
+		it("should survive bad messages", function(done) {
+			process.send = sinon.stub();
+			process.listeners = sinon.stub();
+			process.listeners.withArgs("message").returns([{}, {}]);
+
+			var ProcessWrapper = proxyquire(path.resolve(__dirname, "../lib/ProcessWrapper"), stubs);
+			var processWrapper = new ProcessWrapper();
+
+			processWrapper._onMessage();
+
+			process.send.callCount.should.equal(0);
+
+			processWrapper._onMessage({});
+
+			process.send.callCount.should.equal(0);
+
+			done();
+		});
+
+		it("should delegate to message handler", function(done) {
+			var ProcessWrapper = proxyquire(path.resolve(__dirname, "../lib/ProcessWrapper"), stubs);
+			var processWrapper = new ProcessWrapper();
+			processWrapper._messageHandler = {
+				"foo:bar": sinon.stub()
+			};
+
+			processWrapper._onMessage({type: "foo:bar"});
+
+			processWrapper._messageHandler["foo:bar"].callCount.should.equal(1);
+
+			done();
+		});
+	});
 })
