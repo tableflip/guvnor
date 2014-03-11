@@ -32,6 +32,36 @@ describe("ProcessWrapper", function() {
 		done();
 	});
 
+	it("should switch process uid to process.env.BOSS_RUN_AS_USER", function(done) {
+		var uid = "blah";
+
+		process.env.BOSS_RUN_AS_USER = uid;
+		process.setuid = sinon.stub();
+
+		var ProcessWrapper = proxyquire(path.resolve(__dirname, "../lib/ProcessWrapper"), stubs);
+		new ProcessWrapper();
+
+		process.setuid.callCount.should.equal(1);
+		process.setuid.calledWith(uid).should.be.true;
+
+		done();
+	});
+
+	it("should switch process gid to process.env.BOSS_RUN_AS_GROUP", function(done) {
+		var gid = "blah";
+
+		process.env.BOSS_RUN_AS_GROUP = gid;
+		process.setgid = sinon.stub();
+
+		var ProcessWrapper = proxyquire(path.resolve(__dirname, "../lib/ProcessWrapper"), stubs);
+		new ProcessWrapper();
+
+		process.setgid.callCount.should.equal(1);
+		process.setgid.calledWith(gid).should.be.true;
+
+		done();
+	});
+
 	it("should remove boss properties from the environment", function(done) {
 		stubs.path.resolve = sinon.stub();
 		stubs.path.resolve.returns("/dev/null");
