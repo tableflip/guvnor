@@ -1,6 +1,6 @@
 {
   "name": "process-boss",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "prefer-global": true,
   "scripts": {
     "test": "istanbul cover _mocha",
