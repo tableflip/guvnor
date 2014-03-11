@@ -34,7 +34,7 @@ Start a new process.
 #### args
 
 - `-u` `--user` The user to start a process as
-- `-g` `--group` The user to start a process as
+- `-g` `--group` The group to start a process as
 
 ### stop
 
