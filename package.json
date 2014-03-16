@@ -3,6 +3,14 @@
   "description": "A node process manager that isn't spanners all the way down",
   "version": "1.0.0",
   "prefer-global": true,
+  "homepage": "https://github.com/tableflip/boss",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/tableflip/boss.git"
+  },
+  "bugs": {
+    "url": "https://github.com/tableflip/boss/issues"
+  },
   "scripts": {
     "test": "istanbul cover _mocha",
     "coveralls": "istanbul cover _mocha && cat ./coverage/lcov.info | coveralls"
@@ -16,7 +24,8 @@
     "async": "^0.2",
     "file": "^0.2",
     "usage": "^0.3",
-    "userid": "^0.1.1"
+    "userid": "^0.1.1",
+    "etc-passwd": "^0.1.1"
   },
   "devDependencies": {
     "mocha": "^1.0",
