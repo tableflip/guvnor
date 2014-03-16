@@ -34,15 +34,43 @@ describe("ProcessWrapper", function() {
 
 	it("should switch process uid to process.env.BOSS_RUN_AS_USER", function(done) {
 		var uid = "blah";
+		var gid = 503;
 
 		process.env.BOSS_RUN_AS_USER = uid;
 		process.setuid = sinon.stub();
+		process.setgroups = sinon.stub();
+		process.getgid = function() {
+			return gid;
+		};
+		process.initgroups = sinon.stub();
 
 		var ProcessWrapper = proxyquire(path.resolve(__dirname, "../lib/ProcessWrapper"), stubs);
 		new ProcessWrapper();
 
 		process.setuid.callCount.should.equal(1);
 		process.setuid.calledWith(uid).should.be.true;
+
+		done();
+	});
+
+	it("should switch process supplementary groups to groups process.env.BOSS_RUN_AS_USER belongs to", function(done) {
+		var uid = "blah";
+		var gid = 503
+
+		process.env.BOSS_RUN_AS_USER = uid;
+		process.setuid = sinon.stub();
+		process.setgroups = sinon.stub();
+		process.getgid = function() {
+			return gid;
+		};
+		process.initgroups = sinon.stub();
+
+		var ProcessWrapper = proxyquire(path.resolve(__dirname, "../lib/ProcessWrapper"), stubs);
+		new ProcessWrapper();
+
+		process.setuid.callCount.should.equal(1);
+		process.setuid.calledWith(uid).should.be.true;
+		process.initgroups.calledWith(uid, gid).should.be.true;
 
 		done();
 	});
