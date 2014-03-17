@@ -131,5 +131,21 @@ describe("BossRPC", function() {
 
 			done();
 		});
+
+		it("should not find a non existent process by pid", function(done) {
+			var processes = [];
+			var numProcesses = Math.floor(Math.random() * 20);
+
+			for(var i = 0; i < numProcesses; i++) {
+				processes.push({pid: Math.floor(Math.random() * 138)});
+			}
+
+			var instance = {_processes: processes};
+			var proc = BossRPC.prototype._findProcess.call(instance, 1138);
+
+			should.not.exists(proc);
+
+			done();
+		});
 	});
 });
