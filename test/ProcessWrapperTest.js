@@ -39,9 +39,7 @@ describe("ProcessWrapper", function() {
 		process.env.BOSS_RUN_AS_USER = uid;
 		process.setuid = sinon.stub();
 		process.setgroups = sinon.stub();
-		process.getgid = function() {
-			return gid;
-		};
+		process.getgid = sinon.stub().returns(gid);
 		process.initgroups = sinon.stub();
 
 		var ProcessWrapper = proxyquire(path.resolve(__dirname, "../lib/ProcessWrapper"), stubs);
