@@ -13,7 +13,7 @@
   },
   "scripts": {
     "test": "istanbul cover _mocha",
-    "coveralls": "istanbul cover _mocha && cat ./coverage/lcov.info | coveralls"
+    "coveralls": "cat ./coverage/lcov.info | coveralls"
   },
   "dependencies": {
     "commander": "^2.0",
