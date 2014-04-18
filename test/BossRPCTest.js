@@ -175,4 +175,23 @@ describe("BossRPC", function() {
 			done();
 		});
 	});
+
+	describe("stopProcess", function() {
+		it("should stop a processs when called", function(done) {
+			var BossRPC = proxyquire("../lib/BossRPC", {});
+			var mockProcess = {kill: sinon.stub()}
+
+			// Create new BossRPC
+			var boss = new BossRPC();
+
+			// Load her up
+			boss._processes = [new ProcessInfo("mock-process.js", mockProcess)];
+
+			boss.stopProcess(0, {}, function () {
+				mockProcess.kill.calledOnce.should.be.true;
+				Object.keys(boss._processes).length.should.equal(0);
+				done();
+			});
+		});
+	});
 });
