@@ -21,7 +21,7 @@
     "rc": "^0.3",
     "dnode": "^1.0",
     "wildemitter": "^1.0",
-    "async": "^0.2",
+    "async": "^0.7.0",
     "file": "^0.2",
     "usage": "^0.3",
     "userid": "^0.1.1",
@@ -33,7 +33,7 @@
     "sinon": "^1.8",
     "istanbul": "^0.2",
     "coveralls": "^2.8",
-    "proxyquire": "^0.5"
+    "proxyquire": "^0.6.0"
   },
   "bin": {
     "bs": "bin/bs"
