@@ -2,7 +2,8 @@ var should = require("should"),
 	sinon = require("sinon"),
 	inherits = require("util").inherits,
 	EventEmitter = require("events").EventEmitter,
-	proxyquire = require("proxyquire");
+	proxyquire = require("proxyquire"),
+	ProcessInfo = require("../lib/ProcessInfo");
 
 describe("BossRPC", function() {
 	describe("listProcesses", function() {
@@ -55,7 +56,7 @@ describe("BossRPC", function() {
 
 			// Create new process mocks
 			for (var i = 0; i < numProcesses; i++) {
-				processes.push(mockProcess());
+				processes.push(new ProcessInfo("mock-process-" + i + ".js", mockProcess()));
 			}
 
 			// Create new BossRPC
@@ -111,7 +112,7 @@ describe("BossRPC", function() {
 
 			// Create new process mocks
 			for (var i = 0; i < numProcesses; i++) {
-				processes.push(mockProcess());
+				processes.push(new ProcessInfo("mock-process-" + i + ".js", mockProcess()));
 			}
 
 			// Create new BossRPC
