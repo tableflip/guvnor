@@ -24,7 +24,8 @@
     "async": "^0.2",
     "file": "^0.2",
     "usage": "^0.3",
-    "userid": "^0.1.1"
+    "userid": "^0.1.1",
+    "extend": "^1.2.1"
   },
   "devDependencies": {
     "mocha": "^1.0",
