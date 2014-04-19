@@ -35,6 +35,7 @@ Start a new process.
 
 - `-u` `--user` The user to start a process as
 - `-g` `--group` The group to start a process as
+- `-n` `--name` A name for the process
 
 ### stop
 
