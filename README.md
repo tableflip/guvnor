@@ -52,6 +52,23 @@ bs kill
 
 Stop all processes and kill the daemon.
 
+Configure
+---
+
+Boss uses [rc](https://www.npmjs.org/package/rc) so it looks for configuration files in [sensible places](https://github.com/dominictarr/rc#standards). The default configuration file looks like:
+
+```
+[boss]
+	socket = /var/run/boss/bs
+	infolog = /var/log/boss/boss-info.log
+	errorlog = /var/log/boss/boss-error.log
+
+[logging]
+	directory = /var/log/boss
+```
+
+It means that the user/group you run boss as much have write access to `/var/run` and `/var/log`.
+
 * * *
 
 Discuss: [gitter.im/tableflip/boss](https://gitter.im/tableflip/boss)
