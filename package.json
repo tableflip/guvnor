@@ -25,8 +25,7 @@
     "tmp": "0.0.23",
     "usage": "^0.3",
     "userid": "^0.1.1",
-    "wantsit": "^1.0",
-    "wildemitter": "^1.0"
+    "wantsit": "^1.0"
   },
   "devDependencies": {
     "mocha": "^1.0",
