@@ -16,16 +16,17 @@
     "coveralls": "cat ./coverage/lcov.info | coveralls"
   },
   "dependencies": {
-    "commander": "^2.0",
-    "wantsit": "^1.0",
-    "rc": "^0.3",
-    "dnode": "^1.0",
-    "wildemitter": "^1.0",
     "async": "^0.7.0",
+    "commander": "^2.0",
+    "dnode": "^1.0",
+    "extend": "^1.2.1",
     "file": "^0.2",
+    "rc": "^0.3",
+    "tmp": "0.0.23",
     "usage": "^0.3",
     "userid": "^0.1.1",
-    "extend": "^1.2.1"
+    "wantsit": "^1.0",
+    "wildemitter": "^1.0"
   },
   "devDependencies": {
     "mocha": "^1.0",
