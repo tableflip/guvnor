@@ -5,6 +5,15 @@ boss [![Build Status](https://travis-ci.org/tableflip/boss.svg)](https://travis-
 
 A node process manager that isn't spanners all the way down.
 
+
+Features
+---
+* Monitoring in console
+* Configure user/group to run processes as
+* Auto process restart on crash
+* Log redirection to per process out/err files
+
+
 Install
 ---
 
@@ -52,6 +61,7 @@ bs kill
 ```
 
 Stop all processes and kill the daemon.
+
 
 Configure
 ---

@@ -37,5 +37,23 @@
   },
   "bin": {
     "bs": "bin/bs"
-  }
+  },
+  "keywords": [
+    "node",
+    "process",
+    "manager",
+    "monitor",
+    "runner",
+    "auto restart",
+    "cluster",
+    "clustering",
+    "pid",
+    "user",
+    "uid",
+    "group",
+    "gid",
+    "uptime",
+    "memory",
+    "cpu"
+  ]
 }
