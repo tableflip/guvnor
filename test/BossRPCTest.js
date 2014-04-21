@@ -7,7 +7,7 @@ var should = require("should"),
 
 describe("BossRPC", function() {
 	describe("listProcesses", function() {
-		it("should return a list of running processes", function (done) {
+		it("should return a list of running processes", function(done) {
 			var BossRPC = proxyquire("../lib/BossRPC", {});
 
 			function mockProcess() {
@@ -171,6 +171,42 @@ describe("BossRPC", function() {
 			forkStub.calledTwice.should.be.true;
 
 			mockProcess1.emit("message", {type: "process:ready"});
+
+			done();
+		});
+
+		it("should propogate environment variables to started processes", function(done) {
+			function MockProcess() {
+				this.pid = Math.floor(Math.random() * 1000)
+			}
+			inherits(MockProcess, EventEmitter);
+
+			MockProcess.prototype.kill = sinon.stub();
+
+			var mockProcess = new MockProcess();
+
+			var forkStub = sinon.stub();
+
+			forkStub.returns(mockProcess);
+
+			var env = {FOO: "BAR"}
+
+			var BossRPC = proxyquire("../lib/BossRPC", {
+				child_process: {
+					fork: forkStub
+				}
+			});
+
+			var boss = new BossRPC();
+			boss._config = {logging: {directory: "/log"}};
+
+			// Start a process
+			boss.startProcess(__filename, {env: env}, function () {});
+
+			forkStub.calledOnce.should.be.true;
+
+			// The second param should be fork options, which should contain an env property
+			forkStub.args[0][1].env.FOO.should.be.equal(env.FOO);
 
 			done();
 		});
