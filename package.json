@@ -22,18 +22,18 @@
     "extend": "^1.2.1",
     "file": "^0.2",
     "rc": "^0.3",
-    "tmp": "0.0.23",
     "usage": "^0.3",
     "userid": "^0.1.1",
     "wantsit": "^1.0"
   },
   "devDependencies": {
+    "coveralls": "^2.8",
+    "istanbul": "^0.2",
     "mocha": "^1.0",
+    "proxyquire": "^0.6.0",
     "should": "^3.1",
     "sinon": "^1.8",
-    "istanbul": "^0.2",
-    "coveralls": "^2.8",
-    "proxyquire": "^0.6.0"
+    "tmp": "0.0.23"
   },
   "bin": {
     "bs": "bin/bs"
