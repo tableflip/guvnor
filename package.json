@@ -37,7 +37,8 @@
     "tmp": "^0.0"
   },
   "bin": {
-    "bs": "bin/bs"
+    "bs": "bin/bs",
+    "boss": "bin/bs"
   },
   "keywords": [
     "node",
