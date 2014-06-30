@@ -24,7 +24,8 @@
     "rc": "^0.4",
     "usage": "^0.4",
     "userid": "^0.1",
-    "wantsit": "^1.0"
+    "wantsit": "^1.0",
+    "winston": "^0.7"
   },
   "devDependencies": {
     "coveralls": "^2.8",
