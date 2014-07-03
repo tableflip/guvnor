@@ -1,6 +1,4 @@
 [boss]
-	logdir = /var/log/boss
-	rundir = /var/run/boss
-
-[logging]
-	directory = /var/log/boss
+  group = 20
+  logdir = /var/log/boss
+  rundir = /var/run/boss

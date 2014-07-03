@@ -6,6 +6,8 @@ var should = require('should'),
   ProcessInfo = require('../lib/boss/ProcessInfo')
 
 describe('Boss', function() {
+  var fileSystemStub = {findOrCreateLogFileDirectory: sinon.stub()}
+
   describe('listProcesses', function() {
     it('should return a list of running processes', function(done) {
       var Boss = proxyquire('../lib/boss/Boss', {})
@@ -56,7 +58,7 @@ describe('Boss', function() {
 
       // Create new process mocks
       for (var i = 0; i < numProcesses; i++) {
-        processes.push(new ProcessInfo('mock-process-' + i + '.js', mockProcess(), {name: 'mock-process-' + i + '.js'}, {findLogFile: sinon.stub()}))
+        processes.push(new ProcessInfo('mock-process-' + i + '.js', mockProcess(), {name: 'mock-process-' + i + '.js'}, fileSystemStub))
       }
 
       // Create new Boss
@@ -119,7 +121,7 @@ describe('Boss', function() {
 
       // Create new process mocks
       for (var i = 0; i < numProcesses; i++) {
-        processes.push(new ProcessInfo('mock-process-' + i + '.js', mockProcess(), {name: 'mock-process-' + i + '.js'}, {findLogFile: sinon.stub()}))
+        processes.push(new ProcessInfo('mock-process-' + i + '.js', mockProcess(), {name: 'mock-process-' + i + '.js'}, fileSystemStub))
       }
 
       // Create new Boss
@@ -170,7 +172,7 @@ describe('Boss', function() {
 
       var boss = new Boss()
       boss._config = {logging: {directory: '/log'}}
-      boss._fileSystem = {findLogFile: sinon.stub()}
+      boss._fileSystem = fileSystemStub
       boss._logger = {
         info: sinon.stub(),
         warn: sinon.stub(),
@@ -221,7 +223,7 @@ describe('Boss', function() {
 
       var boss = new Boss()
       boss._config = {logging: {directory: '/log'}}
-      boss._fileSystem = {findLogFile: sinon.stub()}
+      boss._fileSystem = fileSystemStub
       boss._logger = {
         info: sinon.stub(),
         warn: sinon.stub(),
@@ -249,7 +251,7 @@ describe('Boss', function() {
 
       // Create new Boss
       var boss = new Boss()
-      boss._fileSystem = {findLogFile: sinon.stub()}
+      boss._fileSystem = fileSystemStub
       boss._logger = {
         info: sinon.stub(),
         warn: sinon.stub(),
@@ -259,7 +261,7 @@ describe('Boss', function() {
       }
 
       // Load her up
-      boss._processes = [new ProcessInfo('mock-process.js', mockProcess, {name: 'mock-process.js'}, {findLogFile: sinon.stub()})]
+      boss._processes = [new ProcessInfo('mock-process.js', mockProcess, {name: 'mock-process.js'}, fileSystemStub)]
 
       boss.stopProcess(0, {}, function () {
         mockProcess.kill.calledOnce.should.be.true

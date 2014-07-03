@@ -1,12 +1,12 @@
+require('stackup')
+
 var Container = require('wantsit').Container,
   path = require('path'),
-  winston = require('winston'),
-  stackup = require('stackup')
+  winston = require('winston')
 
-var config = require('rc')('boss')
 var container = new Container()
-var fileSystem = container.createAndRegister('fileSystem', require('./lib/common/FileSystem'))
-fileSystem.findLogFile('boss.log', function(error, logFile) {
+container.register('config', require('rc')('boss', path.resolve(__dirname, '.bossrc')))
+container.createAndRegister('fileSystem', require('./lib/common/FileSystem')).findOrCreateLogFileDirectory(function(error, logFileDirectory) {
   if(error) throw error
 
   container.register('logger', new winston.Logger({
@@ -15,18 +15,23 @@ fileSystem.findLogFile('boss.log', function(error, logFile) {
         colorize: true
       }),
       new winston.transports.DailyRotateFile({
-        filename: logFile
+        filename: logFileDirectory + '/boss.log'
       })
     ]
   }))
-  container.register('config', config)
   container.createAndRegister('remoteProcess', require('./lib/boss/RemoteProcess'))
   container.createAndRegister('boss', require('./lib/boss/Boss'))
   container.createAndRegister('bossRpc', require('./lib/boss/BossRPC'))
 })
 
 process.on('uncaughtException', function(error) {
-  container.find('logger').error('uncaughtException ' + error)
+  var message = error
+
+  if(error.stack) {
+    message = error.stack
+  }
+
+  container.find('remoteProcess').send({type: 'daemon:fatality', message: message})
 
   process.exit(1)
 })

@@ -1,3 +1,5 @@
+require('stackup')
+
 var Container = require('wantsit').Container,
   winston = require('winston'),
   path = require('path')
@@ -17,7 +19,13 @@ container.createAndRegister('boss', require('./lib/cli/BossDaemonStarter'))
 container.createAndRegister('fileSystem', require('./lib/common/FileSystem'))
 
 process.on('uncaughtException', function(error) {
-  container.find('logger').error('uncaughtException ' + error)
+  var logger = container.find('logger')
+
+  if(error && error.stack) {
+    logger.error(error.stack)
+  } else {
+    logger.error('Uncaught exception: ' + error)
+  }
 
   process.exit(1)
 })

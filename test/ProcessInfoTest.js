@@ -3,10 +3,12 @@ var should = require('should'),
   ProcessInfo = require('../lib/boss/ProcessInfo')
 
 describe('ProcessInfo', function() {
+  var fileSystemStub = {findOrCreateLogFileDirectory: sinon.stub()}
+
   it('should recover the process after crash recovery period', function(done) {
     var processInfo = new ProcessInfo('test.js', sinon.stub(), {
       crashRecoveryPeriod: 500
-    }, {findLogFile: sinon.stub()})
+    }, fileSystemStub)
     processInfo._logger = {
       info: sinon.stub(),
       warn: sinon.stub(),

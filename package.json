@@ -26,7 +26,8 @@
     "userid": "^0.1",
     "wantsit": "^1.0",
     "winston": "^0.7",
-    "stackup": "^0.0"
+    "stackup": "^0.0",
+    "heapdump": "^0.2"
   },
   "devDependencies": {
     "coveralls": "^2.8",
