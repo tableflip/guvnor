@@ -1,17 +1,23 @@
 var Container = require('wantsit').Container,
-  path = require('path'),
-  winston = require('winston')
-
-var config = require('rc')('boss', path.resolve(__dirname, '.bossrc'))
+  winston = require('winston'),
+  path = require('path')
 
 var container = new Container()
-container.register('config', config)
+container.register('config', require('rc')('boss', path.resolve(__dirname, '.bossrc')))
 container.register('logger', new winston.Logger({
   transports: [
     new winston.transports.Console({
-      colorize: true
+      colorize: true,
+      level: 'warn'
     })
   ]
 }))
-container.createAndRegister('cli', require('./lib/CLI'))
-container.createAndRegister('boss', require('./lib/DaemonStarter'), config.boss.socket, path.resolve(__dirname, 'boss.js'))
+container.createAndRegister('cli', require('./lib/cli/CLI'))
+container.createAndRegister('boss', require('./lib/cli/BossDaemonStarter'))
+container.createAndRegister('fileSystem', require('./lib/common/FileSystem'))
+
+process.on('uncaughtException', function(error) {
+  container.find('logger').error('uncaughtException ' + error)
+
+  process.exit(1)
+})

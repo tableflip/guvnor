@@ -1,7 +1,6 @@
 [boss]
-	socket = /var/run/boss/bs
-	infolog = /var/log/boss/boss-info.log
-	errorlog = /var/log/boss/boss-error.log
+	logdir = /var/log/boss
+	rundir = /var/run/boss
 
 [logging]
 	directory = /var/log/boss

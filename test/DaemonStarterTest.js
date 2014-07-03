@@ -6,7 +6,7 @@ var should = require('should'),
   sinon = require('sinon'),
   path = require('path'),
   proxyquire = require('proxyquire'),
-  DaemonStarter = proxyquire(path.resolve(__dirname, '../lib/DaemonStarter'), stubs)
+  DaemonStarter = proxyquire(path.resolve(__dirname, '../lib/cli/DaemonStarter'), stubs)
 
 var daemonStarter = new DaemonStarter()
 

@@ -1,12 +1,19 @@
 var should = require('should'),
   sinon = require('sinon'),
-  ProcessInfo = require('../lib/ProcessInfo')
+  ProcessInfo = require('../lib/boss/ProcessInfo')
 
 describe('ProcessInfo', function() {
   it('should recover the process after crash recovery period', function(done) {
     var processInfo = new ProcessInfo('test.js', sinon.stub(), {
       crashRecoveryPeriod: 500
-    })
+    }, {findLogFile: sinon.stub()})
+    processInfo._logger = {
+      info: sinon.stub(),
+      warn: sinon.stub(),
+      error: sinon.stub(),
+      debug: sinon.stub(),
+      log: sinon.stub()
+    }
 
     processInfo.restarts.should.equal(0)
     processInfo.totalRestarts.should.equal(0)

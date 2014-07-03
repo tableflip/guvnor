@@ -3,12 +3,12 @@ var should = require('should'),
   inherits = require('util').inherits,
   EventEmitter = require('events').EventEmitter,
   proxyquire = require('proxyquire'),
-  ProcessInfo = require('../lib/ProcessInfo')
+  ProcessInfo = require('../lib/boss/ProcessInfo')
 
-describe('BossRPC', function() {
+describe('Boss', function() {
   describe('listProcesses', function() {
     it('should return a list of running processes', function(done) {
-      var BossRPC = proxyquire('../lib/BossRPC', {})
+      var Boss = proxyquire('../lib/boss/Boss', {})
 
       function mockProcess() {
         var proc = {
@@ -56,11 +56,11 @@ describe('BossRPC', function() {
 
       // Create new process mocks
       for (var i = 0; i < numProcesses; i++) {
-        processes.push(new ProcessInfo('mock-process-' + i + '.js', mockProcess()))
+        processes.push(new ProcessInfo('mock-process-' + i + '.js', mockProcess(), {name: 'mock-process-' + i + '.js'}, {findLogFile: sinon.stub()}))
       }
 
-      // Create new BossRPC
-      var boss = new BossRPC()
+      // Create new Boss
+      var boss = new Boss()
       boss._logger = {
         info: sinon.stub(),
         warn: sinon.stub(),
@@ -83,7 +83,7 @@ describe('BossRPC', function() {
     it('should return a list of running processes, even if a process doesn\'t reply', function (done) {
       this.timeout(10000)
 
-      var BossRPC = proxyquire('../lib/BossRPC', {})
+      var Boss = proxyquire('../lib/boss/Boss', {})
 
       function mockProcess() {
         var proc = {
@@ -119,11 +119,11 @@ describe('BossRPC', function() {
 
       // Create new process mocks
       for (var i = 0; i < numProcesses; i++) {
-        processes.push(new ProcessInfo('mock-process-' + i + '.js', mockProcess()))
+        processes.push(new ProcessInfo('mock-process-' + i + '.js', mockProcess(), {name: 'mock-process-' + i + '.js'}, {findLogFile: sinon.stub()}))
       }
 
-      // Create new BossRPC
-      var boss = new BossRPC()
+      // Create new Boss
+      var boss = new Boss()
 
       // Load her up
       boss._processes = processes
@@ -162,14 +162,15 @@ describe('BossRPC', function() {
 
       forkStub.onFirstCall().returns(mockProcess0).onSecondCall().returns(mockProcess1)
 
-      var BossRPC = proxyquire('../lib/BossRPC', {
+      var Boss = proxyquire('../lib/boss/Boss', {
         child_process: {
           fork: forkStub
         }
       })
 
-      var boss = new BossRPC()
+      var boss = new Boss()
       boss._config = {logging: {directory: '/log'}}
+      boss._fileSystem = {findLogFile: sinon.stub()}
       boss._logger = {
         info: sinon.stub(),
         warn: sinon.stub(),
@@ -212,14 +213,15 @@ describe('BossRPC', function() {
 
       var env = {FOO: 'BAR'}
 
-      var BossRPC = proxyquire('../lib/BossRPC', {
+      var Boss = proxyquire('../lib/boss/Boss', {
         child_process: {
           fork: forkStub
         }
       })
 
-      var boss = new BossRPC()
+      var boss = new Boss()
       boss._config = {logging: {directory: '/log'}}
+      boss._fileSystem = {findLogFile: sinon.stub()}
       boss._logger = {
         info: sinon.stub(),
         warn: sinon.stub(),
@@ -242,11 +244,12 @@ describe('BossRPC', function() {
 
   describe('stopProcess', function() {
     it('should stop a processs when called', function(done) {
-      var BossRPC = proxyquire('../lib/BossRPC', {})
+      var Boss = proxyquire('../lib/boss/Boss', {})
       var mockProcess = {kill: sinon.stub()}
 
-      // Create new BossRPC
-      var boss = new BossRPC()
+      // Create new Boss
+      var boss = new Boss()
+      boss._fileSystem = {findLogFile: sinon.stub()}
       boss._logger = {
         info: sinon.stub(),
         warn: sinon.stub(),
@@ -256,7 +259,7 @@ describe('BossRPC', function() {
       }
 
       // Load her up
-      boss._processes = [new ProcessInfo('mock-process.js', mockProcess)]
+      boss._processes = [new ProcessInfo('mock-process.js', mockProcess, {name: 'mock-process.js'}, {findLogFile: sinon.stub()})]
 
       boss.stopProcess(0, {}, function () {
         mockProcess.kill.calledOnce.should.be.true

@@ -1,10 +1,5 @@
 var stubs = {
   path: {},
-  './LogRedirector': function() {
-    this.once = function(event, func) {
-      func()
-    }
-  },
   usage: {}
 }
 
@@ -14,6 +9,19 @@ var should = require('should'),
   proxyquire = require('proxyquire')
 
 describe('ProcessWrapper', function() {
+  var stderr, stdout
+
+  before(function() {
+    stderr =  process.stderr.write
+    stdout =  process.stdout.write
+  })
+
+  // ProcessWrapper has the side effects of overriding stderr and stdout so restore them after every test
+  afterEach(function() {
+    process.stderr.write = stderr
+    process.stdout.write = stdout
+  })
+
   it('should set the process title', function(done) {
     var processTitle = 'blah'
 
@@ -24,7 +32,7 @@ describe('ProcessWrapper', function() {
     process.nextTick = function(){}
     process.send = function(){}
 
-    var ProcessWrapper = proxyquire(path.resolve(__dirname, '../lib/ProcessWrapper'), stubs)
+    var ProcessWrapper = proxyquire(path.resolve(__dirname, '../lib/boss/ProcessWrapper'), stubs)
     new ProcessWrapper()
 
     process.title.should.equal(processTitle)
@@ -42,7 +50,7 @@ describe('ProcessWrapper', function() {
     process.getgid = sinon.stub().returns(gid)
     process.initgroups = sinon.stub()
 
-    var ProcessWrapper = proxyquire(path.resolve(__dirname, '../lib/ProcessWrapper'), stubs)
+    var ProcessWrapper = proxyquire(path.resolve(__dirname, '../lib/boss/ProcessWrapper'), stubs)
     new ProcessWrapper()
 
     process.setuid.callCount.should.equal(1)
@@ -63,7 +71,7 @@ describe('ProcessWrapper', function() {
     }
     process.initgroups = sinon.stub()
 
-    var ProcessWrapper = proxyquire(path.resolve(__dirname, '../lib/ProcessWrapper'), stubs)
+    var ProcessWrapper = proxyquire(path.resolve(__dirname, '../lib/boss/ProcessWrapper'), stubs)
     new ProcessWrapper()
 
     process.setuid.callCount.should.equal(1)
@@ -79,7 +87,7 @@ describe('ProcessWrapper', function() {
     process.env.BOSS_RUN_AS_GROUP = gid
     process.setgid = sinon.stub()
 
-    var ProcessWrapper = proxyquire(path.resolve(__dirname, '../lib/ProcessWrapper'), stubs)
+    var ProcessWrapper = proxyquire(path.resolve(__dirname, '../lib/boss/ProcessWrapper'), stubs)
     new ProcessWrapper()
 
     process.setgid.callCount.should.equal(1)
@@ -96,7 +104,7 @@ describe('ProcessWrapper', function() {
     process.nextTick = function(){}
     process.send = function(){}
 
-    var ProcessWrapper = proxyquire(path.resolve(__dirname, '../lib/ProcessWrapper'), stubs)
+    var ProcessWrapper = proxyquire(path.resolve(__dirname, '../lib/boss/ProcessWrapper'), stubs)
     new ProcessWrapper()
 
     should(process.env.BOSS_TEST_PROPERTY).be.undefined
@@ -111,15 +119,22 @@ describe('ProcessWrapper', function() {
       process.listeners = sinon.stub()
       process.listeners.withArgs('uncaughtException').returns([{}, {}])
 
-      var ProcessWrapper = proxyquire(path.resolve(__dirname, '../lib/ProcessWrapper'), stubs)
+      var ProcessWrapper = proxyquire(path.resolve(__dirname, '../lib/boss/ProcessWrapper'), stubs)
       var processWrapper = new ProcessWrapper()
 
       processWrapper._onUncaughtException({})
 
-      process.send.callCount.should.equal(1)
+      var foundUncaughtExceptionEvent = false;
 
-      var event = process.send.getCall(0).args[0]
-      event.type.should.equal('process:uncaughtexception')
+      for(var i = 0; i < process.send.callCount; i++) {
+        var event = process.send.getCall(i).args[0]
+
+        if(event && event.type && event.type == 'process:uncaughtexception') {
+          foundUncaughtExceptionEvent = true
+        }
+      }
+
+      foundUncaughtExceptionEvent.should.equal(true)
 
       done()
     })
@@ -131,7 +146,7 @@ describe('ProcessWrapper', function() {
       process.listeners = sinon.stub()
       process.listeners.withArgs('message').returns([{}, {}])
 
-      var ProcessWrapper = proxyquire(path.resolve(__dirname, '../lib/ProcessWrapper'), stubs)
+      var ProcessWrapper = proxyquire(path.resolve(__dirname, '../lib/boss/ProcessWrapper'), stubs)
       var processWrapper = new ProcessWrapper()
 
       process.emit('message')
@@ -146,7 +161,7 @@ describe('ProcessWrapper', function() {
     })
 
     it('should delegate to message handler', function(done) {
-      var ProcessWrapper = proxyquire(path.resolve(__dirname, '../lib/ProcessWrapper'), stubs)
+      var ProcessWrapper = proxyquire(path.resolve(__dirname, '../lib/boss/ProcessWrapper'), stubs)
       var processWrapper = new ProcessWrapper()
       processWrapper['foo:bar'] = sinon.stub()
 
@@ -167,7 +182,7 @@ describe('ProcessWrapper', function() {
       stubs.usage.lookup = sinon.stub()
       stubs.usage.lookup.callsArgWith(2, null, {cpu: 10})
 
-      var ProcessWrapper = proxyquire(path.resolve(__dirname, '../lib/ProcessWrapper'), stubs)
+      var ProcessWrapper = proxyquire(path.resolve(__dirname, '../lib/boss/ProcessWrapper'), stubs)
       var processWrapper = new ProcessWrapper()
 
       processWrapper['boss:status']({type: 'boss:status'})
