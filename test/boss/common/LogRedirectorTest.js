@@ -1,7 +1,7 @@
 var should = require('should'),
   sinon = require('sinon'),
   path = require('path'),
-  LogRedirector = require('../../../lib/boss/process/LogRedirector')
+  LogRedirector = require('../../../lib/boss/common/LogRedirector')
 
 describe('LogRedirector', function() {
   var stderr, stdout

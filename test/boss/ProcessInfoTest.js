@@ -1,6 +1,6 @@
 var should = require('should'),
   sinon = require('sinon'),
-  ProcessInfo = require('../lib/boss/ProcessInfo')
+  ProcessInfo = require('../../lib/boss/ProcessInfo')
 
 describe('ProcessInfo', function() {
   var fileSystemStub = {findOrCreateLogFileDirectory: sinon.stub()}

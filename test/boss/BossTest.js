@@ -3,14 +3,14 @@ var should = require('should'),
   inherits = require('util').inherits,
   EventEmitter = require('events').EventEmitter,
   proxyquire = require('proxyquire'),
-  ProcessInfo = require('../lib/boss/ProcessInfo')
+  ProcessInfo = require('../../lib/boss/ProcessInfo')
 
 describe('Boss', function() {
   var fileSystemStub = {findOrCreateLogFileDirectory: sinon.stub()}
 
   describe('listProcesses', function() {
     it('should return a list of running processes', function(done) {
-      var Boss = proxyquire('../lib/boss/Boss', {})
+      var Boss = proxyquire('../../lib/boss/Boss', {})
 
       function mockProcess() {
         var proc = {
@@ -85,7 +85,7 @@ describe('Boss', function() {
     it('should return a list of running processes, even if a process doesn\'t reply', function (done) {
       this.timeout(10000)
 
-      var Boss = proxyquire('../lib/boss/Boss', {})
+      var Boss = proxyquire('../../lib/boss/Boss', {})
 
       function mockProcess() {
         var proc = {
@@ -164,7 +164,7 @@ describe('Boss', function() {
 
       forkStub.onFirstCall().returns(mockProcess0).onSecondCall().returns(mockProcess1)
 
-      var Boss = proxyquire('../lib/boss/Boss', {
+      var Boss = proxyquire('../../lib/boss/Boss', {
         child_process: {
           fork: forkStub
         }
@@ -215,7 +215,7 @@ describe('Boss', function() {
 
       var env = {FOO: 'BAR'}
 
-      var Boss = proxyquire('../lib/boss/Boss', {
+      var Boss = proxyquire('../../lib/boss/Boss', {
         child_process: {
           fork: forkStub
         }

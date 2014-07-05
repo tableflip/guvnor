@@ -1,7 +1,7 @@
 var should = require('should'),
   sinon = require('sinon'),
   path = require('path'),
-  ExceptionHandler = require('../../../lib/boss/process/ExceptionHandler')
+  ExceptionHandler = require('../../../lib/boss/common/ExceptionHandler')
 
 var loggerStub = {
   info: sinon.stub(),

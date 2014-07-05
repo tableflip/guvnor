@@ -1,36 +1,36 @@
 var should = require('should'),
   sinon = require('sinon'),
   path = require('path'),
-  MessageResponder = require('../../../lib/boss/process/MessageResponder')
+  MessageHandler = require('../../../lib/boss/process/MessageHandler')
 
-describe('MessageResponder', function() {
-  var messageResponder
+describe('MessageHandler', function() {
+  var messageHandler
 
   beforeEach(function() {
-    messageResponder = new MessageResponder()
-    messageResponder._parentProcess = {
+    messageHandler = new MessageHandler()
+    messageHandler._parentProcess = {
       on: sinon.stub(),
       send: sinon.stub()
     }
-    messageResponder._usage = {
+    messageHandler._usage = {
       lookup: sinon.stub()
     }
   })
 
   it('should respond to status request', function() {
     var cpu = 101
-    messageResponder._usage.lookup.callsArgWith(2, null, {cpu: cpu})
+    messageHandler._usage.lookup.callsArgWith(2, null, {cpu: cpu})
 
-    messageResponder.afterPropertiesSet()
+    messageHandler.afterPropertiesSet()
 
-    messageResponder._parentProcess.on.callCount.should.equal(1)
-    messageResponder._parentProcess.on.getCall(0).args[0].should.equal('message')
+    messageHandler._parentProcess.on.callCount.should.equal(1)
+    messageHandler._parentProcess.on.getCall(0).args[0].should.equal('message')
 
-    var messageHandler = messageResponder._parentProcess.on.getCall(0).args[1]
-    messageHandler({type: 'boss:status'})
+    var handler = messageHandler._parentProcess.on.getCall(0).args[1]
+    handler({type: 'boss:status'})
 
-    messageResponder._parentProcess.send.callCount.should.equal(1)
-    var event = messageResponder._parentProcess.send.getCall(0).args[0]
+    messageHandler._parentProcess.send.callCount.should.equal(1)
+    var event = messageHandler._parentProcess.send.getCall(0).args[0]
 
     event.type.should.equal('process:status')
 
@@ -39,24 +39,24 @@ describe('MessageResponder', function() {
 
   it('should survive bad messages', function() {
     var cpu = 101
-    messageResponder._usage.lookup.callsArgWith(2, null, {cpu: cpu})
+    messageHandler._usage.lookup.callsArgWith(2, null, {cpu: cpu})
 
-    messageResponder.afterPropertiesSet()
+    messageHandler.afterPropertiesSet()
 
-    messageResponder._parentProcess.on.callCount.should.equal(1)
-    messageResponder._parentProcess.on.getCall(0).args[0].should.equal('message')
+    messageHandler._parentProcess.on.callCount.should.equal(1)
+    messageHandler._parentProcess.on.getCall(0).args[0].should.equal('message')
 
-    var messageHandler = messageResponder._parentProcess.on.getCall(0).args[1]
-    messageHandler()
+    var handler = messageHandler._parentProcess.on.getCall(0).args[1]
+    handler()
 
-    messageResponder._parentProcess.send.callCount.should.equal(0)
+    messageHandler._parentProcess.send.callCount.should.equal(0)
 
-    messageHandler('lol')
+    handler('lol')
 
-    messageResponder._parentProcess.send.callCount.should.equal(0)
+    messageHandler._parentProcess.send.callCount.should.equal(0)
 
-    messageHandler({})
+    handler({})
 
-    messageResponder._parentProcess.send.callCount.should.equal(0)
+    messageHandler._parentProcess.send.callCount.should.equal(0)
   })
 })

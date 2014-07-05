@@ -1,7 +1,7 @@
 var should = require('should'),
   sinon = require('sinon'),
   path = require('path'),
-  KillSwitch = require('../../../lib/boss/process/KillSwitch')
+  KillSwitch = require('../../../lib/boss/common/KillSwitch')
 
 describe('KillSwitch', function() {
 

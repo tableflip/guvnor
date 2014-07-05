@@ -1,7 +1,7 @@
 var should = require('should'),
   sinon = require('sinon'),
   path = require('path'),
-  UserInfo = require('../../../lib/boss/process/UserInfo')
+  UserInfo = require('../../../lib/boss/common/UserInfo')
 
 describe('UserInfo', function() {
   var userInfo

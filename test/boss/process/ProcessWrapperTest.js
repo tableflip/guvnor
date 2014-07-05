@@ -1,7 +1,7 @@
 var should = require('should'),
   sinon = require('sinon'),
   path = require('path'),
-  ProcessWrapper = require('../lib/boss/process/ProcessWrapper')
+  ProcessWrapper = require('../../../lib/boss/process/ProcessWrapper')
 
 describe('ProcessWrapper', function() {
   var processWrapper
