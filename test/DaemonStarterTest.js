@@ -1,5 +1,6 @@
 var stubs = {
-  child_process: {}
+  child_process: {},
+  dnode: {}
 }
 
 var should = require('should'),
@@ -9,6 +10,12 @@ var should = require('should'),
   DaemonStarter = proxyquire(path.resolve(__dirname, '../lib/cli/DaemonStarter'), stubs)
 
 var daemonStarter = new DaemonStarter()
+daemonStarter._logger = {
+  info: sinon.stub(),
+  warn: sinon.stub(),
+  error: sinon.stub(),
+  debug: sinon.stub()
+}
 
 describe('DaemonStarter', function() {
   describe('_startDaemon', function() {
@@ -24,7 +31,17 @@ describe('DaemonStarter', function() {
         return starter
       }
 
-      daemonStarter.on('online', done)
+      daemonStarter.on('ready', done)
+
+      var remote = {
+        on: sinon.stub(),
+        once: sinon.stub(),
+        getApiMethods: sinon.stub()
+      }
+
+      stubs.dnode.connect = function() {
+        return remote
+      }
 
       // the method under test
       daemonStarter._startDaemon()
@@ -35,6 +52,12 @@ describe('DaemonStarter', function() {
       starter.once.callCount.should.equal(1)
       starter.once.getCall(0).args[0].should.equal('message')
       starter.once.getCall(0).args[1]({type: 'daemon:ready'})
+
+      remote.getApiMethods.callsArgWith(0, [])
+
+      remote.once.callCount.should.equal(1)
+      remote.once.getCall(0).args[0].should.equal('remote')
+      remote.once.getCall(0).args[1](remote)
     })
 
     it('should kill the daemon if an error is reported', function(done) {

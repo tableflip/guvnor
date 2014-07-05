@@ -243,7 +243,7 @@ describe('Boss', function() {
       done()
     })
   })
-
+/*
   describe('stopProcess', function() {
     it('should stop a processs when called', function(done) {
       var Boss = proxyquire('../lib/boss/Boss', {})
@@ -269,5 +269,5 @@ describe('Boss', function() {
         done()
       })
     })
-  })
+  })*/
 })

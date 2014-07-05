@@ -5,7 +5,8 @@ var Container = require('wantsit').Container,
   winston = require('winston')
 
 var container = new Container()
-container.register('config', require('rc')('boss', path.resolve(__dirname, '.bossrc')))
+container.register('config', require('rc')('boss', path.resolve(__dirname, 'bossrc')))
+container.register('fs', require('fs'))
 container.createAndRegister('fileSystem', require('./lib/common/FileSystem')).findOrCreateLogFileDirectory(function(error, logFileDirectory) {
   if(error) throw error
 
@@ -19,7 +20,7 @@ container.createAndRegister('fileSystem', require('./lib/common/FileSystem')).fi
       })
     ]
   }))
-  container.createAndRegister('remoteProcess', require('./lib/boss/RemoteProcess'))
+  container.createAndRegister('parentProcess', require('./lib/boss/ParentProcess'))
   container.createAndRegister('boss', require('./lib/boss/Boss'))
   container.createAndRegister('bossRpc', require('./lib/boss/BossRPC'))
 })
@@ -31,7 +32,7 @@ process.on('uncaughtException', function(error) {
     message = error.stack
   }
 
-  container.find('remoteProcess').send({type: 'daemon:fatality', message: message})
+  container.find('parentProcess').send({type: 'daemon:fatality', message: message})
 
   process.exit(1)
 })

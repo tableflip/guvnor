@@ -27,7 +27,8 @@
     "wantsit": "^1.0",
     "winston": "^0.7",
     "stackup": "^0.0",
-    "heapdump": "^0.2"
+    "heapdump": "^0.2",
+    "posix": "^1.0"
   },
   "devDependencies": {
     "coveralls": "^2.8",
@@ -36,7 +37,8 @@
     "proxyquire": "^1.0",
     "should": "^4.0",
     "sinon": "^1.8",
-    "tmp": "^0.0"
+    "tmp": "^0.0",
+    "testsuite": "^1.0"
   },
   "bin": {
     "bs": "bin/bs",

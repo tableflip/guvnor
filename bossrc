@@ -1,4 +1,4 @@
 [boss]
-  group = 20
+  group = staff
   logdir = /var/log/boss
   rundir = /var/run/boss
