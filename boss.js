@@ -20,7 +20,7 @@ container.createAndRegister('fileSystem', require('./lib/common/FileSystem')).fi
       })
     ]
   }))
-  container.createAndRegister('parentProcess', require('./lib/boss/ParentProcess'))
+  container.createAndRegister('parentProcess', require('./lib/boss/common/ParentProcess'))
   container.createAndRegister('boss', require('./lib/boss/Boss'))
   container.createAndRegister('bossRpc', require('./lib/boss/BossRPC'))
 })
