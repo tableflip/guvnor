@@ -1,4 +1,83 @@
 [boss]
+  ; The user the daemon will run as - this user should have sufficient
+  ; privileges to spawn new processes and then drop their privileges to
+  ; that of other users
+  user = root
+
+  ; The group the daemon will run as - if you wish to interact with boss
+  ; you should be in this group
   group = staff
+
+  ; Where boss puts log files. Will be created on first run.
   logdir = /var/log/boss
+
+  ; Where the dnode sockets are stored. Will be created on first run.
   rundir = /var/run/boss
+
+  ; Where remote user configuration is stored - should only be accessible
+  ; to ${boss.user}
+  confdir = /etc/boss
+
+  ; How long we should wait for remote processes to respond
+  timeout = 10000
+
+  ; If true, when boss is killed it will dump process info to
+  ; ${boss.rundir}/processes.json then, the next time it is started, read
+  ; that file in and restart those processes
+  autoresume = true
+
+[remote]
+  ; If true, Boss will start an https server on ${remote.host}:${remote.port}
+  ; to listen for incoming boss-remote connections
+  enabled = true
+
+  ; The port Boss will listen on for incoming boss-remote connections
+  port = 57483
+
+  ; The host Boss will list on for incoming boss-remote connections
+  host = 0.0.0.0
+
+  ; A comma-separated list of domains to accept remote connections from
+  accept = *
+
+  ; Uncomment to specify a certificate used by the remoting server
+  ;certificate = /etc/boss/server.pem
+
+  ; Uncomment to sepecify a key used by the remoting server
+  ;key = /etc/boss/key.pem
+
+  ; Uncomment to specify the password for the key used by the remoting server
+  ;passphrase = foo
+
+[remote.inspector]
+  ; If true, Boss will start an instance of node-inspector in order to debug
+  ; processes running on this host
+  enabled = true
+
+  ; The port to use for the instance of node-inspector
+  port = 0
+
+  ; The host to listen on for the instance of node-inspector
+  host = 0.0.0.0
+
+[debug]
+  ; Three possible options:
+  ;
+  ;   1. boolean - false (default) - the daemon process will run as normal
+  ;   2. boolean - true - the daemon process will choose a random port and
+  ;      wait for a debugger to connect to it
+  ;   3. int - the daemon will pause on startup and wait for a debugger to
+  ;      connect to the specified port
+  ;
+  ; n.b. if you change this option you will need to kill and restart the
+  ; daemon for it to take effect.
+
+  ; Unless you are debugging Boss itself, you probably want to leave this
+  ; as false.
+  daemon = false
+
+  ; If true, cluster managers will be started in debug mode when the -d
+  ; flag is passed when starting a clustered process, otherwise just the
+  ; cluster workers will be started in debug mode.  Unless you are debugging
+  ; Boss itself, you probably want to leave this as false.
+  cluster = false
