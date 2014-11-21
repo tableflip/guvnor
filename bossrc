@@ -37,18 +37,6 @@
   ; The host Boss will list on for incoming boss-remote connections
   host = 0.0.0.0
 
-  ; A comma-separated list of domains to accept remote connections from
-  accept = *
-
-  ; Uncomment to specify a certificate used by the remoting server
-  ;certificate = /etc/boss/server.pem
-
-  ; Uncomment to sepecify a key used by the remoting server
-  ;key = /etc/boss/key.pem
-
-  ; Uncomment to specify the password for the key used by the remoting server
-  ;passphrase = foo
-
 [remote.inspector]
   ; If true, Boss will start an instance of node-inspector in order to debug
   ; processes running on this host
