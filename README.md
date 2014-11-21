@@ -142,7 +142,7 @@ $ bs send 39823 my:custom:event 1 2
 
 ## heapdump
 
-Make a process dump a heap snapshot for analysis in Chrome's debug tools.
+Make a process dump a heap snapshot for analysis in Chrome's debug tools.  The file will appear at `process.cwd`
 
 ```sh
 bs heapdump <pid>
@@ -180,7 +180,7 @@ bs logs [pid]
 
 ## dump
 
-Dump a `processes.json` file of running processes to `$CONFIGDIR` for use with `bs restore`
+Create `/etc/boss/processes.json` with a list of running processes to for use with `bs restore`
 
 ```sh
 bs dump
@@ -188,7 +188,7 @@ bs dump
 
 ## restore
 
-Restore running processes from `$CONFIGDIR/processes.json`
+Restore running processes from `/etc/boss/processes.json`
 
 ```sh
 bs restore
@@ -237,7 +237,9 @@ bs reset <username>
 Configure
 ---
 
-Boss uses [rc](https://www.npmjs.org/package/rc) so it looks for configuration files in [sensible places](https://github.com/dominictarr/rc#standards). The default configuration file looks like:
+A configuration file if run as root can be placed at `/etc/boss/bossrc`. The  [default config file](bossrc) is below.
+
+If you create a configuration file, it will be merged with the default configuration, so if you only want to override one property, you need only specify one property in your config file.
 
 ```sh
 [boss]
@@ -315,6 +317,22 @@ Boss uses [rc](https://www.npmjs.org/package/rc) so it looks for configuration f
 ```
 
 See the [default config file](bossrc) for more information on the various options.
+
+## Starting boss on boot
+
+Boss comes with a sysv init script.  To configure it to run on system boot run the following:
+
+```sh
+$ sudo ln -s /usr/local/lib/node_modules/boss-cli/scripts/init/sysv/boss /etc/init.d/boss
+$ sudo update-rc.d boss defaults
+```
+
+To undo this, run:
+
+```sh
+$ sudo update-rc.d boss remove
+$ sudo rm /etc/init.d/boss
+```
 
 * * *
 

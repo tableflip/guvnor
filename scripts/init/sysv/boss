@@ -1,0 +1,69 @@
+#!/bin/bash
+# chkconfig: 2345 98 02
+#
+# description: Process manager for Node.js
+# processname: boss
+#
+### BEGIN INIT INFO
+# Provides: boss
+# Required-Start: $local_fs $remote_fs
+# Required-Stop: $local_fs $remote_fs
+# Should-Start: $network
+# Should-Stop: $network
+# Default-Start: 2 3 4 5
+# Default-Stop: 0 1 6
+# Short-Description: Boss init script
+# Description: Boss is a process manager for Node.js
+### END INIT INFO
+
+NAME=boss
+BOSS=/usr/local/lib/node_modules/process-boss/bin/bs
+USER=root
+
+export PATH=$PATH:%NODE_PATH%
+export BOSS_HOME="%HOME_PATH%"
+
+super() {
+    su - $USER -c "PATH=$PATH; $*"
+}
+
+start() {
+    echo "Starting $NAME"
+    super $BOSS
+}
+
+stop() {
+    super $BOSS kill
+}
+
+restart() {
+    echo "Restarting $NAME"
+    stop
+    start
+}
+
+status() {
+    echo "Status for $NAME:"
+    super $BOSS list
+    RETVAL=$?
+}
+
+case "$1" in
+    start)
+        start
+        ;;
+    stop)
+        stop
+        ;;
+    status)
+        status
+        ;;
+    restart)
+        restart
+        ;;
+    *)
+        echo "Usage: {start|stop|status|restart}"
+        exit 1
+        ;;
+esac
+exit $RETVAL
