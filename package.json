@@ -1,5 +1,5 @@
 {
-  "name": "boss-cli",
+  "name": "process-boss",
   "description": "A node process manager that isn't spanners all the way down",
   "version": "2.0.0",
   "prefer-global": true,
