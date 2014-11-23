@@ -12,7 +12,6 @@
 ### END INIT INFO
 
 NAME=boss
-USER=root
 RETVAL=0
 
 # Find node on the path
@@ -57,6 +56,9 @@ then
   echo "Boss could not be found! Is it installed on this system?"
   exit 1
 fi
+
+# Ask boss which user we should start it as
+USER=`$BOSS config boss.user`
 
 boss() {
     su - $USER -c "PATH=$PATH;$NODE $BOSS $*"

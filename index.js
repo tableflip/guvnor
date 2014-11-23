@@ -3,7 +3,8 @@ require('stackup')
 var Container = require('wantsit').Container,
   winston = require('winston'),
   path = require('path'),
-  connect = require('boss-local')
+  connect = require('boss-local').connect,
+  running = require('boss-local').running
 
 var container = new Container()
 container.register('config', require('boss-rc')('boss/boss', path.resolve(__dirname, 'bossrc')))
@@ -16,6 +17,7 @@ container.register('logger', new winston.Logger({
   ]
 }))
 container.register('connect', connect.bind(null, container.find('config'), container.find('logger')))
+container.register('running', running.bind(null, container.find('config'), container.find('logger')))
 container.createAndRegister('cli', require('./lib/CLI'))
 
 process.on('uncaughtException', function(error) {

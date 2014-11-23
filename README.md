@@ -234,6 +234,21 @@ To reset the secret for a [boss-web](http://github.com/tableflip/boss-web) user 
 bs reset <username>
 ```
 
+## config
+
+Prints out a configuration option
+
+```sh
+bs config <path>
+```
+
+### e.g.
+
+```sh
+$ bs config remote.inspector.enabled
+// prints 'true'
+```
+
 Configure
 ---
 
