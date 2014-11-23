@@ -82,7 +82,7 @@ restart() {
 
 status() {
     echo "Status for $NAME:"
-    boss list
+    boss status
     RETVAL=$?
 }
 
