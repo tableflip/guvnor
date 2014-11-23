@@ -1,9 +1,4 @@
 #!/bin/bash
-# chkconfig: 2345 98 02
-#
-# description: Process manager for Node.js
-# processname: boss
-#
 ### BEGIN INIT INFO
 # Provides: boss
 # Required-Start: $local_fs $remote_fs
@@ -17,23 +12,64 @@
 ### END INIT INFO
 
 NAME=boss
-BOSS=/usr/local/lib/node_modules/process-boss/bin/bs
 USER=root
+RETVAL=0
 
-export PATH=$PATH:%NODE_PATH%
-export BOSS_HOME="%HOME_PATH%"
+# Find node on the path
+NODE=`which node`
 
-super() {
-    su - $USER -c "PATH=$PATH; $*"
+if [[ ! -x "$NODE" ]]
+then
+  NODE=/usr/local/bin/node
+fi
+
+if [[ ! -x "$NODE" ]]
+then
+  NODE=/usr/bin/node
+fi
+
+if [[ ! -x "$NODE" ]]
+then
+  NODE=/bin/node
+fi
+
+if [[ ! -x "$NODE" ]]
+then
+  echo "Node could not be found! Is it installed on this system?"
+  exit 1
+fi
+
+# Find boss on the path
+BOSS=`which bs`
+
+if [[ ! -x "$BOSS" ]]
+then
+  BOSS=/usr/local/bin/bs
+fi
+
+if [[ ! -x "$BOSS" ]]
+then
+  BOSS=/usr/local/lib/node_modules/process-boss/bin/bs
+fi
+
+if [[ ! -x "$BOSS" ]]
+then
+  echo "Boss could not be found! Is it installed on this system?"
+  exit 1
+fi
+
+boss() {
+    su - $USER -c "PATH=$PATH;$NODE $BOSS $*"
 }
 
 start() {
     echo "Starting $NAME"
-    super $BOSS
+    boss list
 }
 
 stop() {
-    super $BOSS kill
+    echo "Stopping $NAME"
+    boss kill
 }
 
 restart() {
@@ -44,7 +80,7 @@ restart() {
 
 status() {
     echo "Status for $NAME:"
-    super $BOSS list
+    boss list
     RETVAL=$?
 }
 
