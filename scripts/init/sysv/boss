@@ -75,13 +75,11 @@ stop() {
 }
 
 restart() {
-    echo "Restarting $NAME"
     stop
     start
 }
 
 status() {
-    echo "Status for $NAME:"
     boss status
     RETVAL=$?
 }
