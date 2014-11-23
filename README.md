@@ -338,7 +338,6 @@ See the [default config file](bossrc) for more information on the various option
 Boss comes with a sysv init script.  To configure it to run on system boot run the following:
 
 ```sh
-$ sudo chmod +x /usr/local/lib/node_modules/process-boss/scripts/init/sysv/boss
 $ sudo ln -s /usr/local/lib/node_modules/process-boss/scripts/init/sysv/boss /etc/init.d/boss
 $ sudo update-rc.d boss defaults
 ```
