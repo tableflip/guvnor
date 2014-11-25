@@ -18,6 +18,10 @@
   ; to ${boss.user}
   confdir = /etc/boss
 
+  ; Boss can download your app from a git repository before running it;
+  ; this is where it will be stored
+  appdir = /usr/local/boss
+
   ; How long we should wait for remote processes to respond
   timeout = 10000
 
