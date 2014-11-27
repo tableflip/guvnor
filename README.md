@@ -2,7 +2,7 @@
 
 # boss
 
-[![Discuss](http://img.shields.io/badge/discuss-gitter-brightgreen.svg)](https://gitter.im/tableflip/boss) [![Build Status](https://travis-ci.org/tableflip/boss.svg)](https://travis-ci.org/tableflip/boss) [![Dependency Status](https://david-dm.org/tableflip/boss.svg)](https://david-dm.org/tableflip/boss)
+[![Discuss](http://img.shields.io/badge/discuss-gitter-brightgreen.svg)](https://gitter.im/tableflip/boss/discuss) [![Build Status](https://travis-ci.org/tableflip/boss.svg)](https://travis-ci.org/tableflip/boss) [![Dependency Status](https://david-dm.org/tableflip/boss.svg)](https://david-dm.org/tableflip/boss)
 
 A node process manager that isn't spanners all the way down.
 
@@ -359,7 +359,3 @@ To undo this, run:
 $ sudo update-rc.d boss remove
 $ sudo rm /etc/init.d/boss
 ```
-
-* * *
-
-Discuss: [gitter.im/tableflip/boss](https://gitter.im/tableflip/boss)
