@@ -60,5 +60,9 @@
     "uptime",
     "memory",
     "cpu"
-  ]
+  ],
+  "engineStrict": true,
+  "engines": {
+    "node": ">=0.10.33"
+  }
 }
