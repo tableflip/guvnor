@@ -41,6 +41,17 @@
   ; The host Boss will list on for incoming boss-remote connections
   host = 0.0.0.0
 
+  ; Set this to provide a path to the private key for this server.  If left
+  ; undefined a temporary key will be generated.
+  key = undefined
+
+  ; Set this to provide the passphrase for ${remote.key}
+  passphrase = undefined
+
+  ; Set this to provide a path to the certificate for this server.  If left
+  ; undefined a temporary certificate will be generated.
+  certificate = undefined
+
 [remote.inspector]
   ; If true, Boss will start an instance of node-inspector in order to debug
   ; processes running on this host
