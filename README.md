@@ -21,6 +21,17 @@ A node process manager that isn't spanners all the way down.
 npm install -g process-boss
 ```
 
+## Upgrading
+
+npm's upgrade command is [a big angry box of wasps](https://github.com/npm/npm/issues/6247#issuecomment-63022163) so to be sure, kill boss, remove it, reinstall and start it.
+
+```sh
+bs kill
+npm remove -g process-boss
+npm install -g process-boss
+bs
+```
+
 ## Usage
 
 Comprehensive help is available on the command line:
