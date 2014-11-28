@@ -21,6 +21,9 @@ container.register('logger', new winston.Logger({
 container.register('connect', connect.bind(null, container.find('config'), container.find('logger')))
 container.register('running', running.bind(null, container.find('config'), container.find('logger')))
 container.register('posix', require('posix'))
+container.register('commander', require('./lib/commander'))
+container.register('package', require('./package.json'))
+container.register('moment', require('moment'))
 container.createAndRegister('cli', require('./lib/CLI'))
 
 process.on('uncaughtException', function(error) {

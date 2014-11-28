@@ -20,6 +20,7 @@ describe('CLI', function() {
       debug: sinon.stub()
     }
     cli._posix = {
+      getpwnam: sinon.stub(),
       getgrnam: sinon.stub()
     }
     cli._user = {
@@ -143,4 +144,21 @@ describe('CLI', function() {
 
     cli.status()
   })
+
+  /*it('should store the right user and group', function(done) {
+    var user = {
+      name: 'foo'
+    }
+    var group = {
+      name: 'bar'
+    }
+
+    cli._posix.getpwnam.withArgs(process.getuid()).returns(user)
+    cli._posix.getgrnam.withArgs(process.getgid()).returns(group)
+
+    cli.afterPropertiesSet()
+
+    expect(cli._user).to.equal(user)
+    expect(cli._group).to.equal(group)
+  })*/
 })
