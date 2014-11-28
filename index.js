@@ -1,4 +1,5 @@
 require('stackup')
+require('colors')
 
 var Container = require('wantsit').Container,
   winston = require('winston'),
@@ -24,6 +25,14 @@ container.register('posix', require('posix'))
 container.register('commander', require('./lib/commander'))
 container.register('package', require('./package.json'))
 container.register('moment', require('moment'))
+container.register('user', require('posix').getpwnam(process.getuid()))
+container.register('group', require('posix').getgrnam(process.getgid()))
+container.register('formatMemory', require('prettysize'))
+container.createAndRegister('apps', require('./lib/Apps'))
+container.createAndRegister('cluster', require('./lib/Cluster'))
+container.createAndRegister('daemon', require('./lib/Daemon'))
+container.createAndRegister('processes', require('./lib/Processes'))
+container.createAndRegister('remote', require('./lib/Remote'))
 container.createAndRegister('cli', require('./lib/CLI'))
 
 process.on('uncaughtException', function(error) {
