@@ -26,6 +26,11 @@ describe('CLI', function() {
     cli._user = {
 
     }
+    cli._commander = {
+      version: sinon.stub(),
+      command: sinon.stub(),
+      parse: sinon.stub()
+    }
   })
 
   it('should parse list of arguments', function() {
@@ -145,13 +150,29 @@ describe('CLI', function() {
     cli.status()
   })
 
-  /*it('should store the right user and group', function(done) {
+  it('should store the right user and group', function() {
     var user = {
       name: 'foo'
     }
     var group = {
       name: 'bar'
     }
+    cli._config.boss.user = user.name
+
+    var command = {
+      description: sinon.stub(),
+      option: sinon.stub(),
+      action: sinon.stub()
+    }
+    command.description.returns(command)
+    command.option.returns(command)
+    command.action.returns(command)
+
+    cli._commander.command.returns(command)
+
+    cli._commander.parse.returns({
+      rawArgs: []
+    })
 
     cli._posix.getpwnam.withArgs(process.getuid()).returns(user)
     cli._posix.getgrnam.withArgs(process.getgid()).returns(group)
@@ -160,5 +181,5 @@ describe('CLI', function() {
 
     expect(cli._user).to.equal(user)
     expect(cli._group).to.equal(group)
-  })*/
+  })
 })
