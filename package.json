@@ -25,7 +25,7 @@
     "moment": "^2.0",
     "prettysize": "^0.0",
     "stackup": "^0.0",
-    "userid": "^0.1",
+    "posix": "^1.0",
     "wantsit": "^1.0",
     "wildemitter": "^1.0",
     "winston": "^0.8"
