@@ -2,7 +2,7 @@
 
 # boss
 
-[![Discuss](http://img.shields.io/badge/discuss-gitter-brightgreen.svg)](https://gitter.im/tableflip/boss/discuss) [![Build Status](https://travis-ci.org/tableflip/boss.svg)](https://travis-ci.org/tableflip/boss) [![Dependency Status](https://david-dm.org/tableflip/boss.svg)](https://david-dm.org/tableflip/boss)
+[![Discuss](http://img.shields.io/badge/discuss-gitter-brightgreen.svg)](https://gitter.im/tableflip/boss/discuss) [![Build Status](https://travis-ci.org/tableflip/boss.svg)](https://travis-ci.org/tableflip/boss) [![Dependency Status](https://david-dm.org/tableflip/boss.svg)](https://david-dm.org/tableflip/boss) [![Coverage Status](https://img.shields.io/coveralls/tableflip/boss/master.svg)](https://coveralls.io/r/tableflip/boss)
 
 A node process manager that isn't spanners all the way down.
 
