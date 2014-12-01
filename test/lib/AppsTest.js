@@ -111,10 +111,17 @@ describe('Apps', function() {
     boss.listApplications = sinon.stub()
     boss.listApplications.callsArgWith(0, undefined, applications)
 
-    console.info = function(data) {
-      expect(data).to.equal('foo')
+    var invocations = 1
 
-      done()
+    console.info = function(data) {
+      if(invocations == 2) {
+        // first invocation is table header..
+        expect(data).to.contain('foo')
+
+        done()
+      }
+
+      invocations++
     }
 
     apps.listApplications(options)
@@ -225,5 +232,81 @@ describe('Apps', function() {
     apps.runApplication(name, undefined, options)
 
     expect(boss.switchApplicationRef.withArgs(name, 'master', sinon.match.func, sinon.match.func, sinon.match.func).called).to.be.true
+  })
+
+  it('should list application refs', function(done) {
+    var app = 'foo'
+    var options = {}
+    var refs = [{
+      name: 'bar'
+    }]
+    boss.listApplicationRefs = sinon.stub()
+    boss.listApplicationRefs.withArgs(app, sinon.match.func).callsArgWith(1, undefined, refs)
+
+    var invocations = 1
+
+    console.info = function(data) {
+      if(invocations == 2) {
+        // first invocation is table header..
+        expect(data).to.contain('bar')
+
+        done()
+      }
+
+      invocations++
+    }
+
+    apps.listRefs(app, options)
+  })
+
+  it('should fail to list application refs', function() {
+    var app = 'foo'
+    var options = {}
+    boss.listApplicationRefs = sinon.stub()
+    boss.listApplicationRefs.withArgs(app, sinon.match.func).callsArgWith(1, new Error('urk!'))
+
+    try {
+      apps.listRefs(app, options)
+    } catch(e) {
+      if(e.message != 'urk!') throw e
+    }
+  })
+
+  it('should update application refs', function(done) {
+    var app = 'foo'
+    var options = {}
+    var refs = [{
+      name: 'bar'
+    }]
+    boss.updateApplicationRefs = sinon.stub()
+    boss.updateApplicationRefs.withArgs(app, sinon.match.func, sinon.match.func, sinon.match.func).callsArgWith(3, undefined, refs)
+
+    var invocations = 1
+
+    console.info = function(data) {
+      if(invocations == 2) {
+        // first invocation is table header..
+        expect(data).to.contain('bar')
+
+        done()
+      }
+
+      invocations++
+    }
+
+    apps.updateRefs(app, options)
+  })
+
+  it('should fail to update application refs', function() {
+    var app = 'foo'
+    var options = {}
+    boss.updateApplicationRefs = sinon.stub()
+    boss.updateApplicationRefs.withArgs(app, sinon.match.func, sinon.match.func, sinon.match.func).callsArgWith(3, new Error('urk!'))
+
+    try {
+      apps.updateRefs(app, options)
+    } catch(e) {
+      if(e.message != 'urk!') throw e
+    }
   })
 })
