@@ -25,6 +25,7 @@ describe('Cluster', function() {
       disconnect: sinon.stub(),
       on: sinon.stub(),
       findProcessInfoByPid: sinon.stub(),
+      findProcessInfoByName: sinon.stub(),
       connectToProcess: sinon.stub()
     }
 
@@ -45,7 +46,7 @@ describe('Cluster', function() {
     }
     remote.setClusterWorkers.withArgs(workers).callsArg(1)
 
-    boss.findProcessInfoByPid.withArgs(pid).callsArgWith(1, undefined, processInfo)
+    boss.findProcessInfoByName.withArgs(pid).callsArgWith(1, undefined, processInfo)
     boss.connectToProcess.withArgs(processInfo.id).callsArgWith(1, undefined, remote)
 
     cluster.setClusterWorkers(pid, workers, options)
@@ -74,7 +75,7 @@ describe('Cluster', function() {
     }
     remote.setClusterWorkers.withArgs(workers).callsArgWith(1, new Error('workers!'))
 
-    boss.findProcessInfoByPid.withArgs(pid).callsArgWith(1, undefined, processInfo)
+    boss.findProcessInfoByName.withArgs(pid).callsArgWith(1, undefined, processInfo)
     boss.connectToProcess.withArgs(processInfo.id).callsArgWith(1, undefined, remote)
 
     cluster.setClusterWorkers(pid, workers, options)

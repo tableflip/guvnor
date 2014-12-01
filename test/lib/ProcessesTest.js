@@ -28,10 +28,14 @@ describe('Processes', function() {
       humanize: sinon.stub()
     }
     processes._formatMemory = sinon.stub()
+    processes._fs = {
+      existsSync: sinon.stub()
+    }
 
     boss = new EventEmitter()
     boss.disconnect = sinon.stub()
     boss.findProcessInfoByPid = sinon.stub()
+    boss.findProcessInfoByName = sinon.stub()
     boss.connectToProcess = sinon.stub()
 
     processes._connect.callsArgWith(0, undefined, boss)
@@ -74,6 +78,7 @@ describe('Processes', function() {
       id: 'id'
     }
 
+    processes._fs.existsSync.withArgs(script).returns(true)
     boss.startProcess = sinon.stub()
     boss.startProcess.callsArgWith(2, undefined, processInfo)
 
@@ -94,7 +99,7 @@ describe('Processes', function() {
       disconnect: sinon.stub()
     }
 
-    boss.findProcessInfoByPid.withArgs(pid).callsArgWith(1, undefined, processInfo)
+    boss.findProcessInfoByName.withArgs(pid).callsArgWith(1, undefined, processInfo)
     boss.connectToProcess.withArgs(processInfo.id).callsArgWith(1, undefined, remote)
 
     processes.stop(pid)
@@ -114,7 +119,7 @@ describe('Processes', function() {
       disconnect: sinon.stub()
     }
 
-    boss.findProcessInfoByPid.withArgs(pid).callsArgWith(1, undefined, processInfo)
+    boss.findProcessInfoByName.withArgs(pid).callsArgWith(1, undefined, processInfo)
     boss.connectToProcess.withArgs(processInfo.id).callsArgWith(1, undefined, remote)
 
     processes.restart(pid)
@@ -136,7 +141,7 @@ describe('Processes', function() {
       disconnect: sinon.stub()
     }
 
-    boss.findProcessInfoByPid.withArgs(pid).callsArgWith(1, undefined, processInfo)
+    boss.findProcessInfoByName.withArgs(pid).callsArgWith(1, undefined, processInfo)
     boss.connectToProcess.withArgs(processInfo.id).callsArgWith(1, undefined, remote)
 
     processes.send(pid, event, args)
@@ -153,7 +158,7 @@ describe('Processes', function() {
       id: 'id'
     }
 
-    boss.findProcessInfoByPid.withArgs(pid).callsArgWith(1, undefined, processInfo)
+    boss.findProcessInfoByName.withArgs(pid).callsArgWith(1, undefined, processInfo)
     boss.sendSignal = sinon.stub()
     boss.sendSignal.withArgs(processInfo.id, signal, sinon.match.func).callsArgWith(2, undefined)
 
@@ -175,7 +180,7 @@ describe('Processes', function() {
     }
     remote.dumpHeap.callsArgWith(0, undefined, path)
 
-    boss.findProcessInfoByPid.withArgs(pid).callsArgWith(1, undefined, processInfo)
+    boss.findProcessInfoByName.withArgs(pid).callsArgWith(1, undefined, processInfo)
     boss.connectToProcess.withArgs(processInfo.id).callsArgWith(1, undefined, remote)
 
     processes.heapdump(pid)
@@ -197,7 +202,7 @@ describe('Processes', function() {
     }
     remote.forceGc.callsArgWith(0, undefined)
 
-    boss.findProcessInfoByPid.withArgs(pid).callsArgWith(1, undefined, processInfo)
+    boss.findProcessInfoByName.withArgs(pid).callsArgWith(1, undefined, processInfo)
     boss.connectToProcess.withArgs(processInfo.id).callsArgWith(1, undefined, remote)
 
     processes.gc(pid)
@@ -205,5 +210,22 @@ describe('Processes', function() {
     expect(boss.disconnect.called).to.be.true
     expect(remote.forceGc.calledWith(sinon.match.func)).to.be.true
     expect(remote.disconnect.called).to.be.true
+  })
+
+  it('should find a process by pid if the passed id is numeric', function() {
+    var pid = 5
+    var signal = 'signal'
+    var processInfo = {
+      id: 'id'
+    }
+
+    boss.findProcessInfoByPid.withArgs(pid).callsArgWith(1, undefined, processInfo)
+    boss.sendSignal = sinon.stub()
+    boss.sendSignal.withArgs(processInfo.id, signal, sinon.match.func).callsArgWith(2, undefined)
+
+    processes.signal(pid, signal)
+
+    expect(boss.disconnect.called).to.be.true
+    expect(boss.sendSignal.calledWith(processInfo.id, signal, sinon.match.func)).to.be.true
   })
 })

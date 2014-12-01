@@ -3,6 +3,8 @@ var expect = require('chai').expect,
   path = require('path'),
   Apps = require('../../lib/Apps')
 
+require('colors')
+
 describe('Apps', function() {
   var apps, boss, info, error
 
@@ -106,7 +108,9 @@ describe('Apps', function() {
   it('should list deployed applications', function(done) {
     var options = {}
     var applications = [{
-      name: 'foo'
+      name: 'foo',
+      user: 'bar',
+      url: 'baz'
     }]
     boss.listApplications = sinon.stub()
     boss.listApplications.callsArgWith(0, undefined, applications)
@@ -238,7 +242,8 @@ describe('Apps', function() {
     var app = 'foo'
     var options = {}
     var refs = [{
-      name: 'bar'
+      name: 'bar',
+      commit: 'baz'
     }]
     boss.listApplicationRefs = sinon.stub()
     boss.listApplicationRefs.withArgs(app, sinon.match.func).callsArgWith(1, undefined, refs)
@@ -276,7 +281,8 @@ describe('Apps', function() {
     var app = 'foo'
     var options = {}
     var refs = [{
-      name: 'bar'
+      name: 'bar',
+      commit: 'baz'
     }]
     boss.updateApplicationRefs = sinon.stub()
     boss.updateApplicationRefs.withArgs(app, sinon.match.func, sinon.match.func, sinon.match.func).callsArgWith(3, undefined, refs)
