@@ -12,6 +12,8 @@ To start an app as a cluster, add the `-i $n` option to the `bs start` command w
 
 The number of workers is limited by the `cluster` module to `$cores - 1` where `$cores` is the number of cores on your machine.
 
+1. [workers](#workers)
+
 ## workers
 
 After starting a process with `-i $num` (e.g. start ``$num` instances of a script), use the `workers` subcommand to adjust the number of cluster workers.

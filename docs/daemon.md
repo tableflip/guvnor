@@ -8,6 +8,12 @@
 
 ## Controlling the Daemon
 
+1. [config](#config)
+1. [kill](#kill)
+1. [logs](#logs)
+1. [dump](#dump)
+1. [restore](#restore)
+
 ## config
 
 Prints out a configuration option

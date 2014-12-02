@@ -14,6 +14,14 @@ In order to do this, your application must follow npm conventions.  E.g. the roo
 
 Your `npm` managed dependencies will be installed after the `install` and `setref` commands are executed.
 
+1. [install](#install)
+1. [list](#list)
+1. [remove](#remove)
+1. [start, stop, restart, etc](#start-stop-restart-etc)
+1. [versions](#versions)
+1. [list versions](#list-versions)
+1. [update versions](#update-versions)
+
 ## install
 
 To add an application to boss' application list:
@@ -64,7 +72,7 @@ bs start my-hot-app
 
 Once your app is running, use the normal commands to manage your app, using the pid or the app name.
 
-## refs
+## versions
 
 By default boss will deploy the HEAD of master.  To deploy other refs use `setref`
 
@@ -78,7 +86,7 @@ bs setref <appName> <ref>
 bs setref my-hot-app tags/v137
 ```
 
-## lsrefs
+## list versions
 
 To see which refs are available, use `lsrefs`
 
@@ -99,7 +107,7 @@ refs/tags/2.0              20d882056e9df15a43d67697c382dd3c8c440047
 refs/tags/3.0              a548a13a1a456aeb817ebb6c55d4312d62273aa6
 ```
 
-## updaterefs
+## update versions
 
 If you are missing a ref, use the `updaterefs` command to fetch the latest history from the upstream repository.
 

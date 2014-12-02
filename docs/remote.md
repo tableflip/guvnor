@@ -10,6 +10,12 @@
 
 These commands are for use with [boss-web](http://github.com/tableflip/boss-web).
 
+1. [remoteconfig](#remoteconfig)
+1. [useradd](#useradd)
+1. [rmuser](#rmuser)
+1. [lsusers](#lsusers)
+1. [reset](#reset)
+
 ## remoteconfig
 
 For use with [boss-web](http://github.com/tableflip/boss-web) - see boss-web's [setup](https://github.com/tableflip/boss-web#setup) for more information
@@ -34,7 +40,7 @@ To remove a user for [boss-web](http://github.com/tableflip/boss-web) - see boss
 bs rmuser <username>
 ```
 
-## lsuser
+## lsusers
 
 To list users for [boss-web](http://github.com/tableflip/boss-web) - see boss-web's [setup](https://github.com/tableflip/boss-web#setup) for more information.
 
