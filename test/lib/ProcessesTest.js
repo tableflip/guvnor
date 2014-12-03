@@ -109,6 +109,79 @@ describe('Processes', function() {
     expect(remote.disconnect.called).to.be.true
   })
 
+  it('should stop multiple processes', function() {
+    var pid0 = 'pid0'
+    var processInfo0 = {
+      id: 'id0'
+    }
+
+    var pid1 = 'pid1'
+    var processInfo1 = {
+      id: 'id1'
+    }
+
+    var remote0 = {
+      kill: sinon.stub(),
+      disconnect: sinon.stub()
+    }
+
+    var remote1 = {
+      kill: sinon.stub(),
+      disconnect: sinon.stub()
+    }
+
+    boss.findProcessInfoByName.withArgs(pid0).callsArgWith(1, undefined, processInfo0)
+    boss.connectToProcess.withArgs(processInfo0.id).callsArgWith(1, undefined, remote0)
+
+    boss.findProcessInfoByName.withArgs(pid1).callsArgWith(1, undefined, processInfo1)
+    boss.connectToProcess.withArgs(processInfo1.id).callsArgWith(1, undefined, remote1)
+
+    processes.stop([pid0, pid1])
+
+    expect(boss.disconnect.called).to.be.true
+    expect(remote0.kill.called).to.be.true
+    expect(remote0.disconnect.called).to.be.true
+    expect(remote1.kill.called).to.be.true
+    expect(remote1.disconnect.called).to.be.true
+  })
+
+  it('should stop all processes', function() {
+    var processList = [{
+      pid: 'pid0',
+      id: 'id0'
+    }, {
+      pid: 'pid1',
+      id: 'id1'
+    }]
+
+    var remote0 = {
+      kill: sinon.stub(),
+      disconnect: sinon.stub()
+    }
+
+    var remote1 = {
+      kill: sinon.stub(),
+      disconnect: sinon.stub()
+    }
+
+    boss.listProcesses = sinon.stub()
+    boss.listProcesses.withArgs(sinon.match.func).callsArgWith(0, undefined, processList)
+
+    boss.findProcessInfoByName.withArgs(processList[0].pid).callsArgWith(1, undefined, processList[0])
+    boss.connectToProcess.withArgs(processList[0].id).callsArgWith(1, undefined, remote0)
+
+    boss.findProcessInfoByName.withArgs(processList[1].pid).callsArgWith(1, undefined, processList[1])
+    boss.connectToProcess.withArgs(processList[1].id).callsArgWith(1, undefined, remote1)
+
+    processes.stop('all')
+
+    expect(boss.disconnect.called).to.be.true
+    expect(remote0.kill.called).to.be.true
+    expect(remote0.disconnect.called).to.be.true
+    expect(remote1.kill.called).to.be.true
+    expect(remote1.disconnect.called).to.be.true
+  })
+
   it('should restart a process', function() {
     var pid = 'pid'
     var processInfo = {
@@ -127,6 +200,79 @@ describe('Processes', function() {
     expect(boss.disconnect.called).to.be.true
     expect(remote.restart.called).to.be.true
     expect(remote.disconnect.called).to.be.true
+  })
+
+  it('should restart multiple processes', function() {
+    var pid0 = 'pid0'
+    var processInfo0 = {
+      id: 'id0'
+    }
+
+    var pid1 = 'pid1'
+    var processInfo1 = {
+      id: 'id1'
+    }
+
+    var remote0 = {
+      restart: sinon.stub(),
+      disconnect: sinon.stub()
+    }
+
+    var remote1 = {
+      restart: sinon.stub(),
+      disconnect: sinon.stub()
+    }
+
+    boss.findProcessInfoByName.withArgs(pid0).callsArgWith(1, undefined, processInfo0)
+    boss.connectToProcess.withArgs(processInfo0.id).callsArgWith(1, undefined, remote0)
+
+    boss.findProcessInfoByName.withArgs(pid1).callsArgWith(1, undefined, processInfo1)
+    boss.connectToProcess.withArgs(processInfo1.id).callsArgWith(1, undefined, remote1)
+
+    processes.restart([pid0, pid1])
+
+    expect(boss.disconnect.called).to.be.true
+    expect(remote0.restart.called).to.be.true
+    expect(remote0.disconnect.called).to.be.true
+    expect(remote1.restart.called).to.be.true
+    expect(remote1.disconnect.called).to.be.true
+  })
+
+  it('should restart all processes', function() {
+    var processList = [{
+      pid: 'pid0',
+      id: 'id0'
+    }, {
+      pid: 'pid1',
+      id: 'id1'
+    }]
+
+    var remote0 = {
+      restart: sinon.stub(),
+      disconnect: sinon.stub()
+    }
+
+    var remote1 = {
+      restart: sinon.stub(),
+      disconnect: sinon.stub()
+    }
+
+    boss.listProcesses = sinon.stub()
+    boss.listProcesses.withArgs(sinon.match.func).callsArgWith(0, undefined, processList)
+
+    boss.findProcessInfoByName.withArgs(processList[0].pid).callsArgWith(1, undefined, processList[0])
+    boss.connectToProcess.withArgs(processList[0].id).callsArgWith(1, undefined, remote0)
+
+    boss.findProcessInfoByName.withArgs(processList[1].pid).callsArgWith(1, undefined, processList[1])
+    boss.connectToProcess.withArgs(processList[1].id).callsArgWith(1, undefined, remote1)
+
+    processes.restart('all')
+
+    expect(boss.disconnect.called).to.be.true
+    expect(remote0.restart.called).to.be.true
+    expect(remote0.disconnect.called).to.be.true
+    expect(remote1.restart.called).to.be.true
+    expect(remote1.disconnect.called).to.be.true
   })
 
   it('should send a message to a process', function() {
