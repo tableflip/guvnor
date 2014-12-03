@@ -61,8 +61,10 @@ describe('Apps', function() {
     var name = 'name'
     var url = 'url'
     var options = {}
-    boss.deployApplication = sinon.stub()
-    boss.deployApplication.callsArgWith(3, 'foo')
+    boss.deployApplication = function(name, url, user, info, error, complete) {
+      info('foo')
+      complete()
+    }
 
     console.info = function(data) {
       expect(data).to.equal('foo')
@@ -77,8 +79,10 @@ describe('Apps', function() {
     var name = 'name'
     var url = 'url'
     var options = {}
-    boss.deployApplication = sinon.stub()
-    boss.deployApplication.callsArgWith(4, 'foo')
+    boss.deployApplication = function(name, url, user, info, error, complete) {
+      error('foo')
+      complete()
+    }
 
     console.error = function(data) {
       expect(data).to.equal('foo')
