@@ -45,19 +45,19 @@ describe('Apps', function() {
     console.error = error
   })
 
-  it('should deploy an application', function() {
+  it('should install an application', function() {
     var name = 'name'
     var url = 'url'
     var options = {}
     boss.deployApplication = sinon.stub()
     boss.deployApplication.callsArg(5)
 
-    apps.deployApplication(name, url, options)
+    apps.installApplication(url, name, options)
 
     expect(boss.disconnect.called).to.be.true
   })
 
-  it('should relay stdout when deploying an application', function(done) {
+  it('should relay stdout when installing an application', function(done) {
     var name = 'name'
     var url = 'url'
     var options = {}
@@ -70,10 +70,10 @@ describe('Apps', function() {
       done()
     }
 
-    apps.deployApplication(name, url, options)
+    apps.installApplication(url, name, options)
   })
 
-  it('should relay stderr when deploying an application', function(done) {
+  it('should relay stderr when installing an application', function(done) {
     var name = 'name'
     var url = 'url'
     var options = {}
@@ -86,10 +86,10 @@ describe('Apps', function() {
       done()
     }
 
-    apps.deployApplication(name, url, options)
+    apps.installApplication(url, name, options)
   })
 
-  it('should fail to deploy application', function() {
+  it('should fail to install application', function() {
     var name = 'name'
     var url = 'url'
     var options = {}
@@ -99,13 +99,13 @@ describe('Apps', function() {
     boss.deployApplication.callsArgWith(5, new Error('urk!'))
 
     try {
-      apps.deployApplication(name, url, options)
+      apps.installApplication(url, name, options)
     } catch(e) {
       if(e.message != 'urk!') throw e
     }
   })
 
-  it('should list deployed applications', function(done) {
+  it('should list installed applications', function(done) {
     var options = {}
     var applications = [{
       name: 'foo',
@@ -131,7 +131,7 @@ describe('Apps', function() {
     apps.listApplications(options)
   })
 
-  it('should fail to list deployed applications', function() {
+  it('should fail to list installed applications', function() {
     var options = {}
     boss.listApplications = sinon.stub()
     boss.listApplications.callsArgWith(0, new Error('urk!'))
