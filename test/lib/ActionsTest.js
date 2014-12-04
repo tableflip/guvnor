@@ -146,8 +146,9 @@ describe('Actions', function() {
     boss.findProcessInfoByPid.withArgs(pid).callsArgWith(1, undefined, processInfo)
     boss.connectToProcess.withArgs(processInfo.id).callsArgWith(1, {code: 'EACCES'})
 
-    actions._withRemoteProcess(boss, pid, function() {
-      throw new Error('should not have been invoked')
+    actions._withRemoteProcess(boss, pid, function(error) {
+      expect(error).to.exist
+      expect(error.code).to.equal('EACCES')
     })
   })
 
@@ -163,8 +164,9 @@ describe('Actions', function() {
     boss.findProcessInfoByPid.withArgs(pid).callsArgWith(1, undefined, processInfo)
     boss.connectToProcess.withArgs(processInfo.id).callsArgWith(1, {code: 'ENOENT'})
 
-    actions._withRemoteProcess(boss, pid, function() {
-      throw new Error('should not have been invoked')
+    actions._withRemoteProcess(boss, pid, function(error) {
+      expect(error).to.exist
+      expect(error.code).to.equal('ENOENT')
     })
   })
 
@@ -180,8 +182,9 @@ describe('Actions', function() {
     boss.findProcessInfoByPid.withArgs(pid).callsArgWith(1, undefined, processInfo)
     boss.connectToProcess.withArgs(processInfo.id).callsArgWith(1, {code: 'ECONNREFUSED'})
 
-    actions._withRemoteProcess(boss, pid, function() {
-      throw new Error('should not have been invoked')
+    actions._withRemoteProcess(boss, pid, function(error) {
+      expect(error).to.exist
+      expect(error.code).to.equal('ECONNREFUSED')
     })
   })
 })
