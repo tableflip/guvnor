@@ -2,7 +2,7 @@
 
 # boss
 
-[![Discuss](http://img.shields.io/badge/discuss-gitter-brightgreen.svg)](https://gitter.im/tableflip/boss/discuss) [![Build Status](https://travis-ci.org/tableflip/boss.svg)](https://travis-ci.org/tableflip/boss)
+[![Discuss](http://img.shields.io/badge/discuss-gitter-brightgreen.svg)](https://gitter.im/tableflip/boss/discuss) [![Tasks](http://img.shields.io/badge/tasks-waffle-brightgreen.svg)](https://waffle.io/tableflip/boss) [![Build Status](https://travis-ci.org/tableflip/boss.svg)](https://travis-ci.org/tableflip/boss)
 
 A node process manager that isn't spanners all the way down.
 
