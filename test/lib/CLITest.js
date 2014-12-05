@@ -31,6 +31,9 @@ describe('CLI', function() {
       command: sinon.stub(),
       parse: sinon.stub()
     }
+    cli._os = {
+      platform: sinon.stub()
+    }
   })
 
   it('should parse list of arguments', function() {
@@ -62,12 +65,15 @@ describe('CLI', function() {
 
     cli._config.boss.group = bossGroup
     cli._posix.getgrnam.withArgs(bossGroup).returns(groupsEntry)
+    cli._os.platform.returns('linux')
 
-    expect(cli._logger.warn.called).to.be.false
+    expect(cli._logger.error.called).to.be.false
 
-    cli._checkUserPermissions()
+    cli._checkBossUser(function(error) {
+      expect(error).to.be.ok
+    })
 
-    expect(cli._logger.warn.called).to.be.true
+    expect(cli._logger.error.called).to.be.true
   })
 
   it('should be slient if the user is in the right group', function() {
@@ -83,7 +89,7 @@ describe('CLI', function() {
 
     expect(cli._logger.warn.called).to.be.false
 
-    cli._checkUserPermissions()
+    cli._checkBossUser()
 
     expect(cli._logger.warn.called).to.be.false
   })

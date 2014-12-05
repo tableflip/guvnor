@@ -28,7 +28,10 @@
     "posix": "^1.0",
     "wantsit": "^1.0",
     "wildemitter": "^1.0",
-    "winston": "^0.8"
+    "winston": "^0.8",
+    "output-buffer": "^1.0",
+    "execSync": "^1.0",
+    "prompt": "^0.2"
   },
   "devDependencies": {
     "coveralls": "^2.8",

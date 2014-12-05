@@ -6,7 +6,7 @@
 
   ; The group the daemon will run as - if you wish to interact with boss
   ; you should be in this group
-  group = staff
+  group = boss
 
   ; Where boss puts log files. Will be created on first run.
   logdir = /var/log/boss
