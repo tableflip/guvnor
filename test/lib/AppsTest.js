@@ -281,7 +281,7 @@ describe('Apps', function() {
     }
   })
 
-  it('should update application refs', function(done) {
+  it('should update application refs', function() {
     var app = 'foo'
     var options = {}
     var refs = [{
@@ -291,20 +291,9 @@ describe('Apps', function() {
     boss.updateApplicationRefs = sinon.stub()
     boss.updateApplicationRefs.withArgs(app, sinon.match.func, sinon.match.func, sinon.match.func).callsArgWith(3, undefined, refs)
 
-    var invocations = 1
-
-    console.info = function(data) {
-      if(invocations == 2) {
-        // first invocation is table header..
-        expect(data).to.contain('bar')
-
-        done()
-      }
-
-      invocations++
-    }
-
     apps.updateRefs(app, options)
+
+    expect(boss.disconnect.called).to.be.true
   })
 
   it('should fail to update application refs', function() {
