@@ -34,11 +34,12 @@
     "prompt": "^0.2"
   },
   "devDependencies": {
+    "chai": "^1.0",
     "coveralls": "^2.8",
     "istanbul": "^0.3.0",
     "mocha": "^2.0",
+    "pre-commit": "^0.0",
     "proxyquire": "^1.0",
-    "chai": "^1.0",
     "sinon": "^1.8",
     "testsuite": "^1.0"
   },
