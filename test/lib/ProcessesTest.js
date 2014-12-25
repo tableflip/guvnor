@@ -71,6 +71,58 @@ describe('Processes', function() {
     expect(console.info.called).to.be.true
   })
 
+  it('should not throw formatting process list with undefined values', function() {
+    var processList = [{}]
+
+    boss.listProcesses = sinon.stub()
+    boss.listProcesses.withArgs(sinon.match.func).callsArgWith(0, undefined, processList)
+
+    processes.list()
+
+    expect(boss.listProcesses.threw()).to.be.false
+  })
+
+  it('should not throw formatting process list with null values', function() {
+    var processList = [{
+      pid: null,
+      user: null,
+      group: null,
+      name: null,
+      uptime: null,
+      restarts: null,
+      rss: null,
+      heapTotal: null,
+      heapUsed: null,
+      cpu: null,
+      status: null
+    }]
+
+    boss.listProcesses = sinon.stub()
+    boss.listProcesses.withArgs(sinon.match.func).callsArgWith(0, undefined, processList)
+
+    processes.list()
+
+    expect(boss.listProcesses.threw()).to.be.false
+  })
+
+  it('should not throw formatting process list with non-numeric values', function() {
+    // Set properties that require extra numeric formatting to non-numeric objects
+    var processList = [{
+      uptime: 'uptime',
+      rss: 'rss',
+      heapTotal: 'heapTotal',
+      heapUsed: 'heapUsed',
+      cpu: 'cpu'
+    }]
+
+    boss.listProcesses = sinon.stub()
+    boss.listProcesses.withArgs(sinon.match.func).callsArgWith(0, undefined, processList)
+
+    processes.list()
+
+    expect(boss.listProcesses.threw()).to.be.false
+  })
+
   it('should start a process', function() {
     var script = 'script'
     var options = {}
