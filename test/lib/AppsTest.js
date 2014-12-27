@@ -85,7 +85,7 @@ describe('Apps', function() {
     }
 
     console.error = function(data) {
-      expect(data).to.equal('foo')
+      expect(data).to.contain('foo')
 
       done()
     }

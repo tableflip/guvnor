@@ -126,8 +126,9 @@ describe('Actions', function() {
     boss.findProcessInfoByPid.withArgs(pid).callsArgWith(1, undefined, processInfo)
     boss.connectToProcess.withArgs(processInfo.id).callsArgWith(1, undefined, remote)
 
-    actions._withRemoteProcess(boss, pid, function(error, r) {
+    actions._withRemoteProcess(boss, pid, function(error, p, r) {
       expect(error).to.not.exist
+      expect(p).to.equal(processInfo)
       expect(r).to.equal(remote)
 
       done()

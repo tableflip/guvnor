@@ -22,16 +22,17 @@
     "boss-rc": "^0.5",
     "colors": "^1.0",
     "commander": "^2.0",
+    "execSync": "^1.0",
     "moment": "^2.0",
-    "prettysize": "^0.0",
-    "stackup": "^0.0",
+    "output-buffer": "^1.0",
     "posix": "^1.0",
+    "prettysize": "^0.0",
+    "prompt": "^0.2",
+    "splitargs": "^0.0",
+    "stackup": "^0.0",
     "wantsit": "^1.0",
     "wildemitter": "^1.0",
-    "winston": "^0.8",
-    "output-buffer": "^1.0",
-    "execSync": "^1.0",
-    "prompt": "^0.2"
+    "winston": "^0.8"
   },
   "devDependencies": {
     "chai": "^1.0",
@@ -64,5 +65,17 @@
     "uptime",
     "memory",
     "cpu"
-  ]
+  ],
+  "jshintConfig": {
+    "asi": true,
+    "browser": true,
+    "curly": false,
+    "expr": true,
+    "indent": 2,
+    "loopfunc": true,
+    "node": true,
+    "trailing": true,
+    "undef": true,
+    "white": true
+  }
 }

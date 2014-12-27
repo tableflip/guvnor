@@ -50,25 +50,6 @@ describe('CLI', function() {
     }
   })
 
-  it('should parse list of arguments', function() {
-    var list = cli._parseList('--foo')
-    expect(list).to.contain('--foo')
-  })
-
-  it('should parse list of arguments with multiple arguments', function() {
-    var list = cli._parseList('--foo --bar')
-    expect(list).to.contain('--foo')
-    expect(list).to.contain('--bar')
-  })
-
-  it('should parse list of short arguments with multiple arguments', function() {
-    var list = cli._parseList('-f 1 -b 2')
-    expect(list).to.contain('-f')
-    expect(list).to.contain('1')
-    expect(list).to.contain('-b')
-    expect(list).to.contain('2')
-  })
-
   it('should print a warning if the user is in the wrong group', function() {
     var userName = 'foo'
     cli._user.name = userName

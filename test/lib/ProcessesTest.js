@@ -150,6 +150,7 @@ describe('Processes', function() {
       kill: sinon.stub(),
       disconnect: sinon.stub()
     }
+    remote.kill.callsArg(0)
 
     boss.findProcessInfoByName.withArgs(pid).callsArgWith(1, undefined, processInfo)
     boss.connectToProcess.withArgs(processInfo.id).callsArgWith(1, undefined, remote)
@@ -181,6 +182,9 @@ describe('Processes', function() {
       kill: sinon.stub(),
       disconnect: sinon.stub()
     }
+
+    remote0.kill.callsArg(0)
+    remote1.kill.callsArg(0)
 
     boss.findProcessInfoByName.withArgs(pid0).callsArgWith(1, undefined, processInfo0)
     boss.connectToProcess.withArgs(processInfo0.id).callsArgWith(1, undefined, remote0)
@@ -216,6 +220,9 @@ describe('Processes', function() {
       disconnect: sinon.stub()
     }
 
+    remote0.kill.callsArg(0)
+    remote1.kill.callsArg(0)
+
     boss.listProcesses = sinon.stub()
     boss.listProcesses.withArgs(sinon.match.func).callsArgWith(0, undefined, processList)
 
@@ -243,6 +250,8 @@ describe('Processes', function() {
       restart: sinon.stub(),
       disconnect: sinon.stub()
     }
+
+    remote.restart.callsArg(0)
 
     boss.findProcessInfoByName.withArgs(pid).callsArgWith(1, undefined, processInfo)
     boss.connectToProcess.withArgs(processInfo.id).callsArgWith(1, undefined, remote)
@@ -274,6 +283,9 @@ describe('Processes', function() {
       restart: sinon.stub(),
       disconnect: sinon.stub()
     }
+
+    remote0.restart.callsArg(0)
+    remote1.restart.callsArg(0)
 
     boss.findProcessInfoByName.withArgs(pid0).callsArgWith(1, undefined, processInfo0)
     boss.connectToProcess.withArgs(processInfo0.id).callsArgWith(1, undefined, remote0)
@@ -308,6 +320,9 @@ describe('Processes', function() {
       restart: sinon.stub(),
       disconnect: sinon.stub()
     }
+
+    remote0.restart.callsArg(0)
+    remote1.restart.callsArg(0)
 
     boss.listProcesses = sinon.stub()
     boss.listProcesses.withArgs(sinon.match.func).callsArgWith(0, undefined, processList)
@@ -411,6 +426,23 @@ describe('Processes', function() {
   })
 
   it('should find a process by pid if the passed id is numeric', function() {
+    var pid = 5
+    var signal = 'signal'
+    var processInfo = {
+      id: 'id'
+    }
+
+    boss.findProcessInfoByPid.withArgs(pid).callsArgWith(1, undefined, processInfo)
+    boss.sendSignal = sinon.stub()
+    boss.sendSignal.withArgs(processInfo.id, signal, sinon.match.func).callsArgWith(2, undefined)
+
+    processes.signal(pid, signal)
+
+    expect(boss.disconnect.called).to.be.true
+    expect(boss.sendSignal.calledWith(processInfo.id, signal, sinon.match.func)).to.be.true
+  })
+
+  it('should remove a process', function() {
     var pid = 5
     var signal = 'signal'
     var processInfo = {
