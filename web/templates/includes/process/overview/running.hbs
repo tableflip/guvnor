@@ -1,0 +1,26 @@
+<div class="panel panel-primary details">
+  <div class="panel-heading">
+    <h4 class="panel-title">Vital statistics</h4>
+  </div>
+  <div class="panel-body" data-hook="debugger-warning">
+    <div class="alert alert-warning">
+      {{model.name}} is running in debug mode, is paused and is waiting for a debugger to attach to port {{model.debugPort}}. Please click the debug button below.
+    </div>
+    <button type="button" class="btn btn-default btn-xs process-debug"><i class="fa fa-bug"></i> Debug</button>
+  </div>
+  <div class="panel-body" data-hook="running-information">
+    <p>{{model.name}} has been running for <span data-hook="uptime">{{model.uptimeFormatted}}</span> with <span data-hook="restarts">{{model.restarts}}</span> restart(s).</p>
+    <p>The current pid is <span data-hook="pid">{{model.pid}}</span> and it's running as <span data-hook="user">{{model.user}}</span>:<span data-hook="group">{{model.group}}</span>.</p>
+
+    <button type="button" class="btn btn-default btn-xs process-gc" data-hook="gcbutton"><i class="fa fa-trash"></i> Garbage collect</button>
+    <button type="button" class="btn btn-default btn-xs process-heap" data-hook="heapdumpbutton"><i class="fa fa-h-square"></i> Heap dump</button>
+    <button type="button" class="btn btn-default btn-xs process-debug"><i class="fa fa-bug"></i> Debug</button>
+    <button type="button" class="btn btn-default btn-xs process-restart" data-hook="restartbutton"><i class="fa fa-refresh"></i> Restart</button>
+    <button type="button" class="btn btn-default btn-xs process-stop" data-hook="stopbutton"><i class="fa fa-stop"></i> Stop</button>
+
+    {{#if model.cluster}}
+      <button type="button" class="btn btn-default btn-xs process-addworker" data-hook="addworkerbutton"><i class="fa fa-plus"></i> Add worker</button>
+      <button type="button" class="btn btn-default btn-xs process-removeworker" data-hook="removeworkerbutton"><i class="fa fa-minus"></i> Remove worker</button>
+    {{/if}}
+  </div>
+</div>

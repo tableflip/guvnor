@@ -1,0 +1,31 @@
+<div class="panel panel-primary table-panel system">
+  <div class="panel-heading">
+    <h4 class="panel-title">Vital statistics</h4>
+  </div>
+  <div class="panel-body">
+    <table class="table table-striped system-details">
+      <thead>
+        <tr>
+          <th class="hostname">Hostname</th>
+          <th class="type">Type</th>
+          <th class="platform">Platform</th>
+          <th class="arch">Arch</th>
+          <th class="release">Release</th>
+          <th class="boss">Boss</th>
+          <th class="uptime">Uptime</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="hostname">{{model.hostname}}</td>
+          <td class="type">{{model.type}}</td>
+          <td class="platform">{{model.platform}}</td>
+          <td class="arch">{{model.arch}}</td>
+          <td class="release">{{model.release}}</td>
+          <td class="boss">{{model.version}}</td>
+          <td class="uptime" data-hook="uptime">{{model.uptimeFormatted}}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

@@ -1,0 +1,64 @@
+; Salt, used to hash user passwords.  If you change this value after setting it,
+; you will need to rehash all user passwords.
+salt = undefined
+
+; How long to wait for remote daemons to respond to RPC requests
+timeout = 10000
+
+; How often to update system/process resource usage (ms)
+frequency = 500
+
+; The minimum version of boss we are compatible with
+minVersion = ^1.2.0
+
+[http]
+  ; Which host to accept connections on
+  listen = 0.0.0.0
+
+  ; Which port to accept connections on
+  port = 3000
+
+[https]
+  ; If you are performing SSL termination somewhere else set this to false to
+  ; stop boss-web from starting an https server, otherwise leave this enabled!
+  enabled = true
+
+  ; Which host to accept connections on
+  listen = 0.0.0.0
+
+  ; Which port to accept connections on
+  port = 3001
+
+  ; Set this to provide a path to the private key for this server.  If left
+  ; undefined and ${https.enabled} is true, a temporary key will be generated.
+  key = undefined
+
+  ; Set this to provide the passphrase for ${https.key}
+  passphrase = undefined
+
+  ; Set this to provide a path to the certificate for this server.  If left
+  ; undefined and ${https.enabled} is true, a temporary certificate will be generated.
+  certificate = undefined
+
+  ; If true, start an http server on ${server.http.port} and redirect users to the
+  ; server running on ${server.https.port} with the same host as the incoming request
+  upgrade = true
+
+[graph]
+
+  ; Max number of points to plot on a resource graph
+  max = 1000
+
+[logs]
+  ; The max number of log entries per process that will be stored
+  max = 1000
+
+[exceptions]
+  ; The max number of exceptions per process that will be stored
+  max = 1000
+
+[ws]
+  ; Incoming log/exception events arrive in real time and are batched before begin sent to
+  ; the browser to prevent locking up the UI. This is how frequently they are sent in ms.
+  ; If your processes log excessively, you may wish to increase this number.
+  frequency = 500

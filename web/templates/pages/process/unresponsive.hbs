@@ -1,0 +1,18 @@
+<section class="page processes">
+  <div class="row">
+    <div class="col-md-12">
+      <h1>{{model.name}}</h1>
+      <div class="panel panel-primary">
+        <div class="panel-heading">
+          <h4 class="panel-title">Unresponsive</h4>
+        </div>
+        <div class="panel-body">
+          <p>{{model.name}} is unresponsive. You may try to debug, retart or stop the process.</p>
+          <button type="button" class="btn btn-default btn-xs process-debug"><i class="fa fa-bug"></i> Debug</button>
+          <button type="button" class="btn btn-default btn-xs process-restart" data-hook="restartbutton"><i class="fa fa-refresh"></i> Restart</button>
+          <button type="button" class="btn btn-default btn-xs process-stop" data-hook="stopbutton"><i class="fa fa-stop"></i> Stop</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

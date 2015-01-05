@@ -1,0 +1,55 @@
+ul.exceptions
+  background-color: #181818
+
+ul.exceptions, ul.exceptions ul
+  list-style: none
+  padding: 0
+  margin: 0
+
+ul.exceptions li
+  padding: 10px 15px 5px 15px
+  display: inline-block
+  overflow: hidden
+  text-overflow: ellipsis
+
+ul.exceptions > li
+  font-weight: bold
+  color: #FFF
+
+ul.exceptions li.list
+  padding: 0
+  display: block
+  border-bottom: none
+  font-weight: normal
+
+ul.exceptions li.list ul
+  border-bottom: 1px solid #282828
+
+ul.exceptions li.list ul:hover
+  cursor: pointer
+
+ul.exceptions li.list ul:first-child
+  border-top: 2px solid #282828
+
+ul.exceptions li.list ul:nth-child(odd)
+  background-color: #080808
+
+ul.exceptions li.list ul:hover
+  background-color: #282828
+
+ul.exceptions li.message
+  -webkit-flex-grow: 1
+  flex-grow: 1
+
+ul.exceptions li.date
+  width: 210px
+  color: #999
+
+ul.exceptions li.code
+  width: 150px
+
+ul.exceptions li.stack
+  display: none
+
+ul.exceptions li.stack.visible
+  display: block

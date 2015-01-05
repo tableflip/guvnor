@@ -1,0 +1,16 @@
+.panel-processes p
+  margin: 0
+
+.process-list
+  .pid, .uptime, .restarts, .cpu, .memory
+    width: 80px
+
+@media (max-width: 512px)
+  .process-list
+    .pid, .uptime, .restarts
+      display: none
+
+@media (max-width: 640px)
+  .process-list
+    .pid
+      display: none

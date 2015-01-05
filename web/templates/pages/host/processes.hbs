@@ -1,0 +1,28 @@
+<section class="page processes">
+  <div class="row">
+    <div class="col-md-12">
+      <h1>{{model.name}}</h1>
+      <div class="panel panel-primary table-panel processes">
+        <div class="panel-heading">
+          <h4 class="panel-title">Processes</h4>
+        </div>
+        <div class="panel-body">
+          <p data-hook="no-processes">There are no processes loaded</p>
+          <table class="table table-striped table-hover process-list"  data-hook="process-list">
+            <thead>
+            <tr>
+              <th class="title">Title</th>
+              <th class="pid">Pid</th>
+              <th class="uptime">Uptime</th>
+              <th class="restarts">Restarts</th>
+              <th class="memory">Memory</th>
+              <th class="cpu">CPU</th>
+            </tr>
+            </thead>
+            <tbody data-hook="processes"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

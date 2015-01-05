@@ -1,0 +1,10 @@
+; # Host configuration
+;
+; Hosts should follow this format:
+;
+; [hostname]
+;   host = my.host.com
+;   port = port number
+;   user = user the daemon runs as on my.host.com
+;   key = user key
+;   secret = longish string
