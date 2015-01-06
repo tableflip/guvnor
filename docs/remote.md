@@ -5,10 +5,17 @@
 1. [Managing clusters](clusters.md)
 1. [Installing and running apps](apps.md)
 1. Remote access and monitoring (e.g. boss-web)
+1. [Web interface](web.md)
+1. [Web interface - configuration](web-config.md)
+1. [Web interface - user management](web-uesrs.md)
+1. [Programmatic access](programmatic-access.md)
+1. [Programmatic access - local](programmatic-access-local.md)
+1. [Programmatic access - remote](programmatic-access-remote.md)
+1. [Programmatic access - events](programmatic-access-events.md)
 
 ## Remote access and monitoring
 
-These commands are for use with [boss-web](http://github.com/tableflip/boss-web).
+These commands are for use with [boss-web](web.md).
 
 1. [remoteconfig](#remoteconfig)
 1. [useradd](#useradd)
@@ -18,7 +25,7 @@ These commands are for use with [boss-web](http://github.com/tableflip/boss-web)
 
 ## remoteconfig
 
-For use with [boss-web](http://github.com/tableflip/boss-web) - see boss-web's [setup](https://github.com/tableflip/boss-web#setup) for more information
+For use with [boss-web](web.md).
 
 ```sh
 bs remoteconfig
@@ -26,7 +33,7 @@ bs remoteconfig
 
 ## useradd
 
-To add a user for [boss-web](http://github.com/tableflip/boss-web) - see boss-web's [setup](https://github.com/tableflip/boss-web#setup) for more information.  If you specify `[hostname]` the configuration output is more likely to be correct.
+To add a user for [boss-web](web.md).  If you specify `[hostname]` the configuration output is more likely to be correct.
 
 ```sh
 bs useradd [options] <username> [hostname]
@@ -34,7 +41,7 @@ bs useradd [options] <username> [hostname]
 
 ## rmuser
 
-To remove a user for [boss-web](http://github.com/tableflip/boss-web) - see boss-web's [setup](https://github.com/tableflip/boss-web#setup) for more information.
+To remove a user for [boss-web](web.md).
 
 ```sh
 bs rmuser <username>
@@ -42,7 +49,7 @@ bs rmuser <username>
 
 ## lsusers
 
-To list users for [boss-web](http://github.com/tableflip/boss-web) - see boss-web's [setup](https://github.com/tableflip/boss-web#setup) for more information.
+To list users for [boss-web](web.md).
 
 ```sh
 bs lsusers
@@ -50,7 +57,7 @@ bs lsusers
 
 ## reset
 
-To reset the secret for a [boss-web](http://github.com/tableflip/boss-web) user - see boss-web's [setup](https://github.com/tableflip/boss-web#setup) for more information.
+To reset the secret for a [boss-web](web.md) user.
 
 ```sh
 bs reset <username>
