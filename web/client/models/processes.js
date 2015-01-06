@@ -8,7 +8,8 @@ module.exports = Collection.extend({
       cpu: processInfo.cpu,
       residentSize: processInfo.residentSize,
       heapTotal: processInfo.heapTotal,
-      heapUsed: processInfo.heapUsed
+      heapUsed: processInfo.heapUsed,
+      latency: processInfo.latency
     }
 
     // remove values as they conflict with collections on model
@@ -16,6 +17,7 @@ module.exports = Collection.extend({
     delete processInfo.residentSize
     delete processInfo.heapTotal
     delete processInfo.heapUsed
+    delete processInfo.latency
 
     var isNew = !this.get(processInfo.id)
 
@@ -31,6 +33,7 @@ module.exports = Collection.extend({
       process.residentSize.fetch()
       process.heapTotal.fetch()
       process.heapUsed.fetch()
+      process.latency.fetch()
     }
 
     if(usage.cpu !== undefined) {
@@ -58,6 +61,13 @@ module.exports = Collection.extend({
       process.heapUsed.add({
         date: this.parent.time,
         usage: usage.heapUsed
+      })
+    }
+
+    if(usage.latency !== undefined) {
+      process.latency.add({
+        date: this.parent.time,
+        usage: usage.latency
       })
     }
 

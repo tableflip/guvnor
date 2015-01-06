@@ -6,7 +6,8 @@ var AmpersandModel = require('ampersand-model'),
   CPUUsage = require('./cpuUsage'),
   RSSUsage = require('./rssUsage'),
   TotalHeapUsage = require('./totalHeapUsage'),
-  UsedHeapUsage = require('./usedHeapUsage')
+  UsedHeapUsage = require('./usedHeapUsage'),
+  Latencies = require('./latencies')
 
 module.exports = AmpersandModel.extend({
   props: {
@@ -115,6 +116,7 @@ module.exports = AmpersandModel.extend({
     cpu: CPUUsage,
     residentSize: RSSUsage,
     heapTotal: TotalHeapUsage,
-    heapUsed: UsedHeapUsage
+    heapUsed: UsedHeapUsage,
+    latency: Latencies
   }
 })

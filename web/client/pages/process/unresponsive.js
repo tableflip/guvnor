@@ -42,6 +42,7 @@ module.exports = ProcessPage.extend({
     }]
   }, ProcessPage.prototype.bindings),
   events: {
+    'click [data-hook=debugbutton]': 'debugProcess',
     'click [data-hook=restartbutton]': 'restartProcess',
     'click [data-hook=stopbutton]': 'stopProcess'
   },

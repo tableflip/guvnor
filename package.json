@@ -48,7 +48,7 @@
     "domify": "^1.0",
     "domready": "^1.0",
     "etc-passwd": "^0.1",
-    "event-loop-monitor": "0.0.3",
+    "event-loop-lag": "^1.0",
     "execSync": "^1.0",
     "extend": "^2.0",
     "favicon-setter": "^0.1",
