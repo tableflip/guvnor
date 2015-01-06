@@ -16,6 +16,10 @@ module.exports = AmpersandModel.extend({
     messageFormatted: {
       deps: ['message'],
       fn: function () {
+        if(!this.message) {
+          return ''
+        }
+
         var message = this.message.replace(/</g, '&lt;')
         message = message.replace(/>/g, '&gt;')
 

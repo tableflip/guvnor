@@ -6,7 +6,7 @@ salt = undefined
 timeout = 10000
 
 ; How often to update system/process resource usage (ms)
-frequency = 5000
+frequency = 1000
 
 ; The minimum version of boss we are compatible with
 minVersion = ^2.4.0
