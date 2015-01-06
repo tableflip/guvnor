@@ -63,11 +63,11 @@ module.exports = AmpersandModel.extend({
 
         var last = this.cpu.at(this.cpu.length - 1)
 
-        if(!last || !last.y) {
+        if(!last) {
           return '?'
         }
 
-        return last.y + '%'
+        return last.usage + ' %'
       }
     },
     memoryFormatted: {
@@ -83,7 +83,7 @@ module.exports = AmpersandModel.extend({
           return '?'
         }
 
-        return prettysize(last.y, true)
+        return prettysize(last.usage)
       }
     },
     uptimeFormatted: {

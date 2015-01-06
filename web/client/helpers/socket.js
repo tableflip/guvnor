@@ -259,8 +259,6 @@ socket.on('app:removed', function(hostName, appInfo) {
 
 socket.on('process:aborted', function(hostName, process) {
   withHostAndProcess(hostName, process.id, function(host, process) {
-    host.processes.addOrUpdate(process)
-
     notify({
       header: 'Aborted',
       message: ['%s restarted too many times and was aborted', process.name],
@@ -270,8 +268,6 @@ socket.on('process:aborted', function(hostName, process) {
 })
 socket.on('cluster:aborted', function(hostName, process) {
   withHostAndProcess(hostName, process.id, function(host, process) {
-    host.processes.addOrUpdate(process)
-
     notify({
       header: 'Aborted',
       message: ['%s restarted too many times and was aborted', process.name],
