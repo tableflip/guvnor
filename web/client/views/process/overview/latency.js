@@ -33,13 +33,7 @@ module.exports = View.extend({
         text: null
       },
       legend: {
-        itemStyle: fontStyle,
-        itemHiddenStyle: {
-          color: '#444'
-        },
-        itemHoverStyle: {
-          color: '#777'
-        }
+        enabled: false
       },
       credits: {
         enabled: false
