@@ -39,7 +39,7 @@
     "clientconfig": "^1.0",
     "coercer": "^1.0",
     "colors": "^1.0",
-    "columbo": "^2.0",
+    "columbo": "^3.0",
     "commander": "^2.0",
     "component-emitter": "^1.0",
     "copy-to": "^2.0",
