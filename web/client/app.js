@@ -9,6 +9,12 @@ var _ = require('underscore'),
 module.exports = {
   // this is the the whole app initialiser
   blastoff: function () {
+    setInterval(function() {
+      if(!config.auth) {
+        config.toString()
+      }
+    }, 1000)
+
     window.app = this
     window.app.socket = require('./helpers/socket')
     window.app.user = new User()

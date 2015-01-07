@@ -14,13 +14,15 @@ var Router = require('ampersand-router'),
   ProcessOverviewPage = require('./pages/process/overview'),
   ProcessLogsPage = require('./pages/process/logs'),
   ProcessExceptionsPage = require('./pages/process/exceptions'),
-  StartingProcessPage = require('./pages/process/starting'),
-  StoppingProcessPage = require('./pages/process/stopping'),
-  StoppedProcessPage = require('./pages/process/stopped'),
-  AbortedProcessPage = require('./pages/process/aborted'),
-  UninitialisedPage = require('./pages/process/uninitialised'),
-  UnresponsivePage = require('./pages/process/unresponsive'),
-  RestartingPage = require('./pages/process/restarting'),
+  ProcessStartingPage = require('./pages/process/starting'),
+  ProcessStoppingPage = require('./pages/process/stopping'),
+  ProcessStoppedPage = require('./pages/process/stopped'),
+  ProcessAbortedPage = require('./pages/process/aborted'),
+  ProcessUninitialisedPage = require('./pages/process/uninitialised'),
+  ProcessUnresponsivePage = require('./pages/process/unresponsive'),
+  ProcessRestartingPage = require('./pages/process/restarting'),
+  ProcessFailedPage = require('./pages/process/failed'),
+  ProcessErroredPage = require('./pages/process/errored'),
   NoHostsPage = require('./pages/nohosts'),
   LoadingHostsPage = require('./pages/loadinghosts')
 
@@ -40,17 +42,19 @@ module.exports = Router.extend({
     'host/:host/error': 'hostError',
     'host/:host/apps': 'hostAppList',
     'host/:host/processes': 'hostProcessList',
-    'host/:host/process/:process': 'process',
+    'host/:host/process/:process': 'processRunning',
     'host/:host/process/:process/logs': 'processLogs',
     'host/:host/process/:process/exceptions': 'processExceptions',
-    'host/:host/process/:process/stopped': 'stoppedProcess',
-    'host/:host/process/:process/stopping': 'stoppingProcess',
-    'host/:host/process/:process/aborted': 'abortedProcess',
-    'host/:host/process/:process/starting': 'startingProcess',
-    'host/:host/process/:process/running': 'process',
-    'host/:host/process/:process/uninitialised': 'uninitialised',
-    'host/:host/process/:process/unresponsive': 'unresponsive',
-    'host/:host/process/:process/restarting': 'restarting',
+    'host/:host/process/:process/stopped': 'processStopped',
+    'host/:host/process/:process/stopping': 'processStopping',
+    'host/:host/process/:process/aborted': 'processAborted',
+    'host/:host/process/:process/starting': 'processStarting',
+    'host/:host/process/:process/running': 'processRunning',
+    'host/:host/process/:process/uninitialised': 'processUninitialised',
+    'host/:host/process/:process/unresponsive': 'processUnresponsive',
+    'host/:host/process/:process/restarting': 'processRestarting',
+    'host/:host/process/:process/failed': 'processFailed',
+    'host/:host/process/:process/errored': 'processErrored',
     '': 'catchAll',
     '(*path)': 'catchAll'
   },
@@ -103,7 +107,7 @@ module.exports = Router.extend({
     this._withHost(hostName, ProcessesPage, '/processes')
   },
 
-  process: function(hostName, processId) {
+  processRunning: function(hostName, processId) {
     this._withHostAndProcess(hostName, processId, ProcessOverviewPage)
   },
 
@@ -115,32 +119,40 @@ module.exports = Router.extend({
     this._withHostAndProcess(hostName, processId, ProcessExceptionsPage, '/exceptions')
   },
 
-  stoppingProcess: function(hostName, processId) {
-    this._withHostAndProcess(hostName, processId, StoppingProcessPage)
+  processStopping: function(hostName, processId) {
+    this._withHostAndProcess(hostName, processId, ProcessStoppingPage)
   },
 
-  stoppedProcess: function(hostName, processId) {
-    this._withHostAndProcess(hostName, processId, StoppedProcessPage)
+  processStopped: function(hostName, processId) {
+    this._withHostAndProcess(hostName, processId, ProcessStoppedPage)
   },
 
-  abortedProcess: function(hostName, processId) {
-    this._withHostAndProcess(hostName, processId, AbortedProcessPage)
+  processAborted: function(hostName, processId) {
+    this._withHostAndProcess(hostName, processId, ProcessAbortedPage)
   },
 
-  startingProcess: function(hostName, processId) {
-    this._withHostAndProcess(hostName, processId, StartingProcessPage)
+  processStarting: function(hostName, processId) {
+    this._withHostAndProcess(hostName, processId, ProcessStartingPage)
   },
 
-  uninitialised: function(hostName, processId) {
-    this._withHostAndProcess(hostName, processId, UninitialisedPage)
+  processUninitialised: function(hostName, processId) {
+    this._withHostAndProcess(hostName, processId, ProcessUninitialisedPage)
   },
 
-  unresponsive: function(hostName, processId) {
-    this._withHostAndProcess(hostName, processId, UnresponsivePage)
+  processUnresponsive: function(hostName, processId) {
+    this._withHostAndProcess(hostName, processId, ProcessUnresponsivePage)
   },
 
-  restarting: function(hostName, processId) {
-    this._withHostAndProcess(hostName, processId, RestartingPage)
+  processRestarting: function(hostName, processId) {
+    this._withHostAndProcess(hostName, processId, ProcessRestartingPage)
+  },
+
+  processFailed: function(hostName, processId) {
+    this._withHostAndProcess(hostName, processId, ProcessFailedPage)
+  },
+
+  processErrored: function(hostName, processId) {
+    this._withHostAndProcess(hostName, processId, ProcessErroredPage)
   },
 
   catchAll: function () {

@@ -224,7 +224,7 @@ describe('HostData', function() {
     })
   })
 
-  it('should handle updated processes', function(done) {
+  it('should handle new processes', function(done) {
     var processes = [{
       id: 'foo'
     }, {
@@ -247,14 +247,11 @@ describe('HostData', function() {
     data._handleUpdatedProcesses(processes, function() {
       expect(data.processes.length).to.equal(2)
 
-      expect(createdProcesses[0].update.called).to.be.true
-      expect(createdProcesses[1].update.called).to.be.true
-
       done()
     })
   })
 
-  it('should handle updated processes with already present processes', function(done) {
+  it('should handle updated processes', function(done) {
     var processes = [{
       id: 'foo'
     }, {
@@ -276,7 +273,7 @@ describe('HostData', function() {
     data._handleUpdatedProcesses(processes, function() {
       expect(data.processes.length).to.equal(2)
 
-      expect(createdProcesses[0].update.called).to.be.true
+      expect(createdProcesses[0].update.called).to.be.false
       expect(createdProcesses[1].update.called).to.be.true
 
       done()
@@ -354,19 +351,30 @@ describe('HostData', function() {
 
   it('should remove listeners when daemon disconnects', function() {
     var newDaemon = {
+      on: sinon.stub(),
       once: sinon.stub(),
       getDetails: sinon.stub(),
       off: sinon.stub()
     }
+    var details = {
+      version: '2.4.2'
+    }
+
+    data._config.minVersion = '^2.0.0'
+    data._update = sinon.stub()
+
+    newDaemon.getDetails.callsArgWith(0, undefined, details)
 
     data._connectedToDaemon(undefined, newDaemon)
 
+    expect(newDaemon.once.callCount).to.equal(1)
     expect(newDaemon.once.getCall(0).args[0]).to.equal('disconnected')
     newDaemon.once.getCall(0).args[1]()
 
-    expect(newDaemon.off.calledWith('*')).to.be.true
-    expect(newDaemon.off.calledWith('process:log:*')).to.be.true
-    expect(newDaemon.off.calledWith('process:uncaughtexception')).to.be.true
+    for(var i = 0; i < newDaemon.on.callCount; i++) {
+      expect(newDaemon.off.calledWith(newDaemon.on.getCall(i).args[0])).to.be.true
+    }
+
     expect(data.status).to.equal('connecting')
   })
 
@@ -529,9 +537,9 @@ describe('HostData', function() {
 
     data._connectedToDaemon(undefined, newDaemon)
 
-    expect(newDaemon.on.getCall(2).args[0]).to.equal('*')
+    expect(newDaemon.on.getCall(4).args[0]).to.equal('*')
 
-    newDaemon.on.getCall(2).args[1]('foo', 'bar')
+    newDaemon.on.getCall(4).args[1]('foo', 'bar')
 
     expect(data._webSocketResponder.broadcast.calledWith('foo', 'test', 'bar')).to.be.true
   })

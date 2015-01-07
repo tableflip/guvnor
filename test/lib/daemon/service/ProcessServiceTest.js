@@ -52,21 +52,27 @@ describe('ProcessService', function() {
 
     processService._freeport.callsArgWith(0, undefined, 5)
 
-    var processInfo = new ProcessInfo({
-      script: __filename
-    })
-    processInfo.execArgv = []
-    processInfo.restartOnError = true
-    processInfo.restartRetries = 5
+    var processInfo = {
+      id: 'foo',
+      restartOnError: true,
+      restartRetries: 5,
+      restarts: 0,
+      totalRestarts: 0,
+      validate: sinon.stub().callsArg(0),
+      getProcessArgs: sinon.stub(),
+      getProcessOptions: sinon.stub()
+    }
+    //processInfo.validate
+
     processService._processInfoStore.create.callsArgWith(1, undefined, processInfo)
     processService._processInfoStore.find.withArgs('id', processInfo.id).returns(processInfo)
 
     // Start a process
     processService.startProcess(__filename, {}, sinon.stub())
 
-    mockProcess0.emit('message', {type: 'process:ready'})
-
     expect(processService._child_process.fork.calledOnce).to.be.true
+
+    mockProcess0.emit('message', {type: 'process:ready'})
 
     // Exit the mock process
     mockProcess0.emit('exit', 7)
@@ -77,69 +83,6 @@ describe('ProcessService', function() {
     mockProcess1.emit('message', {type: 'process:ready'})
 
     expect(processService._processInfoStore.create.calledOnce).to.be.true
-  })
-
-  it('should propagate environment variables to started processes', function() {
-    function MockProcess() {
-      this.pid = Math.floor(Math.random() * 1000)
-    }
-    inherits(MockProcess, EventEmitter)
-
-    MockProcess.prototype.kill = sinon.stub()
-
-    var mockProcess = new MockProcess()
-
-    processService._child_process.fork.returns(mockProcess)
-
-    var env = {FOO: 'BAR'}
-
-    processService._freeport.callsArgWith(0, undefined, 5)
-
-    var processInfo = new ProcessInfo({
-      script: __filename,
-      env: env
-    })
-    processInfo._execSync = {
-      exec: sinon.stub()
-    }
-    processInfo._config = {
-      boss: {
-        logdir: 'foo'
-      },
-      debug: {
-        cluster: false
-      }
-    }
-    processInfo._posix = {
-      getpwnam: sinon.stub(),
-      getgrnam: sinon.stub()
-    }
-    processInfo._fs = {
-      statSync: sinon.stub()
-    }
-    processInfo._posix.getpwnam.returns({name: 'foo'})
-    processInfo._posix.getgrnam.returns({name: 'bar'})
-    processInfo._fs.statSync.withArgs(__filename).returns({
-      isDirectory: function() {
-        return false
-      }
-    })
-    processInfo._fileSystem = {
-      getLogDir: sinon.stub()
-    }
-    processService._processInfoStore.create.callsArgWith(1, undefined, processInfo)
-
-    processInfo.afterPropertiesSet(function() {
-
-    })
-
-    // Start a process
-    processService.startProcess(__filename, {env: env}, function () {})
-
-    expect(processService._child_process.fork.calledOnce).to.be.true
-
-    // The second param should be fork options, which should contain an env property
-    expect(processService._child_process.fork.getCall(0).args[2].env.FOO).to.equal(env.FOO)
   })
 
   it('should find a process by pid', function() {
@@ -154,9 +97,12 @@ describe('ProcessService', function() {
   })
 
   it('should notify of failure if reserving a debug port fails', function(done) {
-    var processInfo = {}
+    var processInfo = {
+      validate: sinon.stub()
+    }
+    processInfo.validate.callsArgAsync(0)
 
-    processService._processInfoStore.create.callsArgWith(1, undefined, processInfo)
+    processService._processInfoStore.create.callsArgWithAsync(1, undefined, processInfo)
 
     processService.on('process:failed', function(processInfo) {
       expect(processInfo.status).to.equal('failed')
@@ -174,9 +120,12 @@ describe('ProcessService', function() {
   it('should start a cluster manager', function(done) {
     var processInfo = {
       cluster: true,
+      validate: sinon.stub(),
       getProcessArgs: sinon.stub(),
       getProcessOptions: sinon.stub()
     }
+    processInfo.validate.callsArgAsync(0)
+
     var childProcess = {
       on: sinon.stub()
     }
@@ -263,31 +212,25 @@ describe('ProcessService', function() {
     expect(processService._child_process.fork.called).to.be.false
   })
 
-  it('should restart a failing process when restarts are less than retries', function() {
-    var childProcess = {
-      pid: 5,
-      on: sinon.stub()
-    }
+  it('should restart a failing process when restarts are fewer than retries', function() {
     var processInfo = {
       id: 'foo',
+      process: {
+        pid: 1
+      },
       restartOnError: true,
-      process: childProcess,
       stillCrashing: sinon.stub(),
       restarts: 2,
       restartRetries: 5,
-      getProcessArgs: sinon.stub(),
-      getProcessOptions: sinon.stub()
+      totalRestarts: 0
     }
-    processService._processes = {
-      foo: processInfo
-    }
-    processService._freeport.callsArgWith(0, undefined, 5)
-    processService._child_process.fork.returns(childProcess)
+
+    processService._startProcess = sinon.stub()
 
     processService._restartProcess(processInfo, 'process')
 
     // should have restarted it
-    expect(processService._child_process.fork.calledOnce).to.be.true
+    expect(processService._startProcess.calledOnce).to.be.true
   })
 
   it('should forward events from child process', function(done) {
@@ -296,6 +239,7 @@ describe('ProcessService', function() {
     var processInfo = {
       id: 'foo',
       process: childProcess,
+      validate: sinon.stub().callsArg(0),
       getProcessArgs: sinon.stub(),
       getProcessOptions: sinon.stub(),
       logger: processService._logger
@@ -338,6 +282,7 @@ describe('ProcessService', function() {
     var processInfo = {
       id: 'foo',
       process: childProcess,
+      validate: sinon.stub().callsArg(0),
       getProcessArgs: sinon.stub(),
       getProcessOptions: sinon.stub(),
       logger: processService._logger
@@ -368,6 +313,7 @@ describe('ProcessService', function() {
     var processInfo = {
       id: 'foo',
       process: childProcess,
+      validate: sinon.stub().callsArg(0),
       getProcessArgs: sinon.stub(),
       getProcessOptions: sinon.stub(),
       logger: processService._logger
@@ -406,6 +352,7 @@ describe('ProcessService', function() {
     var processInfo = {
       id: 'foo',
       process: childProcess,
+      validate: sinon.stub().callsArg(0),
       getProcessArgs: sinon.stub(),
       getProcessOptions: sinon.stub(),
       logger: processService._logger,
@@ -445,6 +392,7 @@ describe('ProcessService', function() {
     var processInfo = {
       id: 'foo',
       process: childProcess,
+      validate: sinon.stub().callsArg(0),
       getProcessArgs: sinon.stub(),
       getProcessOptions: sinon.stub(),
       logger: processService._logger
@@ -481,6 +429,7 @@ describe('ProcessService', function() {
     var processInfo = {
       id: 'foo',
       process: childProcess,
+      validate: sinon.stub().callsArg(0),
       getProcessArgs: sinon.stub(),
       getProcessOptions: sinon.stub(),
       logger: processService._logger
@@ -513,6 +462,7 @@ describe('ProcessService', function() {
     var processInfo = {
       id: 'foo',
       process: childProcess,
+      validate: sinon.stub().callsArg(0),
       getProcessArgs: sinon.stub(),
       getProcessOptions: sinon.stub(),
       logger: processService._logger,
@@ -550,6 +500,7 @@ describe('ProcessService', function() {
     var processInfo = {
       id: 'foo',
       process: childProcess,
+      validate: sinon.stub().callsArg(0),
       getProcessArgs: sinon.stub(),
       getProcessOptions: sinon.stub(),
       logger: processService._logger
@@ -578,6 +529,7 @@ describe('ProcessService', function() {
     var processInfo = {
       id: 'foo',
       process: childProcess,
+      validate: sinon.stub().callsArg(0),
       getProcessArgs: sinon.stub(),
       getProcessOptions: sinon.stub(),
       logger: processService._logger
@@ -606,6 +558,7 @@ describe('ProcessService', function() {
     var processInfo = {
       id: 'foo',
       process: childProcess,
+      validate: sinon.stub().callsArg(0),
       getProcessArgs: sinon.stub(),
       getProcessOptions: sinon.stub(),
       logger: processService._logger
@@ -635,6 +588,7 @@ describe('ProcessService', function() {
     var processInfo = {
       id: 'foo',
       process: childProcess,
+      validate: sinon.stub().callsArg(0),
       getProcessArgs: sinon.stub(),
       getProcessOptions: sinon.stub(),
       logger: processService._logger
@@ -662,6 +616,7 @@ describe('ProcessService', function() {
     var processInfo = {
       id: 'foo',
       process: childProcess,
+      validate: sinon.stub().callsArg(0),
       getProcessArgs: sinon.stub(),
       getProcessOptions: sinon.stub(),
       logger: processService._logger
@@ -703,6 +658,7 @@ describe('ProcessService', function() {
     var processInfo = {
       id: 'foo',
       process: childProcess,
+      validate: sinon.stub().callsArg(0),
       getProcessArgs: sinon.stub(),
       getProcessOptions: sinon.stub(),
       logger: processService._logger,
@@ -731,6 +687,7 @@ describe('ProcessService', function() {
     var processInfo = {
       id: 'foo',
       process: childProcess,
+      validate: sinon.stub().callsArg(0),
       getProcessArgs: sinon.stub(),
       getProcessOptions: sinon.stub(),
       logger: processService._logger,
@@ -763,6 +720,7 @@ describe('ProcessService', function() {
     var processInfo = {
       id: 'foo',
       process: childProcess,
+      validate: sinon.stub().callsArg(0),
       getProcessArgs: sinon.stub(),
       getProcessOptions: sinon.stub(),
       logger: processService._logger,
@@ -810,6 +768,7 @@ describe('ProcessService', function() {
     var processInfo = {
       id: 'foo',
       process: childProcess,
+      validate: sinon.stub().callsArg(0),
       getProcessArgs: sinon.stub(),
       getProcessOptions: sinon.stub(),
       logger: processService._logger,
@@ -852,6 +811,7 @@ describe('ProcessService', function() {
     var processInfo = {
       id: 'foo',
       process: childProcess,
+      validate: sinon.stub().callsArg(0),
       getProcessArgs: sinon.stub(),
       getProcessOptions: sinon.stub(),
       logger: processService._logger,
@@ -897,6 +857,7 @@ describe('ProcessService', function() {
     var processInfo = {
       id: 'foo',
       process: childProcess,
+      validate: sinon.stub().callsArg(0),
       getProcessArgs: sinon.stub(),
       getProcessOptions: sinon.stub(),
       logger: processService._logger,
@@ -924,6 +885,7 @@ describe('ProcessService', function() {
     var processInfo = {
       id: 'foo',
       process: childProcess,
+      validate: sinon.stub().callsArg(0),
       getProcessArgs: sinon.stub(),
       getProcessOptions: sinon.stub(),
       logger: processService._logger
@@ -954,6 +916,7 @@ describe('ProcessService', function() {
     var processInfo = {
       id: 'foo',
       process: childProcess,
+      validate: sinon.stub().callsArg(0),
       getProcessArgs: sinon.stub(),
       getProcessOptions: sinon.stub(),
       logger: processService._logger,

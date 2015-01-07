@@ -216,9 +216,13 @@ module.exports = View.extend({
       process: this.model.id
     }, function(error) {
       if(error) {
-        console.error(error)
+        notify({
+          header: 'Add worker error',
+          message: ['Could not add a worker to %s on %s - %s', this.model.name, this.model.collection.parent.name, error.message],
+          type: 'danger'
+        })
       }
-    })
+    }.bind(this))
   },
   removeWorkerFromCluster: function(event) {
     event.target.blur()
@@ -228,8 +232,12 @@ module.exports = View.extend({
       process: this.model.id
     }, function(error) {
       if(error) {
-        console.error(error)
+        notify({
+          header: 'Remove worker error',
+          message: ['Could not remove a worker from %s on %s - %s', this.model.name, this.model.collection.parent.name, error.message],
+          type: 'danger'
+        })
       }
-    })
+    }.bind(this))
   }
 })

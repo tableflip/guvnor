@@ -6,7 +6,7 @@ var expect = require('chai').expect,
 describe('ProcessInfo', function() {
   var fileSystemStub = {findOrCreateLogFileDirectory: sinon.stub()}
 
-  it('should serialize and deserialize', function(done) {
+  it('should serialize and deserialize', function() {
     var processInfo = new ProcessInfo({
       script: '/foo/bar/baz.js',
       cwd: '/foo/bar'
@@ -28,7 +28,6 @@ describe('ProcessInfo', function() {
     }
     processInfo._posix.getpwnam.returns({name: 'foo'})
     processInfo._posix.getgrnam.returns({name: 'bar'})
-    processInfo.afterPropertiesSet()
 
     var otherProcessInfo = new ProcessInfo(JSON.parse(JSON.stringify(processInfo)))
     otherProcessInfo._posix = {
@@ -48,19 +47,14 @@ describe('ProcessInfo', function() {
     }
     otherProcessInfo._posix.getpwnam.returns({name: 'foo'})
     otherProcessInfo._posix.getgrnam.returns({name: 'bar'})
-    otherProcessInfo.afterPropertiesSet(function(error) {
-      expect(error).not.to.exist
 
-      for(var key in processInfo) {
-        if(key == 'id' || key.substring(0, 1) == '_') {
-          continue
-        }
-
-        expect(processInfo[key]).to.deep.equal(otherProcessInfo[key])
+    for(var key in processInfo) {
+      if(key == 'id' || key.substring(0, 1) == '_') {
+        continue
       }
 
-      done()
-    })
+      expect(processInfo[key]).to.deep.equal(otherProcessInfo[key])
+    }
   })
 
   it('should remove debug flags', function() {
@@ -103,13 +97,11 @@ describe('ProcessInfo', function() {
         return false
       }
     })
-    processInfo.afterPropertiesSet()
 
     expect(processInfo.name).to.equal('baz.js')
     expect(processInfo.restartOnError).to.be.true
     expect(processInfo.restartRetries).to.equal(5)
     expect(processInfo.argv).to.be.empty
-    expect(processInfo.cwd).to.equal('/foo/bar')
     expect(processInfo.execArgv).to.be.empty
     expect(processInfo.env).to.be.ok
     expect(processInfo.debug).to.be.false
@@ -159,7 +151,6 @@ describe('ProcessInfo', function() {
         return false
       }
     })
-    processInfo.afterPropertiesSet()
 
     processInfo.debugPort = 6
 
@@ -205,8 +196,6 @@ describe('ProcessInfo', function() {
         return false
       }
     })
-    processInfo.afterPropertiesSet()
-
     processInfo.debugPort = 5
 
     expect(processInfo.getProcessOptions().execArgv.indexOf('--debug-brk=5')).to.equal(0)
@@ -251,8 +240,6 @@ describe('ProcessInfo', function() {
         return false
       }
     })
-    processInfo.afterPropertiesSet()
-
     processInfo.debugPort = 5
 
     expect(processInfo.getProcessOptions().execArgv.indexOf('--debug=5')).to.equal(0)
@@ -298,8 +285,6 @@ describe('ProcessInfo', function() {
         return false
       }
     })
-    processInfo.afterPropertiesSet()
-
     processInfo.debugPort = 5
 
     expect(processInfo.getProcessOptions().execArgv.indexOf('--debug=5')).to.equal(-1)
@@ -346,7 +331,6 @@ describe('ProcessInfo', function() {
     processInfo._execSync.exec.withArgs('su foo -c env').returns({
       stdout: 'IN_ENV=world'
     })
-    processInfo.afterPropertiesSet()
 
     var simple = processInfo.toSimpleObject()
 
@@ -370,5 +354,18 @@ describe('ProcessInfo', function() {
     expect(simple.name).not.to.exist
     expect(simple.env.NOT_IN_ENV).to.equal('hello')
     expect(simple.env.IN_ENV).not.to.exist
+  })
+
+  it('should propagate environmental variables', function() {
+    var processInfo = new ProcessInfo({
+      script: 'test.js'
+    })
+    processInfo.setOptions({
+      env: {
+        FOO: 'bar'
+      }
+    })
+
+    expect(processInfo.getProcessOptions().env.FOO).to.equal('bar')
   })
 })

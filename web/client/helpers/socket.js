@@ -122,8 +122,8 @@ socket.on('disconnected', function(hostName) {
     type: 'danger'
   })
 })
-socket.on('process:log:info', function(hostName, process, log) {
-  withHostAndProcess(hostName, process.id, function(host, process) {
+socket.on('process:log:info', function(hostName, processInfo, log) {
+  withHostAndProcess(hostName, processInfo.id, function(host, process) {
     process.logs.add({
       type: 'info',
       date: log.date,
@@ -131,8 +131,8 @@ socket.on('process:log:info', function(hostName, process, log) {
     })
   })
 })
-socket.on('process:log:warn', function(hostName, process, log) {
-  withHostAndProcess(hostName, process.id, function(host, process) {
+socket.on('process:log:warn', function(hostName, processInfo, log) {
+  withHostAndProcess(hostName, processInfo.id, function(host, process) {
     process.logs.add({
       type: 'warn',
       date: log.date,
@@ -140,8 +140,8 @@ socket.on('process:log:warn', function(hostName, process, log) {
     })
   })
 })
-socket.on('process:log:debug', function(hostName, process, log) {
-  withHostAndProcess(hostName, process.id, function(host, process) {
+socket.on('process:log:debug', function(hostName, processInfo, log) {
+  withHostAndProcess(hostName, processInfo.id, function(host, process) {
     process.logs.add({
       type: 'debug',
       date: log.date,
@@ -149,8 +149,8 @@ socket.on('process:log:debug', function(hostName, process, log) {
     })
   })
 })
-socket.on('process:log:error', function(hostName, process, log) {
-  withHostAndProcess(hostName, process.id, function(host, process) {
+socket.on('process:log:error', function(hostName, processInfo, log) {
+  withHostAndProcess(hostName, processInfo.id, function(host, process) {
     process.logs.add({
       type: 'error',
       date: log.date,
@@ -158,8 +158,8 @@ socket.on('process:log:error', function(hostName, process, log) {
     })
   })
 })
-socket.on('process:uncaughtexception', function(hostName, process, error) {
-  withHostAndProcess(hostName, process.id, function(host, process) {
+socket.on('process:uncaughtexception', function(hostName, processInfo, error) {
+  withHostAndProcess(hostName, processInfo.id, function(host, process) {
     process.exceptions.add({
       id: error.id,
       date: error.date,
@@ -210,38 +210,38 @@ socket.on('server:processes', function(hostName, processes) {
 })
 
 // listen for events for these properties as they could have been initiated by another user
-socket.on('process:gc:start', function(hostName, process) {
-  withHostAndProcess(hostName, process.id, function(host, process) {
+socket.on('process:gc:start', function(hostName, processInfo) {
+  withHostAndProcess(hostName, processInfo.id, function(host, process) {
     process.isGc = true
   })
 })
-socket.on('process:gc:complete', function(hostName, process) {
-  withHostAndProcess(hostName, process.id, function(host, process) {
+socket.on('process:gc:complete', function(hostName, processInfo) {
+  withHostAndProcess(hostName, processInfo.id, function(host, process) {
     process.isGc = false
   })
 })
-socket.on('process:heapdump:start', function(hostName, process) {
-  withHostAndProcess(hostName, process.id, function(host, process) {
+socket.on('process:heapdump:start', function(hostName, processInfo) {
+  withHostAndProcess(hostName, processInfo.id, function(host, process) {
     process.isHeapDump = true
   })
 })
-socket.on('process:heapdump:complete', function(hostName, process) {
-  withHostAndProcess(hostName, process.id, function(host, process) {
+socket.on('process:heapdump:complete', function(hostName, processInfo) {
+  withHostAndProcess(hostName, processInfo.id, function(host, process) {
     process.isHeapDump = false
   })
 })
-socket.on('process:heapdump:error', function(hostName, process) {
-  withHostAndProcess(hostName, process.id, function(host, process) {
+socket.on('process:heapdump:error', function(hostName, processInfo) {
+  withHostAndProcess(hostName, processInfo.id, function(host, process) {
     process.isHeapDump = false
   })
 })
-socket.on('process:restarting', function(hostName, process) {
-  withHostAndProcess(hostName, process.id, function(host, process) {
+socket.on('process:restarting', function(hostName, processInfo) {
+  withHostAndProcess(hostName, processInfo.id, function(host, process) {
     process.isRestarting = true
   })
 })
-socket.on('process:restarted', function(hostName, process) {
-  withHostAndProcess(hostName, process.id, function(host, process) {
+socket.on('process:restarted', function(hostName, processInfo) {
+  withHostAndProcess(hostName, processInfo.id, function(host, process) {
     process.isRestarting = false
   })
 })
@@ -256,9 +256,8 @@ socket.on('app:removed', function(hostName, appInfo) {
   })
 })
 
-
-socket.on('process:aborted', function(hostName, process) {
-  withHostAndProcess(hostName, process.id, function(host, process) {
+socket.on('process:aborted', function(hostName, processInfo) {
+  withHostAndProcess(hostName, processInfo.id, function(host, process) {
     notify({
       header: 'Aborted',
       message: ['%s restarted too many times and was aborted', process.name],
@@ -266,18 +265,43 @@ socket.on('process:aborted', function(hostName, process) {
     })
   })
 })
-socket.on('cluster:aborted', function(hostName, process) {
-  withHostAndProcess(hostName, process.id, function(host, process) {
+socket.on('cluster:aborted', function(hostName, processInfo) {
+  withHostAndProcess(hostName, processInfo.id, function(host, process) {
     notify({
       header: 'Aborted',
       message: ['%s restarted too many times and was aborted', process.name],
       type: 'danger'
+    })
+  })
+})
+socket.on('process:failed', function(hostName, processInfo, error) {
+  withHostAndProcess(hostName, processInfo.id, function(host, process) {
+    host.processes.addOrUpdate(processInfo)
+
+    process.exceptions.add({
+      id: error.id,
+      date: error.date,
+      code: error.code,
+      message: error.message,
+      stack: error.stack
+    })
+  })
+})
+socket.on('process:errored', function(hostName, processInfo, error) {
+  withHostAndProcess(hostName, processInfo.id, function(host, process) {
+    host.processes.addOrUpdate(processInfo)
+
+    process.exceptions.add({
+      id: error.id,
+      date: error.date,
+      code: error.code,
+      message: error.message,
+      stack: error.stack
     })
   })
 })
 
 // these events are informational so just update the process
-socket.on('process:failed', updateProcess)
 socket.on('cluster:failed', updateProcess)
 socket.on('process:starting', updateProcess)
 socket.on('cluster:starting', updateProcess)
@@ -286,7 +310,6 @@ socket.on('cluster:started', updateProcess)
 socket.on('process:ready', updateProcess)
 socket.on('process:stopping', updateProcess)
 socket.on('cluster:stopping', updateProcess)
-socket.on('process:errored', updateProcess)
 socket.on('cluster:errored', updateProcess)
 socket.on('process:restarting', updateProcess)
 socket.on('cluster:restarting', updateProcess)

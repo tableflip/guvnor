@@ -22,7 +22,7 @@ module.exports = AmpersandModel.extend({
     uptime: ['number', true, '?'],
     user: ['string', true, '?'],
     script: ['string', true, '?'],
-    cwd: ['string', true, '?'],
+    cwd: ['string', false, ''],
     env: ['object', true, function() {
       return {}
     }],
