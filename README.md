@@ -115,13 +115,7 @@ Also, the init script is probably stored at `/usr/lib/node_modules/...` instead 
 
 It's useful to be able to set up and tear down fresh VMs to do testing, so a Vagrant file is available. It's configured to run Debian 7.7 and install the latest versions of Node and Boss.
 
-Once vagrant is installed, add the box:
-
-```sh
-$ vagrant box add box-cutter/debian77
-```
-
-Then cd into the vagrant directory and run:
+Once Vagrant is installed, cd into the vagrant directory and run:
 
 ```sh
 $ vagrant up
