@@ -108,3 +108,28 @@ If you installed node via `apt-get install nodejs`, you should create a symlink 
 ```
 
 Also, the init script is probably stored at `/usr/lib/node_modules/...` instead of `/usr/local/lib/node_modules/...` - please check your filesystem to be sure.
+
+## Developent
+
+### Vagrant setup
+
+It's useful to be able to set up and tear down fresh VMs to do testing, so a Vagrant file is available. It's configured to run Debian 7.7 and install the latest versions of Node and Boss.
+
+Once vagrant is installed, add the box:
+
+```sh
+$ vagrant box add box-cutter/debian77
+```
+
+Then cd into the vagrant directory and run:
+
+```sh
+$ vagrant up
+$ vagrant ssh
+```
+
+Then when you are done, to shut the machine down exit your SSH session and run:
+
+```sh
+$ vagrant destroy
+```
