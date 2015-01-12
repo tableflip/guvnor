@@ -1,7 +1,8 @@
 var expect = require('chai').expect,
   sinon = require('sinon'),
   EventEmitter = require('events').EventEmitter,
-  Processes = require('../../../lib/cli/Processes')
+  Processes = require('../../../lib/cli/Processes'),
+  path = require('path')
 
 describe('Processes', function() {
   var processes, boss, info
@@ -457,5 +458,24 @@ describe('Processes', function() {
 
     expect(boss.disconnect.called).to.be.true
     expect(boss.sendSignal.calledWith(processInfo.id, signal, sinon.match.func)).to.be.true
+  })
+
+  it('should start boss-web', function() {
+    var script = path.resolve(__dirname + '/../../lib/web')
+    var options = {}
+    var processInfo = {
+      id: 'id'
+    }
+
+    processes._fs.existsSync.withArgs(script).returns(true)
+    boss.startProcess = sinon.stub()
+    boss.startProcess.callsArgWith(2, undefined, processInfo)
+
+    processes.startBossWeb(options)
+
+    boss.emit('process:ready', processInfo)
+
+    expect(boss.disconnect.called).to.be.true
+    expect(boss.startProcess.getCall(0).args[1].name).to.equal('boss-web')
   })
 })

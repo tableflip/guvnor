@@ -48,9 +48,79 @@ describe('CLI', function() {
     cli._fs = {
       appendFile: sinon.stub()
     }
+
+    cli._processes = {
+      list: sinon.stub(),
+      start: sinon.stub(),
+      startBossWeb: sinon.stub(),
+      stop: sinon.stub(),
+      remove: sinon.stub(),
+      restart: sinon.stub(),
+      send: sinon.stub(),
+      heapdump: sinon.stub(),
+      gc: sinon.stub(),
+      signal: sinon.stub()
+    }
+    cli._cluster = {
+      setClusterWorkers: sinon.stub()
+    }
+    cli._daemon = {
+      logs: sinon.stub(),
+      kill: sinon.stub(),
+      dump: sinon.stub(),
+      restore: sinon.stub(),
+      config: sinon.stub(),
+      status: sinon.stub()
+    }
+    cli._remote = {
+      remoteHostConfig: sinon.stub(),
+      addRemoteUser: sinon.stub(),
+      deleteRemoteUser: sinon.stub(),
+      listRemoteUsers: sinon.stub(),
+      rotateRemoteUserKeys: sinon.stub(),
+      generateSSLCertificate: sinon.stub()
+    }
+    cli._apps = {
+      installApplication: sinon.stub(),
+      listApplications: sinon.stub(),
+      removeApplication: sinon.stub(),
+      listRefs: sinon.stub(),
+      updateRefs: sinon.stub(),
+      setRef: sinon.stub()
+    }
   })
 
-  it('should print a warning if the user is in the wrong group', function() {
+  it('should set up commander', function() {
+    var command = {}
+    command.description = sinon.stub().returns(command)
+    command.option = sinon.stub().returns(command)
+    command.action = sinon.stub().returns(command)
+
+    cli._commander.command.returns(command)
+    cli._commander.parse.returns({
+      rawArgs: [null, null, null]
+    })
+
+    cli._setUpCommander()
+  })
+
+  it('should show process list if no option specified', function(done) {
+    var command = {}
+    command.description = sinon.stub().returns(command)
+    command.option = sinon.stub().returns(command)
+    command.action = sinon.stub().returns(command)
+
+    cli._commander.command.returns(command)
+    cli._commander.parse.returns({
+      rawArgs: [null, null]
+    })
+
+    cli._processes.list = done
+
+    cli._setUpCommander()
+  })
+
+  it('should print a warning if the user is in the wrong group on Linux', function() {
     var userName = 'foo'
     cli._user.name = userName
     var bossGroup = 'bar'
@@ -61,6 +131,27 @@ describe('CLI', function() {
     cli._config.boss.group = bossGroup
     cli._posix.getgrnam.withArgs(bossGroup).returns(groupsEntry)
     cli._os.platform.returns('linux')
+
+    expect(cli._logger.error.called).to.be.false
+
+    cli._checkBossUser(function(error) {
+      expect(error).to.be.ok
+    })
+
+    expect(cli._logger.error.called).to.be.true
+  })
+
+  it('should print a warning if the user is in the wrong group on Mac OS X', function() {
+    var userName = 'foo'
+    cli._user.name = userName
+    var bossGroup = 'bar'
+    var groupsEntry = {
+      members: ['baz']
+    }
+
+    cli._config.boss.group = bossGroup
+    cli._posix.getgrnam.withArgs(bossGroup).returns(groupsEntry)
+    cli._os.platform.returns('darwin')
 
     expect(cli._logger.error.called).to.be.false
 
@@ -87,6 +178,28 @@ describe('CLI', function() {
     cli._checkBossUser()
 
     expect(cli._logger.warn.called).to.be.false
+  })
+
+  it('should complain if the configured group does not exist', function(done) {
+    var userName = 'foo'
+    cli._user.name = userName
+    var bossGroup = 'bar'
+    var groupsEntry = {
+      members: [userName]
+    }
+
+    cli._config.boss.group = bossGroup
+    cli._posix.getgrnam.withArgs(bossGroup).throws(new Error('group id does not exist'))
+
+    expect(cli._logger.error.called).to.be.false
+
+    cli._checkBossUser(function(error) {
+      expect(error).to.be.ok
+      expect(error.message).to.contain('group does not exist')
+      expect(cli._logger.error.called).to.be.true
+
+      done()
+    })
   })
 
   it('should create a group on Linux', function(done) {
@@ -133,7 +246,7 @@ describe('CLI', function() {
     })
   })
 
-  it('should create a group on Mac OS', function(done) {
+  it('should create a group on Mac OS X', function(done) {
     var dscl = 'foo'
     var groups = 'tomcat                                    257\n' +
       'tty                                       4\n' +
