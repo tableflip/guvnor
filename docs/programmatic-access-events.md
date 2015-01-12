@@ -11,7 +11,7 @@
 1. [Programmatic access](programmatic-access.md)
 1. [Programmatic access - local](programmatic-access-local.md)
 1. [Programmatic access - remote](programmatic-access-remote.md)
-1. [Programmatic access - events](programmatic-access-events.md)
+1. Programmatic access - events
 
 ## Programmatic access - events
 

@@ -23,17 +23,15 @@ Remote boss instance.  The only difference here is we pass an extra argument to 
 
 ```javascript
 var remote = require('process-boss').remote,
-  config = {
-    boss: {
-      timeout: 10000
-    }
-  },
   opts = {
-    url: 'https://my.server:1234',
-    key: '/path/to/private/key'
+    host: 'my.server',
+    port: 57483,
+    secret: '109uoisucoiuzx',
+    user: 'root, // optional, defaults to 'root'
+    timeout: 10000 // optional, defaults to 10000 (ms)
   }
 
-remote(config, opts, function(error, boss) {
+remote(opts, function(error, boss) {
   // we are now connected to remote boss instance
 
   boss.listProcesses(function(error, processes) {
@@ -45,6 +43,8 @@ remote(config, opts, function(error, boss) {
 })
 ```
 
+You can obtain the correct user, port and secret to use by running `bs remoteconfig` on the target machine.
+
 N.b. If you fail to close the connection to the remote daemon, your program will probably not exit.
 
 ## Logging
@@ -53,19 +53,11 @@ By default boss will log messages to the console.  If you wish to pass these som
 
 ```javascript
 var remote = require('process-boss').remote,
-  config = {
-    boss: {
-      rundir: '/var/run/boss',
-      logdir: '/var/log/boss'
-    },
-    debug: {
-      daemon: false
-    }
-  },
   opts = {
-    url: 'https://my.server:1234',
-    key: '/path/to/private/key'
-  },
+    host: 'my.server',
+    port: 57483,
+    secret: '109uoisucoiuzx'
+  }
   logger = {
     info: function() {},
     warn: function() {},
@@ -73,37 +65,10 @@ var remote = require('process-boss').remote,
     debug: function() {}
   }
 
-remote(config, logger, opts, function(error, boss) {
+remote(logger, opts, function(error, boss) {
   // we are now connected to the boss instance
   ...
 })
-```
-
-If you are making lots of connections, for convenience you may wish to bind these arguments to the function:
-
-```javascript
-var remote = require('process-boss').remote,
-  remote = remote.bind(null, {
-    boss: {
-      rundir: '/var/run/boss',
-      logdir: '/var/log/boss'
-    },
-    debug: {
-      daemon: false
-    }
-  }, {
-     info: function() {},
-     warn: function() {},
-     error: function() {},
-     debug: function() {}
-    }
-  )
-
-remote(function(error, boss) {
-  // we are now connected to the boss instance
-  ...
-})
-
 ```
 
 ## Methods

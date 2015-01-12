@@ -120,6 +120,7 @@ Once Vagrant is installed, cd into the vagrant directory and run:
 ```sh
 $ vagrant up
 $ vagrant ssh
+$ sudo npm install -g process-boss
 ```
 
 Then when you are done, to shut the machine down exit your SSH session and run:
