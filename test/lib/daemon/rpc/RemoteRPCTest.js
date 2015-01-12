@@ -69,6 +69,10 @@ describe('RemoteRPC', function() {
     remoteRpc._fs = {
       readFile: sinon.stub()
     }
+    remoteRpc._mdns = {
+      createAdvertisement: sinon.stub(),
+      tcp: sinon.stub()
+    }
   })
 
   it('should not start dnode if remote is not enabled', function(done) {
@@ -705,5 +709,29 @@ describe('RemoteRPC', function() {
 
     // tell the parent we are ready
     childProcess.emit('exit', 1)
+  })
+
+  it('should start mdns advert', function() {
+    var advert = {
+      start: sinon.stub()
+    }
+    var value = true
+    remoteRpc._config.remote.advertise = true
+    remoteRpc._mdns.createAdvertisement.withArgs(value, remoteRpc.port).returns(advert)
+    remoteRpc._mdns.tcp.withArgs('boss-rpc').returns(value)
+
+    remoteRpc._startMdnsAdvertisment()
+
+    expect(remoteRpc._mdns.createAdvertisement.called).to.be.true
+    expect(advert.start.called).to.be.true
+  })
+
+  it('should survive mdns advert failure', function() {
+    var value = true
+    remoteRpc._config.remote.advertise = true
+    remoteRpc._mdns.createAdvertisement.throws(new Error('urk!'))
+    remoteRpc._mdns.tcp.withArgs('boss-rpc').returns(value)
+
+    remoteRpc._startMdnsAdvertisment()
   })
 })

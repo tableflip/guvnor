@@ -91,6 +91,9 @@
     "wildemitter": "^1.0",
     "winston": "^0.8"
   },
+  "optionalDependencies": {
+    "mdns": "^2.0"
+  },
   "devDependencies": {
     "chai": "^1.0",
     "coveralls": "^2.8",
@@ -128,7 +131,8 @@
   ],
   "jshintConfig": {
     "asi": true,
-    "browser": true,
+    "browser": false,
+    "browserify": true,
     "curly": false,
     "expr": true,
     "indent": 2,

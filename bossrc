@@ -52,6 +52,9 @@
   ; undefined a temporary certificate will be generated.
   certificate = undefined
 
+  ; If true, the rpc port will be advertised over Bonjour/Zeroconf on supported systems
+  advertise = true
+
 [remote.inspector]
   ; If true, Boss will start an instance of node-inspector in order to debug
   ; processes running on this host
