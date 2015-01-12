@@ -109,7 +109,7 @@ If you installed node via `apt-get install nodejs`, you should create a symlink 
 
 Also, the init script is probably stored at `/usr/lib/node_modules/...` instead of `/usr/local/lib/node_modules/...` - please check your filesystem to be sure.
 
-## Developent
+## Development
 
 ### Vagrant setup
 
