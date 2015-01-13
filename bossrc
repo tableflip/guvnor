@@ -52,7 +52,7 @@
   ; undefined a temporary certificate will be generated.
   certificate = undefined
 
-  ; If true, the rpc port will be advertised over Bonjour/Zeroconf on supported systems
+  ; If true, the rpc port will be advertised over mDNS/Bonjour/Zeroconf on supported systems
   advertise = true
 
 [remote.inspector]
