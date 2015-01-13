@@ -64,7 +64,7 @@ The first time you invoke a boss command, the daemon will start in the backgroun
 ## Help
 
 1. [Starting and stopping processes](docs/processes.md)
-1. [Controling the Daemon](docs/daemon.md)
+1. [Controlling the Daemon](docs/daemon.md)
 1. [Managing clusters](docs/clusters.md)
 1. [Installing and running apps](docs/apps.md)
 1. [Remote access and monitoring (e.g. boss-web)](docs/remote.md)

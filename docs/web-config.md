@@ -1,13 +1,13 @@
 # Help
 
 1. [Starting and stopping processes](processes.md)
-1. [Controling the Daemon](daemon.md)
+1. [Controlling the Daemon](daemon.md)
 1. [Managing clusters](clusters.md)
 1. [Installing and running apps](apps.md)
 1. [Remote access and monitoring (e.g. boss-web)](remote.md)
 1. [Web interface](web.md)
 1. Web interface - configuration
-1. [Web interface - user management](web-uesrs.md)
+1. [Web interface - user management](web-users.md)
 1. [Programmatic access](programmatic-access.md)
 1. [Programmatic access - local](programmatic-access-local.md)
 1. [Programmatic access - remote](programmatic-access-remote.md)
@@ -81,6 +81,10 @@ Add the following to your bossweb-hosts file:
   user = root
   secret = ZD57XFx6sBz....
 ```
+
+#### mDNS
+
+If you are on the same network as the host you wish to monitor, you may omit the `host` and `port` arguments.  boss will advertise it's presence via mDNS (unless `${remote.advertise}` is set to false).
 
 ### bossweb-users
 
