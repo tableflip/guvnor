@@ -63,7 +63,7 @@ module.exports = View.extend({
       tooltip: {
         enabled: true,
         formatter: function() {
-         return '<span style="color:' + this.series.color + '">'+ this.series.name +'</span>: ' + this.y + ' %'
+         return '<span style="color:' + this.series.color + '">'+ this.series.name +'</span>: ' + this.y.toFixed(2) + ' %'
         },
         backgroundColor: '#333',
         borderColor: '#666',
