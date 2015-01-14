@@ -83,28 +83,30 @@ describe('RemoteDaemon', function() {
   })
 
   it('should call callback when disconnecting from a remote daemon', function(done) {
-    remoteDaemon._client = {
+    var client = {
       end: sinon.stub(),
       once: sinon.stub()
     }
+    remoteDaemon._client = client
 
     remoteDaemon.disconnect(done)
 
-    expect(remoteDaemon._client.end.callCount).to.equal(1)
+    expect(client.end.callCount).to.equal(1)
 
-    expect(remoteDaemon._client.once.callCount).to.equal(1)
-    expect(remoteDaemon._client.once.getCall(0).args[0]).to.equal('end')
+    expect(client.once.callCount).to.equal(2)
+    expect(client.once.getCall(0).args[0]).to.equal('end')
 
     expect(remoteDaemon._disconnecting).to.be.true
 
-    remoteDaemon._client.once.getCall(0).args[1]()
+    client.once.getCall(0).args[1]()
   })
 
   it('should only end connection once no matter how many times disconnect is invoked', function() {
-    remoteDaemon._client = {
+    var client = {
       end: sinon.stub(),
       once: sinon.stub()
     }
+    remoteDaemon._client = client
 
     var invocations = 0
 
@@ -116,12 +118,13 @@ describe('RemoteDaemon', function() {
     remoteDaemon.disconnect(func)
     remoteDaemon.disconnect(func)
 
-    expect(remoteDaemon._client.end.callCount).to.equal(1)
+    expect(client.end.callCount).to.equal(1)
 
-    expect(remoteDaemon._client.once.callCount).to.equal(3)
-    remoteDaemon._client.once.getCall(0).args[1]()
-    remoteDaemon._client.once.getCall(1).args[1]()
-    remoteDaemon._client.once.getCall(2).args[1]()
+    expect(client.once.callCount).to.equal(4)
+    client.once.getCall(0).args[1]()
+    client.once.getCall(1).args[1]()
+    client.once.getCall(2).args[1]()
+    client.once.getCall(3).args[1]()
 
     expect(invocations).to.equal(3)
   })
