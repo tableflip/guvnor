@@ -77,7 +77,7 @@ module.exports = View.extend({
         formatter: function() {
           var s = [];
 
-          $.each(this.points, function(i, point) {
+          window.$.each(this.points, function(i, point) {
             s.push('<span style="color:' + point.series.color + '">' + point.series.name + '</span>: ' + prettysize(this.y));
           });
 

@@ -38,7 +38,7 @@ module.exports = View.extend({
       })
     }
 
-    new Highcharts.Chart({
+    new window.Highcharts.Chart({
       colors: [
         '#2A9FD6', '#0F0', '#FF5C5C', '#F5FF5C'
       ],
@@ -104,7 +104,7 @@ module.exports = View.extend({
     // cache an element for easy reference by other methods
     var memoryUsage = this.query('[data-hook=memory-usage]')
 
-    new Highcharts.Chart({
+    new window.Highcharts.Chart({
       chart: {
         type: 'solidgauge',
         renderTo: memoryUsage,
@@ -196,7 +196,7 @@ module.exports = View.extend({
           return
         }
 
-        var chart = Highcharts.charts[el.getAttribute('data-highcharts-chart')]
+        var chart = window.Highcharts.charts[el.getAttribute('data-highcharts-chart')]
 
         if(!chart) {
           return
@@ -224,8 +224,12 @@ module.exports = View.extend({
         })
 
         data.forEach(function(data, index) {
-          chart.series[index].setData(data.data)
+          // set series data but do not redraw yet
+          chart.series[index].setData(data.data, false)
         })
+
+        // redraw after updating points
+        chart.redraw()
       },
       selector: '[data-hook=cpu-usage]'
     },
@@ -236,7 +240,7 @@ module.exports = View.extend({
           return
         }
 
-        var chart = Highcharts.charts[el.getAttribute('data-highcharts-chart')]
+        var chart = window.Highcharts.charts[el.getAttribute('data-highcharts-chart')]
 
         if(!chart) {
           return
