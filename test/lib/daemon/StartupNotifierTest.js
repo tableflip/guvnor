@@ -13,6 +13,9 @@ describe('StartupNotifier', function() {
     notifier._remoteRpc = {}
     notifier._nodeInspectorWrapper = {}
     notifier._commandLine = {}
+    notifier._fileSystem = {
+      getRunDir: sinon.stub().returns(process.cwd())
+    }
   })
 
   it('should notify of startup', function(done) {
