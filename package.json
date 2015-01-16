@@ -91,7 +91,7 @@
     "winston": "^0.8"
   },
   "optionalDependencies": {
-    "mdns": "^2.0"
+    "boss-mdns": "^2.0"
   },
   "devDependencies": {
     "chai": "^1.0",
