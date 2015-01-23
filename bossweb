@@ -45,7 +45,6 @@ minVersion = ^2.4.0
   upgrade = true
 
 [graph]
-
   ; Max number of points to plot on a resource graph
   max = 1000
 
