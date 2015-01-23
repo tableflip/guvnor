@@ -40,6 +40,8 @@ module.exports = Collection.extend({
       process.cpu.add({
         date: this.parent.time,
         usage: usage.cpu
+      }, {
+        sort: process.cpu.length > 0 && this.parent.time > process.cpu.at(process.cpu.length - 1).date
       })
     }
 
@@ -47,6 +49,8 @@ module.exports = Collection.extend({
       process.residentSize.add({
         date: this.parent.time,
         usage: usage.residentSize
+      }, {
+        sort: process.residentSize.length > 0 && this.parent.time > process.residentSize.at(process.residentSize.length - 1).date
       })
     }
 
@@ -54,6 +58,8 @@ module.exports = Collection.extend({
       process.heapTotal.add({
         date: this.parent.time,
         usage: usage.heapTotal
+      }, {
+        sort: process.heapTotal.length > 0 && this.parent.time > process.heapTotal.at(process.heapTotal.length - 1).date
       })
     }
 
@@ -61,6 +67,8 @@ module.exports = Collection.extend({
       process.heapUsed.add({
         date: this.parent.time,
         usage: usage.heapUsed
+      }, {
+        sort: process.heapUsed.length > 0 && this.parent.time > process.heapUsed.at(process.heapUsed.length - 1).date
       })
     }
 
@@ -68,6 +76,8 @@ module.exports = Collection.extend({
       process.latency.add({
         date: this.parent.time,
         usage: usage.latency
+      }, {
+        sort: process.latency.length > 0 && this.parent.time > process.latency.at(process.latency.length - 1).date
       })
     }
 
