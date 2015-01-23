@@ -129,14 +129,25 @@ module.exports = View.extend({
       ]
     })
 
+    var redraw
+
     this.listenTo(this.model.heapUsed, 'add', function(value) {
-      this._chart.series[0].addPoint([value.date, value.usage])
+      this._chart.series[0].addPoint([value.date, value.usage], false)
+
+      clearTimeout(redraw)
+      redraw = setTimeout(this._chart.redraw.bind(this._chart), 100)
     }.bind(this))
     this.listenTo(this.model.heapTotal, 'add', function(value) {
-      this._chart.series[1].addPoint([value.date, value.usage])
+      this._chart.series[1].addPoint([value.date, value.usage], false)
+
+      clearTimeout(redraw)
+      redraw = setTimeout(this._chart.redraw.bind(this._chart), 100)
     }.bind(this))
     this.listenTo(this.model.residentSize, 'add', function(value) {
-      this._chart.series[2].addPoint([value.date, value.usage])
+      this._chart.series[2].addPoint([value.date, value.usage], false)
+
+      clearTimeout(redraw)
+      redraw = setTimeout(this._chart.redraw.bind(this._chart), 100)
     }.bind(this))
   },
   remove: function() {
