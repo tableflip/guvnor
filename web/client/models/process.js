@@ -2,12 +2,7 @@ var AmpersandModel = require('ampersand-model'),
   moment = require('moment'),
   prettysize = require('prettysize'),
   Logs = require('./logs'),
-  Exceptions = require('./exceptions'),
-  CPUUsage = require('./cpuUsage'),
-  RSSUsage = require('./rssUsage'),
-  TotalHeapUsage = require('./totalHeapUsage'),
-  UsedHeapUsage = require('./usedHeapUsage'),
-  Latencies = require('./latencies')
+  Exceptions = require('./exceptions')
 
 module.exports = AmpersandModel.extend({
   props: {
@@ -40,7 +35,13 @@ module.exports = AmpersandModel.extend({
       ]
     },
     cluster: ['boolean', false, false],
-    clusterManager: ['string', false, null]
+    clusterManager: ['string', false, null],
+
+    cpu: ['array', true, function() { return [] }],
+    residentSize: ['array', true, function() { return [] }],
+    heapTotal: ['array', true, function() { return [] }],
+    heapUsed: ['array', true, function() { return [] }],
+    latency: ['array', true, function() { return [] }]
   },
   session: {
     isGc: ['boolean', true, false],
@@ -61,13 +62,13 @@ module.exports = AmpersandModel.extend({
           return '?'
         }
 
-        var last = this.cpu.at(this.cpu.length - 1)
+        var last = this.cpu[this.cpu.length - 1]
 
         if(!last) {
           return '?'
         }
 
-        return last.usage + ' %'
+        return last.x + ' %'
       }
     },
     memoryFormatted: {
@@ -77,13 +78,13 @@ module.exports = AmpersandModel.extend({
           return '?'
         }
 
-        var last = this.heapUsed.at(this.heapUsed.length - 1)
+        var last = this.heapUsed[this.heapUsed.length - 1]
 
         if(!last) {
           return '?'
         }
 
-        return prettysize(last.usage)
+        return prettysize(last.x)
       }
     },
     uptimeFormatted: {
@@ -112,11 +113,6 @@ module.exports = AmpersandModel.extend({
   },
   collections: {
     logs: Logs,
-    exceptions: Exceptions,
-    cpu: CPUUsage,
-    residentSize: RSSUsage,
-    heapTotal: TotalHeapUsage,
-    heapUsed: UsedHeapUsage,
-    latency: Latencies
+    exceptions: Exceptions
   }
 })

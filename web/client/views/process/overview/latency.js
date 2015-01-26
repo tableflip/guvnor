@@ -1,5 +1,6 @@
 var View = require('ampersand-view'),
-  templates = require('../../../templates')
+  templates = require('../../../templates'),
+  config = require('clientconfig')
 
 module.exports = View.extend({
   template: templates.includes.process.overview.latency,
@@ -26,6 +27,10 @@ module.exports = View.extend({
         events: {
           load: function() {
             this.query('[data-hook=latency-usage] .highcharts-container').style.width = '100%'
+
+            setTimeout(function() {
+              $(window).resize()
+            }, 10)
           }.bind(this)
         }
       },
@@ -61,8 +66,7 @@ module.exports = View.extend({
           },
           style: fontStyle
         },
-        gridLineColor: lineColour,
-        min: 0
+        gridLineColor: lineColour
       },
       tooltip: {
         enabled: true,
@@ -99,19 +103,21 @@ module.exports = View.extend({
               }
             }
           },
-          fillOpacity: 0.1
+          fillOpacity: 0
+        },
+        series: {
+          turboThreshold: config.dataPoints
         }
       },
       series: [{
         name: "latency",
-        data: this.model.latency.map(function(value) {
-          return [value.date, value.usage]
-        })
+        data: this.model.latency
       }]
     })
 
-    this.listenTo(this.model.latency, 'add', function(value) {
-      this._chart.series[0].addPoint([value.date, value.usage])
+    this.listenTo(this.model, 'update', function() {
+      this._chart.series[0].setData(this.model.latency, false)
+      this._chart.redraw()
     }.bind(this))
   },
   remove: function() {

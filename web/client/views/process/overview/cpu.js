@@ -1,5 +1,6 @@
 var View = require('ampersand-view'),
-  templates = require('../../../templates')
+  templates = require('../../../templates'),
+  config = require('clientconfig')
 
 module.exports = View.extend({
   template: templates.includes.process.overview.cpu,
@@ -23,6 +24,10 @@ module.exports = View.extend({
         events: {
           load: function() {
             this.query('.highcharts-container').style.width = '100%'
+
+            setTimeout(function() {
+              $(window).resize()
+            }, 10)
           }.bind(this)
         }
       },
@@ -88,19 +93,31 @@ module.exports = View.extend({
               }
             }
           },
-          fillOpacity: 0.1
+          fillOpacity: 0
+        },
+        series: {
+          turboThreshold: config.dataPoints
         }
       },
       series: [{
         name: "CPU",
-        data: this.model.cpu.map(function(value) {
-          return [value.date, value.usage]
-        })
+        data: this.model.cpu
       }]
     })
 
-    this.listenTo(this.model.cpu, 'add', function(value) {
-      this._chart.series[0].addPoint([value.date, value.usage])
+    this.listenTo(this.model, 'update', function() {
+      var last = 0
+
+      this.model.cpu.forEach(function(cpu, index) {
+        if(cpu.x > last) {
+          last = cpu.x
+        } else {
+          console.error('cpu index', index, 'of', this.model.cpu.length, 'not sorted')
+        }
+      }.bind(this))
+
+      this._chart.series[0].setData(this.model.cpu, false)
+      this._chart.redraw()
     }.bind(this))
   },
   remove: function() {

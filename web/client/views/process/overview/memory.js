@@ -1,6 +1,7 @@
 var View = require('ampersand-view'),
   templates = require('../../../templates'),
-  prettysize = require('prettysize')
+  prettysize = require('prettysize'),
+  config = require('clientconfig')
 
 module.exports = View.extend({
   template: templates.includes.process.overview.memory,
@@ -29,6 +30,10 @@ module.exports = View.extend({
         events: {
           load: function() {
             this.query('[data-hook=memory-usage] .highcharts-container').style.width = '100%'
+
+            setTimeout(function() {
+              $(window).resize()
+            }, 10)
           }.bind(this)
         }
       },
@@ -107,47 +112,30 @@ module.exports = View.extend({
               }
             }
           },
-          fillOpacity: 0.1
+          fillOpacity: 0
+        },
+        series: {
+          turboThreshold: config.dataPoints
         }
       },
       series: [{
           name: "Heap used",
-          data: this.model.heapUsed.map(function(value) {
-            return [value.date, value.usage]
-          })
+          data: this.model.heapUsed
         }, {
           name: "Heap size",
-          data: this.model.heapTotal.map(function(value) {
-            return [value.date, value.usage]
-          })
+          data: this.model.heapTotal
         }, {
           name: "Resident set size",
-          data: this.model.residentSize.map(function(value) {
-            return [value.date, value.usage]
-          })
+          data: this.model.residentSize
         }
       ]
     })
 
-    var redraw
-
-    this.listenTo(this.model.heapUsed, 'add', function(value) {
-      this._chart.series[0].addPoint([value.date, value.usage], false)
-
-      clearTimeout(redraw)
-      redraw = setTimeout(this._chart.redraw.bind(this._chart), 100)
-    }.bind(this))
-    this.listenTo(this.model.heapTotal, 'add', function(value) {
-      this._chart.series[1].addPoint([value.date, value.usage], false)
-
-      clearTimeout(redraw)
-      redraw = setTimeout(this._chart.redraw.bind(this._chart), 100)
-    }.bind(this))
-    this.listenTo(this.model.residentSize, 'add', function(value) {
-      this._chart.series[2].addPoint([value.date, value.usage], false)
-
-      clearTimeout(redraw)
-      redraw = setTimeout(this._chart.redraw.bind(this._chart), 100)
+    this.listenTo(this.model, 'update', function() {
+      this._chart.series[0].setData(this.model.heapUsed, false)
+      this._chart.series[1].setData(this.model.heapTotal, false)
+      this._chart.series[2].setData(this.model.residentSize, false)
+      this._chart.redraw()
     }.bind(this))
   },
   remove: function() {

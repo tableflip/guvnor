@@ -1,5 +1,6 @@
 var Collection = require('ampersand-collection'),
-  Process = require('./process');
+  Process = require('./process'),
+  config = require('clientconfig')
 
 module.exports = Collection.extend({
   model: Process,
@@ -29,56 +30,26 @@ module.exports = Collection.extend({
     if(isNew) {
       process.logs.fetch()
       process.exceptions.fetch()
-      process.cpu.fetch()
-      process.residentSize.fetch()
-      process.heapTotal.fetch()
-      process.heapUsed.fetch()
-      process.latency.fetch()
     }
 
     if(usage.cpu !== undefined) {
-      process.cpu.add({
-        date: this.parent.time,
-        usage: usage.cpu
-      }, {
-        sort: process.cpu.length > 0 && this.parent.time > process.cpu.at(process.cpu.length - 1).date
-      })
+      this._addDataPoint(usage, 'cpu', process)
     }
 
     if(usage.residentSize !== undefined) {
-      process.residentSize.add({
-        date: this.parent.time,
-        usage: usage.residentSize
-      }, {
-        sort: process.residentSize.length > 0 && this.parent.time > process.residentSize.at(process.residentSize.length - 1).date
-      })
+      this._addDataPoint(usage, 'residentSize', process)
     }
 
     if(usage.heapTotal !== undefined) {
-      process.heapTotal.add({
-        date: this.parent.time,
-        usage: usage.heapTotal
-      }, {
-        sort: process.heapTotal.length > 0 && this.parent.time > process.heapTotal.at(process.heapTotal.length - 1).date
-      })
+      this._addDataPoint(usage, 'heapTotal', process)
     }
 
     if(usage.heapUsed !== undefined) {
-      process.heapUsed.add({
-        date: this.parent.time,
-        usage: usage.heapUsed
-      }, {
-        sort: process.heapUsed.length > 0 && this.parent.time > process.heapUsed.at(process.heapUsed.length - 1).date
-      })
+      this._addDataPoint(usage, 'heapUsed', process)
     }
 
     if(usage.latency !== undefined) {
-      process.latency.add({
-        date: this.parent.time,
-        usage: usage.latency
-      }, {
-        sort: process.latency.length > 0 && this.parent.time > process.latency.at(process.latency.length - 1).date
-      })
+      this._addDataPoint(usage, 'latency', process)
     }
 
     // make sure we show workers in the main list
@@ -88,6 +59,53 @@ module.exports = Collection.extend({
 
         this.addOrUpdate(worker)
       }.bind(this))
+    }
+
+    process.trigger('update')
+  },
+
+  _addDataPoint: function(usage, prop, process) {
+    if(usage[prop] !== undefined) {
+      var list = process[prop]
+
+      if(list.length == 0) {
+        window.$.ajax({
+          url: '/hosts/' + process.collection.parent.name + '/processes/' + process.id + '/' + prop,
+          settings: {
+            dataType: 'json'
+          }
+        }).success(function(data) {
+          data.forEach(function(datum) {
+            list.push(datum)
+          })
+
+          list.sort(function(a, b) {
+            if(a.x < b.x) {
+              return -1
+            }
+
+            if(a.x > b.x) {
+              return 1
+            }
+
+            return 0
+          })
+        })
+      }
+
+      if(list.length == 0 || list[list.length - 1].x < this.parent.time) {
+        // only add resource stat if it's more recent than the last entry
+        // (the ajax request above can return data more recent than the last
+        // event from the web socket)
+        list.push({
+          x: this.parent.time,
+          y: usage[prop]
+        })
+      }
+
+      if(list.length > config.dataPoints) {
+        list.splice(0, list.length - config.dataPoints)
+      }
     }
   }
 })
