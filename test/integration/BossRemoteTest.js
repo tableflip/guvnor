@@ -456,6 +456,7 @@ describe('BossRemote', function() {
 
       remoteBoss.deployApplication(appName, repo, console.info, console.error, function(error, appInfo) {
         expect(error).to.not.exist
+        expect(appInfo).to.be.ok
 
         remoteBoss.listApplicationRefs(appName, function(error, refs) {
           expect(error).to.not.exist

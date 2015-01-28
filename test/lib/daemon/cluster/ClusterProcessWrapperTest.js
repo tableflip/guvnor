@@ -4,9 +4,11 @@ var expect = require('chai').expect,
   EventEmitter = require('events').EventEmitter
 
 describe('ClusterProcessWrapper', function() {
-  var wrapper
+  var wrapper, name
 
   beforeEach(function() {
+    name = process.title
+
     wrapper = new ClusterProcessWrapper()
     wrapper._logger = {
       info: sinon.stub(),
@@ -22,7 +24,13 @@ describe('ClusterProcessWrapper', function() {
     }
   })
 
+  afterEach(function() {
+    process.title = name
+  })
+
   it('should start up', function(done) {
+    process.env.BOSS_PROCESS_NAME = 'ClusterProcessWrapperTest-startup'
+
     wrapper._processRpc.startDnodeServer.callsArgWith(0, undefined, '/foo/bar')
 
     wrapper._parentProcess.send = function(type, socket) {

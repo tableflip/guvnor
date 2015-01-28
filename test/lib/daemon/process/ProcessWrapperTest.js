@@ -4,9 +4,11 @@ var expect = require('chai').expect,
   ProcessWrapper = require('../../../../lib/daemon/process/ProcessWrapper')
 
 describe('ProcessWrapper', function() {
-  var processWrapper
+  var processWrapper, name
 
   beforeEach(function() {
+    name = process.title
+
     processWrapper = new ProcessWrapper()
     processWrapper._logger = {
       info: sinon.stub(),
@@ -26,6 +28,10 @@ describe('ProcessWrapper', function() {
     processWrapper._processRpc = {
       startDnodeServer: sinon.stub()
     }
+  })
+
+  afterEach(function() {
+    process.title = name
   })
 
   it('should set the process title', function() {
@@ -96,6 +102,8 @@ describe('ProcessWrapper', function() {
   })
 
   it('should throw if the users process errors', function() {
+    process.env.BOSS_PROCESS_NAME = 'ProcessWrapperTest-process-error'
+
     processWrapper._startProcess = function(script, callback) {
       callback(new Error('urk!'))
     }
