@@ -27,10 +27,13 @@ describe('Process', function() {
 
   it('should connect to the remote process RPC socket', function(done) {
     var dnode = {
-      on: sinon.stub()
+      on: sinon.stub(),
+      connect: sinon.stub()
     }
 
-    proc._dnode.connect.returns(dnode)
+    proc._dnode = function() {
+      return dnode
+    }
 
     proc.connect(function(error, remote) {
       expect(error).to.not.exist
@@ -53,10 +56,13 @@ describe('Process', function() {
 
   it('should pass dnode errors to a callback', function(done) {
     var dnode = {
-      on: sinon.stub()
+      on: sinon.stub(),
+      connect: sinon.stub()
     }
 
-    proc._dnode.connect.returns(dnode)
+    proc._dnode = function() {
+      return dnode
+    }
 
     proc.connect(function(error) {
       expect(error).to.be.ok
