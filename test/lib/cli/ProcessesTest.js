@@ -478,4 +478,24 @@ describe('Processes', function() {
     expect(boss.disconnect.called).to.be.true
     expect(boss.startProcess.getCall(0).args[1].name).to.equal('boss-web')
   })
+
+  it('should use the admin socket to start a process as a different user', function() {
+    var script = 'script'
+    var options = {
+      user: 'foo'
+    }
+    var processInfo = {
+      id: 'id'
+    }
+
+    processes._fs.existsSync.withArgs(script).returns(true)
+    boss.startProcessAsUser = sinon.stub()
+    boss.startProcessAsUser.callsArgWith(2, undefined, processInfo)
+
+    processes.start(script, options)
+
+    boss.emit('process:ready', processInfo)
+
+    expect(boss.disconnect.called).to.be.true
+  })
 })

@@ -23,7 +23,8 @@ describe('AdminRPC', function() {
       removeRemoteUser: sinon.stub(),
       listRemoteUsers: sinon.stub(),
       rotateRemoteUserKeys: sinon.stub(),
-      generateRemoteRpcCertificates: sinon.stub()
+      generateRemoteRpcCertificates: sinon.stub(),
+      startProcessAsUser: sinon.stub()
     }
     rpc._dnode = sinon.stub()
     rpc._fileSystem = {
