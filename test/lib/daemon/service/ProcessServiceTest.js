@@ -21,7 +21,8 @@ describe('ProcessService', function() {
     processService._processInfoStore = {
       create: sinon.stub(),
       find: sinon.stub(),
-      remove: sinon.stub()
+      remove: sinon.stub(),
+      all: sinon.stub()
     }
     processService._child_process = {
       fork: sinon.stub()
@@ -950,5 +951,88 @@ describe('ProcessService', function() {
     expect(processInfo.socket).to.not.exist
     expect(processInfo.remote).to.not.exist
     expect(processInfo.status).to.equal('errored')
+  })
+
+  it('should remove a process', function(done) {
+    var id = 'foo'
+    var processInfo = {
+      running: false
+    }
+
+    processService._processInfoStore.find.withArgs('id', id).returns(processInfo)
+
+    processService.removeProcess(id, function(error) {
+      expect(error).to.not.exist()
+      expect(processService._processInfoStore.remove.withArgs('id', id).called).to.be.true
+      done()
+    })
+  })
+
+  it('should object when removing a running process', function(done) {
+    var id = 'foo'
+    var processInfo = {
+      running: true
+    }
+
+    processService._processInfoStore.find.withArgs('id', id).returns(processInfo)
+
+    processService.removeProcess(id, function(error) {
+      expect(error).to.be.ok()
+      done()
+    })
+  })
+
+  it('should not remove a process when that process does not exist', function(done) {
+    var id = 'foo'
+
+    processService.removeProcess(id, function(error) {
+      expect(error).to.not.exist()
+      expect(processService._processInfoStore.remove.called).to.be.false
+      done()
+    })
+  })
+
+  it('should list all processes', function() {
+    var processes = []
+
+    processService._processInfoStore.all.returns(processes)
+
+    var list = processService.listProcesses()
+
+    expect(list).to.equal(processes)
+  })
+
+  it('should kill all processes', function() {
+    var processes = [{
+      remote: {
+        kill: sinon.stub()
+      },
+      process: {
+        kill: sinon.stub()
+      }
+    }, {
+      process: {
+        kill: sinon.stub()
+      }
+    }]
+
+    processService._processInfoStore.all.returns(processes)
+
+    processService.killAll()
+
+    expect(processes[0].remote.kill.called).to.be.true
+    expect(processes[0].process.kill.called).to.be.false
+    expect(processes[1].process.kill.called).to.be.true
+  })
+
+  it('should find a process by name', function() {
+    var name = 'foo'
+    var processInfo = {}
+
+    processService._processInfoStore.find.withArgs('name', name).returns(processInfo)
+
+    var returned = processService.findByName(name)
+
+    expect(returned).to.equal(processInfo)
   })
 })
