@@ -1,5 +1,5 @@
 var AmpersandModel = require('ampersand-model'),
-  AnsiToHtml = require('ansi-to-html'),
+  ansiHtml = require('ansi-html'),
   moment = require('moment')
 
 module.exports = AmpersandModel.extend({
@@ -23,7 +23,7 @@ module.exports = AmpersandModel.extend({
         var message = this.message.replace(/</g, '&lt;')
         message = message.replace(/>/g, '&gt;')
 
-        return new AnsiToHtml().toHtml(message)
+        return ansiHtml(message)
       }
     },
     dateFormatted: {

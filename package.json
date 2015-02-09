@@ -31,7 +31,7 @@
     "ampersand-view": "^7.0",
     "ampersand-view-switcher": "^2.0",
     "andlog": "^1.0",
-    "ansi-to-html": "^0.3",
+    "ansi-html": "^0.0",
     "async": "^0.9",
     "bcrypt": "^0.8",
     "bootstrap-growl": "^2.0",
