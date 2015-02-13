@@ -110,7 +110,7 @@ module.exports = View.extend({
         }
       },
       series: [{
-        name: "latency",
+        name: "Latency",
         data: this.model.latency
       }]
     })
