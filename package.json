@@ -42,14 +42,12 @@
     "colors": "^1.0",
     "columbo": "^3.0",
     "commander": "^2.0",
-    "component-emitter": "^1.0",
     "copy-to": "^2.0",
     "cpu-stats": "^1.0",
     "domify": "^1.0",
     "domready": "^1.0",
     "etc-passwd": "^0.1",
     "event-loop-lag": "^1.0",
-    "execSync": "^1.0",
     "extend": "^2.0",
     "favicon-setter": "^0.1",
     "freeport": "^1.0",
@@ -67,7 +65,7 @@
     "node-inspector": "^0.8",
     "output-buffer": "^1.0",
     "pem": "^1.0",
-    "posix": "^1.0",
+    "posix": "^2.0",
     "prettysize": "^0.0",
     "prompt": "^0.2",
     "rimraf": "^2.0",
@@ -78,7 +76,6 @@
     "socket.io-client": "^1.2",
     "splitargs": "^0.0",
     "sprintf-js": "^1.0",
-    "stylizer": "^2.0",
     "templatizer-hbs": "^0.0",
     "timeoutify": "^0.0",
     "tv": "^4.0",
@@ -91,7 +88,8 @@
     "winston": "^0.8"
   },
   "optionalDependencies": {
-    "boss-mdns": "^2.0"
+    "boss-mdns": "^2.0",
+    "execSync": "^1.0"
   },
   "devDependencies": {
     "chai": "^1.0",
@@ -102,7 +100,9 @@
     "pre-commit": "^0.0",
     "proxyquire": "^1.0",
     "sinon": "^1.8",
-    "testsuite": "^1.0"
+    "testsuite": "^1.0",
+    "stylizer": "^2.0",
+    "component-emitter": "1.1.2"
   },
   "bin": {
     "bs": "bin/bs",

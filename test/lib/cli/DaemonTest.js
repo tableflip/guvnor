@@ -130,7 +130,7 @@ describe('Daemon', function() {
     daemon.logs(undefined, {})
 
     // should be listening for all logs
-    expect(boss.on.callCount).to.equal(5)
+    expect(boss.on.callCount).to.equal(9)
 
     console.info = sinon.stub()
     expect(console.info.callCount).to.equal(0)
@@ -149,7 +149,7 @@ describe('Daemon', function() {
     daemon.logs(pid, {})
 
     // should be listening for all logs
-    expect(boss.on.callCount).to.equal(5)
+    expect(boss.on.callCount).to.equal(9)
 
     console.info = sinon.stub()
     expect(console.info.callCount).to.equal(0)

@@ -1,7 +1,7 @@
 var expect = require('chai').expect,
   sinon = require('sinon'),
   ClusterManager = require('../../../../lib/daemon/cluster/ClusterManager'),
-  EventEmitter = require('events').EventEmitter
+  EventEmitter = require('wildemitter')
 
 describe('ClusterManager', function() {
   var manager

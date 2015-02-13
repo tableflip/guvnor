@@ -150,60 +150,6 @@ describe('Boss', function() {
     expect(boss._processService.startProcess.calledWith('script', 'options', 'callback')).to.be.true
   })
 
-  it('should call rpc method to set number of cluster workers', function() {
-    var proc = {
-      id:'foo',
-      cluster: true,
-      remote: {
-        setClusterWorkers: sinon.stub()
-      }
-    }
-
-    boss._processInfoStore.find.withArgs('id', 'foo').returns(proc)
-
-    boss.setClusterWorkers('foo', 5)
-
-    expect(proc.remote.setClusterWorkers.calledWith(5)).to.be.true
-  })
-
-  it('should fail to call rpc method to set number of cluster workers when process does not exist', function(done) {
-    boss.setClusterWorkers('foo', 5, function(error) {
-      expect(error.message).to.contain('no process')
-
-      done()
-    })
-  })
-
-  it('should fail to call rpc method to set number of cluster workers when process is not a cluster', function(done) {
-    var proc = {
-      id:'foo',
-      cluster: false
-    }
-
-    boss._processInfoStore.find.withArgs('id', 'foo').returns(proc)
-
-    boss.setClusterWorkers('foo', 5, function(error) {
-      expect(error.message).to.contain('not a cluster')
-
-      done()
-    })
-  })
-
-  it('should fail to call rpc method to set number of cluster workers when process is not ready', function(done) {
-    var proc = {
-      id:'foo',
-      cluster: true
-    }
-
-    boss._processInfoStore.find.withArgs('id', 'foo').returns(proc)
-
-    boss.setClusterWorkers('foo', 5, function(error) {
-      expect(error.message).to.contain('not ready')
-
-      done()
-    })
-  })
-
   it('should return server status', function(done) {
     boss._config.remote = {
       inspector: {

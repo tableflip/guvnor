@@ -157,7 +157,7 @@ describe('ProcessService', function() {
   })
 
   it('should forward events', function(done) {
-    processService.on('foo', function(one, two, three) {
+    processService.on('foo:bar', function(processInfo, one, two, three) {
       expect(one).to.equal('one')
       expect(two).to.equal('two')
       expect(three).to.equal('three')
@@ -165,7 +165,14 @@ describe('ProcessService', function() {
       done()
     })
 
-    processService._forwardEvent('one', 'foo', ['two', 'three'])
+    var processInfo = {
+      process: new EventEmitter()
+    }
+
+    processService._forwardEvents(processInfo)
+
+    // should cause the 'foo:bar' event to be emitted by the processService
+    processInfo.process.emit('foo:bar', 'one', 'two', 'three')
   })
 
   it('should not restart a failing process when restartOnError is false', function() {
@@ -348,40 +355,27 @@ describe('ProcessService', function() {
     var remote = {
       connect: sinon.stub()
     }
-    var childProcess = new EventEmitter()
-    childProcess.pid = 5
     var processInfo = {
       id: 'foo',
-      process: childProcess,
-      validate: sinon.stub().callsArg(0),
-      getProcessArgs: sinon.stub(),
-      getProcessOptions: sinon.stub(),
-      logger: processService._logger,
-      cluster: true
+      process: new EventEmitter()
     }
-    processService._processes = {
-      foo: processInfo
-    }
-    processService._freeport.callsArgWith(0, undefined, 5)
-    processService._child_process.fork.returns(childProcess)
-    processService._processInfoStore.create.callsArgWith(1, undefined, processInfo)
 
-    processService.on('cluster:started', function(info) {
+    processService.on('cluster:ready', function(info) {
       expect(info).to.equal(processInfo)
+      expect(processInfo.status).to.equal('running')
+      expect(processInfo.socket).to.equal('socket')
+      expect(processInfo.remote).to.equal(remote)
 
       done()
     })
 
     processService.startProcess(__filename, {}, sinon.stub())
 
-    processService._processFactory.create.withArgs(['socket']).callsArgWith(1, undefined, remote)
-    remote.connect.callsArgWith(0, undefined, remote)
+    processService._processFactory.create.withArgs(['socket']).callsArgWithAsync(1, undefined, remote)
+    remote.connect.callsArgWithAsync(0, undefined, remote)
 
-    childProcess.emit('process:started', 'socket')
-
-    expect(processInfo.status).to.equal('running')
-    expect(processInfo.socket).to.equal('socket')
-    expect(processInfo.remote).to.equal(remote)
+    processService._setupProcessCallbacks(processInfo, 'cluster')
+    processInfo.process.emit('cluster:started', 'socket')
   })
 
   it('should mark processInfo as failed if connect to process rpc socket after startup fails', function(done) {
@@ -458,23 +452,10 @@ describe('ProcessService', function() {
     var remote = {
       connect: sinon.stub()
     }
-    var childProcess = new EventEmitter()
-    childProcess.pid = 5
     var processInfo = {
       id: 'foo',
-      process: childProcess,
-      validate: sinon.stub().callsArg(0),
-      getProcessArgs: sinon.stub(),
-      getProcessOptions: sinon.stub(),
-      logger: processService._logger,
-      cluster: true
+      process: new EventEmitter()
     }
-    processService._processes = {
-      foo: processInfo
-    }
-    processService._freeport.callsArgWith(0, undefined, 5)
-    processService._child_process.fork.returns(childProcess)
-    processService._processInfoStore.create.callsArgWith(1, undefined, processInfo)
 
     processService.on('cluster:failed', function(info) {
       expect(info).to.equal(processInfo)
@@ -483,74 +464,45 @@ describe('ProcessService', function() {
       done()
     })
 
-    processService.startProcess(__filename, {}, sinon.stub())
+    remote.connect.callsArgWithAsync(0, new Error('nope!'))
+    processService._processFactory.create.withArgs(['socket']).callsArgWithAsync(1, undefined, remote)
 
-    processService._processFactory.create.withArgs(['socket']).callsArgWith(1, undefined, remote)
-    remote.connect.callsArgWith(0, new Error('nope!'))
-
-    childProcess.emit('process:started', 'socket')
-
-    expect(processInfo.status).to.equal('failed')
-    expect(processInfo.socket).to.equal('socket')
-    expect(processInfo.remote).to.not.exist
+    processService._setupProcessCallbacks(processInfo, 'cluster')
+    processInfo.process.emit('cluster:started', 'socket')
   })
 
   it('should forward stopping event and set status to stopping', function(done) {
-    var childProcess = new EventEmitter()
-    childProcess.pid = 5
     var processInfo = {
       id: 'foo',
-      process: childProcess,
-      validate: sinon.stub().callsArg(0),
-      getProcessArgs: sinon.stub(),
-      getProcessOptions: sinon.stub(),
-      logger: processService._logger
+      process: new EventEmitter()
     }
-    processService._processes = {
-      foo: processInfo
-    }
-    processService._freeport.callsArgWith(0, undefined, 5)
-    processService._child_process.fork.returns(childProcess)
-    processService._processInfoStore.create.callsArgWith(1, undefined, processInfo)
-    processService.startProcess(__filename, {}, sinon.stub())
 
-    processService.on('process:stopping', function(info) {
+    processService.on('cluster:stopping', function(info) {
       expect(info).to.equal(processInfo)
       expect(info.status).to.equal('stopping')
 
       done()
     })
 
-    childProcess.emit('process:stopping')
+    processService._setupProcessCallbacks(processInfo, 'cluster')
+    processInfo.process.emit('cluster:stopping', 'socket')
   })
 
   it('should forward failed event and set status to failed', function(done) {
-    var childProcess = new EventEmitter()
-    childProcess.pid = 5
     var processInfo = {
       id: 'foo',
-      process: childProcess,
-      validate: sinon.stub().callsArg(0),
-      getProcessArgs: sinon.stub(),
-      getProcessOptions: sinon.stub(),
-      logger: processService._logger
+      process: new EventEmitter()
     }
-    processService._processes = {
-      foo: processInfo
-    }
-    processService._freeport.callsArgWith(0, undefined, 5)
-    processService._child_process.fork.returns(childProcess)
-    processService._processInfoStore.create.callsArgWith(1, undefined, processInfo)
-    processService.startProcess(__filename, {}, sinon.stub())
 
-    processService.on('process:failed', function(info) {
+    processService.on('cluster:failed', function(info) {
       expect(info).to.equal(processInfo)
       expect(info.status).to.equal('failed')
 
       done()
     })
 
-    childProcess.emit('process:failed', new Error('urk!'))
+    processService._setupProcessCallbacks(processInfo, 'cluster')
+    processInfo.process.emit('cluster:failed', new Error('urk!'))
   })
 
   it('should forward restarting event and set status to restarting', function(done) {
@@ -653,33 +605,21 @@ describe('ProcessService', function() {
     })
   })
 
-  it('should forward cluster failed event', function(done) {
-    var childProcess = new EventEmitter()
-    childProcess.pid = 5
+  it('should forward cluster failed event and set status to failed', function(done) {
     var processInfo = {
       id: 'foo',
-      process: childProcess,
-      validate: sinon.stub().callsArg(0),
-      getProcessArgs: sinon.stub(),
-      getProcessOptions: sinon.stub(),
-      logger: processService._logger,
-      cluster: true
+      process: new EventEmitter()
     }
-    processService._processes = {
-      foo: processInfo
-    }
-    processService._freeport.callsArgWith(0, undefined, 5)
-    processService._child_process.fork.returns(childProcess)
-    processService._processInfoStore.create.callsArgWith(1, undefined, processInfo)
-    processService.startProcess(__filename, {}, sinon.stub())
 
     processService.on('cluster:failed', function(info) {
       expect(info).to.equal(processInfo)
+      expect(info.status).to.equal('failed')
 
       done()
     })
 
-    childProcess.emit('cluster:failed', new Error('urk!'))
+    processService._setupProcessCallbacks(processInfo, 'cluster')
+    processInfo.process.emit('cluster:failed', new Error('urk!'))
   })
 
   it('should forward cluster online event', function(done) {
@@ -710,36 +650,29 @@ describe('ProcessService', function() {
 
     childProcess.emit('cluster:online')
   })
-
+/*
   it('should forward cluster ready event', function(done) {
     var socket = 'socket'
     var remote = {
       connect: sinon.stub()
     }
-    var childProcess = new EventEmitter()
-    childProcess.pid = 5
     var processInfo = {
       id: 'foo',
-      process: childProcess,
-      validate: sinon.stub().callsArg(0),
-      getProcessArgs: sinon.stub(),
-      getProcessOptions: sinon.stub(),
-      logger: processService._logger,
-      cluster: true
+      process: new EventEmitter()
     }
     processService._processes = {
       foo: processInfo
     }
-    processService._freeport.callsArgWith(0, undefined, 5)
+    processService._freeport.callsArgWithAsync(0, undefined, 5)
     processService._child_process.fork.returns(childProcess)
-    processService._processInfoStore.create.callsArgWith(1, undefined, processInfo)
-    processService._processFactory.create.withArgs(['socket']).callsArgWith(1, undefined, remote)
-    remote.connect.callsArgWith(0, undefined, remote)
+    processService._processInfoStore.create.callsArgWithAsync(1, undefined, processInfo)
+    processService._processFactory.create.withArgs(['socket']).callsArgWithAsync(1, undefined, remote)
+    remote.connect.callsArgWithAsync(0, undefined, remote)
     processService.startProcess(__filename, {}, sinon.stub())
 
     var receivedStartedEvent = false
 
-    processService.on('cluster:started', function(info) {
+    processService.on('process:started', function(info) {
       expect(info).to.equal(processInfo)
       expect(info.status).to.equal('started')
 
@@ -758,32 +691,18 @@ describe('ProcessService', function() {
 
     childProcess.emit('cluster:started', socket)
   })
-
+*/
   it('should emit cluster failed event if connecting to cluster rpc fails', function(done) {
     var socket = 'socket'
     var remote = {
       connect: sinon.stub()
     }
-    var childProcess = new EventEmitter()
-    childProcess.pid = 5
     var processInfo = {
       id: 'foo',
-      process: childProcess,
-      validate: sinon.stub().callsArg(0),
-      getProcessArgs: sinon.stub(),
-      getProcessOptions: sinon.stub(),
-      logger: processService._logger,
-      cluster: true
+      process: new EventEmitter()
     }
-    processService._processes = {
-      foo: processInfo
-    }
-    processService._freeport.callsArgWith(0, undefined, 5)
-    processService._child_process.fork.returns(childProcess)
-    processService._processInfoStore.create.callsArgWith(1, undefined, processInfo)
-    processService._processFactory.create.withArgs(['socket']).callsArgWith(1, undefined, remote)
-    remote.connect.callsArgWith(0, new Error('nope!'))
-    processService.startProcess(__filename, {}, sinon.stub())
+    processService._processFactory.create.withArgs([socket]).callsArgWithAsync(1, undefined, remote)
+    remote.connect.callsArgWithAsync(0, new Error('nope!'))
 
     var receivedStartedEvent = false
 
@@ -803,7 +722,8 @@ describe('ProcessService', function() {
       done()
     })
 
-    childProcess.emit('cluster:started', socket)
+    processService._setupProcessCallbacks(processInfo, 'cluster')
+    processInfo.process.emit('cluster:started', socket)
   })
 
   it('should forward cluster worker events from child process', function(done) {

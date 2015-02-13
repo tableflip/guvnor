@@ -498,9 +498,9 @@ describe('HostData', function() {
 
     data._connectedToDaemon(undefined, newDaemon)
 
-    expect(newDaemon.on.getCall(1).args[0]).to.equal('process:uncaughtexception')
+    expect(newDaemon.on.getCall(3).args[0]).to.equal('process:uncaughtexception')
 
-    newDaemon.on.getCall(1).args[1]({
+    newDaemon.on.getCall(3).args[1]({
       id: 'foo'
     }, {
       date: 'bar',
@@ -537,9 +537,9 @@ describe('HostData', function() {
 
     data._connectedToDaemon(undefined, newDaemon)
 
-    expect(newDaemon.on.getCall(4).args[0]).to.equal('*')
+    expect(newDaemon.on.getCall(6).args[0]).to.equal('*')
 
-    newDaemon.on.getCall(4).args[1]('foo', 'bar')
+    newDaemon.on.getCall(6).args[1]('foo', 'bar')
 
     expect(data._webSocketResponder.broadcast.calledWith('foo', 'test', 'bar')).to.be.true
   })

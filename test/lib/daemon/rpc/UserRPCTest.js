@@ -15,7 +15,6 @@ describe('UserRPC', function() {
       on: sinon.stub(),
       startProcess: sinon.stub(),
       listProcesses: sinon.stub(),
-      setClusterWorkers: sinon.stub(),
       findProcessInfoById: sinon.stub(),
       findProcessInfoByPid: sinon.stub(),
       findProcessInfoByName: sinon.stub(),
@@ -56,7 +55,6 @@ describe('UserRPC', function() {
 
     expect(rpc.startProcess).to.be.a('function')
     expect(rpc.listProcesses).to.be.a('function')
-    expect(rpc.setClusterWorkers).to.be.a('function')
     expect(rpc.findProcessInfoById).to.be.a('function')
     expect(rpc.findProcessInfoByPid).to.be.a('function')
     expect(rpc.dumpProcesses).to.be.a('function')

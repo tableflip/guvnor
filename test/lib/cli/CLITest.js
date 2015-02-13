@@ -38,10 +38,7 @@ describe('CLI', function() {
       start: sinon.stub(),
       get: sinon.stub()
     }
-    cli._execSync = {
-      exec: sinon.stub(),
-      run: sinon.stub()
-    }
+    cli._execSync = sinon.stub()
     cli._child_process = {
       exec: sinon.stub()
     }
@@ -204,18 +201,14 @@ describe('CLI', function() {
 
   it('should create a group on Linux', function(done) {
     var groupadd = 'foo'
-    var code = 0
 
     cli._config.boss.group = 'bar'
 
     cli._posix.getgrnam.withArgs(cli._config.boss.group).throws(new Error('group id does not exist'))
     cli._prompt.get.callsArg(1)
 
-    cli._execSync.exec.withArgs('which groupadd').returns({
-      stdout: groupadd
-    })
-
-    cli._execSync.run.withArgs(groupadd + ' ' + cli._config.boss.group).returns(code)
+    cli._execSync.withArgs('which groupadd').returns(groupadd)
+    cli._execSync.withArgs(groupadd + ' ' + cli._config.boss.group).returns('')
 
     cli._checkBossGroup(function(error) {
       expect(error).to.not.exist
@@ -226,18 +219,14 @@ describe('CLI', function() {
 
   it('should complain if creating a group fails on Linux', function(done) {
     var groupadd = 'foo'
-    var code = 1
 
     cli._config.boss.group = 'bar'
 
     cli._posix.getgrnam.withArgs(cli._config.boss.group).throws(new Error('group id does not exist'))
     cli._prompt.get.callsArg(1)
 
-    cli._execSync.exec.withArgs('which groupadd').returns({
-      stdout: groupadd
-    })
-
-    cli._execSync.run.withArgs(groupadd + ' ' + cli._config.boss.group).returns(code)
+    cli._execSync.withArgs('which groupadd').returns(groupadd)
+    cli._execSync.withArgs(groupadd + ' ' + cli._config.boss.group).throws(new Error('urk!'))
 
     cli._checkBossGroup(function(error) {
       expect(error.message).to.equal('Automatically creating group bar failed, please create it manually')
@@ -259,12 +248,8 @@ describe('CLI', function() {
     cli._posix.getgrnam.withArgs(cli._config.boss.group).throws(new Error('group id does not exist'))
     cli._prompt.get.callsArg(1)
 
-    cli._execSync.exec.withArgs('which groupadd').returns({
-      stdout: ''
-    })
-    cli._execSync.exec.withArgs('which dscl').returns({
-      stdout: dscl
-    })
+    cli._execSync.withArgs('which groupadd').returns('')
+    cli._execSync.withArgs('which dscl').returns(dscl)
 
     cli._child_process.exec.withArgs('foo . -list /Groups PrimaryGroupID').callsArgWith(1, undefined, groups)
     cli._child_process.exec.withArgs('foo . create /Groups/bar').callsArg(1)
@@ -292,12 +277,8 @@ describe('CLI', function() {
     cli._posix.getgrnam.withArgs(cli._config.boss.group).throws(new Error('group id does not exist'))
     cli._prompt.get.callsArg(1)
 
-    cli._execSync.exec.withArgs('which groupadd').returns({
-      stdout: ''
-    })
-    cli._execSync.exec.withArgs('which dscl').returns({
-      stdout: dscl
-    })
+    cli._execSync.withArgs('which groupadd').returns('')
+    cli._execSync.withArgs('which dscl').returns(dscl)
 
     cli._child_process.exec.withArgs('foo . -list /Groups PrimaryGroupID').callsArgWith(1, undefined, groups)
     cli._child_process.exec.withArgs('foo . create /Groups/bar').callsArg(1)
@@ -317,12 +298,8 @@ describe('CLI', function() {
     cli._posix.getgrnam.withArgs(cli._config.boss.group).throws(new Error('group id does not exist'))
     cli._prompt.get.callsArg(1)
 
-    cli._execSync.exec.withArgs('which groupadd').returns({
-      stdout: ''
-    })
-    cli._execSync.exec.withArgs('which dscl').returns({
-      stdout: ''
-    })
+    cli._execSync.withArgs('which groupadd').returns('')
+    cli._execSync.withArgs('which dscl').returns('')
 
     cli._checkBossGroup(function(error) {
       expect(error.message).to.equal('Automatically creating group foo failed, please create it manually')

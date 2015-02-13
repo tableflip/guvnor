@@ -16,7 +16,8 @@ describe('ClusterProcessService', function() {
     }
     service._cluster = {
       fork: sinon.stub(),
-      on: sinon.stub()
+      on: sinon.stub(),
+      setupMaster: sinon.stub()
     }
     service._logger = {
       info: console.info,
@@ -41,6 +42,9 @@ describe('ClusterProcessService', function() {
       getProcessOptions: function() {
         return processOptions
       },
+      getProcessArgs: function() {
+        return []
+      },
       process: worker.process
     }
 
@@ -50,7 +54,7 @@ describe('ClusterProcessService', function() {
 
     service._freeport.callsArgWith(0, undefined, 5)
     service._processInfoStore.create.callsArgWith(1, undefined, initialProcessInfo)
-    service._processInfoStore.find.withArgs('worker.id', worker.id).callsArgWith(2, undefined, initialProcessInfo)
+    service._processInfoStore.find.withArgs('worker.id', worker.id).returns(initialProcessInfo)
     service._cluster.fork.withArgs(processOptions.env).returns(worker)
 
     var notifiedOfClusterWorkerStarting = false
@@ -82,7 +86,6 @@ describe('ClusterProcessService', function() {
       expect(processInfo).to.equal(initialProcessInfo)
 
       expect(notifiedOfClusterWorkerStarting).to.be.true
-      expect(notifiedOfClusterWorkerFork).to.be.true
 
       expect(processInfo.status).to.equal('uninitialised')
 

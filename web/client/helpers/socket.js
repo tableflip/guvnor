@@ -158,6 +158,42 @@ socket.on('process:log:error', function(hostName, processInfo, log) {
     })
   })
 })
+socket.on('cluster:log:info', function(hostName, clusterInfo, log) {
+  withHostAndProcess(hostName, clusterInfo.id, function(host, process) {
+    process.logs.add({
+      type: 'info',
+      date: log.date,
+      message: log.message
+    })
+  })
+})
+socket.on('cluster:log:warn', function(hostName, clusterInfo, log) {
+  withHostAndProcess(hostName, clusterInfo.id, function(host, process) {
+    process.logs.add({
+      type: 'warn',
+      date: log.date,
+      message: log.message
+    })
+  })
+})
+socket.on('cluster:log:debug', function(hostName, clusterInfo, log) {
+  withHostAndProcess(hostName, clusterInfo.id, function(host, process) {
+    process.logs.add({
+      type: 'debug',
+      date: log.date,
+      message: log.message
+    })
+  })
+})
+socket.on('cluster:log:error', function(hostName, clusterInfo, log) {
+  withHostAndProcess(hostName, clusterInfo.id, function(host, process) {
+    process.logs.add({
+      type: 'error',
+      date: log.date,
+      message: log.message
+    })
+  })
+})
 socket.on('worker:log:info', function(hostName, clusterInfo, workerInfo, log) {
   withHostAndProcess(hostName, workerInfo.id, function(host, process) {
     process.logs.add({

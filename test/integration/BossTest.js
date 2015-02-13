@@ -66,7 +66,8 @@ describe('Boss', function() {
         if(type.substring(0, 'boss:log'.length) == 'boss:log' ||
           type.substring(0, 'process:uncaughtexception'.length) == 'process:uncaughtexception' ||
           type.substring(0, 'boss:fatality'.length) == 'boss:fatality' ||
-          type.substring(0, 'process:log'.length) == 'process:log') {
+          type.substring(0, 'process:log'.length) == 'process:log' ||
+          type.substring(0, 'worker:log'.length) == 'worker:log') {
           // already handled
           return
         }
@@ -76,7 +77,13 @@ describe('Boss', function() {
       boss.on('boss:log:*', function(type, event) {
         console.info(type, event.message)
       })
-      boss.on('process:log:*', function(type, processId, event) {
+      boss.on('process:log:*', function(type, processInfo, event) {
+        console.info(type, event)
+      })
+      boss.on('cluster:log:*', function(type, processInfo, event) {
+        console.info(type, event)
+      })
+      boss.on('worker:log:*', function(type, clusterInfo, processInfo, event) {
         console.info(type, event)
       })
       boss.on('process:uncaughtexception:*', function(type, error) {
@@ -501,19 +508,24 @@ describe('Boss', function() {
 
         instances--
 
-        boss.setClusterWorkers(processInfo.id, instances, function(error) {
-          expect(error).to.not.exist
+        boss.connectToProcess(clusterProcessInfo.id, function(error, remoteProcess) {
+          if(error) return callback(error)
 
-          boss.listProcesses(function(error, processes) {
+          remoteProcess.setClusterWorkers(instances, function (error) {
+
             expect(error).to.not.exist
-            expect(processes.length).to.equal(1)
-            expect(processes[0].workers.length).to.equal(instances)
 
-            boss.findProcessInfoById(processInfo.id, function(error, processInfo) {
+            boss.listProcesses(function (error, processes) {
               expect(error).to.not.exist
-              expect(processInfo.instances).to.equal(instances)
+              expect(processes.length).to.equal(1)
+              expect(processes[0].workers.length).to.equal(instances)
 
-              done()
+              boss.findProcessInfoById(processInfo.id, function (error, processInfo) {
+                expect(error).to.not.exist
+                expect(processInfo.instances).to.equal(instances)
+
+                done()
+              })
             })
           })
         })
@@ -528,7 +540,8 @@ describe('Boss', function() {
       env: {
         PORT: 0
       },
-      instances: instances
+      instances: instances,
+      debug: true
     }, function (error, processInfo) {
       expect(error).to.not.exist
       expect(processInfo.id).to.be.ok
@@ -540,24 +553,28 @@ describe('Boss', function() {
 
         instances++
 
-        boss.setClusterWorkers(processInfo.id, instances, function (error) {
-          expect(error).to.not.exist
+        boss.connectToProcess(clusterProcessInfo.id, function(error, remoteProcess) {
+          if(error) return callback(error)
 
-          boss.once('cluster:online', function (clusterProcessInfo) {
-            if(clusterProcessInfo.id != processInfo.id) {
-              return
-            }
+          remoteProcess.setClusterWorkers(instances, function (error) {
+            expect(error).to.not.exist
 
-            boss.listProcesses(function (error, processes) {
-              expect(error).to.not.exist
-              expect(processes.length).to.equal(1)
-              expect(processes[0].workers.length).to.equal(instances)
+            boss.once('cluster:online', function (clusterProcessInfo) {
+              if (clusterProcessInfo.id != processInfo.id) {
+                return
+              }
 
-              boss.findProcessInfoById(processInfo.id, function(error, processInfo) {
+              boss.listProcesses(function (error, processes) {
                 expect(error).to.not.exist
-                expect(processInfo.instances).to.equal(instances)
+                expect(processes.length).to.equal(1)
+                expect(processes[0].workers.length).to.equal(instances)
 
-                done()
+                boss.findProcessInfoById(processInfo.id, function (error, processInfo) {
+                  expect(error).to.not.exist
+                  expect(processInfo.instances).to.equal(instances)
+
+                  done()
+                })
               })
             })
           })
