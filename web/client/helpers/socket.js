@@ -158,6 +158,42 @@ socket.on('process:log:error', function(hostName, processInfo, log) {
     })
   })
 })
+socket.on('worker:log:info', function(hostName, clusterInfo, workerInfo, log) {
+  withHostAndProcess(hostName, workerInfo.id, function(host, process) {
+    process.logs.add({
+      type: 'info',
+      date: log.date,
+      message: log.message
+    })
+  })
+})
+socket.on('worker:log:warn', function(hostName, clusterInfo, workerInfo, log) {
+  withHostAndProcess(hostName, workerInfo.id, function(host, process) {
+    process.logs.add({
+      type: 'warn',
+      date: log.date,
+      message: log.message
+    })
+  })
+})
+socket.on('worker:log:debug', function(hostName, clusterInfo, workerInfo, log) {
+  withHostAndProcess(hostName, workerInfo.id, function(host, process) {
+    process.logs.add({
+      type: 'debug',
+      date: log.date,
+      message: log.message
+    })
+  })
+})
+socket.on('worker:log:error', function(hostName, clusterInfo, workerInfo, log) {
+  withHostAndProcess(hostName, workerInfo.id, function(host, process) {
+    process.logs.add({
+      type: 'error',
+      date: log.date,
+      message: log.message
+    })
+  })
+})
 socket.on('process:uncaughtexception', function(hostName, processInfo, error) {
   withHostAndProcess(hostName, processInfo.id, function(host, process) {
     process.exceptions.add({
