@@ -1,7 +1,8 @@
 var expect = require('chai').expect,
   sinon = require('sinon'),
   ProcessInfo = require('../../../../lib/daemon/domain/ProcessInfo'),
-  posix = require('posix')
+  posix = require('posix'),
+  semver = require('semver')
 
 describe('ProcessInfo', function() {
   var fileSystemStub = {findOrCreateLogFileDirectory: sinon.stub()}
@@ -242,8 +243,14 @@ describe('ProcessInfo', function() {
     })
     processInfo.debugPort = 5
 
-    expect(processInfo.getProcessOptions().execArgv.indexOf('--debug=5')).to.equal(0)
-    expect(processInfo.getProcessOptions().execArgv.indexOf('--debug-brk=5')).to.equal(-1)
+    var portArg = '--debug=5'
+
+    if(semver.gt(process.version, '0.11.0')) {
+      portArg = '--debug-port=5'
+    }
+
+    expect(processInfo.getProcessOptions().execArgv).to.contain(portArg)
+    expect(processInfo.getProcessOptions().execArgv).to.not.contain('--debug-brk=5')
   })
 
   it('should debug-brk cluster manager when config says to', function() {
@@ -287,8 +294,14 @@ describe('ProcessInfo', function() {
     })
     processInfo.debugPort = 5
 
-    expect(processInfo.getProcessOptions().execArgv.indexOf('--debug=5')).to.equal(-1)
-    expect(processInfo.getProcessOptions().execArgv.indexOf('--debug-brk=5')).to.equal(0)
+    var portArg = '--debug=5'
+
+    if(semver.gt(process.version, '0.11.0')) {
+      portArg = '--debug-port=5'
+    }
+
+    expect(processInfo.getProcessOptions().execArgv).to.not.contain(portArg)
+    expect(processInfo.getProcessOptions().execArgv).to.contain('--debug-brk=5')
   })
 
   it('should not include default fields in simple object', function(done) {

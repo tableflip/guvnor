@@ -469,6 +469,8 @@ describe('Boss', function() {
       expect(error).to.not.exist
       expect(processInfo.id).to.be.ok
 
+      var debugPort = processInfo.debugPort
+
       boss.once('cluster:online', function(clusterProcessInfo) {
         if(clusterProcessInfo.id != processInfo.id) {
           return
@@ -482,6 +484,10 @@ describe('Boss', function() {
 
           expect(processes[0].workers[0].title).to.equal(processes[0].workers[1].title)
           expect(processes[0].workers[0].pid).to.not.equal(processes[0].workers[1].pid)
+
+          // should have assigned sequential debug ports
+          expect(processes[0].workers[0].debugPort).to.equal(debugPort + 1)
+          expect(processes[0].workers[1].debugPort).to.equal(debugPort + 2)
 
           done()
         })
