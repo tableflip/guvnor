@@ -141,6 +141,23 @@ describe('Boss', function() {
     })
   })
 
+  it('should start a coffeescript process', function(done) {
+    boss.startProcess(__dirname + '/fixtures/hello-world.coffee', {}, function(error, processInfo) {
+      expect(error).to.not.exist
+      expect(processInfo.id).to.be.ok
+
+      boss.on('process:ready', function(readyProcessInfo) {
+        if(readyProcessInfo.id != processInfo.id) {
+          return
+        }
+
+        expect(readyProcessInfo.socket).to.include(readyProcessInfo.pid)
+
+        done()
+      })
+    })
+  })
+
   it('should survive starting a process with the wrong group name', function(done) {
     boss.startProcess(__dirname + '/fixtures/hello-world.js', {
       group: shortid.generate()
