@@ -89,8 +89,8 @@
     "winston": "^0.8"
   },
   "optionalDependencies": {
-    "boss-mdns": "^2.0",
-    "execSync": "^1.0"
+    "execSync": "^1.0",
+    "mdns": "^2.0"
   },
   "devDependencies": {
     "chai": "^1.0",
