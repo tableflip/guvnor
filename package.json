@@ -23,7 +23,7 @@
     "ampersand-collection-view": "^1.0",
     "ampersand-dom": "^1.0",
     "ampersand-form-view": "^2.0",
-    "ampersand-input-view": "^3.1",
+    "ampersand-input-view": "^4.0.1",
     "ampersand-model": "^4.0",
     "ampersand-rest-collection": "^2.0",
     "ampersand-router": "^1.0",
@@ -53,7 +53,7 @@
     "favicon-setter": "^0.1",
     "freeport": "^1.0",
     "getconfig": "^1.0",
-    "handlebars": "^2.0",
+    "handlebars": "^3.0.0",
     "hapi": "^8.0",
     "hapi-auth-basic": "^2.0",
     "heapdump": "^0.3",
@@ -81,29 +81,28 @@
     "timeoutify": "^0.0",
     "tv": "^4.0",
     "underscore": "^1.0",
-    "underscore.string": "^2.0",
-    "usage": "^0.5",
+    "usage": "^0.6",
     "uuid": "^2.0",
     "wantsit": "^2.0",
     "wildemitter": "^1.0",
-    "winston": "^0.8"
+    "winston": "^0.9.0"
   },
   "optionalDependencies": {
     "execSync": "^1.0",
     "mdns": "^2.0"
   },
   "devDependencies": {
-    "chai": "^1.0",
+    "chai": "^2.0.0",
+    "component-emitter": "1.1.2",
     "coveralls": "^2.8",
     "debug": "^2.1",
     "istanbul": "^0.3.0",
     "mocha": "^2.0",
-    "pre-commit": "^0.0",
+    "pre-commit": "^1.0.4",
     "proxyquire": "^1.0",
     "sinon": "^1.8",
-    "testsuite": "^1.0",
     "stylizer": "achingbrain/stylizer",
-    "component-emitter": "1.1.2"
+    "testsuite": "^1.0"
   },
   "bin": {
     "bs": "bin/bs",

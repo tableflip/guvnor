@@ -1,5 +1,4 @@
-var PageView = require('./base'),
-  _s = require('underscore.string')
+var PageView = require('./base')
 
 module.exports = PageView.extend({
   pageTitle: function() {
@@ -19,7 +18,7 @@ module.exports = PageView.extend({
       type: function(el, value) {
         // if the status of a process changes while we are watching it, redirect the
         // user to a page with an appropriate message
-        if(_s.endsWith(window.location.href, value)) {
+        if(window.location.href.substring(window.location.href.length - value.length) == value) {
           return
         }
 
