@@ -3,7 +3,8 @@ var AmpersandModel = require('ampersand-model'),
   moment = require('moment'),
   prettysize = require('prettysize'),
   Processes = require('./processes'),
-  Apps = require('./apps')
+  Apps = require('./apps'),
+  semver = require('semver')
 
 module.exports = AmpersandModel.extend({
   idAttribute: 'name',
@@ -23,7 +24,10 @@ module.exports = AmpersandModel.extend({
     platform: 'string',
     arch: 'string',
     release: 'string',
-    version: 'string',
+    boss: 'string',
+    versions: ['object', true, function () {
+      return {}
+    }],
     time: 'number',
     uptime: 'number',
     freeMemory: 'number',
@@ -32,7 +36,7 @@ module.exports = AmpersandModel.extend({
     users: ['array', true, function() { return []}],
     groups: ['array', true, function() { return []}],
     cpus: ['array', true, function() {
-      return {
+      return [{
         model: 'string',
         speed: 'number',
         times: ['object', false, function () {
@@ -54,7 +58,7 @@ module.exports = AmpersandModel.extend({
             user: 'number'
           }
         }]
-      }
+      }]
     }]
   },
   session: {
@@ -95,6 +99,12 @@ module.exports = AmpersandModel.extend({
       deps: ['totalMemory'],
       fn: function () {
         return prettysize(this.totalMemory, true)
+      }
+    },
+    engine: {
+      deps: ['versions'],
+      fn: function () {
+        return (semver.satisfies(this.versions.node, '>=1.0.0') ? 'io.js' : 'node.js') + ' ' + this.versions.node
       }
     }
   },

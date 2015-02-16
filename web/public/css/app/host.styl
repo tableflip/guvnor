@@ -5,12 +5,12 @@
   display: inline-block
 
 .system-details
-  .type, .platform, .arch, .release, .boss, .uptime
+  .engine, .platform, .arch, .release, .boss, .uptime
     width: 80px
 
 @media (max-width: 320px)
   .system-details
-    .type, .platform, .arch, .release
+    .engine, .platform, .arch, .release
       display: none
 
   .resource-data-graph
@@ -18,7 +18,7 @@
 
 @media (min-width: 321px) and (max-width: 512px)
   .system-details
-    .type, .platform, .arch, .release
+    .engine, .platform, .arch, .release
       display: none
 
   .resource-data-graph
@@ -26,7 +26,7 @@
 
 @media (max-width: 640px)
   .system-details
-    .type, .arch
+    .engine, .arch
       display: none
 
 .resource-data

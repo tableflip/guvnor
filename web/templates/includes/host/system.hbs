@@ -7,22 +7,22 @@
       <thead>
         <tr>
           <th class="hostname">Hostname</th>
-          <th class="type">Type</th>
           <th class="platform">Platform</th>
           <th class="arch">Arch</th>
           <th class="release">Release</th>
           <th class="boss">Boss</th>
+          <th class="engine">Engine</th>
           <th class="uptime">Uptime</th>
         </tr>
       </thead>
       <tbody>
         <tr>
           <td class="hostname">{{model.hostname}}</td>
-          <td class="type">{{model.type}}</td>
           <td class="platform">{{model.platform}}</td>
           <td class="arch">{{model.arch}}</td>
           <td class="release">{{model.release}}</td>
-          <td class="boss">{{model.version}}</td>
+          <td class="boss">{{model.boss}}</td>
+          <td class="engine">{{model.engine}}</td>
           <td class="uptime" data-hook="uptime">{{model.uptimeFormatted}}</td>
         </tr>
       </tbody>

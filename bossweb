@@ -9,7 +9,7 @@ timeout = 10000
 frequency = 1000
 
 ; The minimum version of boss we are compatible with
-minVersion = ^2.4.0
+minVersion = ^2.6.1
 
 [http]
   ; Which host to accept connections on

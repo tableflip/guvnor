@@ -27,7 +27,7 @@ var remote = require('process-boss').remote,
     host: 'my.server',
     port: 57483,
     secret: '109uoisucoiuzx',
-    user: 'root, // optional, defaults to 'root'
+    user: 'root', // optional, defaults to 'root'
     timeout: 10000 // optional, defaults to 10000 (ms)
   }
 
@@ -91,8 +91,10 @@ Start a process
 boss.startProcess(path, opts, function(error, processInfo) {
   // processInfo.id is the process id of the newly started process
   
-  boss.on('process:ready:' + processInfo.id, function(error, processInfo) {
-    // process has now started
+  boss.on('process:ready', function(readyProcessInfo) {
+    if(processInfo.id == readyProcessInfo.id) {
+      // process has now started
+    }
   })
 })
 ```

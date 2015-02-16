@@ -18,6 +18,7 @@ module.exports = AmpersandModel.extend({
     user: ['string', true, '?'],
     script: ['string', true, '?'],
     cwd: ['string', false, ''],
+    language: ['string', false, ''],
     env: ['object', true, function() {
       return {}
     }],

@@ -87,6 +87,7 @@ describe('Boss', function() {
     for (var i = 0; i < numProcesses; i++) {
       processes.push({
         status: 'running',
+        script: 'foo.js',
         remote: {
           reportStatus: function(callback) {
             setTimeout(function() {
@@ -119,6 +120,7 @@ describe('Boss', function() {
     for (var i = 0; i < numProcesses; i++) {
       processes.push({
         status: 'running',
+        script: 'foo.js',
         remote: {
           reportStatus: function(callback) {
             var error = new Error('Timed out')
@@ -130,7 +132,8 @@ describe('Boss', function() {
     }
 
     processes.push({
-      status: 'paused'
+      status: 'paused',
+      script: 'foo.js'
     })
 
     boss._processes = processes

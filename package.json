@@ -102,7 +102,7 @@
     "proxyquire": "^1.0",
     "sinon": "^1.8",
     "testsuite": "^1.0",
-    "stylizer": "^2.0",
+    "stylizer": "achingbrain/stylizer",
     "component-emitter": "1.1.2"
   },
   "bin": {

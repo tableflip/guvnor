@@ -224,7 +224,8 @@ describe('BossRemote', function() {
       expect(details.platform).to.be.a('string')
       expect(details.arch).to.be.a('string')
       expect(details.release).to.be.a('string')
-      expect(details.version).to.be.a('string')
+      expect(details.boss).to.be.a('string')
+      expect(details.versions.node).to.be.a('string')
       // etc
 
       done()

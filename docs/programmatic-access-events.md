@@ -28,13 +28,29 @@ boss.on('*', function() {
 
 ## Process events
 
-These are events that are to do with managed processes.
+These are events that are to do with managed processes.  They are emitted by processes, cluster managers and workers.  For example:
+
+```javascript
+boss.on('process:starting', function(processInfo) {
+  console.info('process %s is starting', processInfo.name)
+})
+
+boss.on('cluster:starting', function(clusterInfo) {
+  console.info('cluster %s is starting', clusterInfo.name)
+})
+
+boss.on('worker:starting', function(clusterInfo, workerInfo) {
+  console.info('worker %s from cluster %s is starting', workerInfo.id, clusterInfo.name)
+})
+```
+
+Note that the signature for cluster worker events is slightly different - they receive both the cluster and worker process information.
 
 ### 'process:starting' processInfo
 
 A process is about to be created.
 
-### 'process:forked:' processInfo
+### 'process:forked' processInfo
 
 A process is now active (although the v8 instance behind it may still be initialising).
 
@@ -42,11 +58,11 @@ A process is now active (although the v8 instance behind it may still be initial
 
 A process wrapper initialised incorrectly - hopefully you will never see this
 
-### 'process:started:' processInfo
+### 'process:started' processInfo
 
 A process has started and your module code has been loaded.
 
-### 'process:errored:' processInfo, error
+### 'process:errored' processInfo, error
 
 Your module code threw an exception on start up.
 
@@ -78,101 +94,13 @@ A process restarted succesfully.  ProcessInfo associated with the process is pas
 
 A process failed to (re)start because it error'd on startup more times than allowed.
 
-### 'process:log:info'
-
-A process emitted an info log event.  The log object contains the time and the message.
-
-```javascript
-// for a specific process id
-boss.on('process:log:info:1', function(log) {
-  console.info(log.date, log.message)
-})
-
-// for all processes
-boss.on('process:log:info:*', function(type, log) {
-  console.info(log.date, log.message)
-})
-```
-
-### 'process:log:warn'
-
-A process emitted an warn log event.  The log object contains the time and the message.
-
-```javascript
-// for a specific process id
-boss.on('process:log:warn:1', function(log) {
-  console.warn(log.date, log.message)
-})
-
-// for all processes
-boss.on('process:log:warn:*', function(type, log) {
-  console.warn(log.date, log.message)
-})
-```
-
-### 'process:log:error' log
-
-A process emitted an error log event.  The log object contains the time and the message.
-
-```javascript
-// for a specific process id
-boss.on('process:log:error:1', function(log) {
-  console.error(log.date, log.message)
-})
-
-// for all processes
-boss.on('process:log:error:*', function(type, log) {
-  console.error(log.date, log.message)
-})
-```
-
-### 'process:log:debug' log
-
-A process emitted an debug log event.  The log object contains the time and the message.
-
-```javascript
-// for a specific process id
-boss.on('process:log:debug:1', function(log) {
-  console.info(log.date, log.message)
-})
-
-// for all processes
-boss.on('process:log:debug:*', function(type, log) {
-  console.info(log.date, log.message)
-})
-```
-
 ### 'process:config:request'
 
 A managed process has requested configuration from boss
 
-## Daemon events
+## Cluster events
 
-These are events that are to do with the boss daemon itself.
-
-### 'boss:fatality' error
-
-Boss crashed. Hopefully you'll never see this.
-
-### 'boss:config:response'
-
-Boss is sending configuration to a managed process
-
-### 'boss:log:info' log
-
-Boss emitted an info log event. The log object contains the time and the message.
-
-### 'boss:log:warn' log
-
-Boss emitted a warn log event. The log object contains the time and the message.
-
-### 'boss:log:error' log
-
-Boss emitted an error log event. The log object contains the time and the message.
-
-### 'boss:log:debug' log
-
-Boss emitted a debug log event.  The log object contains the time and the message.
+Cluster events are divided into two types - _cluster_ and _worker_. Cluster events are emitted by the process that manages cluster workers and worker events are emitted by the workers themselves.
 
 ### 'cluster:starting' processInfo
 
@@ -201,3 +129,109 @@ A worker is about to get killed
 ### 'worker:exit' clusterInfo, workerInfo, code, signal
 
 A worker exited with the passed code. If a signal was used to kill the worker, it is passed as the third argument to the callback.
+
+## Daemon events
+
+These are events that are to do with the boss daemon itself.
+
+### 'boss:fatality' error
+
+Boss crashed. Hopefully you'll never see this.
+
+### 'boss:config:response'
+
+Boss is sending configuration to a managed process
+
+## Log events
+
+There are four types of log event: `info`, `warn`, `error` and `debug`.  Log events are emitted by processes, cluster managers, cluster workers and boss itself.
+
+`info` and `error` correspond to stdout and stderr.
+
+### info
+
+A process emitted an info log event. The log object contains the time and the message.
+
+```javascript
+boss.on('process:log:info', function(processInfo, log) {
+  console.info('process %s said %s at %s', processInfo.name, log.message, log.date)
+})
+
+boss.on('cluster:log:info', function(clusterInfo, log) {
+  console.info('cluster manager %s said %s at %s', clusterInfo.name, log.message, log.date)
+})
+
+boss.on('worker:log:info', function(clusterInfo, workerInfo, log) {
+  console.info('worker %s from cluster %s said %s at %s', workerInfo.id, cluster.name, log.message, log.date)
+})
+
+boss.on('boss:log:info', function(log) {
+  console.info('boss said %s at %s', log.message, log.date)
+})
+```
+
+### warn
+
+A process emitted an warn log event. The log object contains the time and the message.
+
+```javascript
+boss.on('process:log:warn', function(processInfo, log) {
+  console.warn('process %s said %s at %s', processInfo.name, log.message, log.date)
+})
+
+boss.on('cluster:log:warn', function(clusterInfo, log) {
+  console.warn('cluster manager %s said %s at %s', clusterInfo.name, log.message, log.date)
+})
+
+boss.on('worker:log:warn', function(clusterInfo, workerInfo, log) {
+  console.warn('worker %s from cluster %s said %s at %s', workerInfo.id, cluster.name, log.message, log.date)
+})
+
+boss.on('boss:log:warn', function(log) {
+  console.warn('boss said %s at %s', log.message, log.date)
+})
+```
+
+### error
+
+A process emitted an error log event. The log object contains the time and the message.
+
+```javascript
+boss.on('process:log:error', function(processInfo, log) {
+  console.error('process %s said %s at %s', processInfo.name, log.message, log.date)
+})
+
+boss.on('cluster:log:error', function(clusterInfo, log) {
+  console.error('cluster manager %s said %s at %s', clusterInfo.name, log.message, log.date)
+})
+
+boss.on('worker:log:error', function(clusterInfo, workerInfo, log) {
+  console.error('worker %s from cluster %s said %s at %s', workerInfo.id, cluster.name, log.message, log.date)
+})
+
+boss.on('boss:log:error', function(log) {
+  console.error('boss said %s at %s', log.message, log.date)
+})
+```
+
+### debug
+
+A process emitted an debug log event. The log object contains the time and the message.
+
+```javascript
+boss.on('process:log:debug', function(processInfo, log) {
+  console.info('process %s said %s at %s', processInfo.name, log.message, log.date)
+})
+
+boss.on('cluster:log:debug', function(clusterInfo, log) {
+  console.info('cluster manager %s said %s at %s', clusterInfo.name, log.message, log.date)
+})
+
+boss.on('worker:log:debug', function(clusterInfo, workerInfo, log) {
+  console.info('worker %s from cluster %s said %s at %s', workerInfo.id, cluster.name, log.message, log.date)
+})
+
+boss.on('boss:log:debug', function(log) {
+  console.info('boss said %s at %s', log.message, log.date)
+})
+```

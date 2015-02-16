@@ -357,7 +357,7 @@ describe('HostData', function() {
       off: sinon.stub()
     }
     var details = {
-      version: '2.4.2'
+      boss: '2.4.2'
     }
 
     data._config.minVersion = '^2.0.0'
@@ -392,14 +392,14 @@ describe('HostData', function() {
     expect(data.status).to.equal('error')
   })
 
-  it('should handle mark daemon as incompatible when version is too old', function() {
+  it('should mark daemon as incompatible when version is too old', function() {
     var newDaemon = {
       once: sinon.stub(),
       getDetails: sinon.stub(),
       off: sinon.stub()
     }
     var details = {
-      version: '1.0.0'
+      boss: '1.0.0'
     }
 
     data._config.minVersion = '^2.0.0'
@@ -408,11 +408,11 @@ describe('HostData', function() {
 
     data._connectedToDaemon(undefined, newDaemon)
 
-    expect(data.version).to.equal('1.0.0')
+    expect(data.boss).to.equal('1.0.0')
     expect(data.status).to.equal('incompatible')
   })
 
-  it('should handle mark daemon as connected when connection is successful', function() {
+  it('should mark daemon as connected when connection is successful', function() {
     var newDaemon = {
       once: sinon.stub(),
       getDetails: sinon.stub(),
@@ -420,7 +420,7 @@ describe('HostData', function() {
       on: sinon.stub()
     }
     var details = {
-      version: '2.4.2'
+      boss: '2.4.2'
     }
 
     data._config.minVersion = '^2.0.0'
@@ -430,7 +430,7 @@ describe('HostData', function() {
 
     data._connectedToDaemon(undefined, newDaemon)
 
-    expect(data.version).to.equal('2.4.2')
+    expect(data.boss).to.equal('2.4.2')
     expect(data.status).to.equal('connected')
     expect(data._update.calledWith('getServerStatus')).to.be.true
     expect(data._update.calledWith('listProcesses')).to.be.true
@@ -444,7 +444,7 @@ describe('HostData', function() {
       on: sinon.stub()
     }
     var details = {
-      version: '2.4.2'
+      boss: '2.4.2'
     }
 
     data._config.minVersion = '^2.0.0'
@@ -481,7 +481,7 @@ describe('HostData', function() {
       on: sinon.stub()
     }
     var details = {
-      version: '2.4.2'
+      boss: '2.4.2'
     }
 
     data._config.minVersion = '^2.0.0'
@@ -520,7 +520,7 @@ describe('HostData', function() {
       on: sinon.stub()
     }
     var details = {
-      version: '2.4.2'
+      boss: '2.4.2'
     }
 
     data._config.minVersion = '^2.0.0'

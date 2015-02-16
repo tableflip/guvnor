@@ -436,7 +436,7 @@ describe('RemoteRPC', function() {
         expect(details.platform).to.equal(platform)
         expect(details.arch).to.equal(arch)
         expect(details.release).to.equal(release)
-        expect(details.version).to.equal(remoteRpc._package.version)
+        expect(details.boss).to.equal(remoteRpc._package.version)
 
         done()
       })
