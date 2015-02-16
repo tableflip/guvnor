@@ -344,7 +344,7 @@ describe('ProcessInfo', function() {
     processInfo._child_process.execFile.withArgs('sudo', ['-u', 'foo', 'env']).callsArgWith(3, undefined, 'IN_ENV=world')
 
     processInfo.toSimpleObject(function(error, simple) {
-      expect(error).to.not.exist()
+      expect(error).to.not.exist
 
       // there are a few fields we don't want written out to disk
       expect(simple.id).not.to.exist

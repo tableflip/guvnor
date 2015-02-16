@@ -214,7 +214,7 @@ describe('HostData', function() {
       foo: 'bar'
     }
 
-    expect(data.foo).to.not.exist()
+    expect(data.foo).to.not.exist
 
     data._handleUpdatedServerStatus(status, function() {
       expect(data.foo).to.equal('bar')

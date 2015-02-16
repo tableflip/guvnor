@@ -882,7 +882,7 @@ describe('ProcessService', function() {
     processService._processInfoStore.find.withArgs('id', id).returns(processInfo)
 
     processService.removeProcess(id, function(error) {
-      expect(error).to.not.exist()
+      expect(error).to.not.exist
       expect(processService._processInfoStore.remove.withArgs('id', id).called).to.be.true
       done()
     })
@@ -897,7 +897,7 @@ describe('ProcessService', function() {
     processService._processInfoStore.find.withArgs('id', id).returns(processInfo)
 
     processService.removeProcess(id, function(error) {
-      expect(error).to.be.ok()
+      expect(error).to.be.ok
       done()
     })
   })
@@ -906,7 +906,7 @@ describe('ProcessService', function() {
     var id = 'foo'
 
     processService.removeProcess(id, function(error) {
-      expect(error).to.not.exist()
+      expect(error).to.not.exist
       expect(processService._processInfoStore.remove.called).to.be.false
       done()
     })

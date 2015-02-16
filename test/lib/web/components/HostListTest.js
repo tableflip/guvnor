@@ -39,7 +39,7 @@ describe('HostList', function() {
 
     list._createMdnsBrowser()
 
-    expect(browser.start.called).to.be.true()
+    expect(browser.start.called).to.be.true
   })
 
   it('should warn on mdns error', function() {
@@ -85,7 +85,7 @@ describe('HostList', function() {
     expect(browser.on.getCall(1).args[1]).to.be.instanceof(Function)
     browser.on.getCall(1).args[1]({})
 
-    expect(list._hostData).to.be.empty()
+    expect(list._hostData).to.be.empty
   })
 
   it('should ignore duplicated mdns boss', function() {
@@ -180,7 +180,7 @@ describe('HostList', function() {
 
     list._hostDataFactory.create.getCall(0).args[1](new Error('urk!'))
 
-    expect(list._hostData).to.be.empty()
+    expect(list._hostData).to.be.empty
   })
 
   it('should return hosts as array', function() {
@@ -230,7 +230,7 @@ describe('HostList', function() {
 
     list._createHostData()
 
-    expect(list._hostData).to.be.empty()
+    expect(list._hostData).to.be.empty
   })
 
   it('should ignore host data that errors', function() {
@@ -251,7 +251,7 @@ describe('HostList', function() {
 
     list._createHostData()
 
-    expect(list._hostData).to.be.empty()
+    expect(list._hostData).to.be.empty
   })
 
   it('should create host data and mdns browser', function() {
