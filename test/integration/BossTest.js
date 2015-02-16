@@ -513,7 +513,7 @@ describe('Boss', function() {
   })
 
   it('should reduce number of cluster workers', function(done) {
-    var instances = os.cpus().length - 1
+    var instances = 3
 
     boss.startProcess(__dirname + '/fixtures/http-server.js', {
       env: {
@@ -557,7 +557,7 @@ describe('Boss', function() {
   })
 
   it('should increase number of cluster workers', function(done) {
-    var instances = os.cpus().length - 2
+    var instances = 2
 
     boss.startProcess(__dirname + '/fixtures/http-server.js', {
       env: {
