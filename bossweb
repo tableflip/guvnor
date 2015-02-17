@@ -11,6 +11,9 @@ frequency = 1000
 ; The minimum version of boss we are compatible with
 minVersion = ^2.6.1
 
+; How long before removing rpc method calls
+rpctimeout = 30000
+
 [http]
   ; Which host to accept connections on
   listen = 0.0.0.0
