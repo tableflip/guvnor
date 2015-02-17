@@ -66,7 +66,8 @@ module.exports = View.extend({
           },
           style: fontStyle
         },
-        gridLineColor: lineColour
+        gridLineColor: lineColour,
+        min: 0
       },
       tooltip: {
         enabled: true,
