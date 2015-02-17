@@ -30,6 +30,9 @@
   ; that file in and restart those processes
   autoresume = true
 
+  ; How long we wait for remote method invocations to time out
+  rpctimeout = 30000
+
 [remote]
   ; If true, Boss will start an https server on ${remote.host}:${remote.port}
   ; to listen for incoming boss-remote connections

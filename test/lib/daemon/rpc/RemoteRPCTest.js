@@ -39,6 +39,9 @@ describe('RemoteRPC', function() {
     remoteRpc._config = {
       remote: {
         enabled: true
+      },
+      boss: {
+        rpctimeout: 0
       }
     }
     remoteRpc._remoteUserService = {

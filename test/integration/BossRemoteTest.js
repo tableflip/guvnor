@@ -15,7 +15,8 @@ var config = {
     user: user.name,
     group: group.name,
     timeout: 5000,
-    autoresume: false
+    autoresume: false,
+    rpctimeout: 0
   },
   remote: {
     enabled: true,
@@ -111,7 +112,8 @@ describe('BossRemote', function() {
             user: config.boss.user,
             secret: user.secret,
             host: 'localhost',
-            port: port
+            port: port,
+            rpcTimeout: config.boss.rpctimeout
           }, function(error, b) {
             if (error) throw error
 

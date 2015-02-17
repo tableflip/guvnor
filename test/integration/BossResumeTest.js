@@ -13,7 +13,8 @@ var config = {
     user: user.name,
     group: group.name,
     timeout: 5000,
-    autoresume: false
+    autoresume: false,
+    rpctimeout: 0
   },
   remote: {
     enabled: false,
