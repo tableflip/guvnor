@@ -52,7 +52,8 @@ describe('RemoteRPC', function() {
     }
     remoteRpc._processFactory = {}
     remoteRpc._child_process = {
-      fork: sinon.stub()
+      fork: sinon.stub(),
+      exec: sinon.stub()
     }
     remoteRpc._package = {}
     remoteRpc._nodeInspectorWrapper = {}
@@ -423,6 +424,8 @@ describe('RemoteRPC', function() {
       remoteRpc._os.arch.returns(arch)
       remoteRpc._os.release.returns(release)
 
+      remoteRpc._child_process.exec.withArgs('uname -a').callsArgWithAsync(1, undefined, 'Darwin Alexs-MBP.home 14.1.0 Darwin Kernel Version 14.1.0: Mon Dec 22 23:10:38 PST 2014; root:xnu-2782.10.72~2/RELEASE_X86_64 x86_64')
+
       var dnode = {}
 
       remoteRpc._checkSignature = function(callback) {
@@ -440,6 +443,7 @@ describe('RemoteRPC', function() {
         expect(details.arch).to.equal(arch)
         expect(details.release).to.equal(release)
         expect(details.boss).to.equal(remoteRpc._package.version)
+        expect(details.os).to.equal('darwin')
 
         done()
       })

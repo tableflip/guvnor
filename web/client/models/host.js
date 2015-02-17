@@ -25,6 +25,7 @@ module.exports = AmpersandModel.extend({
     arch: 'string',
     release: 'string',
     boss: 'string',
+    os: 'string',
     versions: ['object', true, function () {
       return {}
     }],
