@@ -8,11 +8,15 @@ A node process manager that isn't spanners all the way down.
 
 ## Features
 
-* Monitoring in console
+* Monitoring via console or web
 * Configure user/group to run processes as
 * Auto process restart on crash
 * Log redirection to per process out/err files
 * Cluster support
+* Monitor process CPU/memory/event loop latency
+* Remotely trigger GC/heap dump
+* Debug remote processes
+* Store exception stack traces and logs for post-crash analysis
 
 ## Command line interface
 
@@ -24,6 +28,12 @@ After you've installed and started boss, start the web interface with
 
 ```sh
 $ bs-web
+```
+
+or run the web interface under boss itself:
+
+```sh
+$ bs web
 ```
 
 ![boss-web](https://raw.githubusercontent.com/tableflip/boss-web/master/img/host.png)
@@ -104,7 +114,7 @@ $ sudo rm /etc/init.d/boss
 If you installed node via `apt-get install nodejs`, you should create a symlink to the `nodejs` binary:
 
 ```sh
-# ln -s /usr/bin/nodejs /usr/bin/node
+$ sudo ln -s /usr/bin/nodejs /usr/bin/node
 ```
 
 Also, the init script is probably stored at `/usr/lib/node_modules/...` instead of `/usr/local/lib/node_modules/...` - please check your filesystem to be sure.
