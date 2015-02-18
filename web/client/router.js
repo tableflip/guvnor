@@ -23,6 +23,7 @@ var Router = require('ampersand-router'),
   ProcessRestartingPage = require('./pages/process/restarting'),
   ProcessFailedPage = require('./pages/process/failed'),
   ProcessErroredPage = require('./pages/process/errored'),
+  ProcessPausedPage = require('./pages/process/paused'),
   NoHostsPage = require('./pages/nohosts'),
   LoadingHostsPage = require('./pages/loadinghosts')
 
@@ -55,6 +56,7 @@ module.exports = Router.extend({
     'host/:host/process/:process/restarting': 'processRestarting',
     'host/:host/process/:process/failed': 'processFailed',
     'host/:host/process/:process/errored': 'processErrored',
+    'host/:host/process/:process/paused': 'processPaused',
     '': 'catchAll',
     '(*path)': 'catchAll'
   },
@@ -153,6 +155,10 @@ module.exports = Router.extend({
 
   processErrored: function(hostName, processId) {
     this._withHostAndProcess(hostName, processId, ProcessErroredPage)
+  },
+
+  processPaused: function(hostName, processId) {
+    this._withHostAndProcess(hostName, processId, ProcessPausedPage)
   },
 
   catchAll: function () {
