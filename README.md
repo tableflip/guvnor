@@ -24,13 +24,14 @@ A node process manager that isn't spanners all the way down.
 
 ## Web interface
 
-After you've installed and started boss, start the web interface with
+Start the web interface with (can be run without boss running in the background - for example
+if you want to monitor one or more boss servers from a different machine that is not running boss):
 
 ```sh
 $ bs-web
 ```
 
-or run the web interface under boss itself:
+or run the web interface under boss itself (please read the [boss web setup](https://github.com/tableflip/boss/blob/master/docs/web.md#prerequisites) section first!):
 
 ```sh
 $ bs web
