@@ -43,4 +43,34 @@ describe('ParentProcess', function() {
     expect(output.baz[0].waldo.plugh).to.equal(null)
     expect(output.baz[0].waldo.xyzzy.toString()).to.equal("thud")
   })
+
+  it('should send a message', function() {
+    process.send = sinon.stub()
+
+    var parentProcess = new ParentProcess()
+    parentProcess.send('process:foo', 'bar')
+
+    expect(process.send.called).to.be.true
+    expect(process.send.getCall(0).args[0].type).to.equal('process:foo')
+    expect(process.send.getCall(0).args[0].args).to.deep.equal(['bar'])
+  })
+
+  it('should emit a message', function(done) {
+    process.send = sinon.stub()
+
+    // sets up handlers for messages
+    var parent = new ParentProcess()
+
+    parent.on('foo:bar', function(arg1, arg2) {
+      expect(arg1).to.equal('baz')
+      expect(arg2).to.equal('qux')
+
+      done()
+    })
+
+    process.emit('message', {
+      type: 'foo:bar',
+      args: ['baz', 'qux']
+    })
+  })
 })
