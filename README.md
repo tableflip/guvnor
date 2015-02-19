@@ -1,4 +1,4 @@
-<img src="https://raw.github.com/tableflip/guvnor/master/img/guvnor.png" alt="Control your processes like a boss" width="20%"/>
+<img src="./img/guvnor.png" alt="Control your processes like a boss" width="20%"/>
 
 # The Guv'nor
 
