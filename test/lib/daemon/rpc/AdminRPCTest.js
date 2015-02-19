@@ -9,14 +9,14 @@ describe('AdminRPC', function() {
   it('should expose admin methods', function() {
     var rpc = new AdminRPC()
     rpc._config = {
-      boss: {
+      guvnor: {
 
       }
     }
     rpc._processFactory = {
       connect: sinon.stub()
     }
-    rpc._boss = {
+    rpc._guvnor = {
       kill: sinon.stub(),
       remoteHostConfig: sinon.stub(),
       addRemoteUser: sinon.stub(),

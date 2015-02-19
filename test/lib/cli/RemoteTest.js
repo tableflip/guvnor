@@ -3,7 +3,7 @@ var expect = require('chai').expect,
   Remote = require('../../../lib/cli/Remote')
 
 describe('Remote', function() {
-  var remote, boss, info
+  var remote, guvnor, info
 
   beforeEach(function() {
     info = console.info
@@ -11,7 +11,7 @@ describe('Remote', function() {
 
     remote = new Remote()
     remote._config = {
-      boss: {
+      guvnor: {
 
       }
     }
@@ -26,12 +26,12 @@ describe('Remote', function() {
       hostname: sinon.stub()
     }
 
-    boss = {
+    guvnor = {
       disconnect: sinon.stub(),
       on: sinon.stub()
     }
 
-    remote._connect.callsArgWith(0, undefined, boss)
+    remote._connect.callsArgWith(0, undefined, guvnor)
   })
 
   afterEach(function() {
@@ -44,12 +44,12 @@ describe('Remote', function() {
     var user = 'user'
     var secret = 'secret'
 
-    boss.remoteHostConfig = sinon.stub()
-    boss.remoteHostConfig.callsArgWith(0, undefined, hostname, port, user, secret)
+    guvnor.remoteHostConfig = sinon.stub()
+    guvnor.remoteHostConfig.callsArgWith(0, undefined, hostname, port, user, secret)
 
     remote.remoteHostConfig()
 
-    expect(boss.disconnect.called).to.be.true
+    expect(guvnor.disconnect.called).to.be.true
     expect(console.info.calledWith(sinon.match.string, hostname)).to.be.true
     expect(console.info.calledWith(sinon.match.string, port)).to.be.true
     expect(console.info.calledWith(sinon.match.string, user)).to.be.true
@@ -64,12 +64,12 @@ describe('Remote', function() {
     }
     remote._os.hostname.returns(hostName)
 
-    boss.addRemoteUser = sinon.stub()
-    boss.addRemoteUser.withArgs(userName, sinon.match.func).callsArgWith(1, undefined, user)
+    guvnor.addRemoteUser = sinon.stub()
+    guvnor.addRemoteUser.withArgs(userName, sinon.match.func).callsArgWith(1, undefined, user)
 
     remote.addRemoteUser(userName)
 
-    expect(boss.disconnect.called).to.be.true
+    expect(guvnor.disconnect.called).to.be.true
     expect(console.info.calledWith(sinon.match.string, userName, 'hostName-foo-bar-com')).to.be.true
     expect(console.info.calledWith(sinon.match.string, user.secret)).to.be.true
   })
@@ -77,12 +77,12 @@ describe('Remote', function() {
   it('should delete a remote user', function() {
     var userName = 'userName'
 
-    boss.removeRemoteUser = sinon.stub()
-    boss.removeRemoteUser.withArgs(userName, sinon.match.func).callsArgWith(1, undefined)
+    guvnor.removeRemoteUser = sinon.stub()
+    guvnor.removeRemoteUser.withArgs(userName, sinon.match.func).callsArgWith(1, undefined)
 
     remote.deleteRemoteUser(userName)
 
-    expect(boss.disconnect.called).to.be.true
+    expect(guvnor.disconnect.called).to.be.true
   })
 
   it('should list remote users', function() {
@@ -94,12 +94,12 @@ describe('Remote', function() {
       name: 'baz'
     }]
 
-    boss.listRemoteUsers = sinon.stub()
-    boss.listRemoteUsers.withArgs(sinon.match.func).callsArgWith(0, undefined, users)
+    guvnor.listRemoteUsers = sinon.stub()
+    guvnor.listRemoteUsers.withArgs(sinon.match.func).callsArgWith(0, undefined, users)
 
     remote.listRemoteUsers()
 
-    expect(boss.disconnect.called).to.be.true
+    expect(guvnor.disconnect.called).to.be.true
     expect(console.info.calledWith(users[0].name)).to.be.true
     expect(console.info.calledWith(users[1].name)).to.be.true
     expect(console.info.calledWith(users[2].name)).to.be.true
@@ -108,12 +108,12 @@ describe('Remote', function() {
   it('should print a message when there are no remote users', function() {
     var users = []
 
-    boss.listRemoteUsers = sinon.stub()
-    boss.listRemoteUsers.withArgs(sinon.match.func).callsArgWith(0, undefined, users)
+    guvnor.listRemoteUsers = sinon.stub()
+    guvnor.listRemoteUsers.withArgs(sinon.match.func).callsArgWith(0, undefined, users)
 
     remote.listRemoteUsers()
 
-    expect(boss.disconnect.called).to.be.true
+    expect(guvnor.disconnect.called).to.be.true
     expect(console.info.getCall(0).args[0]).to.contain('No remote users')
   })
 
@@ -125,12 +125,12 @@ describe('Remote', function() {
     }
     remote._os.hostname.returns(hostName)
 
-    boss.rotateRemoteUserKeys = sinon.stub()
-    boss.rotateRemoteUserKeys.withArgs(userName, sinon.match.func).callsArgWith(1, undefined, user)
+    guvnor.rotateRemoteUserKeys = sinon.stub()
+    guvnor.rotateRemoteUserKeys.withArgs(userName, sinon.match.func).callsArgWith(1, undefined, user)
 
     remote.rotateRemoteUserKeys(userName)
 
-    expect(boss.disconnect.called).to.be.true
+    expect(guvnor.disconnect.called).to.be.true
     expect(console.info.calledWith(sinon.match.string, userName, 'hostName-foo-bar-com')).to.be.true
     expect(console.info.calledWith(sinon.match.string, user.secret)).to.be.true
   })
@@ -138,12 +138,12 @@ describe('Remote', function() {
   it('should generate an ssl certificate', function() {
     var location = '/foo/bar'
 
-    boss.generateRemoteRpcCertificates = sinon.stub()
-    boss.generateRemoteRpcCertificates.withArgs(365, sinon.match.func).callsArgWith(1, undefined, location)
+    guvnor.generateRemoteRpcCertificates = sinon.stub()
+    guvnor.generateRemoteRpcCertificates.withArgs(365, sinon.match.func).callsArgWith(1, undefined, location)
 
     remote.generateSSLCertificate()
 
-    expect(boss.disconnect.called).to.be.true
+    expect(guvnor.disconnect.called).to.be.true
     expect(console.info.calledWith(sinon.match.string, location)).to.be.true
   })
 })

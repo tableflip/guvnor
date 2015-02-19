@@ -8849,7 +8849,7 @@ Copyright (c) 2014 Daniel Eden
   display: block;
   padding-left: 55px;
   background-repeat: no-repeat;
-  background-image: url("/images/boss.png");
+  background-image: url("/images/guvnor.png");
   background-size: 50px 50px;
   color: #777;
 }
@@ -8958,7 +8958,7 @@ Copyright (c) 2014 Daniel Eden
 .system-details .platform,
 .system-details .arch,
 .system-details .release,
-.system-details .boss,
+.system-details .guvnor,
 .system-details .uptime {
   width: 80px;
 }
@@ -9281,7 +9281,7 @@ footer a.tableflip {
   background-size: 16px 16px;
   margin-left: 2px;
 }
-footer a.boss-web:hover {
+footer a.guvnor-web:hover {
   color: #03377c;
 }
 footer a.tableflip:hover {
@@ -9290,7 +9290,7 @@ footer a.tableflip:hover {
 }
 @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
   .navbar-brand {
-    background-image: url("/images/boss@2x.png");
+    background-image: url("/images/guvnor@2x.png");
   }
   footer a.tableflip {
     background-image: url("/images/tableflip@2x.png");

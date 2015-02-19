@@ -6,7 +6,7 @@ var expect = require('chai').expect,
 require('colors')
 
 describe('Apps', function() {
-  var apps, boss, info, error
+  var apps, guvnor, info, error
 
   beforeEach(function() {
     info = console.info
@@ -14,7 +14,7 @@ describe('Apps', function() {
 
     apps = new Apps()
     apps._config = {
-      boss: {
+      guvnor: {
 
       }
     }
@@ -32,12 +32,12 @@ describe('Apps', function() {
       start: sinon.stub()
     }
 
-    boss = {
+    guvnor = {
       disconnect: sinon.stub(),
       on: sinon.stub()
     }
 
-    apps._connect.callsArgWith(0, undefined, boss)
+    apps._connect.callsArgWith(0, undefined, guvnor)
   })
 
   afterEach(function() {
@@ -49,19 +49,19 @@ describe('Apps', function() {
     var name = 'name'
     var url = 'url'
     var options = {}
-    boss.deployApplication = sinon.stub()
-    boss.deployApplication.callsArg(5)
+    guvnor.deployApplication = sinon.stub()
+    guvnor.deployApplication.callsArg(5)
 
     apps.installApplication(url, name, options)
 
-    expect(boss.disconnect.called).to.be.true
+    expect(guvnor.disconnect.called).to.be.true
   })
 
   it('should relay stdout when installing an application', function(done) {
     var name = 'name'
     var url = 'url'
     var options = {}
-    boss.deployApplication = function(name, url, user, info, error, complete) {
+    guvnor.deployApplication = function(name, url, user, info, error, complete) {
       info('foo')
       complete()
     }
@@ -79,7 +79,7 @@ describe('Apps', function() {
     var name = 'name'
     var url = 'url'
     var options = {}
-    boss.deployApplication = function(name, url, user, info, error, complete) {
+    guvnor.deployApplication = function(name, url, user, info, error, complete) {
       error('foo')
       complete()
     }
@@ -97,10 +97,10 @@ describe('Apps', function() {
     var name = 'name'
     var url = 'url'
     var options = {}
-    boss.deployApplication = sinon.stub()
-    apps._connect.callsArgWith(0, undefined, boss)
+    guvnor.deployApplication = sinon.stub()
+    apps._connect.callsArgWith(0, undefined, guvnor)
 
-    boss.deployApplication.callsArgWith(5, new Error('urk!'))
+    guvnor.deployApplication.callsArgWith(5, new Error('urk!'))
 
     try {
       apps.installApplication(url, name, options)
@@ -116,8 +116,8 @@ describe('Apps', function() {
       user: 'bar',
       url: 'baz'
     }]
-    boss.listApplications = sinon.stub()
-    boss.listApplications.callsArgWith(0, undefined, applications)
+    guvnor.listApplications = sinon.stub()
+    guvnor.listApplications.callsArgWith(0, undefined, applications)
 
     var invocations = 1
 
@@ -137,8 +137,8 @@ describe('Apps', function() {
 
   it('should fail to list installed applications', function() {
     var options = {}
-    boss.listApplications = sinon.stub()
-    boss.listApplications.callsArgWith(0, new Error('urk!'))
+    guvnor.listApplications = sinon.stub()
+    guvnor.listApplications.callsArgWith(0, new Error('urk!'))
 
     try {
       apps.listApplications(options)
@@ -150,19 +150,19 @@ describe('Apps', function() {
   it('should remove an application', function() {
     var name = 'foo'
     var options = {}
-    boss.removeApplication = sinon.stub()
-    boss.removeApplication.withArgs(name, sinon.match.func).callsArgWith(1, undefined)
+    guvnor.removeApplication = sinon.stub()
+    guvnor.removeApplication.withArgs(name, sinon.match.func).callsArgWith(1, undefined)
 
     apps.removeApplication(name, options)
 
-    expect(boss.disconnect.called).to.be.true
+    expect(guvnor.disconnect.called).to.be.true
   })
 
   it('should fail to remove an application', function() {
     var name = 'foo'
     var options = {}
-    boss.removeApplication = sinon.stub()
-    boss.removeApplication.callsArgWith(1, new Error('urk!'))
+    guvnor.removeApplication = sinon.stub()
+    guvnor.removeApplication.callsArgWith(1, new Error('urk!'))
 
     try {
       apps.removeApplication(name, options)
@@ -178,8 +178,8 @@ describe('Apps', function() {
     var info = {
       path: 'path'
     }
-    boss.switchApplicationRef = sinon.stub()
-    boss.switchApplicationRef.withArgs(name, ref, sinon.match.func).callsArgWith(4, undefined, info)
+    guvnor.switchApplicationRef = sinon.stub()
+    guvnor.switchApplicationRef.withArgs(name, ref, sinon.match.func).callsArgWith(4, undefined, info)
 
     apps.runApplication(name, ref, options)
 
@@ -190,8 +190,8 @@ describe('Apps', function() {
     var name = 'foo'
     var ref = 'bar'
     var options = {}
-    boss.switchApplicationRef = sinon.stub()
-    boss.switchApplicationRef.withArgs(name, ref, sinon.match.func).callsArgWith(4, new Error('urk!'))
+    guvnor.switchApplicationRef = sinon.stub()
+    guvnor.switchApplicationRef.withArgs(name, ref, sinon.match.func).callsArgWith(4, new Error('urk!'))
 
     try {
       apps.runApplication(name, ref, options)
@@ -210,8 +210,8 @@ describe('Apps', function() {
     var name = 'foo'
     var ref = 'bar'
     var options = {}
-    boss.switchApplicationRef = sinon.stub()
-    boss.switchApplicationRef.withArgs(name, ref, sinon.match.func, sinon.match.func, sinon.match.func).callsArgWith(2, 'foo')
+    guvnor.switchApplicationRef = sinon.stub()
+    guvnor.switchApplicationRef.withArgs(name, ref, sinon.match.func, sinon.match.func, sinon.match.func).callsArgWith(2, 'foo')
 
     apps.runApplication(name, ref, options)
   })
@@ -226,8 +226,8 @@ describe('Apps', function() {
     var name = 'foo'
     var ref = 'bar'
     var options = {}
-    boss.switchApplicationRef = sinon.stub()
-    boss.switchApplicationRef.withArgs(name, ref, sinon.match.func, sinon.match.func, sinon.match.func).callsArgWith(3, 'foo')
+    guvnor.switchApplicationRef = sinon.stub()
+    guvnor.switchApplicationRef.withArgs(name, ref, sinon.match.func, sinon.match.func, sinon.match.func).callsArgWith(3, 'foo')
 
     apps.runApplication(name, ref, options)
   })
@@ -235,11 +235,11 @@ describe('Apps', function() {
   it('should default to master ref', function() {
     var name = 'foo'
     var options = {}
-    boss.switchApplicationRef = sinon.stub()
+    guvnor.switchApplicationRef = sinon.stub()
 
     apps.runApplication(name, undefined, options)
 
-    expect(boss.switchApplicationRef.withArgs(name, 'master', sinon.match.func, sinon.match.func, sinon.match.func).called).to.be.true
+    expect(guvnor.switchApplicationRef.withArgs(name, 'master', sinon.match.func, sinon.match.func, sinon.match.func).called).to.be.true
   })
 
   it('should list application refs', function(done) {
@@ -249,8 +249,8 @@ describe('Apps', function() {
       name: 'bar',
       commit: 'baz'
     }]
-    boss.listApplicationRefs = sinon.stub()
-    boss.listApplicationRefs.withArgs(app, sinon.match.func).callsArgWith(1, undefined, refs)
+    guvnor.listApplicationRefs = sinon.stub()
+    guvnor.listApplicationRefs.withArgs(app, sinon.match.func).callsArgWith(1, undefined, refs)
 
     var invocations = 1
 
@@ -271,8 +271,8 @@ describe('Apps', function() {
   it('should fail to list application refs', function() {
     var app = 'foo'
     var options = {}
-    boss.listApplicationRefs = sinon.stub()
-    boss.listApplicationRefs.withArgs(app, sinon.match.func).callsArgWith(1, new Error('urk!'))
+    guvnor.listApplicationRefs = sinon.stub()
+    guvnor.listApplicationRefs.withArgs(app, sinon.match.func).callsArgWith(1, new Error('urk!'))
 
     try {
       apps.listRefs(app, options)
@@ -288,19 +288,19 @@ describe('Apps', function() {
       name: 'bar',
       commit: 'baz'
     }]
-    boss.updateApplicationRefs = sinon.stub()
-    boss.updateApplicationRefs.withArgs(app, sinon.match.func, sinon.match.func, sinon.match.func).callsArgWith(3, undefined, refs)
+    guvnor.updateApplicationRefs = sinon.stub()
+    guvnor.updateApplicationRefs.withArgs(app, sinon.match.func, sinon.match.func, sinon.match.func).callsArgWith(3, undefined, refs)
 
     apps.updateRefs(app, options)
 
-    expect(boss.disconnect.called).to.be.true
+    expect(guvnor.disconnect.called).to.be.true
   })
 
   it('should fail to update application refs', function() {
     var app = 'foo'
     var options = {}
-    boss.updateApplicationRefs = sinon.stub()
-    boss.updateApplicationRefs.withArgs(app, sinon.match.func, sinon.match.func, sinon.match.func).callsArgWith(3, new Error('urk!'))
+    guvnor.updateApplicationRefs = sinon.stub()
+    guvnor.updateApplicationRefs.withArgs(app, sinon.match.func, sinon.match.func, sinon.match.func).callsArgWith(3, new Error('urk!'))
 
     try {
       apps.updateRefs(app, options)

@@ -4,12 +4,12 @@ var expect = require('chai').expect,
   Cluster = require('../../../lib/cli/Cluster')
 
 describe('Cluster', function() {
-  var cluster, boss
+  var cluster, guvnor
 
   beforeEach(function() {
     cluster = new Cluster()
     cluster._config = {
-      boss: {
+      guvnor: {
 
       }
     }
@@ -21,7 +21,7 @@ describe('Cluster', function() {
     }
     cluster._connect = sinon.stub()
 
-    boss = {
+    guvnor = {
       disconnect: sinon.stub(),
       on: sinon.stub(),
       findProcessInfoByPid: sinon.stub(),
@@ -29,7 +29,7 @@ describe('Cluster', function() {
       connectToProcess: sinon.stub()
     }
 
-    cluster._connect.callsArgWith(0, undefined, boss)
+    cluster._connect.callsArgWith(0, undefined, guvnor)
   })
 
   it('should set the number of cluster workers', function() {
@@ -46,12 +46,12 @@ describe('Cluster', function() {
     }
     remote.setClusterWorkers.withArgs(workers).callsArg(1)
 
-    boss.findProcessInfoByName.withArgs(pid).callsArgWith(1, undefined, processInfo)
-    boss.connectToProcess.withArgs(processInfo.id).callsArgWith(1, undefined, remote)
+    guvnor.findProcessInfoByName.withArgs(pid).callsArgWith(1, undefined, processInfo)
+    guvnor.connectToProcess.withArgs(processInfo.id).callsArgWith(1, undefined, remote)
 
     cluster.setClusterWorkers(pid, workers, options)
 
-    expect(boss.disconnect.called).to.be.true
+    expect(guvnor.disconnect.called).to.be.true
     expect(remote.disconnect.called).to.be.true
   })
 
@@ -75,13 +75,13 @@ describe('Cluster', function() {
     }
     remote.setClusterWorkers.withArgs(workers).callsArgWith(1, new Error('workers!'))
 
-    boss.findProcessInfoByName.withArgs(pid).callsArgWith(1, undefined, processInfo)
-    boss.connectToProcess.withArgs(processInfo.id).callsArgWith(1, undefined, remote)
+    guvnor.findProcessInfoByName.withArgs(pid).callsArgWith(1, undefined, processInfo)
+    guvnor.connectToProcess.withArgs(processInfo.id).callsArgWith(1, undefined, remote)
 
     cluster.setClusterWorkers(pid, workers, options)
 
     expect(cluster._logger.error.called).to.be.true
-    expect(boss.disconnect.called).to.be.true
+    expect(guvnor.disconnect.called).to.be.true
     expect(remote.disconnect.called).to.be.true
   })
 })

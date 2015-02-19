@@ -1,6 +1,6 @@
-<img src="https://raw.github.com/tableflip/boss/master/img/boss.png" alt="Control your processes like a boss" width="20%"/>
+<img src="https://raw.github.com/tableflip/guvnor/master/img/guvnor.png" alt="Control your processes like a boss" width="20%"/>
 
-# boss
+# The Guv'nor
 
 [![Discuss](http://img.shields.io/badge/discuss-gitter-brightgreen.svg?style=flat)](https://gitter.im/tableflip/boss/discuss) [![Tasks](http://img.shields.io/badge/tasks-waffle-brightgreen.svg?style=flat)](https://waffle.io/tableflip/boss) [![Build Status](https://travis-ci.org/tableflip/boss.svg)](https://travis-ci.org/tableflip/boss) [![Dependency Status](https://david-dm.org/tableflip/boss.svg)](https://david-dm.org/tableflip/boss) [![Coverage Status](https://img.shields.io/coveralls/tableflip/boss/master.svg?style=flat)](https://coveralls.io/r/tableflip/boss)
 
@@ -28,16 +28,16 @@ Start the web interface with (can be run without boss running in the background 
 if you want to monitor one or more boss servers from a different machine that is not running boss):
 
 ```sh
-$ bs-web
+$ guv-web
 ```
 
-or run the web interface under boss itself (please read the [boss web setup](https://github.com/tableflip/boss/blob/master/docs/web.md#prerequisites) section first!):
+or run the web interface under boss itself (please read the [guvnor web setup](https://github.com/tableflip/guvnor/blob/master/docs/web.md#prerequisites) section first!):
 
 ```sh
-$ bs web
+$ guv web
 ```
 
-![boss-web](https://raw.githubusercontent.com/tableflip/boss-web/master/img/host.png)
+![boss-web](img/host.png)
 
 ## Install
 
@@ -50,10 +50,10 @@ npm install -g process-boss
 npm's upgrade command is [a big angry box of wasps](https://github.com/npm/npm/issues/6247#issuecomment-63022163) so to be sure, kill boss, remove it, reinstall and start it.
 
 ```sh
-bs kill
+guv kill
 npm remove -g process-boss
 npm install -g process-boss
-bs
+guv
 ```
 
 ## Usage
@@ -61,13 +61,13 @@ bs
 Comprehensive help is available on the command line:
 
 ```sh
-bs --help
+guv --help
 ```
 
 and with more detail for each subcommand, e.g.:
 
 ```
-bs start --help
+guv start --help
 ```
 
 The first time you invoke a boss command, the daemon will start in the background.  Because boss can run processes as different users, it needs to be able to switch to those users.  Consequently you should start boss as root or another privileged user.

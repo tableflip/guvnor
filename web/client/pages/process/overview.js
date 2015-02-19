@@ -7,7 +7,7 @@ var ProcessPage = require('../process'),
 
 module.exports = ProcessPage.extend({
   pageTitle: function() {
-    return 'Boss - ' + this.model.name + ' - ' + this.model.status
+    return 'Guvnor - ' + this.model.name + ' - ' + this.model.status
   },
   template: templates.pages.process.overview,
   subviews: {

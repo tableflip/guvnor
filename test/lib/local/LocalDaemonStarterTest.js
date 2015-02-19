@@ -14,7 +14,7 @@ describe('LocalDaemonStarter', function() {
       debug: sinon.stub()
     }
     localDaemonStarter._config = {
-      boss: {
+      guvnor: {
 
       },
       debug: {
@@ -30,16 +30,16 @@ describe('LocalDaemonStarter', function() {
   })
 
   it('should start the daemon', function(done) {
-    localDaemonStarter._config.boss.user = 'user'
-    localDaemonStarter._config.boss.group = 'group'
+    localDaemonStarter._config.guvnor.user = 'user'
+    localDaemonStarter._config.guvnor.group = 'group'
 
     var userId = 5
     var groupId = 10
 
-    localDaemonStarter._posix.getpwnam.withArgs(localDaemonStarter._config.boss.user).returns({
+    localDaemonStarter._posix.getpwnam.withArgs(localDaemonStarter._config.guvnor.user).returns({
       uid: userId
     })
-    localDaemonStarter._posix.getgrnam.withArgs(localDaemonStarter._config.boss.group).returns({
+    localDaemonStarter._posix.getgrnam.withArgs(localDaemonStarter._config.guvnor.group).returns({
       gid: groupId
     })
 
@@ -75,11 +75,11 @@ describe('LocalDaemonStarter', function() {
 
     // simulate daemon starting up
     onMessage({
-      type: 'boss:config:request'
+      type: 'daemon:config:request'
     })
 
     // should have sent configuration to daemon
-    expect(daemon.send.getCall(0).args[0].type).to.equal('boss:config:response')
+    expect(daemon.send.getCall(0).args[0].type).to.equal('daemon:config:response')
     expect(daemon.send.getCall(0).args[0].args[0]).to.equal(localDaemonStarter._config)
 
     onMessage({
@@ -103,12 +103,12 @@ describe('LocalDaemonStarter', function() {
     localDaemonStarter._child_process.spawn = sinon.stub()
     localDaemonStarter._child_process.spawn.returns(daemon)
 
-    localDaemonStarter._config.boss.user = 'user'
-    localDaemonStarter._posix.getpwnam.withArgs(localDaemonStarter._config.boss.user).returns({
+    localDaemonStarter._config.guvnor.user = 'user'
+    localDaemonStarter._posix.getpwnam.withArgs(localDaemonStarter._config.guvnor.user).returns({
       uid: 5
     })
-    localDaemonStarter._config.boss.group = 'group'
-    localDaemonStarter._posix.getgrnam.withArgs(localDaemonStarter._config.boss.group).returns({
+    localDaemonStarter._config.guvnor.group = 'group'
+    localDaemonStarter._posix.getgrnam.withArgs(localDaemonStarter._config.guvnor.group).returns({
       gid: 5
     })
 
@@ -123,7 +123,7 @@ describe('LocalDaemonStarter', function() {
 
     // simulate daemon starting up
     onMessage({
-      type: 'boss:fatality',
+      type: 'daemon:fatality',
       args: [{
         message: 'foo',
         code: 'bar'
@@ -146,12 +146,12 @@ describe('LocalDaemonStarter', function() {
     localDaemonStarter._child_process.spawn = sinon.stub()
     localDaemonStarter._child_process.spawn.returns(daemon)
 
-    localDaemonStarter._config.boss.user = 'user'
-    localDaemonStarter._posix.getpwnam.withArgs(localDaemonStarter._config.boss.user).returns({
+    localDaemonStarter._config.guvnor.user = 'user'
+    localDaemonStarter._posix.getpwnam.withArgs(localDaemonStarter._config.guvnor.user).returns({
       uid: 5
     })
-    localDaemonStarter._config.boss.group = 'group'
-    localDaemonStarter._posix.getgrnam.withArgs(localDaemonStarter._config.boss.group).returns({
+    localDaemonStarter._config.guvnor.group = 'group'
+    localDaemonStarter._posix.getgrnam.withArgs(localDaemonStarter._config.guvnor.group).returns({
       gid: 5
     })
 
@@ -166,7 +166,7 @@ describe('LocalDaemonStarter', function() {
 
     // simulate daemon starting up
     onMessage({
-      type: 'boss:fatality',
+      type: 'daemon:fatality',
       args: [{
         message: 'foo',
         code: 'EACCES'
@@ -187,12 +187,12 @@ describe('LocalDaemonStarter', function() {
     localDaemonStarter._child_process.spawn = sinon.stub()
     localDaemonStarter._child_process.spawn.returns(daemon)
 
-    localDaemonStarter._config.boss.user = 'user'
-    localDaemonStarter._posix.getpwnam.withArgs(localDaemonStarter._config.boss.user).returns({
+    localDaemonStarter._config.guvnor.user = 'user'
+    localDaemonStarter._posix.getpwnam.withArgs(localDaemonStarter._config.guvnor.user).returns({
       uid: 5
     })
-    localDaemonStarter._config.boss.group = 'group'
-    localDaemonStarter._posix.getgrnam.withArgs(localDaemonStarter._config.boss.group).returns({
+    localDaemonStarter._config.guvnor.group = 'group'
+    localDaemonStarter._posix.getgrnam.withArgs(localDaemonStarter._config.guvnor.group).returns({
       gid: 5
     })
 
@@ -219,12 +219,12 @@ describe('LocalDaemonStarter', function() {
     localDaemonStarter._child_process.spawn = sinon.stub()
     localDaemonStarter._child_process.spawn.returns(daemon)
 
-    localDaemonStarter._config.boss.user = 'user'
-    localDaemonStarter._posix.getpwnam.withArgs(localDaemonStarter._config.boss.user).returns({
+    localDaemonStarter._config.guvnor.user = 'user'
+    localDaemonStarter._posix.getpwnam.withArgs(localDaemonStarter._config.guvnor.user).returns({
       uid: 5
     })
-    localDaemonStarter._config.boss.group = 'group'
-    localDaemonStarter._posix.getgrnam.withArgs(localDaemonStarter._config.boss.group).returns({
+    localDaemonStarter._config.guvnor.group = 'group'
+    localDaemonStarter._posix.getgrnam.withArgs(localDaemonStarter._config.guvnor.group).returns({
       gid: 5
     })
 
@@ -260,12 +260,12 @@ describe('LocalDaemonStarter', function() {
     localDaemonStarter._child_process.spawn = sinon.stub()
     localDaemonStarter._child_process.spawn.returns(daemon)
 
-    localDaemonStarter._config.boss.user = 'user'
-    localDaemonStarter._posix.getpwnam.withArgs(localDaemonStarter._config.boss.user).returns({
+    localDaemonStarter._config.guvnor.user = 'user'
+    localDaemonStarter._posix.getpwnam.withArgs(localDaemonStarter._config.guvnor.user).returns({
       uid: 5
     })
-    localDaemonStarter._config.boss.group = 'group'
-    localDaemonStarter._posix.getgrnam.withArgs(localDaemonStarter._config.boss.group).returns({
+    localDaemonStarter._config.guvnor.group = 'group'
+    localDaemonStarter._posix.getgrnam.withArgs(localDaemonStarter._config.guvnor.group).returns({
       gid: 5
     })
 

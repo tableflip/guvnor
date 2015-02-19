@@ -37,7 +37,7 @@ describe('ProcessWrapper', function() {
   it('should set the process title', function() {
     var processTitle = 'blah'
 
-    process.env.BOSS_PROCESS_NAME = processTitle
+    process.env.GUVNOR_PROCESS_NAME = processTitle
 
     processWrapper._setProcessName(sinon.stub())
 
@@ -73,12 +73,12 @@ describe('ProcessWrapper', function() {
     done()
   })
 
-  it('should remove boss properties from the environment', function(done) {
-    process.env.BOSS_TEST_PROPERTY = 'foo'
+  it('should remove guvnor properties from the environment', function(done) {
+    process.env.GUVNOR_TEST_PROPERTY = 'foo'
 
-    processWrapper._removeBossPropertiesFromEnvironment(sinon.stub())
+    processWrapper._removePropertiesFromEnvironment(sinon.stub())
 
-    expect(process.env.BOSS_TEST_PROPERTY).to.be.undefined
+    expect(process.env.GUVNOR_TEST_PROPERTY).to.be.undefined
 
     done()
   })
@@ -102,7 +102,7 @@ describe('ProcessWrapper', function() {
   })
 
   it('should throw if the users process errors', function() {
-    process.env.BOSS_PROCESS_NAME = 'ProcessWrapperTest-process-error'
+    process.env.GUVNOR_PROCESS_NAME = 'ProcessWrapperTest-process-error'
 
     processWrapper._startProcess = function(script, callback) {
       callback(new Error('urk!'))

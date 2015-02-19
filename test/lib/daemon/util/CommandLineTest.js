@@ -15,22 +15,22 @@ describe('CommandLine', function() {
   it('should find a command', function(done) {
     var path = '/usr/local/bin/foo'
 
-    cl._child_process.exec.withArgs('which foo', sinon.match.func).callsArgWith(1, undefined, path)
+    cl._child_process.exec.withArgs('which foo', sinon.match.object, sinon.match.func).callsArgWith(2, undefined, path)
 
-    cl._find('foo', function(error) {
+    cl._find('foo', {}, function(error, found) {
       expect(error).to.not.exist
-      expect(cl._foo).to.equal(path)
+      expect(found).to.equal(path)
 
       done()
     })
   })
 
   it('should fail to find a command', function(done) {
-    cl._child_process.exec.withArgs('which foo', sinon.match.func).callsArgWith(1, new Error('child process failed'))
+    cl._child_process.exec.withArgs('which foo', sinon.match.object, sinon.match.func).callsArgWith(2, new Error('child process failed'))
 
-    cl._find('foo', function(error) {
+    cl._find('foo', {}, function(error, found) {
       expect(error).to.be.ok
-      expect(cl._foo).to.not.exist
+      expect(found).to.not.exist
 
       done()
     })

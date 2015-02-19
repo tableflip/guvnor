@@ -1,15 +1,15 @@
 {
-  "name": "process-boss",
+  "name": "guvnor",
   "description": "A node process manager that isn't spanners all the way down",
   "version": "2.6.3",
   "prefer-global": true,
-  "homepage": "https://github.com/tableflip/boss",
+  "homepage": "https://github.com/tableflip/guvnor",
   "repository": {
     "type": "git",
-    "url": "git://github.com/tableflip/boss.git"
+    "url": "git://github.com/tableflip/guvnor.git"
   },
   "bugs": {
-    "url": "https://github.com/tableflip/boss/issues"
+    "url": "https://github.com/tableflip/guvnor/issues"
   },
   "scripts": {
     "test": "istanbul cover _mocha",
@@ -105,10 +105,12 @@
     "testsuite": "^1.0"
   },
   "bin": {
-    "bs": "bin/bs",
-    "boss": "bin/bs",
-    "bs-web": "bin/bs-web",
-    "boss-web": "bin/bs-web"
+    "bs": "bin/guv",
+    "boss": "bin/guv",
+    "bs-web": "bin/guv-web",
+    "boss-web": "bin/guv-web",
+    "guv": "bin/guv",
+    "guv-web": "bin/guv-web"
   },
   "keywords": [
     "node",
@@ -126,7 +128,9 @@
     "gid",
     "uptime",
     "memory",
-    "cpu"
+    "cpu",
+    "boss",
+    "process-boss"
   ],
   "jshintConfig": {
     "asi": true,

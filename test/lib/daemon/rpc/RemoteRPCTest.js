@@ -15,7 +15,7 @@ describe('RemoteRPC', function() {
       error: sinon.stub(),
       debug: sinon.stub()
     }
-    remoteRpc._boss = {
+    remoteRpc._guvnor = {
       on: sinon.stub(),
       findProcessInfoById: sinon.stub(),
       getServerStatus: sinon.stub(),
@@ -40,7 +40,7 @@ describe('RemoteRPC', function() {
       remote: {
         enabled: true
       },
-      boss: {
+      guvnor: {
         rpctimeout: 0
       }
     }
@@ -150,8 +150,8 @@ describe('RemoteRPC', function() {
     })
   })
 
-  it('should broadcast events from boss and the process manager', function (done) {
-    remoteRpc._boss = new WildEmitter()
+  it('should broadcast events from guvnor and the process manager', function (done) {
+    remoteRpc._guvnor = new WildEmitter()
     remoteRpc._processService = new WildEmitter()
 
     remoteRpc._pem.createCertificate.callsArgWith(1, undefined, {
@@ -185,7 +185,7 @@ describe('RemoteRPC', function() {
         }
       }]
 
-      remoteRpc._boss.emit('foo')
+      remoteRpc._guvnor.emit('foo')
       remoteRpc._processService.emit('bar')
     })
   })
@@ -442,7 +442,7 @@ describe('RemoteRPC', function() {
         expect(details.platform).to.equal(platform)
         expect(details.arch).to.equal(arch)
         expect(details.release).to.equal(release)
-        expect(details.boss).to.equal(remoteRpc._package.version)
+        expect(details.guvnor).to.equal(remoteRpc._package.version)
         expect(details.os).to.equal('darwin')
 
         done()
@@ -577,7 +577,7 @@ describe('RemoteRPC', function() {
     var childProcess = new EventEmitter()
     childProcess.kill = sinon.stub()
 
-    remoteRpc._boss.findProcessInfoById.withArgs(id, sinon.match.func).callsArgWith(1, undefined, processInfo)
+    remoteRpc._guvnor.findProcessInfoById.withArgs(id, sinon.match.func).callsArgWith(1, undefined, processInfo)
     remoteRpc._child_process.fork.returns(childProcess)
 
     remoteRpc.connectToProcess(id, function(error, remote) {
@@ -629,7 +629,7 @@ describe('RemoteRPC', function() {
     var childProcess = new EventEmitter()
     childProcess.kill = sinon.stub()
 
-    remoteRpc._boss.findProcessInfoById.withArgs(id, sinon.match.func).callsArgWith(1, undefined, processInfo)
+    remoteRpc._guvnor.findProcessInfoById.withArgs(id, sinon.match.func).callsArgWith(1, undefined, processInfo)
     remoteRpc._child_process.fork.returns(childProcess)
 
     remoteRpc.connectToProcess(id, function(error, remote) {
@@ -669,7 +669,7 @@ describe('RemoteRPC', function() {
     var childProcess = new EventEmitter()
     childProcess.kill = sinon.stub()
 
-    remoteRpc._boss.findProcessInfoById.withArgs(id, sinon.match.func).callsArgWith(1, undefined, processInfo)
+    remoteRpc._guvnor.findProcessInfoById.withArgs(id, sinon.match.func).callsArgWith(1, undefined, processInfo)
     remoteRpc._child_process.fork.returns(childProcess)
 
     remoteRpc.connectToProcess(id, function(error) {
@@ -697,7 +697,7 @@ describe('RemoteRPC', function() {
     var childProcess = new EventEmitter()
     childProcess.kill = sinon.stub()
 
-    remoteRpc._boss.findProcessInfoById.withArgs(id, sinon.match.func).callsArgWith(1, undefined, processInfo)
+    remoteRpc._guvnor.findProcessInfoById.withArgs(id, sinon.match.func).callsArgWith(1, undefined, processInfo)
     remoteRpc._child_process.fork.returns(childProcess)
 
     remoteRpc.connectToProcess(id, function(error) {
@@ -725,7 +725,7 @@ describe('RemoteRPC', function() {
     var value = true
     remoteRpc._config.remote.advertise = true
     remoteRpc._mdns.createAdvertisement.withArgs(value, remoteRpc.port).returns(advert)
-    remoteRpc._mdns.tcp.withArgs('boss-rpc').returns(value)
+    remoteRpc._mdns.tcp.withArgs('guvnor-rpc').returns(value)
 
     remoteRpc._startMdnsAdvertisment()
 
@@ -737,7 +737,7 @@ describe('RemoteRPC', function() {
     var value = true
     remoteRpc._config.remote.advertise = true
     remoteRpc._mdns.createAdvertisement.throws(new Error('urk!'))
-    remoteRpc._mdns.tcp.withArgs('boss-rpc').returns(value)
+    remoteRpc._mdns.tcp.withArgs('guvnor-rpc').returns(value)
 
     remoteRpc._startMdnsAdvertisment()
   })

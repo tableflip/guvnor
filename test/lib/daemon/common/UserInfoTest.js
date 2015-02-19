@@ -30,8 +30,8 @@ describe('UserInfo', function() {
       name: userName
     })
 
-    process.env.BOSS_RUN_AS_GROUP = groupName
-    process.env.BOSS_RUN_AS_USER = userName
+    process.env.GUVNOR_RUN_AS_GROUP = groupName
+    process.env.GUVNOR_RUN_AS_USER = userName
 
     userInfo.afterPropertiesSet()
 

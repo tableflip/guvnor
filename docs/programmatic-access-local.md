@@ -4,7 +4,7 @@
 1. [Controlling the Daemon](daemon.md)
 1. [Managing clusters](clusters.md)
 1. [Installing and running apps](apps.md)
-1. [Remote access and monitoring (e.g. boss-web)](remote.md)
+1. [Remote access and monitoring (e.g. guv-web)](remote.md)
 1. [Web interface](web.md)
 1. [Web interface - configuration](web-config.md)
 1. [Web interface - user management](web-users.md)
@@ -15,20 +15,20 @@
 
 ## Programmatic access - local
 
-A interface to an instance of [boss](http://github.com/tableflip/boss) running on the same host.
+A interface to an instance of [guvnor](http://github.com/tableflip/guvnor) running on the same host.
 
 ## Usage
 
-Local boss instance (e.g. on the same server). If the daemon cannot be reached it will be started.
+Local guvnor instance (e.g. on the same server). If the daemon cannot be reached it will be started.
 
 N.b. the daemon will drop to the user account specified in the config file so please ensure you have sufficient privileges to do this.
 
 ```javascript
-var connect = require('process-boss').Local.connect,
+var connect = require('process-guvnor').Local.connect,
   config = {
-    boss: {
-      rundir: '/var/run/boss',
-      logdir: '/var/log/boss',
+    guvnor: {
+      rundir: '/var/run/guvnor',
+      logdir: '/var/log/guvnor',
       timeout: 10000
     },
     debug: {
@@ -37,29 +37,29 @@ var connect = require('process-boss').Local.connect,
     }
   }
 
-connect(config, function(error, boss) {
-  // we are now connected to local boss instance
+connect(config, function(error, guvnor) {
+  // we are now connected to local guvnor instance
 
-  boss.listProcesses(function(error, processes) {
+  guvnor.listProcesses(function(error, processes) {
     // do something
 
     // close connection
-    boss.disconnect()
+    guvnor.disconnect()
   })
 })
 ```
 N.b. If you fail to close the connection to the daemon, your program will probably not exit.
 
-### Is Boss running?
+### Is Guvnor running?
 
-Sometimes you don't want to start the daemon, you'd just like to know if boss is running on the current host or not.
+Sometimes you don't want to start the daemon, you'd just like to know if guvnor is running on the current host or not.
 
 ```javascript
-var running = require('process-boss').Local.running
+var running = require('process-guvnor').Local.running
   config = {
-      boss: {
-        rundir: '/var/run/boss',
-        logdir: '/var/log/boss',
+      guvnor: {
+        rundir: '/var/run/guvnor',
+        logdir: '/var/log/guvnor',
         timeout: 10000
       },
       debug: {
@@ -70,23 +70,23 @@ var running = require('process-boss').Local.running
 
 running(config, function(isRunning) {
   if(isRunning) {
-    console.info('boss is running')
+    console.info('guvnor is running')
   } else {
-    console.info('boss is not running')
+    console.info('guvnor is not running')
   }
 }
 ```
 
 ## Logging
 
-By default boss will log messages to the console.  If you wish to pass these somewhere else (or ignore them entirely, pass an additional object in to the connect function with four properties - `info`, `warn`, `error`, `debug`.
+By default guvnor will log messages to the console.  If you wish to pass these somewhere else (or ignore them entirely, pass an additional object in to the connect function with four properties - `info`, `warn`, `error`, `debug`.
 
 ```javascript
-var connect = require('boss-local').connect,
+var connect = require('guvnor-local').connect,
   config = {
-    boss: {
-    rundir: '/var/run/boss',
-    logdir: '/var/log/boss',
+    guvnor: {
+    rundir: '/var/run/guvnor',
+    logdir: '/var/log/guvnor',
     timeout: 10000
   },
   debug: {
@@ -100,8 +100,8 @@ var connect = require('boss-local').connect,
     debug: function() {}
   }
 
-connect(config, logger, function(error, boss) {
-  // we are now connected to the boss instance
+connect(config, logger, function(error, guvnor) {
+  // we are now connected to the guvnor instance
   ...
 })
 ```
@@ -109,11 +109,11 @@ connect(config, logger, function(error, boss) {
 If you are making lots of connections, for convenience you may wish to bind these arguments to the function:
 
 ```javascript
-var connect = require('process-boss').Local.connect,
+var connect = require('process-guvnor').Local.connect,
   connect = connect.bind(null, {
-    boss: {
-      rundir: '/var/run/boss',
-      logdir: '/var/log/boss',
+    guvnor: {
+      rundir: '/var/run/guvnor',
+      logdir: '/var/log/guvnor',
       timeout: 10000
     },
     debug: {
@@ -128,8 +128,8 @@ var connect = require('process-boss').Local.connect,
     }
   )
 
-connect(function(error, boss) {
-  // we are now connected to the boss instance
+connect(function(error, guvnor) {
+  // we are now connected to the guvnor instance
   ...
 })
 
@@ -143,7 +143,7 @@ connect(function(error, boss) {
 Get a list of currently running processes
 
 ```javascript
-boss.listProcesses(function(error, processes) {
+guvnor.listProcesses(function(error, processes) {
   // processes is an array of processInfo objects
 })
 ```
@@ -153,10 +153,10 @@ boss.listProcesses(function(error, processes) {
 Start a process
 
 ```javascript
-boss.startProcess(path, opts, function(error, processInfo) {
+guvnor.startProcess(path, opts, function(error, processInfo) {
   // processInfo.id is the process id of the newly started process
   
-  boss.on('process:ready:' + processInfo.id, function(error, processInfo) {
+  guvnor.on('process:ready:' + processInfo.id, function(error, processInfo) {
     // process has now started
   })
 })
@@ -168,7 +168,7 @@ Stop a process
 
 ```javascript
 // id is processInfo.id
-boss.connectToProcess(id, function(error, managedProcess) {
+guvnor.connectToProcess(id, function(error, managedProcess) {
   managedProcess.kill()
   managedProcess.disconnect()
 })
@@ -180,7 +180,7 @@ Causes the global process object to emit an event in the managed process.
 
 ```javascript
 // id is processInfo.id
-boss.connectToProcess(id, function(error, managedProcess) {
+guvnor.connectToProcess(id, function(error, managedProcess) {
   managedProcess.send('custom:event', 'arg1', 'arg2')
   managedProcess.disconnect()
 })
@@ -198,7 +198,7 @@ Functions can be sent too (but note these are executed in the context of the sen
 
 ```javascript
 // id is processInfo.id
-boss.connectToProcess(id, function(error, managedProcess) {
+guvnor.connectToProcess(id, function(error, managedProcess) {
   managedProcess.send('other:event', function(message) {
     console.info('remote process said', message)
   managedProcess.disconnect()
@@ -216,11 +216,11 @@ process.on('other:event', function(callback) {
 
 ### Find ProcessInfo by id
 
-Every managed process is assigned an id by boss.  This id is stable even if the process is restarted.
+Every managed process is assigned an id by guvnor.  This id is stable even if the process is restarted.
 
 ```javascript
 // id is processInfo.id
-boss.findProcessInfoById(id, function(error, processInfo) {
+guvnor.findProcessInfoById(id, function(error, processInfo) {
   // processInfo is undefined if no process with that id existed
 })
 ```
@@ -231,7 +231,7 @@ The pid of a managed process is assigned by the operating system and will change
 
 ```javascript
 // pid is the pid of a managed process
-boss.findProcessInfoByPid(pid, function(error, processInfo) {
+guvnor.findProcessInfoByPid(pid, function(error, processInfo) {
   // processInfo is undefined if no process with that pid existed
 })
 ```

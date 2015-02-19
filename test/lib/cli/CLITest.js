@@ -9,7 +9,7 @@ describe('CLI', function() {
   beforeEach(function() {
     cli = new CLI()
     cli._config = {
-      boss: {
+      guvnor: {
 
       }
     }
@@ -49,7 +49,7 @@ describe('CLI', function() {
     cli._processes = {
       list: sinon.stub(),
       start: sinon.stub(),
-      startBossWeb: sinon.stub(),
+      startWebMonitor: sinon.stub(),
       stop: sinon.stub(),
       remove: sinon.stub(),
       restart: sinon.stub(),
@@ -120,18 +120,18 @@ describe('CLI', function() {
   it('should print a warning if the user is in the wrong group on Linux', function() {
     var userName = 'foo'
     cli._user.name = userName
-    var bossGroup = 'bar'
+    var guvnorGroup = 'bar'
     var groupsEntry = {
       members: ['baz']
     }
 
-    cli._config.boss.group = bossGroup
-    cli._posix.getgrnam.withArgs(bossGroup).returns(groupsEntry)
+    cli._config.guvnor.group = guvnorGroup
+    cli._posix.getgrnam.withArgs(guvnorGroup).returns(groupsEntry)
     cli._os.platform.returns('linux')
 
     expect(cli._logger.error.called).to.be.false
 
-    cli._checkBossUser(function(error) {
+    cli._checkGuvnorUser(function(error) {
       expect(error).to.be.ok
     })
 
@@ -141,18 +141,18 @@ describe('CLI', function() {
   it('should print a warning if the user is in the wrong group on Mac OS X', function() {
     var userName = 'foo'
     cli._user.name = userName
-    var bossGroup = 'bar'
+    var guvnorGroup = 'bar'
     var groupsEntry = {
       members: ['baz']
     }
 
-    cli._config.boss.group = bossGroup
-    cli._posix.getgrnam.withArgs(bossGroup).returns(groupsEntry)
+    cli._config.guvnor.group = guvnorGroup
+    cli._posix.getgrnam.withArgs(guvnorGroup).returns(groupsEntry)
     cli._os.platform.returns('darwin')
 
     expect(cli._logger.error.called).to.be.false
 
-    cli._checkBossUser(function(error) {
+    cli._checkGuvnorUser(function(error) {
       expect(error).to.be.ok
     })
 
@@ -162,17 +162,17 @@ describe('CLI', function() {
   it('should be slient if the user is in the right group', function() {
     var userName = 'foo'
     cli._user.name = userName
-    var bossGroup = 'bar'
+    var guvnorGroup = 'bar'
     var groupsEntry = {
       members: [userName]
     }
 
-    cli._config.boss.group = bossGroup
-    cli._posix.getgrnam.withArgs(bossGroup).returns(groupsEntry)
+    cli._config.guvnor.group = guvnorGroup
+    cli._posix.getgrnam.withArgs(guvnorGroup).returns(groupsEntry)
 
     expect(cli._logger.warn.called).to.be.false
 
-    cli._checkBossUser()
+    cli._checkGuvnorUser()
 
     expect(cli._logger.warn.called).to.be.false
   })
@@ -180,17 +180,17 @@ describe('CLI', function() {
   it('should complain if the configured group does not exist', function(done) {
     var userName = 'foo'
     cli._user.name = userName
-    var bossGroup = 'bar'
+    var guvnorGroup = 'bar'
     var groupsEntry = {
       members: [userName]
     }
 
-    cli._config.boss.group = bossGroup
-    cli._posix.getgrnam.withArgs(bossGroup).throws(new Error('group id does not exist'))
+    cli._config.guvnor.group = guvnorGroup
+    cli._posix.getgrnam.withArgs(guvnorGroup).throws(new Error('group id does not exist'))
 
     expect(cli._logger.error.called).to.be.false
 
-    cli._checkBossUser(function(error) {
+    cli._checkGuvnorUser(function(error) {
       expect(error).to.be.ok
       expect(error.message).to.contain('group does not exist')
       expect(cli._logger.error.called).to.be.true
@@ -202,15 +202,15 @@ describe('CLI', function() {
   it('should create a group on Linux', function(done) {
     var groupadd = 'foo'
 
-    cli._config.boss.group = 'bar'
+    cli._config.guvnor.group = 'bar'
 
-    cli._posix.getgrnam.withArgs(cli._config.boss.group).throws(new Error('group id does not exist'))
+    cli._posix.getgrnam.withArgs(cli._config.guvnor.group).throws(new Error('group id does not exist'))
     cli._prompt.get.callsArg(1)
 
     cli._execSync.withArgs('which groupadd').returns(groupadd)
-    cli._execSync.withArgs(groupadd + ' ' + cli._config.boss.group).returns('')
+    cli._execSync.withArgs(groupadd + ' ' + cli._config.guvnor.group).returns('')
 
-    cli._checkBossGroup(function(error) {
+    cli._checkGuvnorGroup(function(error) {
       expect(error).to.not.exist
 
       done()
@@ -220,15 +220,15 @@ describe('CLI', function() {
   it('should complain if creating a group fails on Linux', function(done) {
     var groupadd = 'foo'
 
-    cli._config.boss.group = 'bar'
+    cli._config.guvnor.group = 'bar'
 
-    cli._posix.getgrnam.withArgs(cli._config.boss.group).throws(new Error('group id does not exist'))
+    cli._posix.getgrnam.withArgs(cli._config.guvnor.group).throws(new Error('group id does not exist'))
     cli._prompt.get.callsArg(1)
 
     cli._execSync.withArgs('which groupadd').returns(groupadd)
-    cli._execSync.withArgs(groupadd + ' ' + cli._config.boss.group).throws(new Error('urk!'))
+    cli._execSync.withArgs(groupadd + ' ' + cli._config.guvnor.group).throws(new Error('urk!'))
 
-    cli._checkBossGroup(function(error) {
+    cli._checkGuvnorGroup(function(error) {
       expect(error.message).to.equal('Automatically creating group bar failed, please create it manually')
 
       done()
@@ -243,9 +243,9 @@ describe('CLI', function() {
       'wheel                                     0\n' +
       'meh                                     500\n'
 
-    cli._config.boss.group = 'bar'
+    cli._config.guvnor.group = 'bar'
 
-    cli._posix.getgrnam.withArgs(cli._config.boss.group).throws(new Error('group id does not exist'))
+    cli._posix.getgrnam.withArgs(cli._config.guvnor.group).throws(new Error('group id does not exist'))
     cli._prompt.get.callsArg(1)
 
     cli._execSync.withArgs('which groupadd').returns('')
@@ -258,7 +258,7 @@ describe('CLI', function() {
     cli._child_process.exec.withArgs('foo . create /Groups/bar gid 501').callsArg(1)
     cli._fs.appendFile.withArgs('/etc/group', 'bar:*:501:\n').callsArg(2)
 
-    cli._checkBossGroup(function(error) {
+    cli._checkGuvnorGroup(function(error) {
       expect(error).to.not.exist
 
       done()
@@ -272,9 +272,9 @@ describe('CLI', function() {
     'utmp                                      45\n' +
     'wheel                                     0\n'
 
-    cli._config.boss.group = 'bar'
+    cli._config.guvnor.group = 'bar'
 
-    cli._posix.getgrnam.withArgs(cli._config.boss.group).throws(new Error('group id does not exist'))
+    cli._posix.getgrnam.withArgs(cli._config.guvnor.group).throws(new Error('group id does not exist'))
     cli._prompt.get.callsArg(1)
 
     cli._execSync.withArgs('which groupadd').returns('')
@@ -286,7 +286,7 @@ describe('CLI', function() {
     cli._child_process.exec.withArgs('foo . create /Groups/bar passwd "*"').callsArg(1)
     cli._child_process.exec.withArgs('foo . create /Groups/bar gid 500').callsArgWith(1, new Error('Could not create group'))
 
-    cli._checkBossGroup(function(error) {
+    cli._checkGuvnorGroup(function(error) {
       expect(error.message).to.equal('Could not create group')
 
       done()
@@ -294,14 +294,14 @@ describe('CLI', function() {
   })
 
   it('should complain dscl or groupadd are not present', function(done) {
-    cli._config.boss.group = 'foo'
-    cli._posix.getgrnam.withArgs(cli._config.boss.group).throws(new Error('group id does not exist'))
+    cli._config.guvnor.group = 'foo'
+    cli._posix.getgrnam.withArgs(cli._config.guvnor.group).throws(new Error('group id does not exist'))
     cli._prompt.get.callsArg(1)
 
     cli._execSync.withArgs('which groupadd').returns('')
     cli._execSync.withArgs('which dscl').returns('')
 
-    cli._checkBossGroup(function(error) {
+    cli._checkGuvnorGroup(function(error) {
       expect(error.message).to.equal('Automatically creating group foo failed, please create it manually')
 
       done()

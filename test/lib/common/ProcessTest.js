@@ -10,7 +10,7 @@ describe('Process', function() {
 
     proc = new Process(socket)
     proc._config = {
-      boss: {
+      guvnor: {
         timeout: 5000
       }
     }

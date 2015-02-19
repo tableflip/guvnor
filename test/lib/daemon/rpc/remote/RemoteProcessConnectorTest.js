@@ -13,8 +13,8 @@ describe('RemoteProcessConnector', function() {
     }
     connector._posix = posix
 
-    process.env.BOSS_USER = process.getuid().toString()
-    process.env.BOSS_SOCKET = '/sock'
+    process.env.GUVNOR_USER = process.getuid().toString()
+    process.env.GUVNOR_SOCKET = '/sock'
     process.send = sinon.stub()
     process.on = sinon.stub()
 
@@ -54,8 +54,8 @@ describe('RemoteProcessConnector', function() {
     }
     connector._posix = posix
 
-    process.env.BOSS_USER = process.getuid().toString()
-    process.env.BOSS_SOCKET = '/sock'
+    process.env.GUVNOR_USER = process.getuid().toString()
+    process.env.GUVNOR_SOCKET = '/sock'
     process.send = sinon.stub()
     process.on = sinon.stub()
 
@@ -124,8 +124,8 @@ describe('RemoteProcessConnector', function() {
     }
     connector._posix = posix
 
-    process.env.BOSS_USER = process.getuid().toString()
-    process.env.BOSS_SOCKET = '/sock'
+    process.env.GUVNOR_USER = process.getuid().toString()
+    process.env.GUVNOR_SOCKET = '/sock'
     process.send = sinon.stub()
     process.on = sinon.stub()
 

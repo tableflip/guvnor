@@ -4,7 +4,7 @@
 1. [Controlling the Daemon](daemon.md)
 1. [Managing clusters](clusters.md)
 1. [Installing and running apps](apps.md)
-1. [Remote access and monitoring (e.g. boss-web)](remote.md)
+1. [Remote access and monitoring (e.g. guv-web)](remote.md)
 1. [Web interface](web.md)
 1. [Web interface - configuration](web-config.md)
 1. Web interface - user management
@@ -15,32 +15,32 @@
 
 ## User administration
 
-These commands administer users on a `boss-web` instance and will update your `bossweb` and `bossweb-users` config files.
+These commands administer users on a `guvnor-web` instance and will update your `guvnor-web` and `guvnor-web-users` config files.
 
-For the time being `boss-web` must not be running while you do this.
+For the time being `guvnor-web` must not be running while you do this.
 
 ### Adding users
 
 ```sh
-bs-web useradd alex
+guv-web useradd alex
 ```
 
 ### Removing users
 
 ```sh
-bs-web rmuser alex
+guv-web rmuser alex
 ```
 
 ### Resetting passwords
 
 ```sh
-bs-web passwd alex
+guv-web passwd alex
 ```
 
 ### Listing users
 
 ```sh
-bs-web lsusers
+guv-web lsusers
 ```
 
 ### Changing the password salt
@@ -48,5 +48,5 @@ bs-web lsusers
 N.b. this will invalidate all user passwords, so don't forget to reset them otherwise no-one will be able to log in!
 
 ```sh
-bs-web gensalt
+guv-web gensalt
 ```

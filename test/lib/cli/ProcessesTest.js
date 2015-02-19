@@ -5,7 +5,7 @@ var expect = require('chai').expect,
   path = require('path')
 
 describe('Processes', function() {
-  var processes, boss, info
+  var processes, guvnor, info
 
   beforeEach(function() {
     info = console.info
@@ -13,7 +13,7 @@ describe('Processes', function() {
 
     processes = new Processes()
     processes._config = {
-      boss: {
+      guvnor: {
 
       }
     }
@@ -33,13 +33,13 @@ describe('Processes', function() {
       existsSync: sinon.stub()
     }
 
-    boss = new EventEmitter()
-    boss.disconnect = sinon.stub()
-    boss.findProcessInfoByPid = sinon.stub()
-    boss.findProcessInfoByName = sinon.stub()
-    boss.connectToProcess = sinon.stub()
+    guvnor = new EventEmitter()
+    guvnor.disconnect = sinon.stub()
+    guvnor.findProcessInfoByPid = sinon.stub()
+    guvnor.findProcessInfoByName = sinon.stub()
+    guvnor.connectToProcess = sinon.stub()
 
-    processes._connect.callsArgWith(0, undefined, boss)
+    processes._connect.callsArgWith(0, undefined, guvnor)
   })
 
   afterEach(function() {
@@ -61,26 +61,26 @@ describe('Processes', function() {
       status: 'status'
     }]
 
-    boss.listProcesses = sinon.stub()
-    boss.listProcesses.withArgs(sinon.match.func).callsArgWith(0, undefined, processList)
+    guvnor.listProcesses = sinon.stub()
+    guvnor.listProcesses.withArgs(sinon.match.func).callsArgWith(0, undefined, processList)
 
     processes._moment.duration.returns(processes._moment)
 
     processes.list()
 
-    expect(boss.disconnect.called).to.be.true
+    expect(guvnor.disconnect.called).to.be.true
     expect(console.info.called).to.be.true
   })
 
   it('should not throw formatting process list with undefined values', function() {
     var processList = [{}]
 
-    boss.listProcesses = sinon.stub()
-    boss.listProcesses.withArgs(sinon.match.func).callsArgWith(0, undefined, processList)
+    guvnor.listProcesses = sinon.stub()
+    guvnor.listProcesses.withArgs(sinon.match.func).callsArgWith(0, undefined, processList)
 
     processes.list()
 
-    expect(boss.listProcesses.threw()).to.be.false
+    expect(guvnor.listProcesses.threw()).to.be.false
   })
 
   it('should not throw formatting process list with null values', function() {
@@ -98,12 +98,12 @@ describe('Processes', function() {
       status: null
     }]
 
-    boss.listProcesses = sinon.stub()
-    boss.listProcesses.withArgs(sinon.match.func).callsArgWith(0, undefined, processList)
+    guvnor.listProcesses = sinon.stub()
+    guvnor.listProcesses.withArgs(sinon.match.func).callsArgWith(0, undefined, processList)
 
     processes.list()
 
-    expect(boss.listProcesses.threw()).to.be.false
+    expect(guvnor.listProcesses.threw()).to.be.false
   })
 
   it('should not throw formatting process list with non-numeric values', function() {
@@ -116,12 +116,12 @@ describe('Processes', function() {
       cpu: 'cpu'
     }]
 
-    boss.listProcesses = sinon.stub()
-    boss.listProcesses.withArgs(sinon.match.func).callsArgWith(0, undefined, processList)
+    guvnor.listProcesses = sinon.stub()
+    guvnor.listProcesses.withArgs(sinon.match.func).callsArgWith(0, undefined, processList)
 
     processes.list()
 
-    expect(boss.listProcesses.threw()).to.be.false
+    expect(guvnor.listProcesses.threw()).to.be.false
   })
 
   it('should start a process', function() {
@@ -132,14 +132,14 @@ describe('Processes', function() {
     }
 
     processes._fs.existsSync.withArgs(script).returns(true)
-    boss.startProcess = sinon.stub()
-    boss.startProcess.callsArgWith(2, undefined, processInfo)
+    guvnor.startProcess = sinon.stub()
+    guvnor.startProcess.callsArgWith(2, undefined, processInfo)
 
     processes.start(script, options)
 
-    boss.emit('process:ready', processInfo)
+    guvnor.emit('process:ready', processInfo)
 
-    expect(boss.disconnect.called).to.be.true
+    expect(guvnor.disconnect.called).to.be.true
   })
 
   it('should stop a process', function() {
@@ -153,12 +153,12 @@ describe('Processes', function() {
     }
     remote.kill.callsArg(0)
 
-    boss.findProcessInfoByName.withArgs(pid).callsArgWith(1, undefined, processInfo)
-    boss.connectToProcess.withArgs(processInfo.id).callsArgWith(1, undefined, remote)
+    guvnor.findProcessInfoByName.withArgs(pid).callsArgWith(1, undefined, processInfo)
+    guvnor.connectToProcess.withArgs(processInfo.id).callsArgWith(1, undefined, remote)
 
     processes.stop(pid)
 
-    expect(boss.disconnect.called).to.be.true
+    expect(guvnor.disconnect.called).to.be.true
     expect(remote.kill.called).to.be.true
     expect(remote.disconnect.called).to.be.true
   })
@@ -187,15 +187,15 @@ describe('Processes', function() {
     remote0.kill.callsArg(0)
     remote1.kill.callsArg(0)
 
-    boss.findProcessInfoByName.withArgs(pid0).callsArgWith(1, undefined, processInfo0)
-    boss.connectToProcess.withArgs(processInfo0.id).callsArgWith(1, undefined, remote0)
+    guvnor.findProcessInfoByName.withArgs(pid0).callsArgWith(1, undefined, processInfo0)
+    guvnor.connectToProcess.withArgs(processInfo0.id).callsArgWith(1, undefined, remote0)
 
-    boss.findProcessInfoByName.withArgs(pid1).callsArgWith(1, undefined, processInfo1)
-    boss.connectToProcess.withArgs(processInfo1.id).callsArgWith(1, undefined, remote1)
+    guvnor.findProcessInfoByName.withArgs(pid1).callsArgWith(1, undefined, processInfo1)
+    guvnor.connectToProcess.withArgs(processInfo1.id).callsArgWith(1, undefined, remote1)
 
     processes.stop([pid0, pid1])
 
-    expect(boss.disconnect.called).to.be.true
+    expect(guvnor.disconnect.called).to.be.true
     expect(remote0.kill.called).to.be.true
     expect(remote0.disconnect.called).to.be.true
     expect(remote1.kill.called).to.be.true
@@ -224,18 +224,18 @@ describe('Processes', function() {
     remote0.kill.callsArg(0)
     remote1.kill.callsArg(0)
 
-    boss.listProcesses = sinon.stub()
-    boss.listProcesses.withArgs(sinon.match.func).callsArgWith(0, undefined, processList)
+    guvnor.listProcesses = sinon.stub()
+    guvnor.listProcesses.withArgs(sinon.match.func).callsArgWith(0, undefined, processList)
 
-    boss.findProcessInfoByName.withArgs(processList[0].pid).callsArgWith(1, undefined, processList[0])
-    boss.connectToProcess.withArgs(processList[0].id).callsArgWith(1, undefined, remote0)
+    guvnor.findProcessInfoByName.withArgs(processList[0].pid).callsArgWith(1, undefined, processList[0])
+    guvnor.connectToProcess.withArgs(processList[0].id).callsArgWith(1, undefined, remote0)
 
-    boss.findProcessInfoByName.withArgs(processList[1].pid).callsArgWith(1, undefined, processList[1])
-    boss.connectToProcess.withArgs(processList[1].id).callsArgWith(1, undefined, remote1)
+    guvnor.findProcessInfoByName.withArgs(processList[1].pid).callsArgWith(1, undefined, processList[1])
+    guvnor.connectToProcess.withArgs(processList[1].id).callsArgWith(1, undefined, remote1)
 
     processes.stop('all')
 
-    expect(boss.disconnect.called).to.be.true
+    expect(guvnor.disconnect.called).to.be.true
     expect(remote0.kill.called).to.be.true
     expect(remote0.disconnect.called).to.be.true
     expect(remote1.kill.called).to.be.true
@@ -254,12 +254,12 @@ describe('Processes', function() {
 
     remote.restart.callsArg(0)
 
-    boss.findProcessInfoByName.withArgs(pid).callsArgWith(1, undefined, processInfo)
-    boss.connectToProcess.withArgs(processInfo.id).callsArgWith(1, undefined, remote)
+    guvnor.findProcessInfoByName.withArgs(pid).callsArgWith(1, undefined, processInfo)
+    guvnor.connectToProcess.withArgs(processInfo.id).callsArgWith(1, undefined, remote)
 
     processes.restart(pid)
 
-    expect(boss.disconnect.called).to.be.true
+    expect(guvnor.disconnect.called).to.be.true
     expect(remote.restart.called).to.be.true
     expect(remote.disconnect.called).to.be.true
   })
@@ -288,15 +288,15 @@ describe('Processes', function() {
     remote0.restart.callsArg(0)
     remote1.restart.callsArg(0)
 
-    boss.findProcessInfoByName.withArgs(pid0).callsArgWith(1, undefined, processInfo0)
-    boss.connectToProcess.withArgs(processInfo0.id).callsArgWith(1, undefined, remote0)
+    guvnor.findProcessInfoByName.withArgs(pid0).callsArgWith(1, undefined, processInfo0)
+    guvnor.connectToProcess.withArgs(processInfo0.id).callsArgWith(1, undefined, remote0)
 
-    boss.findProcessInfoByName.withArgs(pid1).callsArgWith(1, undefined, processInfo1)
-    boss.connectToProcess.withArgs(processInfo1.id).callsArgWith(1, undefined, remote1)
+    guvnor.findProcessInfoByName.withArgs(pid1).callsArgWith(1, undefined, processInfo1)
+    guvnor.connectToProcess.withArgs(processInfo1.id).callsArgWith(1, undefined, remote1)
 
     processes.restart([pid0, pid1])
 
-    expect(boss.disconnect.called).to.be.true
+    expect(guvnor.disconnect.called).to.be.true
     expect(remote0.restart.called).to.be.true
     expect(remote0.disconnect.called).to.be.true
     expect(remote1.restart.called).to.be.true
@@ -325,18 +325,18 @@ describe('Processes', function() {
     remote0.restart.callsArg(0)
     remote1.restart.callsArg(0)
 
-    boss.listProcesses = sinon.stub()
-    boss.listProcesses.withArgs(sinon.match.func).callsArgWith(0, undefined, processList)
+    guvnor.listProcesses = sinon.stub()
+    guvnor.listProcesses.withArgs(sinon.match.func).callsArgWith(0, undefined, processList)
 
-    boss.findProcessInfoByName.withArgs(processList[0].pid).callsArgWith(1, undefined, processList[0])
-    boss.connectToProcess.withArgs(processList[0].id).callsArgWith(1, undefined, remote0)
+    guvnor.findProcessInfoByName.withArgs(processList[0].pid).callsArgWith(1, undefined, processList[0])
+    guvnor.connectToProcess.withArgs(processList[0].id).callsArgWith(1, undefined, remote0)
 
-    boss.findProcessInfoByName.withArgs(processList[1].pid).callsArgWith(1, undefined, processList[1])
-    boss.connectToProcess.withArgs(processList[1].id).callsArgWith(1, undefined, remote1)
+    guvnor.findProcessInfoByName.withArgs(processList[1].pid).callsArgWith(1, undefined, processList[1])
+    guvnor.connectToProcess.withArgs(processList[1].id).callsArgWith(1, undefined, remote1)
 
     processes.restart('all')
 
-    expect(boss.disconnect.called).to.be.true
+    expect(guvnor.disconnect.called).to.be.true
     expect(remote0.restart.called).to.be.true
     expect(remote0.disconnect.called).to.be.true
     expect(remote1.restart.called).to.be.true
@@ -355,12 +355,12 @@ describe('Processes', function() {
       disconnect: sinon.stub()
     }
 
-    boss.findProcessInfoByName.withArgs(pid).callsArgWith(1, undefined, processInfo)
-    boss.connectToProcess.withArgs(processInfo.id).callsArgWith(1, undefined, remote)
+    guvnor.findProcessInfoByName.withArgs(pid).callsArgWith(1, undefined, processInfo)
+    guvnor.connectToProcess.withArgs(processInfo.id).callsArgWith(1, undefined, remote)
 
     processes.send(pid, event, args)
 
-    expect(boss.disconnect.called).to.be.true
+    expect(guvnor.disconnect.called).to.be.true
     expect(remote.send.calledWith(event, args[0], args[1], args[2])).to.be.true
     expect(remote.disconnect.called).to.be.true
   })
@@ -372,14 +372,14 @@ describe('Processes', function() {
       id: 'id'
     }
 
-    boss.findProcessInfoByName.withArgs(pid).callsArgWith(1, undefined, processInfo)
-    boss.sendSignal = sinon.stub()
-    boss.sendSignal.withArgs(processInfo.id, signal, sinon.match.func).callsArgWith(2, undefined)
+    guvnor.findProcessInfoByName.withArgs(pid).callsArgWith(1, undefined, processInfo)
+    guvnor.sendSignal = sinon.stub()
+    guvnor.sendSignal.withArgs(processInfo.id, signal, sinon.match.func).callsArgWith(2, undefined)
 
     processes.signal(pid, signal)
 
-    expect(boss.disconnect.called).to.be.true
-    expect(boss.sendSignal.calledWith(processInfo.id, signal, sinon.match.func)).to.be.true
+    expect(guvnor.disconnect.called).to.be.true
+    expect(guvnor.sendSignal.calledWith(processInfo.id, signal, sinon.match.func)).to.be.true
   })
 
   it('should make a process dump heap', function() {
@@ -394,12 +394,12 @@ describe('Processes', function() {
     }
     remote.dumpHeap.callsArgWith(0, undefined, path)
 
-    boss.findProcessInfoByName.withArgs(pid).callsArgWith(1, undefined, processInfo)
-    boss.connectToProcess.withArgs(processInfo.id).callsArgWith(1, undefined, remote)
+    guvnor.findProcessInfoByName.withArgs(pid).callsArgWith(1, undefined, processInfo)
+    guvnor.connectToProcess.withArgs(processInfo.id).callsArgWith(1, undefined, remote)
 
     processes.heapdump(pid)
 
-    expect(boss.disconnect.called).to.be.true
+    expect(guvnor.disconnect.called).to.be.true
     expect(remote.dumpHeap.calledWith(sinon.match.func)).to.be.true
     expect(remote.disconnect.called).to.be.true
     expect(console.info.calledWith(sinon.match.string, path)).to.be.true
@@ -416,12 +416,12 @@ describe('Processes', function() {
     }
     remote.forceGc.callsArgWith(0, undefined)
 
-    boss.findProcessInfoByName.withArgs(pid).callsArgWith(1, undefined, processInfo)
-    boss.connectToProcess.withArgs(processInfo.id).callsArgWith(1, undefined, remote)
+    guvnor.findProcessInfoByName.withArgs(pid).callsArgWith(1, undefined, processInfo)
+    guvnor.connectToProcess.withArgs(processInfo.id).callsArgWith(1, undefined, remote)
 
     processes.gc(pid)
 
-    expect(boss.disconnect.called).to.be.true
+    expect(guvnor.disconnect.called).to.be.true
     expect(remote.forceGc.calledWith(sinon.match.func)).to.be.true
     expect(remote.disconnect.called).to.be.true
   })
@@ -433,14 +433,14 @@ describe('Processes', function() {
       id: 'id'
     }
 
-    boss.findProcessInfoByPid.withArgs(pid).callsArgWith(1, undefined, processInfo)
-    boss.sendSignal = sinon.stub()
-    boss.sendSignal.withArgs(processInfo.id, signal, sinon.match.func).callsArgWith(2, undefined)
+    guvnor.findProcessInfoByPid.withArgs(pid).callsArgWith(1, undefined, processInfo)
+    guvnor.sendSignal = sinon.stub()
+    guvnor.sendSignal.withArgs(processInfo.id, signal, sinon.match.func).callsArgWith(2, undefined)
 
     processes.signal(pid, signal)
 
-    expect(boss.disconnect.called).to.be.true
-    expect(boss.sendSignal.calledWith(processInfo.id, signal, sinon.match.func)).to.be.true
+    expect(guvnor.disconnect.called).to.be.true
+    expect(guvnor.sendSignal.calledWith(processInfo.id, signal, sinon.match.func)).to.be.true
   })
 
   it('should remove a process', function() {
@@ -450,17 +450,17 @@ describe('Processes', function() {
       id: 'id'
     }
 
-    boss.findProcessInfoByPid.withArgs(pid).callsArgWith(1, undefined, processInfo)
-    boss.sendSignal = sinon.stub()
-    boss.sendSignal.withArgs(processInfo.id, signal, sinon.match.func).callsArgWith(2, undefined)
+    guvnor.findProcessInfoByPid.withArgs(pid).callsArgWith(1, undefined, processInfo)
+    guvnor.sendSignal = sinon.stub()
+    guvnor.sendSignal.withArgs(processInfo.id, signal, sinon.match.func).callsArgWith(2, undefined)
 
     processes.signal(pid, signal)
 
-    expect(boss.disconnect.called).to.be.true
-    expect(boss.sendSignal.calledWith(processInfo.id, signal, sinon.match.func)).to.be.true
+    expect(guvnor.disconnect.called).to.be.true
+    expect(guvnor.sendSignal.calledWith(processInfo.id, signal, sinon.match.func)).to.be.true
   })
 
-  it('should start boss-web', function() {
+  it('should start guvnor-web', function() {
     var script = path.resolve(__dirname + '/../../lib/web')
     var options = {}
     var processInfo = {
@@ -468,15 +468,15 @@ describe('Processes', function() {
     }
 
     processes._fs.existsSync.withArgs(script).returns(true)
-    boss.startProcess = sinon.stub()
-    boss.startProcess.callsArgWith(2, undefined, processInfo)
+    guvnor.startProcess = sinon.stub()
+    guvnor.startProcess.callsArgWith(2, undefined, processInfo)
 
-    processes.startBossWeb(options)
+    processes.startWebMonitor(options)
 
-    boss.emit('process:ready', processInfo)
+    guvnor.emit('process:ready', processInfo)
 
-    expect(boss.disconnect.called).to.be.true
-    expect(boss.startProcess.getCall(0).args[1].name).to.equal('boss-web')
+    expect(guvnor.disconnect.called).to.be.true
+    expect(guvnor.startProcess.getCall(0).args[1].name).to.equal('guvnor-web')
   })
 
   it('should use the admin socket to start a process as a different user', function() {
@@ -489,13 +489,13 @@ describe('Processes', function() {
     }
 
     processes._fs.existsSync.withArgs(script).returns(true)
-    boss.startProcessAsUser = sinon.stub()
-    boss.startProcessAsUser.callsArgWith(2, undefined, processInfo)
+    guvnor.startProcessAsUser = sinon.stub()
+    guvnor.startProcessAsUser.callsArgWith(2, undefined, processInfo)
 
     processes.start(script, options)
 
-    boss.emit('process:ready', processInfo)
+    guvnor.emit('process:ready', processInfo)
 
-    expect(boss.disconnect.called).to.be.true
+    expect(guvnor.disconnect.called).to.be.true
   })
 })

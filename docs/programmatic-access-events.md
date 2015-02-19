@@ -4,7 +4,7 @@
 1. [Controlling the Daemon](daemon.md)
 1. [Managing clusters](clusters.md)
 1. [Installing and running apps](apps.md)
-1. [Remote access and monitoring (e.g. boss-web)](remote.md)
+1. [Remote access and monitoring (e.g. guv-web)](remote.md)
 1. [Web interface](web.md)
 1. [Web interface - configuration](web-config.md)
 1. [Web interface - user management](web-users.md)
@@ -15,10 +15,10 @@
 
 ## Programmatic access - events
 
-The boss daemon is a [wildemitter](https://github.com/HenrikJoreteg/wildemitter) so you can use wildcards to listen for events:
+The guvnor daemon is a [wildemitter](https://github.com/HenrikJoreteg/wildemitter) so you can use wildcards to listen for events:
 
 ```javascript
-boss.on('*', function() {
+guvnor.on('*', function() {
   var type = arguments[0]
   var args = Array.prototype.slice.call(arguments, 1)
 
@@ -31,15 +31,15 @@ boss.on('*', function() {
 These are events that are to do with managed processes.  They are emitted by processes, cluster managers and workers.  For example:
 
 ```javascript
-boss.on('process:starting', function(processInfo) {
+guvnor.on('process:starting', function(processInfo) {
   console.info('process %s is starting', processInfo.name)
 })
 
-boss.on('cluster:starting', function(clusterInfo) {
+guvnor.on('cluster:starting', function(clusterInfo) {
   console.info('cluster %s is starting', clusterInfo.name)
 })
 
-boss.on('worker:starting', function(clusterInfo, workerInfo) {
+guvnor.on('worker:starting', function(clusterInfo, workerInfo) {
   console.info('worker %s from cluster %s is starting', workerInfo.id, clusterInfo.name)
 })
 ```
@@ -68,7 +68,7 @@ Your module code threw an exception on start up.
 
 ### 'process:ready' processInfo
 
-A connection has been established between boss and the managed process. All systems go.
+A connection has been established between guvnor and the managed process. All systems go.
 
 ### 'process:stopping' processInfo
 
@@ -96,7 +96,7 @@ A process failed to (re)start because it error'd on startup more times than allo
 
 ### 'process:config:request'
 
-A managed process has requested configuration from boss
+A managed process has requested configuration from guvnor
 
 ## Cluster events
 
@@ -132,19 +132,19 @@ A worker exited with the passed code. If a signal was used to kill the worker, i
 
 ## Daemon events
 
-These are events that are to do with the boss daemon itself.
+These are events that are to do with the guvnor daemon itself.
 
-### 'boss:fatality' error
+### 'daemon:fatality' error
 
-Boss crashed. Hopefully you'll never see this.
+Guvnor crashed. Hopefully you'll never see this.
 
-### 'boss:config:response'
+### 'daemon:config:response'
 
-Boss is sending configuration to a managed process
+Guvnor is sending configuration to a managed process
 
 ## Log events
 
-There are four types of log event: `info`, `warn`, `error` and `debug`.  Log events are emitted by processes, cluster managers, cluster workers and boss itself.
+There are four types of log event: `info`, `warn`, `error` and `debug`.  Log events are emitted by processes, cluster managers, cluster workers and the guvnor daemon itself.
 
 `info` and `error` correspond to stdout and stderr.
 
@@ -153,20 +153,20 @@ There are four types of log event: `info`, `warn`, `error` and `debug`.  Log eve
 A process emitted an info log event. The log object contains the time and the message.
 
 ```javascript
-boss.on('process:log:info', function(processInfo, log) {
+guvnor.on('process:log:info', function(processInfo, log) {
   console.info('process %s said %s at %s', processInfo.name, log.message, log.date)
 })
 
-boss.on('cluster:log:info', function(clusterInfo, log) {
+guvnor.on('cluster:log:info', function(clusterInfo, log) {
   console.info('cluster manager %s said %s at %s', clusterInfo.name, log.message, log.date)
 })
 
-boss.on('worker:log:info', function(clusterInfo, workerInfo, log) {
+guvnor.on('worker:log:info', function(clusterInfo, workerInfo, log) {
   console.info('worker %s from cluster %s said %s at %s', workerInfo.id, cluster.name, log.message, log.date)
 })
 
-boss.on('boss:log:info', function(log) {
-  console.info('boss said %s at %s', log.message, log.date)
+guvnor.on('daemon:log:info', function(log) {
+  console.info('guvnor said %s at %s', log.message, log.date)
 })
 ```
 
@@ -175,20 +175,20 @@ boss.on('boss:log:info', function(log) {
 A process emitted an warn log event. The log object contains the time and the message.
 
 ```javascript
-boss.on('process:log:warn', function(processInfo, log) {
+guvnor.on('process:log:warn', function(processInfo, log) {
   console.warn('process %s said %s at %s', processInfo.name, log.message, log.date)
 })
 
-boss.on('cluster:log:warn', function(clusterInfo, log) {
+guvnor.on('cluster:log:warn', function(clusterInfo, log) {
   console.warn('cluster manager %s said %s at %s', clusterInfo.name, log.message, log.date)
 })
 
-boss.on('worker:log:warn', function(clusterInfo, workerInfo, log) {
+guvnor.on('worker:log:warn', function(clusterInfo, workerInfo, log) {
   console.warn('worker %s from cluster %s said %s at %s', workerInfo.id, cluster.name, log.message, log.date)
 })
 
-boss.on('boss:log:warn', function(log) {
-  console.warn('boss said %s at %s', log.message, log.date)
+guvnor.on('daemon:log:warn', function(log) {
+  console.warn('guvnor said %s at %s', log.message, log.date)
 })
 ```
 
@@ -197,20 +197,20 @@ boss.on('boss:log:warn', function(log) {
 A process emitted an error log event. The log object contains the time and the message.
 
 ```javascript
-boss.on('process:log:error', function(processInfo, log) {
+guvnor.on('process:log:error', function(processInfo, log) {
   console.error('process %s said %s at %s', processInfo.name, log.message, log.date)
 })
 
-boss.on('cluster:log:error', function(clusterInfo, log) {
+guvnor.on('cluster:log:error', function(clusterInfo, log) {
   console.error('cluster manager %s said %s at %s', clusterInfo.name, log.message, log.date)
 })
 
-boss.on('worker:log:error', function(clusterInfo, workerInfo, log) {
+guvnor.on('worker:log:error', function(clusterInfo, workerInfo, log) {
   console.error('worker %s from cluster %s said %s at %s', workerInfo.id, cluster.name, log.message, log.date)
 })
 
-boss.on('boss:log:error', function(log) {
-  console.error('boss said %s at %s', log.message, log.date)
+guvnor.on('daemon:log:error', function(log) {
+  console.error('guvnor said %s at %s', log.message, log.date)
 })
 ```
 
@@ -219,19 +219,19 @@ boss.on('boss:log:error', function(log) {
 A process emitted an debug log event. The log object contains the time and the message.
 
 ```javascript
-boss.on('process:log:debug', function(processInfo, log) {
+guvnor.on('process:log:debug', function(processInfo, log) {
   console.info('process %s said %s at %s', processInfo.name, log.message, log.date)
 })
 
-boss.on('cluster:log:debug', function(clusterInfo, log) {
+guvnor.on('cluster:log:debug', function(clusterInfo, log) {
   console.info('cluster manager %s said %s at %s', clusterInfo.name, log.message, log.date)
 })
 
-boss.on('worker:log:debug', function(clusterInfo, workerInfo, log) {
+guvnor.on('worker:log:debug', function(clusterInfo, workerInfo, log) {
   console.info('worker %s from cluster %s said %s at %s', workerInfo.id, cluster.name, log.message, log.date)
 })
 
-boss.on('boss:log:debug', function(log) {
-  console.info('boss said %s at %s', log.message, log.date)
+guvnor.on('daemon:log:debug', function(log) {
+  console.info('guvnor said %s at %s', log.message, log.date)
 })
 ```

@@ -97,20 +97,20 @@ if(config.debugMode) {
 socket.on('connect_timeout', function() {
   notify({
     header: 'Connection timeout',
-    message: 'The websocket timed out while connecting to boss-web',
+    message: 'The websocket timed out while connecting to guvnor-web',
     type: 'danger'
   })
 })
 socket.on('reconnect', function(count) {
   notify({
-    header: 'boss-web came back',
+    header: 'guvnor-web came back',
     message: ['Reconnected after %d attempts', count],
     type: 'info'
   })
 })
 socket.on('disconnect', function() {
   notify({
-    header: 'boss-web went away',
+    header: 'guvnor-web went away',
     message: 'Lost connection',
     type: 'danger'
   })

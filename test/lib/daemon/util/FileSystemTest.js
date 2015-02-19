@@ -14,7 +14,7 @@ describe('FileSystem', function() {
     temp = os.tmpdir() + '/' + shortId.generate()
     fileSystem = new FileSystem()
     fileSystem._config = {
-      boss: {
+      guvnor: {
         logdir: temp + '/log',
         confdir: temp + '/conf',
         rundir: temp + '/run',
@@ -35,15 +35,15 @@ describe('FileSystem', function() {
   })
 
   it('should create directories', function() {
-    expect(fs.existsSync(fileSystem._config.boss.rundir)).to.be.false
+    expect(fs.existsSync(fileSystem._config.guvnor.rundir)).to.be.false
 
     fileSystem.afterPropertiesSet()
 
-    expect(fs.existsSync(fileSystem._config.boss.rundir)).to.be.true
-    expect(fs.existsSync(fileSystem._config.boss.rundir + '/processes')).to.be.true
-    expect(fs.existsSync(fileSystem._config.boss.logdir)).to.be.true
-    expect(fs.existsSync(fileSystem._config.boss.confdir)).to.be.true
-    expect(fs.existsSync(fileSystem._config.boss.appdir)).to.be.true
+    expect(fs.existsSync(fileSystem._config.guvnor.rundir)).to.be.true
+    expect(fs.existsSync(fileSystem._config.guvnor.rundir + '/processes')).to.be.true
+    expect(fs.existsSync(fileSystem._config.guvnor.logdir)).to.be.true
+    expect(fs.existsSync(fileSystem._config.guvnor.confdir)).to.be.true
+    expect(fs.existsSync(fileSystem._config.guvnor.appdir)).to.be.true
   })
 
   it('should not create a directory when one exists', function() {

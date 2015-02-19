@@ -9,7 +9,7 @@ var user = posix.getpwnam(process.getuid())
 var group = posix.getgrnam(process.getgid())
 
 var config = {
-  boss: {
+  guvnor: {
     user: user.name,
     group: group.name,
     timeout: 5000,
@@ -35,9 +35,9 @@ var logger = {
   debug: console.info
 }
 
-var boss
+var guvnor
 
-describe('BossResume', function() {
+describe('GuvnorResume', function() {
   // integration tests are slow
   this.timeout(60000)
 
@@ -45,20 +45,20 @@ describe('BossResume', function() {
     var conf = JSON.parse(JSON.stringify(config))
 
     var id = shortid.generate()
-    conf.boss.logdir = (os.tmpdir() + '/' + id + '/logs').replace(/\/\//g, '/')
-    conf.boss.rundir = (os.tmpdir() + '/' + id + '/run').replace(/\/\//g, '/')
-    conf.boss.confdir = (os.tmpdir() + '/' + id + '/conf').replace(/\/\//g, '/')
-    conf.boss.appdir = (os.tmpdir() + '/' + id + '/apps').replace(/\/\//g, '/')
-    conf.boss.autoresume = true
+    conf.guvnor.logdir = (os.tmpdir() + '/' + id + '/logs').replace(/\/\//g, '/')
+    conf.guvnor.rundir = (os.tmpdir() + '/' + id + '/run').replace(/\/\//g, '/')
+    conf.guvnor.confdir = (os.tmpdir() + '/' + id + '/conf').replace(/\/\//g, '/')
+    conf.guvnor.appdir = (os.tmpdir() + '/' + id + '/apps').replace(/\/\//g, '/')
+    conf.guvnor.autoresume = true
 
-    connect(conf, logger, function (error, boss) {
+    connect(conf, logger, function (error, guvnor) {
       if (error) throw error
 
-      boss.startProcess(__dirname + '/fixtures/hello-world.js', {}, function (error, processInfo) {
+      guvnor.startProcess(__dirname + '/fixtures/hello-world.js', {}, function (error, processInfo) {
         expect(error).to.not.exist
         expect(processInfo.id).to.be.ok
 
-        boss.once('process:ready', function (readyProcessInfo) {
+        guvnor.once('process:ready', function (readyProcessInfo) {
           if (readyProcessInfo.id != processInfo.id) {
             return
           }
@@ -66,24 +66,24 @@ describe('BossResume', function() {
           expect(readyProcessInfo.socket).to.include(readyProcessInfo.pid)
 
           // should not have created the processes dump file yet
-          expect(fs.existsSync(conf.boss.confdir + '/processes.json')).to.be.false
+          expect(fs.existsSync(conf.guvnor.confdir + '/processes.json')).to.be.false
 
-          boss.kill(function () {
-            boss.disconnect(function () {
+          guvnor.kill(function () {
+            guvnor.disconnect(function () {
               // now should have created the processes dump file
-              expect(fs.existsSync(conf.boss.confdir + '/processes.json')).to.be.true
+              expect(fs.existsSync(conf.guvnor.confdir + '/processes.json')).to.be.true
 
               setTimeout(function () {
 
-                connect(conf, logger, function (error, boss) {
+                connect(conf, logger, function (error, guvnor) {
                   if (error) throw error
 
-                  boss.listProcesses(function (error, processes) {
+                  guvnor.listProcesses(function (error, processes) {
                     expect(error).to.not.exist
                     expect(processes.length).to.equal(1)
 
-                    boss.kill(function () {
-                      boss.disconnect(function () {
+                    guvnor.kill(function () {
+                      guvnor.disconnect(function () {
                         done()
                       })
                     })

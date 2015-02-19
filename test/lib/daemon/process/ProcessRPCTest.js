@@ -28,7 +28,7 @@ describe('ProcessRPC', function() {
       writeSnapshot: sinon.stub()
     }
     processRpc._config = {
-      boss: {
+      guvnor: {
 
       }
     }
@@ -43,7 +43,7 @@ describe('ProcessRPC', function() {
   it('should start a kill switch', function(done) {
     var processDirectory = 'foo bar baz'
 
-    processRpc._config.boss.rundir = processDirectory
+    processRpc._config.guvnor.rundir = processDirectory
     processRpc._fs.chown.callsArg(3)
     processRpc._fs.chmod.callsArg(2)
     processRpc._dnode.returns(server)

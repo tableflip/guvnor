@@ -1,69 +1,69 @@
 var expect = require('chai').expect,
   sinon = require('sinon'),
   inherits = require('util').inherits,
-  Boss = require('../../../lib/daemon/Boss'),
+  Guvnor = require('../../../lib/daemon/Guvnor'),
   ProcessInfo = require('../../../lib/daemon/domain/ProcessInfo'),
   EventEmitter = require('events').EventEmitter
 
-describe('Boss', function() {
-  var boss
+describe('Guvnor', function() {
+  var guvnor
 
   beforeEach(function() {
-    boss = new Boss()
-    boss._logger = {
+    guvnor = new Guvnor()
+    guvnor._logger = {
       info: sinon.stub(),
       warn: sinon.stub(),
       error: sinon.stub(),
       debug: sinon.stub()
     }
-    boss._processService = {
+    guvnor._processService = {
       startProcess: sinon.stub(),
       listProcesses: sinon.stub(),
       findByPid: sinon.stub(),
       findById: sinon.stub(),
       on: sinon.stub()
     }
-    boss._cpuStats = sinon.stub()
-    boss._config = {
-      boss: {
+    guvnor._cpuStats = sinon.stub()
+    guvnor._config = {
+      guvnor: {
 
       }
     }
-    boss._os = {
+    guvnor._os = {
       uptime: sinon.stub(),
       freemem: sinon.stub(),
       totalmem: sinon.stub(),
       cpus: sinon.stub(),
       hostname: sinon.stub()
     }
-    boss._nodeInspectorWrapper = {}
-    boss._fs = {
+    guvnor._nodeInspectorWrapper = {}
+    guvnor._fs = {
       writeFile: sinon.stub(),
       readFile: sinon.stub()
     }
-    boss._processInfoStore = {
+    guvnor._processInfoStore = {
       save: sinon.stub(),
       all: sinon.stub(),
       find: sinon.stub()
     }
-    boss._remoteUserService = {
+    guvnor._remoteUserService = {
       findOrCreateUser: sinon.stub(),
       createUser: sinon.stub(),
       removeUser: sinon.stub(),
       listUsers: sinon.stub(),
       rotateKeys: sinon.stub()
     }
-    boss._processInfoStoreFactory = {
+    guvnor._processInfoStoreFactory = {
       create: sinon.stub()
     }
-    boss._pem = {
+    guvnor._pem = {
       createCertificate: sinon.stub()
     }
-    boss._ini = {
+    guvnor._ini = {
       parse: sinon.stub(),
       stringify: sinon.stub()
     }
-    boss._appService = {
+    guvnor._appService = {
       deploy: sinon.stub(),
       remove: sinon.stub(),
       list: sinon.stub(),
@@ -71,10 +71,10 @@ describe('Boss', function() {
       listRefs: sinon.stub(),
       findByName: sinon.stub()
     }
-    boss._etc_passwd = {
+    guvnor._etc_passwd = {
       getGroups: sinon.stub()
     }
-    boss._posix = {
+    guvnor._posix = {
       getgrnam: sinon.stub()
     }
   })
@@ -100,10 +100,10 @@ describe('Boss', function() {
       })
     }
 
-    boss._processService.listProcesses.returns(processes)
+    guvnor._processService.listProcesses.returns(processes)
 
     // Method under test
-    boss.listProcesses(function(error, procs) {
+    guvnor.listProcesses(function(error, procs) {
       expect(error).to.not.exist
       expect(procs.length).to.equal(processes.length)
       done()
@@ -136,11 +136,11 @@ describe('Boss', function() {
       script: 'foo.js'
     })
 
-    boss._processes = processes
-    boss._processService.listProcesses.returns(processes)
+    guvnor._processes = processes
+    guvnor._processService.listProcesses.returns(processes)
 
     // Method under test
-    boss.listProcesses(function (error, procs) {
+    guvnor.listProcesses(function (error, procs) {
       expect(error).to.not.exist
       expect(procs.length).to.be.equal(processes.length)
       done()
@@ -148,27 +148,27 @@ describe('Boss', function() {
   })
 
   it('should delegate to process manger to start a process', function() {
-    boss.startProcess('script', 'options', 'callback')
+    guvnor.startProcess('script', 'options', 'callback')
 
-    expect(boss._processService.startProcess.calledWith('script', 'options', 'callback')).to.be.true
+    expect(guvnor._processService.startProcess.calledWith('script', 'options', 'callback')).to.be.true
   })
 
   it('should return server status', function(done) {
-    boss._config.remote = {
+    guvnor._config.remote = {
       inspector: {
         enabled: false
       }
     }
-    boss._cpuStats.callsArgWith(0, undefined, [6, 7])
-    boss._os.uptime.returns(5)
-    boss._os.freemem.returns(5)
-    boss._os.totalmem.returns(5)
-    boss._os.cpus.returns([{}, {}])
-    boss._etc_passwd.getGroups.callsArgWith(0, undefined, [{groupname: 'foo'}, {groupname: '_bar'}])
-    boss._posix.getgrnam.withArgs('foo').returns({members: ['baz']})
-    boss._posix.getgrnam.withArgs('_bar').returns({members: ['qux']})
+    guvnor._cpuStats.callsArgWith(0, undefined, [6, 7])
+    guvnor._os.uptime.returns(5)
+    guvnor._os.freemem.returns(5)
+    guvnor._os.totalmem.returns(5)
+    guvnor._os.cpus.returns([{}, {}])
+    guvnor._etc_passwd.getGroups.callsArgWith(0, undefined, [{groupname: 'foo'}, {groupname: '_bar'}])
+    guvnor._posix.getgrnam.withArgs('foo').returns({members: ['baz']})
+    guvnor._posix.getgrnam.withArgs('_bar').returns({members: ['qux']})
 
-    boss.getServerStatus(function(error, status) {
+    guvnor.getServerStatus(function(error, status) {
       expect(error).to.not.exist
 
       expect(status.time).to.be.a('number')
@@ -192,20 +192,20 @@ describe('Boss', function() {
   })
 
   it('should return server status with debug port', function(done) {
-    boss._config.remote = {
+    guvnor._config.remote = {
       inspector: {
         enabled: true
       }
     }
-    boss._cpuStats.callsArgWith(0, undefined, [])
-    boss._os.uptime.returns(5)
-    boss._os.freemem.returns(5)
-    boss._os.totalmem.returns(5)
-    boss._os.cpus.returns([])
-    boss._nodeInspectorWrapper.debuggerPort = 5
-    boss._etc_passwd.getGroups.callsArgWith(0, undefined, [])
+    guvnor._cpuStats.callsArgWith(0, undefined, [])
+    guvnor._os.uptime.returns(5)
+    guvnor._os.freemem.returns(5)
+    guvnor._os.totalmem.returns(5)
+    guvnor._os.cpus.returns([])
+    guvnor._nodeInspectorWrapper.debuggerPort = 5
+    guvnor._etc_passwd.getGroups.callsArgWith(0, undefined, [])
 
-    boss.getServerStatus(function(error, status) {
+    guvnor.getServerStatus(function(error, status) {
       expect(error).to.not.exist
 
       expect(status.time).to.be.a('number')
@@ -220,9 +220,9 @@ describe('Boss', function() {
   })
 
   it('should find a process by id', function(done) {
-    boss._processService.findById.withArgs('foo').returns('bar')
+    guvnor._processService.findById.withArgs('foo').returns('bar')
 
-    boss.findProcessInfoById('foo', function(error, process) {
+    guvnor.findProcessInfoById('foo', function(error, process) {
       expect(error).to.not.exist
       expect(process).to.equal('bar')
 
@@ -231,9 +231,9 @@ describe('Boss', function() {
   })
 
   it('should find a process by pid', function(done) {
-    boss._processService.findByPid.withArgs('foo').returns('bar')
+    guvnor._processService.findByPid.withArgs('foo').returns('bar')
 
-    boss.findProcessInfoByPid('foo', function(error, process) {
+    guvnor.findProcessInfoByPid('foo', function(error, process) {
       expect(error).to.not.exist
       expect(process).to.equal('bar')
 
@@ -242,11 +242,11 @@ describe('Boss', function() {
   })
 
   it('should dump processes', function(done) {
-    boss._processInfoStore.save.callsArg(0)
+    guvnor._processInfoStore.save.callsArg(0)
 
-    boss.dumpProcesses(function(error) {
+    guvnor.dumpProcesses(function(error) {
       expect(error).to.not.exist
-      expect(boss._processInfoStore.save.callCount).to.equal(1)
+      expect(guvnor._processInfoStore.save.callCount).to.equal(1)
 
       done()
     })
@@ -257,11 +257,11 @@ describe('Boss', function() {
     store.all = sinon.stub()
     store.all.returns([{script: 'foo'}, {script: 'bar'}])
 
-    boss._processInfoStoreFactory.create.withArgs(['processInfoFactory', 'processes.json'], sinon.match.func).callsArgWith(1, undefined, store)
+    guvnor._processInfoStoreFactory.create.withArgs(['processInfoFactory', 'processes.json'], sinon.match.func).callsArgWith(1, undefined, store)
 
-    boss._processService.startProcess.callsArg(2)
+    guvnor._processService.startProcess.callsArg(2)
 
-    boss.restoreProcesses(function(error, processes) {
+    guvnor.restoreProcesses(function(error, processes) {
       expect(error).to.not.exist
 
       expect(processes.length).to.equal(2)
@@ -274,18 +274,18 @@ describe('Boss', function() {
   })
 
   it('should return remote host config', function(done) {
-    boss._config.boss = {
+    guvnor._config.guvnor = {
       user: 'foo'
     }
-    boss._config.remote = {
+    guvnor._config.remote = {
       port: 5
     }
-    boss._os.hostname.returns('bar')
-    boss._remoteUserService.findOrCreateUser.withArgs('foo', sinon.match.func).callsArgWith(1, undefined, {
+    guvnor._os.hostname.returns('bar')
+    guvnor._remoteUserService.findOrCreateUser.withArgs('foo', sinon.match.func).callsArgWith(1, undefined, {
       secret: 'shhh'
     })
 
-    boss.remoteHostConfig(function(error, hostname, port, user, secret) {
+    guvnor.remoteHostConfig(function(error, hostname, port, user, secret) {
       expect(error).to.not.exist
 
       expect(hostname).to.equal('bar')
@@ -298,9 +298,9 @@ describe('Boss', function() {
   })
 
   it('should add a remote user', function(done) {
-    boss._remoteUserService.createUser.withArgs('foo', sinon.match.func).callsArgWith(1, undefined, 'great success')
+    guvnor._remoteUserService.createUser.withArgs('foo', sinon.match.func).callsArgWith(1, undefined, 'great success')
 
-    boss.addRemoteUser('foo', function(error, result) {
+    guvnor.addRemoteUser('foo', function(error, result) {
       expect(error).to.not.exist
 
       expect(result).to.equal('great success')
@@ -310,12 +310,12 @@ describe('Boss', function() {
   })
 
   it('should remove a remote user', function(done) {
-    boss._config.boss = {
+    guvnor._config.guvnor = {
       user: 'foo'
     }
-    boss._remoteUserService.removeUser.withArgs('notFoo', sinon.match.func).callsArgWith(1, undefined, 'great success')
+    guvnor._remoteUserService.removeUser.withArgs('notFoo', sinon.match.func).callsArgWith(1, undefined, 'great success')
 
-    boss.removeRemoteUser('notFoo', function(error, result) {
+    guvnor.removeRemoteUser('notFoo', function(error, result) {
       expect(error).to.not.exist
 
       expect(result).to.equal('great success')
@@ -325,22 +325,22 @@ describe('Boss', function() {
   })
 
   it('should refuse to remove remote daemon user', function(done) {
-    boss._config.boss = {
+    guvnor._config.guvnor = {
       user: 'foo'
     }
 
-    boss.removeRemoteUser('foo', function(error) {
+    guvnor.removeRemoteUser('foo', function(error) {
       expect(error).to.be.ok
-      expect(error.code).to.equal('WILLNOTREMOVEBOSSUSER')
+      expect(error.code).to.equal('WILLNOTREMOVEGUVNORUSER')
 
       done()
     })
   })
 
   it('should list remote users', function(done) {
-    boss._remoteUserService.listUsers.withArgs(sinon.match.func).callsArgWith(0, undefined, 'great success')
+    guvnor._remoteUserService.listUsers.withArgs(sinon.match.func).callsArgWith(0, undefined, 'great success')
 
-    boss.listRemoteUsers(function(error, result) {
+    guvnor.listRemoteUsers(function(error, result) {
       expect(error).to.not.exist
 
       expect(result).to.equal('great success')
@@ -350,9 +350,9 @@ describe('Boss', function() {
   })
 
   it('should rotate remote keys', function(done) {
-    boss._remoteUserService.rotateKeys.withArgs('foo', sinon.match.func).callsArgWith(1, undefined, 'great success')
+    guvnor._remoteUserService.rotateKeys.withArgs('foo', sinon.match.func).callsArgWith(1, undefined, 'great success')
 
-    boss.rotateRemoteUserKeys('foo', function(error, result) {
+    guvnor.rotateRemoteUserKeys('foo', function(error, result) {
       expect(error).to.not.exist
 
       expect(result).to.equal('great success')
@@ -362,7 +362,7 @@ describe('Boss', function() {
   })
 
   it('should send a signal to a process', function(done) {
-    boss._processService.processes = {
+    guvnor._processService.processes = {
       foo: {
         process: {
           kill: sinon.stub()
@@ -370,17 +370,17 @@ describe('Boss', function() {
       }
     }
 
-    boss.sendSignal('foo', 'bar', function(error) {
+    guvnor.sendSignal('foo', 'bar', function(error) {
       expect(error).to.not.exist
 
-      expect(boss._processService.processes.foo.process.kill.calledWith('bar')).to.be.true
+      expect(guvnor._processService.processes.foo.process.kill.calledWith('bar')).to.be.true
 
       done()
     })
   })
 
   it('should not send a signal to a process when wrong process id sent', function(done) {
-    boss._processService.processes = {
+    guvnor._processService.processes = {
       foo: {
         process: {
           kill: sinon.stub()
@@ -388,27 +388,27 @@ describe('Boss', function() {
       }
     }
 
-    boss.sendSignal('bar', 'foo', function(error) {
+    guvnor.sendSignal('bar', 'foo', function(error) {
       expect(error).to.be.ok
       expect(error.message).to.contain('No process')
 
-      expect(boss._processService.processes.foo.process.kill.called).to.be.false
+      expect(guvnor._processService.processes.foo.process.kill.called).to.be.false
 
       done()
     })
   })
 
   it('should not send a signal to a process when signal name is invalid', function(done) {
-    boss._processService.processes = {
+    guvnor._processService.processes = {
       foo: {
         process: {
           kill: sinon.stub()
         }
       }
     }
-    boss._processService.processes.foo.process.kill.throws(new Error('bad signal'))
+    guvnor._processService.processes.foo.process.kill.throws(new Error('bad signal'))
 
-    boss.sendSignal('foo', 'bar', function(error) {
+    guvnor.sendSignal('foo', 'bar', function(error) {
       expect(error).to.be.ok
       expect(error.message).to.contain('bad signal')
 
@@ -424,26 +424,26 @@ describe('Boss', function() {
     var onErr = 'onErr'
     var callback = 'callback'
 
-    boss.deployApplication(name, url, user, onOut, onErr, callback)
+    guvnor.deployApplication(name, url, user, onOut, onErr, callback)
 
-    expect(boss._appService.deploy.calledWith(name, url, user, onOut, onErr, callback)).to.be.true
+    expect(guvnor._appService.deploy.calledWith(name, url, user, onOut, onErr, callback)).to.be.true
   })
 
   it('should delegate to app service for removing applications', function() {
     var name = 'name'
     var callback = 'callback'
 
-    boss.removeApplication(name, callback)
+    guvnor.removeApplication(name, callback)
 
-    expect(boss._appService.remove.calledWith(name, callback)).to.be.true
+    expect(guvnor._appService.remove.calledWith(name, callback)).to.be.true
   })
 
   it('should delegate to app service for listing applications', function() {
     var callback = 'callback'
 
-    boss.listApplications(callback)
+    guvnor.listApplications(callback)
 
-    expect(boss._appService.list.calledWith(callback)).to.be.true
+    expect(guvnor._appService.list.calledWith(callback)).to.be.true
   })
 
   it('should delegate to app service for switching application refs', function() {
@@ -453,42 +453,42 @@ describe('Boss', function() {
     var onErr = 'onErr'
     var callback = 'callback'
 
-    boss.switchApplicationRef(name, ref, onOut, onErr, callback)
+    guvnor.switchApplicationRef(name, ref, onOut, onErr, callback)
 
-    expect(boss._appService.switchRef.calledWith(name, ref, onOut, onErr, callback)).to.be.true
+    expect(guvnor._appService.switchRef.calledWith(name, ref, onOut, onErr, callback)).to.be.true
   })
 
   it('should delegate to app service for listing application refs', function() {
     var name = 'name'
     var callback = 'callback'
 
-    boss.listApplicationRefs(name, callback)
+    guvnor.listApplicationRefs(name, callback)
 
-    expect(boss._appService.listRefs.calledWith(name, callback)).to.be.true
+    expect(guvnor._appService.listRefs.calledWith(name, callback)).to.be.true
   })
 
   it('should generate ssl keys', function(done) {
     var config = {
-      boss: {
+      guvnor: {
         confdir: 'conf'
       }
     }
 
-    boss._config.confdir = 'conf'
-    boss._pem.createCertificate.callsArgWith(1, undefined, {
+    guvnor._config.confdir = 'conf'
+    guvnor._pem.createCertificate.callsArgWith(1, undefined, {
       serviceKey: 'key',
       certificate: 'cert'
     })
-    boss._fs.writeFile.withArgs('conf/rpc.key', 'key').callsArg(3)
-    boss._fs.writeFile.withArgs('conf/rpc.cert', 'cert').callsArg(3)
-    boss._fs.readFile.withArgs('conf/bossrc', 'utf-8').callsArgWith(2, undefined, 'ini')
-    boss._ini.parse.withArgs('ini').returns(config)
-    boss._ini.stringify.withArgs(config).returns('ini-updated')
-    boss._fs.writeFile.withArgs('conf/bossrc', 'ini-updated').callsArg(3)
+    guvnor._fs.writeFile.withArgs('conf/rpc.key', 'key').callsArg(3)
+    guvnor._fs.writeFile.withArgs('conf/rpc.cert', 'cert').callsArg(3)
+    guvnor._fs.readFile.withArgs('conf/guvnorrc', 'utf-8').callsArgWith(2, undefined, 'ini')
+    guvnor._ini.parse.withArgs('ini').returns(config)
+    guvnor._ini.stringify.withArgs(config).returns('ini-updated')
+    guvnor._fs.writeFile.withArgs('conf/guvnorrc', 'ini-updated').callsArg(3)
 
-    boss.generateRemoteRpcCertificates(10, function(error, path) {
+    guvnor.generateRemoteRpcCertificates(10, function(error, path) {
       expect(error).to.not.exist
-      expect(path).to.equal('conf/bossrc')
+      expect(path).to.equal('conf/guvnorrc')
 
       done()
     })

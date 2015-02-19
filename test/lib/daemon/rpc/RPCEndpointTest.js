@@ -1,10 +1,10 @@
 var expect = require('chai').expect,
   sinon = require('sinon'),
   inherits = require('util').inherits,
-  BossRPC = require('../../../../lib/daemon/rpc/BossRPC'),
+  RPCEndpoint = require('../../../../lib/daemon/rpc/RPCEndpoint'),
   EventEmitter = require('events').EventEmitter
 
-describe('BossRPC', function() {
+describe('RPCEndpoint', function() {
   var rpc, clock
 
   beforeEach(function() {
@@ -12,18 +12,18 @@ describe('BossRPC', function() {
 
     clock = sinon.useFakeTimers()
 
-    rpc = new BossRPC()
+    rpc = new RPCEndpoint()
     rpc._logger = {
       info: sinon.stub(),
       warn: sinon.stub(),
       error: sinon.stub(),
       debug: sinon.stub()
     }
-    rpc._boss = {
+    rpc._guvnor = {
 
     }
     rpc._config = {
-      boss: {
+      guvnor: {
         group: 'group'
       }
     }
@@ -41,7 +41,7 @@ describe('BossRPC', function() {
     }
     rpc._dnode = sinon.stub()
     rpc._config = {
-      boss: {
+      guvnor: {
 
       }
     }
@@ -76,7 +76,7 @@ describe('BossRPC', function() {
 
     var groupId = 42
 
-    rpc._posix.getgrnam.withArgs(rpc._config.boss.group).returns({
+    rpc._posix.getgrnam.withArgs(rpc._config.guvnor.group).returns({
       gid: groupId
     })
     rpc._fs.chown.withArgs(socketPath, process.getuid(), groupId, sinon.match.func).callsArg(3)
@@ -118,7 +118,7 @@ describe('BossRPC', function() {
 
     var groupId = 42
 
-    rpc._posix.getgrnam.withArgs(rpc._config.boss.group).returns({
+    rpc._posix.getgrnam.withArgs(rpc._config.guvnor.group).returns({
       gid: groupId
     })
     rpc._fs.chown.withArgs(socketPath, process.getuid(), groupId, sinon.match.func).callsArg(3)
@@ -159,7 +159,7 @@ describe('BossRPC', function() {
 
     var groupId = 42
 
-    rpc._posix.getgrnam.withArgs(rpc._config.boss.group).returns({
+    rpc._posix.getgrnam.withArgs(rpc._config.guvnor.group).returns({
       gid: groupId
     })
     rpc._fs.chown.withArgs(socketPath, process.getuid(), groupId, sinon.match.func).callsArg(3)
@@ -200,7 +200,7 @@ describe('BossRPC', function() {
 
     var groupId = 42
 
-    rpc._posix.getgrnam.withArgs(rpc._config.boss.group).returns({
+    rpc._posix.getgrnam.withArgs(rpc._config.guvnor.group).returns({
       gid: groupId
     })
     rpc._fs.chown.withArgs(socketPath, process.getuid(), groupId, sinon.match.func).callsArg(3)
@@ -248,7 +248,7 @@ describe('BossRPC', function() {
 
     var groupId = 42
 
-    rpc._posix.getgrnam.withArgs(rpc._config.boss.group).returns({
+    rpc._posix.getgrnam.withArgs(rpc._config.guvnor.group).returns({
       gid: groupId
     })
     rpc._fs.chown.withArgs(socketPath, process.getuid(), groupId, sinon.match.func).callsArg(3)
@@ -366,7 +366,7 @@ describe('BossRPC', function() {
 
     var groupId = 42
 
-    rpc._posix.getgrnam.withArgs(rpc._config.boss.group).returns({
+    rpc._posix.getgrnam.withArgs(rpc._config.guvnor.group).returns({
       gid: groupId
     })
     rpc._fs.chown.withArgs(socketPath, process.getuid(), groupId, sinon.match.func).callsArg(3)

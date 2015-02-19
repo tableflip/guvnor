@@ -2,6 +2,6 @@ var PageView = require('./base'),
   templates = require('../templates')
 
 module.exports = PageView.extend({
-  pageTitle: 'Boss - loading hosts',
+  pageTitle: 'Guvnor - loading hosts',
   template: templates.pages.loadinghosts
 })

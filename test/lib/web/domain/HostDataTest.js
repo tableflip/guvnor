@@ -357,7 +357,7 @@ describe('HostData', function() {
       off: sinon.stub()
     }
     var details = {
-      boss: '2.4.2'
+      guvnor: '2.4.2'
     }
 
     data._config.minVersion = '^2.0.0'
@@ -399,7 +399,7 @@ describe('HostData', function() {
       off: sinon.stub()
     }
     var details = {
-      boss: '1.0.0'
+      guvnor: '1.0.0'
     }
 
     data._config.minVersion = '^2.0.0'
@@ -408,7 +408,7 @@ describe('HostData', function() {
 
     data._connectedToDaemon(undefined, newDaemon)
 
-    expect(data.boss).to.equal('1.0.0')
+    expect(data.guvnor).to.equal('1.0.0')
     expect(data.status).to.equal('incompatible')
   })
 
@@ -420,7 +420,7 @@ describe('HostData', function() {
       on: sinon.stub()
     }
     var details = {
-      boss: '2.4.2'
+      guvnor: '2.4.2'
     }
 
     data._config.minVersion = '^2.0.0'
@@ -430,7 +430,7 @@ describe('HostData', function() {
 
     data._connectedToDaemon(undefined, newDaemon)
 
-    expect(data.boss).to.equal('2.4.2')
+    expect(data.guvnor).to.equal('2.4.2')
     expect(data.status).to.equal('connected')
     expect(data._update.calledWith('getServerStatus')).to.be.true
     expect(data._update.calledWith('listProcesses')).to.be.true
@@ -444,7 +444,7 @@ describe('HostData', function() {
       on: sinon.stub()
     }
     var details = {
-      boss: '2.4.2'
+      guvnor: '2.4.2'
     }
 
     data._config.minVersion = '^2.0.0'
@@ -481,7 +481,7 @@ describe('HostData', function() {
       on: sinon.stub()
     }
     var details = {
-      boss: '2.4.2'
+      guvnor: '2.4.2'
     }
 
     data._config.minVersion = '^2.0.0'
@@ -520,7 +520,7 @@ describe('HostData', function() {
       on: sinon.stub()
     }
     var details = {
-      boss: '2.4.2'
+      guvnor: '2.4.2'
     }
 
     data._config.minVersion = '^2.0.0'

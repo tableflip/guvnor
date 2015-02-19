@@ -4,7 +4,7 @@
 1. [Controlling the Daemon](daemon.md)
 1. [Managing clusters](clusters.md)
 1. [Installing and running apps](apps.md)
-1. [Remote access and monitoring (e.g. boss-web)](remote.md)
+1. [Remote access and monitoring (e.g. guv-web)](remote.md)
 1. [Web interface](web.md)
 1. [Web interface - configuration](web-config.md)
 1. [Web interface - user management](web-users.md)
@@ -27,7 +27,7 @@
 ## start
 
 ```sh
-bs start [options] <script>
+guv start [options] <script>
 ```
 
 Start a new process.
@@ -51,7 +51,7 @@ Start a new process.
 To start `http-server.js` as a cluster with two workers, running as `alex:staff` and with two command line arguments `-a foo` and `-b bar`
 
 ```
-$ bs start -u alex -g staff -i 2 -argv '-a foo -b bar' http-server.js
+$ guv start -u alex -g staff -i 2 -argv '-a foo -b bar' http-server.js
 ```
 
 ## restart
@@ -59,7 +59,7 @@ $ bs start -u alex -g staff -i 2 -argv '-a foo -b bar' http-server.js
 Restart a running process
 
 ```sh
-bs restart <pid>
+guv restart <pid>
 ```
 
 ## stop
@@ -67,23 +67,23 @@ bs restart <pid>
 Stop a running process.
 
 ```sh
-bs stop <pid>
+guv stop <pid>
 ```
 
 ## list
 
 ```sh
-bs list
+guv list
 ```
 
-Display a list of processes boss has started.
+Display a list of processes guvnor has started.
 
 ## send
 
 Send an event to a process
 
 ```sh
-bs send <pid> <event> [args...]
+guv send <pid> <event> [args...]
 ```
 
 ### e.g.
@@ -97,7 +97,7 @@ process.on('my:custom:event', function(arg1, arg2) {
 ```
 
 ```
-$ bs send 39823 my:custom:event 1 2
+$ guv send 39823 my:custom:event 1 2
 // process 39823 then prints '3' to the logs
 ```
 
@@ -106,7 +106,7 @@ $ bs send 39823 my:custom:event 1 2
 Make a process dump a heap snapshot for analysis in Chrome's debug tools.  The file will appear at `process.cwd`
 
 ```sh
-bs heapdump <pid>
+guv heapdump <pid>
 ```
 
 ## gc
@@ -114,7 +114,7 @@ bs heapdump <pid>
 Force a process to do garbage collection
 
 ```sh
-bs gc <pid>
+guv gc <pid>
 ```
 
 ## signal
@@ -122,11 +122,11 @@ bs gc <pid>
 Send a signal to a process (n.b. unless you have a listener for that signal, your process will most likely exit)
 
 ```sh
-bs signal <pid> <signal>
+guv signal <pid> <signal>
 ```
 
 ### e.g.
 
 ```sh
-$ bs signal 3984 SIGINT
+$ guv signal 3984 SIGINT
 ```

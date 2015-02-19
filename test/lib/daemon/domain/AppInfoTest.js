@@ -11,36 +11,27 @@ describe('AppInfo', function() {
       user: 'bar'
     })
     appInfo._config = {}
-    appInfo._posix = {
-      getpwnam: sinon.stub(),
-      getgrnam: sinon.stub()
-    }
     appInfo._rimraf = sinon.stub()
     appInfo._commandLine = {
       git: sinon.stub(),
       npm: sinon.stub()
     }
-    appInfo._config = {
-      boss: {
-
-      }
+    appInfo._fileSystem = {
+      getAppDir: sinon.stub()
     }
-
-    appInfo._posix.getpwnam.returns({gid: 4})
-    appInfo._posix.getgrnam.returns({gid: 5})
+    appInfo._userDetailsFactory = {
+      create: sinon.stub()
+    }
 
     appInfo.afterPropertiesSet()
   })
 
   it('should clone a repo', function(done) {
-    appInfo._config.boss.appdir = 'directory'
-    appInfo._commandLine.git.callsArg(6)
     appInfo.name = 'foo'
+    appInfo.path = 'bar'
+    appInfo._commandLine.git.callsArg(6)
 
-    var onOut = sinon.stub()
-    var onErr = sinon.stub()
-
-    appInfo.clone(onOut, onErr, function(error) {
+    appInfo.clone(sinon.stub(), sinon.stub(), function(error) {
       expect(error).to.not.exist
 
       done()
@@ -48,15 +39,10 @@ describe('AppInfo', function() {
   })
 
   it('should check out a ref', function(done) {
-    appInfo._config.boss.appdir = 'directory'
     appInfo._commandLine.git.callsArg(6)
     appInfo._commandLine.npm.callsArg(6)
-    var ref = 'foo'
 
-    var onOut = sinon.stub()
-    var onErr = sinon.stub()
-
-    appInfo.checkout(ref, onOut, onErr, function(error) {
+    appInfo.checkout('foo', sinon.stub(), sinon.stub(), function(error) {
       expect(error).to.not.exist
 
       done()
@@ -64,7 +50,6 @@ describe('AppInfo', function() {
   })
 
   it('should remove a repo', function(done) {
-    appInfo._config.boss.appdir = 'directory'
     appInfo._rimraf.callsArg(1)
 
     appInfo.remove(function(error) {
@@ -75,7 +60,6 @@ describe('AppInfo', function() {
   })
 
   it('should fail to remove a repo', function(done) {
-    appInfo._config.boss.appdir = 'directory'
     appInfo._rimraf.callsArgWith(1, new Error('urk!'))
 
     appInfo.remove(function(error) {

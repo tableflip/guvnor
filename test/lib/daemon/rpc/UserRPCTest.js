@@ -11,7 +11,7 @@ describe('UserRPC', function() {
     rpc._processFactory = {
       connect: sinon.stub()
     }
-    rpc._boss = {
+    rpc._guvnor = {
       on: sinon.stub(),
       startProcess: sinon.stub(),
       listProcesses: sinon.stub(),
@@ -36,7 +36,7 @@ describe('UserRPC', function() {
       on: sinon.stub()
     }
     rpc._config = {
-      boss: {
+      guvnor: {
         
       }
     }

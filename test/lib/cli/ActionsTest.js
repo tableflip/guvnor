@@ -3,7 +3,7 @@ var expect = require('chai').expect,
   Actions = require('../../../lib/cli/Actions')
 
 describe('Actions', function() {
-  var actions, boss, info, error, warn
+  var actions, guvnor, info, error, warn
 
   beforeEach(function() {
     info = console.info
@@ -12,7 +12,7 @@ describe('Actions', function() {
 
     actions = new Actions()
     actions._config = {
-      boss: {
+      guvnor: {
 
       }
     }
@@ -26,14 +26,14 @@ describe('Actions', function() {
     actions._user = {}
     actions._group = {}
 
-    boss = {
+    guvnor = {
       disconnect: sinon.stub(),
       on: sinon.stub(),
       findProcessInfoByPid: sinon.stub(),
       connectToProcess: sinon.stub()
     }
 
-    actions._connect.callsArgWith(0, undefined, boss)
+    actions._connect.callsArgWith(0, undefined, guvnor)
   })
 
   afterEach(function() {
@@ -60,7 +60,7 @@ describe('Actions', function() {
 
   it('should connect', function(done) {
     actions._do({}, function(bs) {
-      expect(bs).to.equal(boss)
+      expect(bs).to.equal(guvnor)
 
       done()
     })
@@ -78,10 +78,10 @@ describe('Actions', function() {
   })
 
   it('should check for admin method', function(done) {
-    boss.superAdminMethod = sinon.stub()
+    guvnor.superAdminMethod = sinon.stub()
 
     actions._doAdmin('superAdminMethod', {}, function(bs) {
-      expect(bs).to.equal(boss)
+      expect(bs).to.equal(guvnor)
 
       done()
     })
@@ -91,22 +91,22 @@ describe('Actions', function() {
     actions._doAdmin('superAdminMethod', {})
 
     expect(actions._logger.warn.callCount).to.equal(1)
-    expect(boss.disconnect.called).to.be.true
+    expect(guvnor.disconnect.called).to.be.true
   })
 
-  it('should log boss messages', function() {
-    var boss = {
+  it('should log guvnor messages', function() {
+    var guvnor = {
       on: sinon.stub()
     }
 
-    actions._logBossMessages(boss)
+    actions._logMessages(guvnor)
 
-    expect(boss.on.callCount).to.equal(1)
-    expect(boss.on.getCall(0).args[0]).to.equal('*')
+    expect(guvnor.on.callCount).to.equal(1)
+    expect(guvnor.on.getCall(0).args[0]).to.equal('*')
 
     expect(actions._logger.debug.called).to.be.false
 
-    boss.on.getCall(0).args[1]('foo', 'bar')
+    guvnor.on.getCall(0).args[1]('foo', 'bar')
 
     expect(actions._logger.debug.called).to.be.true
   })
@@ -116,17 +116,17 @@ describe('Actions', function() {
     var processInfo = {
       id: 'id'
     }
-    var boss = {
+    var guvnor = {
       findProcessInfoByPid: sinon.stub(),
       connectToProcess: sinon.stub()
     }
     var remote = {
 
     }
-    boss.findProcessInfoByPid.withArgs(pid).callsArgWith(1, undefined, processInfo)
-    boss.connectToProcess.withArgs(processInfo.id).callsArgWith(1, undefined, remote)
+    guvnor.findProcessInfoByPid.withArgs(pid).callsArgWith(1, undefined, processInfo)
+    guvnor.connectToProcess.withArgs(processInfo.id).callsArgWith(1, undefined, remote)
 
-    actions._withRemoteProcess(boss, pid, function(error, p, r) {
+    actions._withRemoteProcess(guvnor, pid, function(error, p, r) {
       expect(error).to.not.exist
       expect(p).to.equal(processInfo)
       expect(r).to.equal(remote)
@@ -140,14 +140,14 @@ describe('Actions', function() {
     var processInfo = {
       id: 'id'
     }
-    var boss = {
+    var guvnor = {
       findProcessInfoByPid: sinon.stub(),
       connectToProcess: sinon.stub()
     }
-    boss.findProcessInfoByPid.withArgs(pid).callsArgWith(1, undefined, processInfo)
-    boss.connectToProcess.withArgs(processInfo.id).callsArgWith(1, {code: 'EACCES'})
+    guvnor.findProcessInfoByPid.withArgs(pid).callsArgWith(1, undefined, processInfo)
+    guvnor.connectToProcess.withArgs(processInfo.id).callsArgWith(1, {code: 'EACCES'})
 
-    actions._withRemoteProcess(boss, pid, function(error) {
+    actions._withRemoteProcess(guvnor, pid, function(error) {
       expect(error).to.exist
       expect(error.code).to.equal('EACCES')
     })
@@ -158,14 +158,14 @@ describe('Actions', function() {
     var processInfo = {
       id: 'id'
     }
-    var boss = {
+    var guvnor = {
       findProcessInfoByPid: sinon.stub(),
       connectToProcess: sinon.stub()
     }
-    boss.findProcessInfoByPid.withArgs(pid).callsArgWith(1, undefined, processInfo)
-    boss.connectToProcess.withArgs(processInfo.id).callsArgWith(1, {code: 'ENOENT'})
+    guvnor.findProcessInfoByPid.withArgs(pid).callsArgWith(1, undefined, processInfo)
+    guvnor.connectToProcess.withArgs(processInfo.id).callsArgWith(1, {code: 'ENOENT'})
 
-    actions._withRemoteProcess(boss, pid, function(error) {
+    actions._withRemoteProcess(guvnor, pid, function(error) {
       expect(error).to.exist
       expect(error.code).to.equal('ENOENT')
     })
@@ -176,14 +176,14 @@ describe('Actions', function() {
     var processInfo = {
       id: 'id'
     }
-    var boss = {
+    var guvnor = {
       findProcessInfoByPid: sinon.stub(),
       connectToProcess: sinon.stub()
     }
-    boss.findProcessInfoByPid.withArgs(pid).callsArgWith(1, undefined, processInfo)
-    boss.connectToProcess.withArgs(processInfo.id).callsArgWith(1, {code: 'ECONNREFUSED'})
+    guvnor.findProcessInfoByPid.withArgs(pid).callsArgWith(1, undefined, processInfo)
+    guvnor.connectToProcess.withArgs(processInfo.id).callsArgWith(1, {code: 'ECONNREFUSED'})
 
-    actions._withRemoteProcess(boss, pid, function(error) {
+    actions._withRemoteProcess(guvnor, pid, function(error) {
       expect(error).to.exist
       expect(error.code).to.equal('ECONNREFUSED')
     })

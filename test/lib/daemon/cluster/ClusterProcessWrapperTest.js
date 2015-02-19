@@ -29,7 +29,7 @@ describe('ClusterProcessWrapper', function() {
   })
 
   it('should start up', function(done) {
-    process.env.BOSS_PROCESS_NAME = 'ClusterProcessWrapperTest-startup'
+    process.env.GUVNOR_PROCESS_NAME = 'ClusterProcessWrapperTest-startup'
 
     wrapper._processRpc.startDnodeServer.callsArgWith(0, undefined, '/foo/bar')
 

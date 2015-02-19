@@ -34,10 +34,10 @@ describe('HostList', function() {
     list._mdns.tcp = sinon.stub()
     list._mdns.createBrowser = sinon.stub()
 
-    list._mdns.tcp.withArgs('boss-rpc').returns(service)
+    list._mdns.tcp.withArgs('guvnor-rpc').returns(service)
     list._mdns.createBrowser.withArgs(service).returns(browser)
 
-    list._createMdnsBrowser()
+    list._createMdnsBrowser('guvnor-rpc')
 
     expect(browser.start.called).to.be.true
   })
@@ -52,10 +52,10 @@ describe('HostList', function() {
     list._mdns.tcp = sinon.stub()
     list._mdns.createBrowser = sinon.stub()
 
-    list._mdns.tcp.withArgs('boss-rpc').returns(service)
+    list._mdns.tcp.withArgs('guvnor-rpc').returns(service)
     list._mdns.createBrowser.withArgs(service).returns(browser)
 
-    list._createMdnsBrowser()
+    list._createMdnsBrowser('guvnor-rpc')
 
     expect(browser.on.getCall(0).args[0]).to.equal('error')
     expect(browser.on.getCall(0).args[1]).to.be.instanceof(Function)
@@ -64,7 +64,7 @@ describe('HostList', function() {
     expect(list._logger.warn.called).to.be.true
   })
 
-  it('should ignore mdns boss advert with no configuration', function() {
+  it('should ignore mdns guvnor advert with no configuration', function() {
     list._config.hosts = {}
 
     var browser = {
@@ -76,10 +76,10 @@ describe('HostList', function() {
     list._mdns.tcp = sinon.stub()
     list._mdns.createBrowser = sinon.stub()
 
-    list._mdns.tcp.withArgs('boss-rpc').returns(service)
+    list._mdns.tcp.withArgs('guvnor-rpc').returns(service)
     list._mdns.createBrowser.withArgs(service).returns(browser)
 
-    list._createMdnsBrowser()
+    list._createMdnsBrowser('guvnor-rpc')
 
     expect(browser.on.getCall(1).args[0]).to.equal('serviceUp')
     expect(browser.on.getCall(1).args[1]).to.be.instanceof(Function)
@@ -88,7 +88,7 @@ describe('HostList', function() {
     expect(list._hostData).to.be.empty
   })
 
-  it('should ignore duplicated mdns boss', function() {
+  it('should ignore duplicated mdns guvnor', function() {
     list._config.hosts = {'foo': {}}
     list._hostData.foo = {}
 
@@ -101,10 +101,10 @@ describe('HostList', function() {
     list._mdns.tcp = sinon.stub()
     list._mdns.createBrowser = sinon.stub()
 
-    list._mdns.tcp.withArgs('boss-rpc').returns(service)
+    list._mdns.tcp.withArgs('guvnor-rpc').returns(service)
     list._mdns.createBrowser.withArgs(service).returns(browser)
 
-    list._createMdnsBrowser()
+    list._createMdnsBrowser('guvnor-rpc')
 
     expect(browser.on.getCall(1).args[0]).to.equal('serviceUp')
     expect(browser.on.getCall(1).args[1]).to.be.instanceof(Function)
@@ -127,10 +127,10 @@ describe('HostList', function() {
     list._mdns.tcp = sinon.stub()
     list._mdns.createBrowser = sinon.stub()
 
-    list._mdns.tcp.withArgs('boss-rpc').returns(service)
+    list._mdns.tcp.withArgs('guvnor-rpc').returns(service)
     list._mdns.createBrowser.withArgs(service).returns(browser)
 
-    list._createMdnsBrowser()
+    list._createMdnsBrowser('guvnor-rpc')
 
     list._hostDataFactory.create = sinon.stub()
 
@@ -161,10 +161,10 @@ describe('HostList', function() {
     list._mdns.tcp = sinon.stub()
     list._mdns.createBrowser = sinon.stub()
 
-    list._mdns.tcp.withArgs('boss-rpc').returns(service)
+    list._mdns.tcp.withArgs('guvnor-rpc').returns(service)
     list._mdns.createBrowser.withArgs(service).returns(browser)
 
-    list._createMdnsBrowser()
+    list._createMdnsBrowser('guvnor-rpc')
 
     list._hostDataFactory.create = sinon.stub()
 

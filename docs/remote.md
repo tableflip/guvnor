@@ -4,7 +4,7 @@
 1. [Controlling the Daemon](daemon.md)
 1. [Managing clusters](clusters.md)
 1. [Installing and running apps](apps.md)
-1. Remote access and monitoring (e.g. boss-web)
+1. Remote access and monitoring (e.g. guv-web)
 1. [Web interface](web.md)
 1. [Web interface - configuration](web-config.md)
 1. [Web interface - user management](web-users.md)
@@ -15,7 +15,7 @@
 
 ## Remote access and monitoring
 
-These commands are for use with [boss-web](web.md).
+These commands are for use with [guvnor-web](web.md).
 
 1. [remoteconfig](#remoteconfig)
 1. [useradd](#useradd)
@@ -25,40 +25,40 @@ These commands are for use with [boss-web](web.md).
 
 ## remoteconfig
 
-For use with [boss-web](web.md).
+For use with [guvnor-web](web.md).
 
 ```sh
-bs remoteconfig
+guv remoteconfig
 ```
 
 ## useradd
 
-To add a user for [boss-web](web.md).  If you specify `[hostname]` the configuration output is more likely to be correct.
+To add a user for [guvnor-web](web.md).  If you specify `[hostname]` the configuration output is more likely to be correct.
 
 ```sh
-bs useradd [options] <username> [hostname]
+guv useradd [options] <username> [hostname]
 ```
 
 ## rmuser
 
-To remove a user for [boss-web](web.md).
+To remove a user for [guvnor-web](web.md).
 
 ```sh
-bs rmuser <username>
+guv rmuser <username>
 ```
 
 ## lsusers
 
-To list users for [boss-web](web.md).
+To list users for [guvnor-web](web.md).
 
 ```sh
-bs lsusers
+guv lsusers
 ```
 
 ## reset
 
-To reset the secret for a [boss-web](web.md) user.
+To reset the secret for a [guvnor-web](web.md) user.
 
 ```sh
-bs reset <username>
+guv reset <username>
 ```

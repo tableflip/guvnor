@@ -307,7 +307,7 @@ describe('ProcessService', function() {
     childProcess.emit('process:config:request')
 
     expect(childProcess.send.callCount).to.equal(1)
-    expect(childProcess.send.getCall(0).args[0].type).to.equal('boss:config:response')
+    expect(childProcess.send.getCall(0).args[0].type).to.equal('daemon:config:response')
     expect(childProcess.send.getCall(0).args[0].args[0]).to.equal(processService._config)
   })
 

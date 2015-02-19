@@ -30,7 +30,7 @@ describe('ConfigLoader', function() {
 
       // should have set up listener for config response
       expect(configLoader._parentProcess.once.callCount).to.equal(1)
-      expect(configLoader._parentProcess.once.getCall(0).args[0]).to.equal('boss:config:response')
+      expect(configLoader._parentProcess.once.getCall(0).args[0]).to.equal('daemon:config:response')
 
       // invoke config response listener
       var callback = configLoader._parentProcess.once.getCall(0).args[1]

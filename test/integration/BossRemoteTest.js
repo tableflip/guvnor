@@ -11,7 +11,7 @@ var user = posix.getpwnam(process.getuid())
 var group = posix.getgrnam(process.getgid())
 
 var config = {
-  boss: {
+  guvnor: {
     user: user.name,
     group: group.name,
     timeout: 5000,
@@ -42,20 +42,20 @@ var local = require('../../lib/local').connect,
 
 var remote = require('../../lib/remote')
 
-describe('BossRemote', function() {
+describe('GuvnorRemote', function() {
   // integration tests are slow
   this.timeout(0)
 
-  var localBoss, remoteBoss, tmpdir
+  var localGuvnor, remoteGuvnor, tmpdir
 
   beforeEach(function(done) {
     tmpdir = os.tmpdir() + '/' + shortid.generate()
     tmpdir = tmpdir.replace(/\/\//g, '/')
 
-    config.boss.logdir = tmpdir + '/logs'
-    config.boss.rundir = tmpdir + '/run'
-    config.boss.confdir = tmpdir + '/conf'
-    config.boss.appdir = tmpdir + '/apps'
+    config.guvnor.logdir = tmpdir + '/logs'
+    config.guvnor.rundir = tmpdir + '/run'
+    config.guvnor.confdir = tmpdir + '/conf'
+    config.guvnor.appdir = tmpdir + '/apps'
 
     // find a port to start the remote rpc server on
     freeport(function(error, port) {
@@ -64,17 +64,17 @@ describe('BossRemote', function() {
       // set it in the config
       config.remote.port = port
 
-      // start local boss daemon
+      // start local guvnor daemon
       local(function(error, b) {
         if (error) throw error
 
-        localBoss = b
+        localGuvnor = b
 
         // log all received events
-        localBoss.on('*', function(type) {
-          if (type.substring(0, 'boss:log'.length) == 'boss:log' ||
+        localGuvnor.on('*', function(type) {
+          if (type.substring(0, 'daemon:log'.length) == 'daemon:log' ||
             type.substring(0, 'process:uncaughtexception'.length) == 'process:uncaughtexception' ||
-            type.substring(0, 'boss:fatality'.length) == 'boss:fatality' ||
+            type.substring(0, 'daemon:fatality'.length) == 'daemon:fatality' ||
             type.substring(0, 'process:log'.length) == 'process:log') {
             // already handled
             return
@@ -82,48 +82,48 @@ describe('BossRemote', function() {
 
           console.info('LOCAL', type)
         })
-        localBoss.on('boss:log:*', function(type, event) {
+        localGuvnor.on('daemon:log:*', function(type, event) {
           console.info('LOCAL', type, event.message)
         })
-        localBoss.on('process:log:*', function(type, processId, event) {
+        localGuvnor.on('process:log:*', function(type, processId, event) {
           console.info('LOCAL', type, event)
         })
-        localBoss.on('process:uncaughtexception:*', function(type, error) {
+        localGuvnor.on('process:uncaughtexception:*', function(type, error) {
           console.log('LOCAL', error.stack)
         })
-        localBoss.on('boss:fatality', function(error) {
+        localGuvnor.on('daemon:fatality', function(error) {
           console.log('LOCAL', error.stack)
         })
 
         // find the admin users's secret
-        localBoss.listRemoteUsers(function(error, users) {
+        localGuvnor.listRemoteUsers(function(error, users) {
           if (error) throw error
 
           var user
 
           users.forEach(function(u) {
-            if(u.name == config.boss.user) {
+            if(u.name == config.guvnor.user) {
               user = u
             }
           })
 
           // connect to the remote rpc port as the admin user
           remote(logger, {
-            user: config.boss.user,
+            user: config.guvnor.user,
             secret: user.secret,
             host: 'localhost',
             port: port,
-            rpcTimeout: config.boss.rpctimeout
+            rpcTimeout: config.guvnor.rpctimeout
           }, function(error, b) {
             if (error) throw error
 
-            remoteBoss = b
+            remoteGuvnor = b
 
             // log all received events
-            remoteBoss.on('*', function(type) {
-              if (type.substring(0, 'boss:log'.length) == 'boss:log' ||
+            remoteGuvnor.on('*', function(type) {
+              if (type.substring(0, 'guvnor:log'.length) == 'guvnor:log' ||
                 type.substring(0, 'process:uncaughtexception'.length) == 'process:uncaughtexception' ||
-                type.substring(0, 'boss:fatality'.length) == 'boss:fatality' ||
+                type.substring(0, 'guvnor:fatality'.length) == 'guvnor:fatality' ||
                 type.substring(0, 'process:log'.length) == 'process:log') {
                 // already handled
                 return
@@ -131,16 +131,16 @@ describe('BossRemote', function() {
 
               console.info('REMOTE', type)
             })
-            remoteBoss.on('boss:log:*', function(type, event) {
+            remoteGuvnor.on('guvnor:log:*', function(type, event) {
               console.info('REMOTE', type, event.message)
             })
-            remoteBoss.on('process:log:*', function(type, processId, event) {
+            remoteGuvnor.on('process:log:*', function(type, processId, event) {
               console.info('REMOTE', type, event)
             })
-            remoteBoss.on('process:uncaughtexception:*', function(type, error) {
+            remoteGuvnor.on('process:uncaughtexception:*', function(type, error) {
               console.log('REMOTE', error.stack)
             })
-            remoteBoss.on('boss:fatality', function(error) {
+            remoteGuvnor.on('guvnor:fatality', function(error) {
               console.log('REMOTE', error.stack)
             })
 
@@ -152,11 +152,11 @@ describe('BossRemote', function() {
   })
 
   afterEach(function(done) {
-    localBoss.callbacks = {}
+    localGuvnor.callbacks = {}
 
-    remoteBoss.disconnect(
-      localBoss.kill.bind(localBoss,
-        localBoss.disconnect.bind(localBoss,
+    remoteGuvnor.disconnect(
+      localGuvnor.kill.bind(localGuvnor,
+        localGuvnor.disconnect.bind(localGuvnor,
           done
         )
       )
@@ -164,16 +164,16 @@ describe('BossRemote', function() {
   })
 
   it('should list processes', function(done) {
-    remoteBoss.listProcesses(function(error, processes) {
+    remoteGuvnor.listProcesses(function(error, processes) {
       expect(error).to.not.exist
       expect(processes.length).to.equal(0)
 
-      localBoss.startProcess(__dirname + '/fixtures/hello-world.js', {}, function(error, processInfo) {
+      localGuvnor.startProcess(__dirname + '/fixtures/hello-world.js', {}, function(error, processInfo) {
         expect(error).to.not.exist
         expect(processInfo.id).to.be.ok
 
-        localBoss.on('process:ready', function() {
-          remoteBoss.listProcesses(function(error, processes) {
+        localGuvnor.on('process:ready', function() {
+          remoteGuvnor.listProcesses(function(error, processes) {
             expect(error).to.not.exist
             expect(processes.length).to.equal(1)
 
@@ -185,16 +185,16 @@ describe('BossRemote', function() {
   })
 
   it('should find process info by id', function(done) {
-    remoteBoss.listProcesses(function(error, processes) {
+    remoteGuvnor.listProcesses(function(error, processes) {
       expect(error).to.not.exist
       expect(processes.length).to.equal(0)
 
-      localBoss.startProcess(__dirname + '/fixtures/hello-world.js', {}, function(error, processInfo) {
+      localGuvnor.startProcess(__dirname + '/fixtures/hello-world.js', {}, function(error, processInfo) {
         expect(error).to.not.exist
         expect(processInfo.id).to.be.ok
 
-        localBoss.on('process:ready', function(processInfo) {
-          remoteBoss.findProcessInfoById(processInfo.id, function(error, returnedProcessInfo) {
+        localGuvnor.on('process:ready', function(processInfo) {
+          remoteGuvnor.findProcessInfoById(processInfo.id, function(error, returnedProcessInfo) {
             expect(error).to.not.exist
             expect(returnedProcessInfo.id).to.equal(processInfo.id)
 
@@ -206,7 +206,7 @@ describe('BossRemote', function() {
   })
 
   it('should get server status', function(done) {
-    remoteBoss.getServerStatus(function(error, status) {
+    remoteGuvnor.getServerStatus(function(error, status) {
       expect(error).to.not.exist
       expect(status.time).to.be.a('number')
       expect(status.uptime).to.be.a('number')
@@ -219,14 +219,14 @@ describe('BossRemote', function() {
   })
 
   it('should get server details', function(done) {
-    remoteBoss.getDetails(function(error, details) {
+    remoteGuvnor.getDetails(function(error, details) {
       expect(error).to.not.exist
       expect(details.hostname).to.be.a('string')
       expect(details.type).to.be.a('string')
       expect(details.platform).to.be.a('string')
       expect(details.arch).to.be.a('string')
       expect(details.release).to.be.a('string')
-      expect(details.boss).to.be.a('string')
+      expect(details.guvnor).to.be.a('string')
       expect(details.versions.node).to.be.a('string')
       // etc
 
@@ -235,13 +235,13 @@ describe('BossRemote', function() {
   })
 
   it('should connect to a remote process', function(done) {
-    localBoss.startProcess(__dirname + '/fixtures/hello-world.js', {}, function(error, processInfo) {
+    localGuvnor.startProcess(__dirname + '/fixtures/hello-world.js', {}, function(error, processInfo) {
       expect(error).to.not.exist
       expect(processInfo.id).to.be.ok
 
-      localBoss.on('process:ready', function(processInfo) {
+      localGuvnor.on('process:ready', function(processInfo) {
 
-        remoteBoss.connectToProcess(processInfo.id, function(error, remote) {
+        remoteGuvnor.connectToProcess(processInfo.id, function(error, remote) {
           expect(error).to.not.exist
           expect(remote.kill).to.be.a('function')
           expect(remote.restart).to.be.a('function')
@@ -280,9 +280,9 @@ describe('BossRemote', function() {
 
       var appName = shortid.generate()
 
-      remoteBoss.deployApplication(appName, repo, console.info, console.error, function(error, appInfo) {
+      remoteGuvnor.deployApplication(appName, repo, console.info, console.error, function(error, appInfo) {
         expect(error).to.not.exist
-        expect(fs.existsSync(config.boss.appdir + '/' + appInfo.id)).to.be.true
+        expect(fs.existsSync(config.guvnor.appdir + '/' + appInfo.id)).to.be.true
 
         done()
       })
@@ -306,7 +306,7 @@ describe('BossRemote', function() {
 
         var appName = shortid.generate()
 
-        localBoss.deployApplication(appName, repo, user.name, console.info, console.error, callback)
+        localGuvnor.deployApplication(appName, repo, user.name, console.info, console.error, callback)
       })
     }
 
@@ -315,7 +315,7 @@ describe('BossRemote', function() {
     async.parallel(tasks, function(error, results) {
       expect(error).to.not.exist
 
-      remoteBoss.listApplications(function(error, apps) {
+      remoteGuvnor.listApplications(function(error, apps) {
         expect(error).to.not.exist
         expect(apps.length).to.equal(tasks.length)
 
@@ -352,19 +352,19 @@ describe('BossRemote', function() {
 
       var appName = shortid.generate()
 
-      remoteBoss.deployApplication(appName, repo, console.info, console.error, function(error, appInfo) {
+      remoteGuvnor.deployApplication(appName, repo, console.info, console.error, function(error, appInfo) {
         expect(error).to.not.exist
-        expect(fs.existsSync(config.boss.appdir + '/' + appInfo.id)).to.be.true
+        expect(fs.existsSync(config.guvnor.appdir + '/' + appInfo.id)).to.be.true
 
-        remoteBoss.listApplications(function(error, apps) {
+        remoteGuvnor.listApplications(function(error, apps) {
           expect(error).to.not.exist
           expect(apps.length).to.equal(1)
 
-          remoteBoss.removeApplication(appName, function(error) {
+          remoteGuvnor.removeApplication(appName, function(error) {
             expect(error).to.not.exist
-            expect(fs.existsSync(config.boss.appdir + '/' + appInfo.id)).to.be.false
+            expect(fs.existsSync(config.guvnor.appdir + '/' + appInfo.id)).to.be.false
 
-            remoteBoss.listApplications(function(error, apps) {
+            remoteGuvnor.listApplications(function(error, apps) {
               expect(error).to.not.exist
               expect(apps.length).to.equal(0)
 
@@ -401,29 +401,29 @@ describe('BossRemote', function() {
 
       var appName = shortid.generate()
 
-      remoteBoss.deployApplication(appName, repo, console.info, console.error, function(error, appInfo) {
+      remoteGuvnor.deployApplication(appName, repo, console.info, console.error, function(error, appInfo) {
         expect(error).to.not.exist
 
         // should be at latest version
-        expect(fs.existsSync(config.boss.appdir + '/' + appInfo.id + '/v1')).to.be.true
-        expect(fs.existsSync(config.boss.appdir + '/' + appInfo.id + '/v2')).to.be.true
-        expect(fs.existsSync(config.boss.appdir + '/' + appInfo.id + '/v3')).to.be.true
+        expect(fs.existsSync(config.guvnor.appdir + '/' + appInfo.id + '/v1')).to.be.true
+        expect(fs.existsSync(config.guvnor.appdir + '/' + appInfo.id + '/v2')).to.be.true
+        expect(fs.existsSync(config.guvnor.appdir + '/' + appInfo.id + '/v3')).to.be.true
 
-        remoteBoss.switchApplicationRef(appName, 'tags/v2', console.info, console.error, function(error) {
+        remoteGuvnor.switchApplicationRef(appName, 'tags/v2', console.info, console.error, function(error) {
           expect(error).to.not.exist
 
           // now at v2
-          expect(fs.existsSync(config.boss.appdir + '/' + appInfo.id + '/v1')).to.be.true
-          expect(fs.existsSync(config.boss.appdir + '/' + appInfo.id + '/v2')).to.be.true
-          expect(fs.existsSync(config.boss.appdir + '/' + appInfo.id + '/v3')).to.be.false
+          expect(fs.existsSync(config.guvnor.appdir + '/' + appInfo.id + '/v1')).to.be.true
+          expect(fs.existsSync(config.guvnor.appdir + '/' + appInfo.id + '/v2')).to.be.true
+          expect(fs.existsSync(config.guvnor.appdir + '/' + appInfo.id + '/v3')).to.be.false
 
-          remoteBoss.switchApplicationRef(appName, 'tags/v1', console.info, console.error, function(error) {
+          remoteGuvnor.switchApplicationRef(appName, 'tags/v1', console.info, console.error, function(error) {
             expect(error).to.not.exist
 
             // now at v1
-            expect(fs.existsSync(config.boss.appdir + '/' + appInfo.id + '/v1')).to.be.true
-            expect(fs.existsSync(config.boss.appdir + '/' + appInfo.id + '/v2')).to.be.false
-            expect(fs.existsSync(config.boss.appdir + '/' + appInfo.id + '/v3')).to.be.false
+            expect(fs.existsSync(config.guvnor.appdir + '/' + appInfo.id + '/v1')).to.be.true
+            expect(fs.existsSync(config.guvnor.appdir + '/' + appInfo.id + '/v2')).to.be.false
+            expect(fs.existsSync(config.guvnor.appdir + '/' + appInfo.id + '/v3')).to.be.false
 
             done()
           })
@@ -457,11 +457,11 @@ describe('BossRemote', function() {
 
       var appName = shortid.generate()
 
-      remoteBoss.deployApplication(appName, repo, console.info, console.error, function(error, appInfo) {
+      remoteGuvnor.deployApplication(appName, repo, console.info, console.error, function(error, appInfo) {
         expect(error).to.not.exist
         expect(appInfo).to.be.ok
 
-        remoteBoss.listApplicationRefs(appName, function(error, refs) {
+        remoteGuvnor.listApplicationRefs(appName, function(error, refs) {
           expect(error).to.not.exist
 
           expect(refs.length).to.equal(6)
@@ -496,10 +496,10 @@ describe('BossRemote', function() {
 
       var appName = shortid.generate()
 
-      remoteBoss.deployApplication(appName, repo, console.info, console.error, function(error, appInfo) {
+      remoteGuvnor.deployApplication(appName, repo, console.info, console.error, function(error, appInfo) {
         expect(error).to.not.exist
 
-        remoteBoss.listApplicationRefs(appName, function(error, refs) {
+        remoteGuvnor.listApplicationRefs(appName, function(error, refs) {
           expect(error).to.not.exist
 
           expect(refs.length).to.equal(4)
@@ -516,15 +516,15 @@ describe('BossRemote', function() {
           ], function(error) {
             if(error) throw error
 
-            remoteBoss.listApplicationRefs(appName, function(error, refs) {
+            remoteGuvnor.listApplicationRefs(appName, function(error, refs) {
               expect(error).to.not.exist
 
               expect(refs.length).to.equal(4)
 
-              remoteBoss.updateApplicationRefs(appName, console.info, console.error, function(error) {
+              remoteGuvnor.updateApplicationRefs(appName, console.info, console.error, function(error) {
                 expect(error).to.not.exist
 
-                remoteBoss.listApplicationRefs(appName, function(error, refs) {
+                remoteGuvnor.listApplicationRefs(appName, function(error, refs) {
                   expect(error).to.not.exist
 
                   expect(refs.length).to.equal(6)

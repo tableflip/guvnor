@@ -2,7 +2,7 @@ var PageView = require('./base')
 
 module.exports = PageView.extend({
   pageTitle: function() {
-    return 'Boss - ' + this.model.name + ' - ' + this.model.status
+    return 'Guvnor - ' + this.model.name + ' - ' + this.model.status
   },
   initialize: function() {
     // if this process is removed from the collection while we are looking at it, redirect the user to the host overview

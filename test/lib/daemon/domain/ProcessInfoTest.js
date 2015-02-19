@@ -20,7 +20,7 @@ describe('ProcessInfo', function() {
       statSync: sinon.stub()
     }
     processInfo._config = {
-      boss: {
+      guvnor: {
         logdir: 'foo'
       }
     }
@@ -39,7 +39,7 @@ describe('ProcessInfo', function() {
       statSync: sinon.stub()
     }
     otherProcessInfo._config = {
-      boss: {
+      guvnor: {
         logdir: 'foo'
       }
     }
@@ -84,7 +84,7 @@ describe('ProcessInfo', function() {
       statSync: sinon.stub()
     }
     processInfo._config = {
-      boss: {
+      guvnor: {
         logdir: 'foo'
       }
     }
@@ -109,8 +109,8 @@ describe('ProcessInfo', function() {
     expect(processInfo.instances).to.equal(1)
     expect(processInfo.cluster).to.be.false
 
-    expect(processInfo.getProcessOptions().env.BOSS_SCRIPT).to.equal('/foo/bar/baz.js')
-    expect(processInfo.getProcessOptions().env.BOSS_PROCESS_NAME).to.equal('baz.js')
+    expect(processInfo.getProcessOptions().env.GUVNOR_SCRIPT).to.equal('/foo/bar/baz.js')
+    expect(processInfo.getProcessOptions().env.GUVNOR_PROCESS_NAME).to.equal('baz.js')
   })
 
   it('should remove the old debug port', function() {
@@ -128,7 +128,7 @@ describe('ProcessInfo', function() {
     }
     processInfo._fileSystem = fileSystemStub
     processInfo._config = {
-      boss: {
+      guvnor: {
         logdir: 'foo'
       },
       debug: {
@@ -173,7 +173,7 @@ describe('ProcessInfo', function() {
     }
     processInfo._fileSystem = fileSystemStub
     processInfo._config = {
-      boss: {
+      guvnor: {
         logdir: 'foo'
       },
       debug: {
@@ -217,7 +217,7 @@ describe('ProcessInfo', function() {
     }
     processInfo._fileSystem = fileSystemStub
     processInfo._config = {
-      boss: {
+      guvnor: {
         logdir: 'foo'
       },
       debug: {
@@ -268,7 +268,7 @@ describe('ProcessInfo', function() {
     }
     processInfo._fileSystem = fileSystemStub
     processInfo._config = {
-      boss: {
+      guvnor: {
         logdir: 'foo'
       },
       debug: {
@@ -317,7 +317,7 @@ describe('ProcessInfo', function() {
       execFile: sinon.stub()
     }
     processInfo._config = {
-      boss: {
+      guvnor: {
         logdir: 'foo'
       },
       debug: {

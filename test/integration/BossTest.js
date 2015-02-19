@@ -12,7 +12,7 @@ var user = posix.getpwnam(process.getuid())
 var group = posix.getgrnam(process.getgid())
 
 var config = {
-  boss: {
+  guvnor: {
     user: user.name,
     group: group.name,
     timeout: 5000,
@@ -41,10 +41,10 @@ var logger = {
 var remote = require('../../lib/local').connect,
   remote = remote.bind(null, config, logger)
 
-var boss
+var guvnor
 var tmpdir
 
-describe('Boss', function() {
+describe('Guvnor', function() {
   // integration tests are slow
   this.timeout(60000)
 
@@ -52,21 +52,21 @@ describe('Boss', function() {
     tmpdir = os.tmpdir() + '/' + shortid.generate()
     tmpdir = tmpdir.replace(/\/\//g, '/')
 
-    config.boss.logdir = tmpdir + '/logs'
-    config.boss.rundir = tmpdir + '/run'
-    config.boss.confdir = tmpdir + '/conf'
-    config.boss.appdir = tmpdir + '/apps'
+    config.guvnor.logdir = tmpdir + '/logs'
+    config.guvnor.rundir = tmpdir + '/run'
+    config.guvnor.confdir = tmpdir + '/conf'
+    config.guvnor.appdir = tmpdir + '/apps'
 
     remote(function(error, b) {
       if(error) throw error
 
-      boss = b
+      guvnor = b
 
       // log all received events
-      boss.on('*', function(type) {
-        if(type.substring(0, 'boss:log'.length) == 'boss:log' ||
+      guvnor.on('*', function(type) {
+        if(type.substring(0, 'daemon:log'.length) == 'daemon:log' ||
           type.substring(0, 'process:uncaughtexception'.length) == 'process:uncaughtexception' ||
-          type.substring(0, 'boss:fatality'.length) == 'boss:fatality' ||
+          type.substring(0, 'daemon:fatality'.length) == 'daemon:fatality' ||
           type.substring(0, 'process:log'.length) == 'process:log' ||
           type.substring(0, 'worker:log'.length) == 'worker:log') {
           // already handled
@@ -75,22 +75,22 @@ describe('Boss', function() {
 
         console.info(type)
       })
-      boss.on('boss:log:*', function(type, event) {
+      guvnor.on('daemon:log:*', function(type, event) {
         console.info(type, event.message)
       })
-      boss.on('process:log:*', function(type, processInfo, event) {
+      guvnor.on('process:log:*', function(type, processInfo, event) {
         console.info(type, event)
       })
-      boss.on('cluster:log:*', function(type, processInfo, event) {
+      guvnor.on('cluster:log:*', function(type, processInfo, event) {
         console.info(type, event)
       })
-      boss.on('worker:log:*', function(type, clusterInfo, processInfo, event) {
+      guvnor.on('worker:log:*', function(type, clusterInfo, processInfo, event) {
         console.info(type, event)
       })
-      boss.on('process:uncaughtexception:*', function(type, error) {
+      guvnor.on('process:uncaughtexception:*', function(type, error) {
         console.log(error.stack)
       })
-      boss.on('boss:fatality', function(error) {
+      guvnor.on('daemon:fatality', function(error) {
         console.log(error.stack)
       })
 
@@ -99,8 +99,8 @@ describe('Boss', function() {
   })
 
   afterEach(function(done) {
-    boss.callbacks = {}
-    boss.kill(boss.disconnect.bind(boss, done))
+    guvnor.callbacks = {}
+    guvnor.kill(guvnor.disconnect.bind(guvnor, done))
   })
 
   it('should have npm available', function(done) {
@@ -126,11 +126,11 @@ describe('Boss', function() {
   })
 
   it('should start a process', function(done) {
-    boss.startProcess(__dirname + '/fixtures/hello-world.js', {}, function(error, processInfo) {
+    guvnor.startProcess(__dirname + '/fixtures/hello-world.js', {}, function(error, processInfo) {
       expect(error).to.not.exist
       expect(processInfo.id).to.be.ok
 
-      boss.on('process:ready', function(readyProcessInfo) {
+      guvnor.on('process:ready', function(readyProcessInfo) {
         if(readyProcessInfo.id != processInfo.id) {
           return
         }
@@ -143,11 +143,11 @@ describe('Boss', function() {
   })
 
   it('should start a coffeescript process', function(done) {
-    boss.startProcess(__dirname + '/fixtures/hello-world.coffee', {}, function(error, processInfo) {
+    guvnor.startProcess(__dirname + '/fixtures/hello-world.coffee', {}, function(error, processInfo) {
       expect(error).to.not.exist
       expect(processInfo.id).to.be.ok
 
-      boss.on('process:ready', function(readyProcessInfo) {
+      guvnor.on('process:ready', function(readyProcessInfo) {
         if(readyProcessInfo.id != processInfo.id) {
           return
         }
@@ -160,7 +160,7 @@ describe('Boss', function() {
   })
 
   it('should survive starting a process with the wrong group name', function(done) {
-    boss.startProcess(__dirname + '/fixtures/hello-world.js', {
+    guvnor.startProcess(__dirname + '/fixtures/hello-world.js', {
       group: shortid.generate()
     }, function(error) {
       expect(error).to.be.ok
@@ -171,7 +171,7 @@ describe('Boss', function() {
   })
 
   it('should survive starting a process with the wrong user name', function(done) {
-    boss.startProcess(__dirname + '/fixtures/hello-world.js', {
+    guvnor.startProcess(__dirname + '/fixtures/hello-world.js', {
       user: shortid.generate()
     }, function(error) {
       expect(error).to.be.ok
@@ -182,7 +182,7 @@ describe('Boss', function() {
   })
 
   it('should start a process in debug mode', function(done) {
-    boss.startProcess(__dirname + '/fixtures/hello-world.js', {
+    guvnor.startProcess(__dirname + '/fixtures/hello-world.js', {
       debug: true
     }, function(error, processInfo) {
       expect(error).to.not.exist
@@ -190,7 +190,7 @@ describe('Boss', function() {
 
       var continued = false
 
-      boss.on('process:ready', function(readyProcessInfo) {
+      guvnor.on('process:ready', function(readyProcessInfo) {
         if(readyProcessInfo.id != processInfo.id) {
           return
         }
@@ -212,21 +212,21 @@ describe('Boss', function() {
   })
 
   it('should stop a process', function(done) {
-    boss.startProcess(__dirname + '/fixtures/hello-world.js', {}, function(error, processInfo) {
+    guvnor.startProcess(__dirname + '/fixtures/hello-world.js', {}, function(error, processInfo) {
       expect(error).to.not.exist
       expect(processInfo.id).to.be.ok
 
-      boss.on('process:ready', function(readyProcessInfo) {
+      guvnor.on('process:ready', function(readyProcessInfo) {
         if(readyProcessInfo.id != processInfo.id) {
           return
         }
 
         expect(readyProcessInfo.socket).to.be.ok
 
-        boss.connectToProcess(readyProcessInfo.id, function(error, remote) {
+        guvnor.connectToProcess(readyProcessInfo.id, function(error, remote) {
           expect(error).to.not.exist
 
-          boss.on('process:exit', function(stoppedProcessInfo, error, code, signal) {
+          guvnor.on('process:exit', function(stoppedProcessInfo, error, code, signal) {
             if(stoppedProcessInfo.id != processInfo.id) {
               return
             }
@@ -238,7 +238,7 @@ describe('Boss', function() {
 
             console.info('process exited')
 
-            boss.listProcesses(function(error, processes) {
+            guvnor.listProcesses(function(error, processes) {
               expect(error).to.not.exist
               expect(processes.length).to.equal(1)
               expect(processes[0].id).to.equal(stoppedProcessInfo.id)
@@ -256,23 +256,23 @@ describe('Boss', function() {
   })
 
   it('should restart a process', function(done) {
-    boss.startProcess(__dirname + '/fixtures/hello-world.js', {}, function(error, processInfo) {
+    guvnor.startProcess(__dirname + '/fixtures/hello-world.js', {}, function(error, processInfo) {
       expect(error).to.not.exist
       expect(processInfo.id).to.be.ok
 
-      boss.once('process:ready', function(readyProcessInfo) {
+      guvnor.once('process:ready', function(readyProcessInfo) {
         if(readyProcessInfo.id != processInfo.id) {
           return
         }
 
         expect(readyProcessInfo.socket).to.be.ok
 
-        boss.connectToProcess(processInfo.id, function(error, remote) {
+        guvnor.connectToProcess(processInfo.id, function(error, remote) {
           expect(error).to.not.exist
 
           var notifiedOfRestarting = false
 
-          boss.on('process:restarting', function(restartingProcessInfo) {
+          guvnor.on('process:restarting', function(restartingProcessInfo) {
             if(restartingProcessInfo.id != processInfo.id) {
               return
             }
@@ -283,14 +283,14 @@ describe('Boss', function() {
           remote.restart()
           remote.disconnect()
 
-          boss.on('process:restarted', function(restartedProcessInfo) {
+          guvnor.on('process:restarted', function(restartedProcessInfo) {
             if(restartedProcessInfo.id != processInfo.id) {
               return
             }
 
             console.info('process restarted')
 
-            boss.listProcesses(function(error, processes) {
+            guvnor.listProcesses(function(error, processes) {
               console.info(error, processes)
               expect(error).to.not.exist
               expect(notifiedOfRestarting).to.be.true
@@ -306,16 +306,16 @@ describe('Boss', function() {
   })
 
   it('should list processes', function(done) {
-    boss.listProcesses(function(error, processes) {
+    guvnor.listProcesses(function(error, processes) {
       expect(error).to.not.exist
       expect(processes.length).to.equal(0)
 
-      boss.startProcess(__dirname + '/fixtures/hello-world.js', {}, function(error, processInfo) {
+      guvnor.startProcess(__dirname + '/fixtures/hello-world.js', {}, function(error, processInfo) {
         expect(error).to.not.exist
         expect(processInfo.id).to.be.ok
 
-        boss.on('process:ready', function() {
-          boss.listProcesses(function(error, processes) {
+        guvnor.on('process:ready', function() {
+          guvnor.listProcesses(function(error, processes) {
             expect(error).to.not.exist
             expect(processes.length).to.equal(1)
 
@@ -327,23 +327,23 @@ describe('Boss', function() {
   })
 
   it('should restart a failing process', function(done) {
-    boss.startProcess(__dirname + '/fixtures/crash-on-message.js', {}, function(error, processInfo) {
+    guvnor.startProcess(__dirname + '/fixtures/crash-on-message.js', {}, function(error, processInfo) {
       expect(error).to.not.exist
       expect(processInfo.id).to.be.ok
 
-      boss.once('process:ready', function(readyProcessInfo) {
+      guvnor.once('process:ready', function(readyProcessInfo) {
         if(readyProcessInfo.id != processInfo.id) {
           return
         }
 
         expect(readyProcessInfo.socket).to.be.ok
 
-        boss.connectToProcess(processInfo.id, function(error, remote) {
+        guvnor.connectToProcess(processInfo.id, function(error, remote) {
           expect(error).to.not.exist
 
           remote.send('custom:euthanise')
 
-          boss.once('process:restarted', function(newProcessInfo, failedPid) {
+          guvnor.once('process:restarted', function(newProcessInfo, failedPid) {
             if(newProcessInfo.id != processInfo.id) {
               return
             }
@@ -360,16 +360,16 @@ describe('Boss', function() {
   })
 
   it('should abort a constantly failing process', function(done) {
-    boss.startProcess(__dirname + '/fixtures/first-tick-crash.js', {}, function(error, processInfo) {
+    guvnor.startProcess(__dirname + '/fixtures/first-tick-crash.js', {}, function(error, processInfo) {
       expect(error).to.not.exist
 
-      boss.once('process:aborted', function(abortedProcessInfo) {
+      guvnor.once('process:aborted', function(abortedProcessInfo) {
         if(abortedProcessInfo.id != processInfo.id) {
           return
         }
 
         // should not be in the process list
-        boss.listProcesses(function(error, processes) {
+        guvnor.listProcesses(function(error, processes) {
           expect(error).to.not.exist
           expect(processes.length).to.equal(1)
           expect(processes[0].id).to.equal(abortedProcessInfo.id)
@@ -382,18 +382,18 @@ describe('Boss', function() {
   })
 
   it('should invoke a remote callback', function(done) {
-    boss.startProcess(__dirname + '/fixtures/remote-executor.js', {}, function (error, processInfo) {
+    guvnor.startProcess(__dirname + '/fixtures/remote-executor.js', {}, function (error, processInfo) {
       expect(error).to.not.exist
       expect(processInfo.id).to.be.ok
 
-      boss.once('process:ready', function(readyProcessInfo) {
+      guvnor.once('process:ready', function(readyProcessInfo) {
         if(readyProcessInfo.id != processInfo.id) {
           return
         }
 
         expect(readyProcessInfo.socket).to.be.ok
 
-        boss.connectToProcess(processInfo.id, function(error, remote) {
+        guvnor.connectToProcess(processInfo.id, function(error, remote) {
           expect(error).to.not.exist
 
           remote.send('custom:hello', function(message) {
@@ -408,7 +408,7 @@ describe('Boss', function() {
   })
 
   it('should start cluster and report online when all processes have started', function(done) {
-    boss.startProcess(__dirname + '/fixtures/http-server.js', {
+    guvnor.startProcess(__dirname + '/fixtures/http-server.js', {
       env: {
         PORT: 0
       },
@@ -422,7 +422,7 @@ describe('Boss', function() {
       var workersStarted = 0
       var workersReady = 0
 
-      boss.on('worker:forked', function(clusterProcessInfo, workerProcessInfo) {
+      guvnor.on('worker:forked', function(clusterProcessInfo, workerProcessInfo) {
         if(clusterProcessInfo.id != processInfo.id) {
           return
         }
@@ -432,7 +432,7 @@ describe('Boss', function() {
         workersForked++
       })
 
-      boss.on('worker:starting', function(clusterProcessInfo, workerProcessInfo) {
+      guvnor.on('worker:starting', function(clusterProcessInfo, workerProcessInfo) {
         if(clusterProcessInfo.id != processInfo.id) {
           return
         }
@@ -442,7 +442,7 @@ describe('Boss', function() {
         workersStarting++
       })
 
-      boss.on('worker:started', function(clusterProcessInfo, workerProcessInfo) {
+      guvnor.on('worker:started', function(clusterProcessInfo, workerProcessInfo) {
         if(clusterProcessInfo.id != processInfo.id) {
           return
         }
@@ -452,7 +452,7 @@ describe('Boss', function() {
         workersStarted++
       })
 
-      boss.on('worker:ready', function(clusterProcessInfo, workerProcessInfo) {
+      guvnor.on('worker:ready', function(clusterProcessInfo, workerProcessInfo) {
         if(clusterProcessInfo.id != processInfo.id) {
           return
         }
@@ -462,7 +462,7 @@ describe('Boss', function() {
         workersReady++
       })
 
-      boss.once('cluster:online', function(clusterProcessInfo) {
+      guvnor.once('cluster:online', function(clusterProcessInfo) {
         if(clusterProcessInfo.id != processInfo.id) {
           return
         }
@@ -478,7 +478,7 @@ describe('Boss', function() {
   })
 
   it('should report status for cluster workers', function(done) {
-    boss.startProcess(__dirname + '/fixtures/http-server.js', {
+    guvnor.startProcess(__dirname + '/fixtures/http-server.js', {
       env: {
         PORT: 0
       },
@@ -489,12 +489,12 @@ describe('Boss', function() {
 
       var debugPort = processInfo.debugPort
 
-      boss.once('cluster:online', function(clusterProcessInfo) {
+      guvnor.once('cluster:online', function(clusterProcessInfo) {
         if(clusterProcessInfo.id != processInfo.id) {
           return
         }
 
-        boss.listProcesses(function(error, processes) {
+        guvnor.listProcesses(function(error, processes) {
           expect(error).to.not.exist
           expect(processes.length).to.equal(1)
 
@@ -516,7 +516,7 @@ describe('Boss', function() {
   it('should reduce number of cluster workers', function(done) {
     var instances = 3
 
-    boss.startProcess(__dirname + '/fixtures/http-server.js', {
+    guvnor.startProcess(__dirname + '/fixtures/http-server.js', {
       env: {
         PORT: 0
       },
@@ -525,26 +525,26 @@ describe('Boss', function() {
       expect(error).to.not.exist
       expect(processInfo.id).to.be.ok
 
-      boss.once('cluster:online', function(clusterProcessInfo) {
+      guvnor.once('cluster:online', function(clusterProcessInfo) {
         if(clusterProcessInfo.id != processInfo.id) {
           return
         }
 
         instances--
 
-        boss.connectToProcess(clusterProcessInfo.id, function(error, remoteProcess) {
+        guvnor.connectToProcess(clusterProcessInfo.id, function(error, remoteProcess) {
           if(error) return callback(error)
 
           remoteProcess.setClusterWorkers(instances, function (error) {
 
             expect(error).to.not.exist
 
-            boss.listProcesses(function (error, processes) {
+            guvnor.listProcesses(function (error, processes) {
               expect(error).to.not.exist
               expect(processes.length).to.equal(1)
               expect(processes[0].workers.length).to.equal(instances)
 
-              boss.findProcessInfoById(processInfo.id, function (error, processInfo) {
+              guvnor.findProcessInfoById(processInfo.id, function (error, processInfo) {
                 expect(error).to.not.exist
                 expect(processInfo.instances).to.equal(instances)
 
@@ -560,7 +560,7 @@ describe('Boss', function() {
   it('should increase number of cluster workers', function(done) {
     var instances = 2
 
-    boss.startProcess(__dirname + '/fixtures/http-server.js', {
+    guvnor.startProcess(__dirname + '/fixtures/http-server.js', {
       env: {
         PORT: 0
       },
@@ -570,30 +570,30 @@ describe('Boss', function() {
       expect(error).to.not.exist
       expect(processInfo.id).to.be.ok
 
-      boss.once('cluster:online', function (clusterProcessInfo) {
+      guvnor.once('cluster:online', function (clusterProcessInfo) {
         if(clusterProcessInfo.id != processInfo.id) {
           return
         }
 
         instances++
 
-        boss.connectToProcess(clusterProcessInfo.id, function(error, remoteProcess) {
+        guvnor.connectToProcess(clusterProcessInfo.id, function(error, remoteProcess) {
           if(error) return callback(error)
 
           remoteProcess.setClusterWorkers(instances, function (error) {
             expect(error).to.not.exist
 
-            boss.once('cluster:online', function (clusterProcessInfo) {
+            guvnor.once('cluster:online', function (clusterProcessInfo) {
               if (clusterProcessInfo.id != processInfo.id) {
                 return
               }
 
-              boss.listProcesses(function (error, processes) {
+              guvnor.listProcesses(function (error, processes) {
                 expect(error).to.not.exist
                 expect(processes.length).to.equal(1)
                 expect(processes[0].workers.length).to.equal(instances)
 
-                boss.findProcessInfoById(processInfo.id, function (error, processInfo) {
+                guvnor.findProcessInfoById(processInfo.id, function (error, processInfo) {
                   expect(error).to.not.exist
                   expect(processInfo.instances).to.equal(instances)
 
@@ -608,20 +608,20 @@ describe('Boss', function() {
   })
 
   it('should dump process info', function(done) {
-    boss.startProcess(__dirname + '/fixtures/hello-world.js', {}, function(error, processInfo) {
+    guvnor.startProcess(__dirname + '/fixtures/hello-world.js', {}, function(error, processInfo) {
       expect(error).to.not.exist
       expect(processInfo.id).to.be.ok
 
-      boss.once('process:ready', function(readyProcessInfo) {
+      guvnor.once('process:ready', function(readyProcessInfo) {
         if(readyProcessInfo.id != processInfo.id) {
           return
         }
 
         expect(readyProcessInfo.socket).to.include(readyProcessInfo.pid)
 
-        boss.dumpProcesses(function(error) {
+        guvnor.dumpProcesses(function(error) {
           expect(error).to.not.exist
-          expect(fs.existsSync(config.boss.confdir + '/processes.json')).to.be.true
+          expect(fs.existsSync(config.guvnor.confdir + '/processes.json')).to.be.true
 
           done()
         })
@@ -631,18 +631,18 @@ describe('Boss', function() {
 
   it('should restore process info', function(done) {
     fs.writeFileSync(
-        config.boss.confdir + '/processes.json',
+        config.guvnor.confdir + '/processes.json',
         '[{"script": "' + __dirname + '/fixtures/hello-world.js' + '", "name": "super-fun"}]'
     )
 
-    boss.listProcesses(function(error, processes) {
+    guvnor.listProcesses(function(error, processes) {
       expect(error).to.not.exist
       expect(processes.length).to.equal(0)
 
-      boss.restoreProcesses(function(error) {
+      guvnor.restoreProcesses(function(error) {
         expect(error).to.not.exist
 
-        boss.listProcesses(function(error, processes) {
+        guvnor.listProcesses(function(error, processes) {
           expect(processes.length).to.equal(1)
           done()
         })
@@ -651,11 +651,11 @@ describe('Boss', function() {
   })
 
   it('should make a process do a heap dump', function(done) {
-    boss.startProcess(__dirname + '/fixtures/hello-world.js', {}, function(error, processInfo) {
+    guvnor.startProcess(__dirname + '/fixtures/hello-world.js', {}, function(error, processInfo) {
       expect(error).to.not.exist
       expect(processInfo.id).to.be.ok
 
-      boss.on('process:ready', function(readyProcessInfo) {
+      guvnor.on('process:ready', function(readyProcessInfo) {
         if(readyProcessInfo.id != processInfo.id) {
           return
         }
@@ -664,7 +664,7 @@ describe('Boss', function() {
 
         async.parallel([
           function(callback) {
-            boss.on('process:heapdump:start', function(heapDumpProcessInfo) {
+            guvnor.on('process:heapdump:start', function(heapDumpProcessInfo) {
               if(heapDumpProcessInfo.id != processInfo.id) {
                 return
               }
@@ -673,7 +673,7 @@ describe('Boss', function() {
             })
           },
           function(callback) {
-            boss.on('process:heapdump:complete', function(heapDumpProcessInfo) {
+            guvnor.on('process:heapdump:complete', function(heapDumpProcessInfo) {
               if(heapDumpProcessInfo.id != processInfo.id) {
                 return
               }
@@ -682,7 +682,7 @@ describe('Boss', function() {
             })
           },
           function(callback) {
-            boss.connectToProcess(processInfo.id, function(error, remote) {
+            guvnor.connectToProcess(processInfo.id, function(error, remote) {
               expect(error).to.not.exist
 
               remote.dumpHeap(function(error, path) {
@@ -705,23 +705,23 @@ describe('Boss', function() {
   })
 
   it('should force a process to garbage collect', function(done) {
-    boss.startProcess(__dirname + '/fixtures/hello-world.js', {}, function(error, processInfo) {
+    guvnor.startProcess(__dirname + '/fixtures/hello-world.js', {}, function(error, processInfo) {
       expect(error).to.not.exist
       expect(processInfo.id).to.be.ok
 
-      boss.on('process:ready', function(readyProcessInfo) {
+      guvnor.on('process:ready', function(readyProcessInfo) {
         if(readyProcessInfo.id != processInfo.id) {
           return
         }
 
         expect(readyProcessInfo.socket, 'socket was missing').to.be.ok
 
-        boss.connectToProcess(processInfo.id, function(error, remote) {
+        guvnor.connectToProcess(processInfo.id, function(error, remote) {
           expect(error, 'could not connect to process').to.not.exist
 
           async.parallel([
             function(callback) {
-              boss.on('process:gc:start', function(gcProcessInfo) {
+              guvnor.on('process:gc:start', function(gcProcessInfo) {
                 if (gcProcessInfo.id != processInfo.id) {
                   return
                 }
@@ -730,7 +730,7 @@ describe('Boss', function() {
               })
             },
             function(callback) {
-              boss.on('process:gc:complete', function(gcProcessInfo) {
+              guvnor.on('process:gc:complete', function(gcProcessInfo) {
                 if(gcProcessInfo.id != processInfo.id) {
                   return
                 }
@@ -770,9 +770,9 @@ describe('Boss', function() {
 
       var appName = shortid.generate()
 
-      boss.deployApplication(appName, repo, user.name, console.info, console.error, function(error, appInfo) {
+      guvnor.deployApplication(appName, repo, user.name, console.info, console.error, function(error, appInfo) {
         expect(error).to.not.exist
-        expect(fs.existsSync(config.boss.appdir + '/' + appInfo.id)).to.be.true
+        expect(fs.existsSync(config.guvnor.appdir + '/' + appInfo.id)).to.be.true
 
         done()
       })
@@ -796,7 +796,7 @@ describe('Boss', function() {
 
         var appName = shortid.generate()
 
-        boss.deployApplication(appName, repo, user.name, console.info, console.error, callback)
+        guvnor.deployApplication(appName, repo, user.name, console.info, console.error, callback)
       })
     }
 
@@ -805,7 +805,7 @@ describe('Boss', function() {
     async.parallel(tasks, function(error, results) {
       expect(error).to.not.exist
 
-      boss.listApplications(function(error, apps) {
+      guvnor.listApplications(function(error, apps) {
         expect(error).to.not.exist
         expect(apps.length).to.equal(tasks.length)
 
@@ -842,19 +842,19 @@ describe('Boss', function() {
 
       var appName = shortid.generate()
 
-      boss.deployApplication(appName, repo, user.name, console.info, console.error, function(error, appInfo) {
+      guvnor.deployApplication(appName, repo, user.name, console.info, console.error, function(error, appInfo) {
         expect(error).to.not.exist
-        expect(fs.existsSync(config.boss.appdir + '/' + appInfo.id)).to.be.true
+        expect(fs.existsSync(config.guvnor.appdir + '/' + appInfo.id)).to.be.true
 
-        boss.listApplications(function(error, apps) {
+        guvnor.listApplications(function(error, apps) {
           expect(error).to.not.exist
           expect(apps.length).to.equal(1)
 
-          boss.removeApplication(appName, function(error) {
+          guvnor.removeApplication(appName, function(error) {
             expect(error).to.not.exist
-            expect(fs.existsSync(config.boss.appdir + '/' + appInfo.id)).to.be.false
+            expect(fs.existsSync(config.guvnor.appdir + '/' + appInfo.id)).to.be.false
 
-            boss.listApplications(function(error, apps) {
+            guvnor.listApplications(function(error, apps) {
               expect(error).to.not.exist
               expect(apps.length).to.equal(0)
 
@@ -891,29 +891,29 @@ describe('Boss', function() {
 
       var appName = shortid.generate()
 
-      boss.deployApplication(appName, repo, user.name, console.info, console.error, function(error, appInfo) {
+      guvnor.deployApplication(appName, repo, user.name, console.info, console.error, function(error, appInfo) {
         expect(error).to.not.exist
 
         // should be at latest version
-        expect(fs.existsSync(config.boss.appdir + '/' + appInfo.id + '/v1')).to.be.true
-        expect(fs.existsSync(config.boss.appdir + '/' + appInfo.id + '/v2')).to.be.true
-        expect(fs.existsSync(config.boss.appdir + '/' + appInfo.id + '/v3')).to.be.true
+        expect(fs.existsSync(config.guvnor.appdir + '/' + appInfo.id + '/v1')).to.be.true
+        expect(fs.existsSync(config.guvnor.appdir + '/' + appInfo.id + '/v2')).to.be.true
+        expect(fs.existsSync(config.guvnor.appdir + '/' + appInfo.id + '/v3')).to.be.true
 
-        boss.switchApplicationRef(appName, 'tags/v2', console.info, console.error, function(error) {
+        guvnor.switchApplicationRef(appName, 'tags/v2', console.info, console.error, function(error) {
           expect(error).to.not.exist
 
           // now at v2
-          expect(fs.existsSync(config.boss.appdir + '/' + appInfo.id + '/v1')).to.be.true
-          expect(fs.existsSync(config.boss.appdir + '/' + appInfo.id + '/v2')).to.be.true
-          expect(fs.existsSync(config.boss.appdir + '/' + appInfo.id + '/v3')).to.be.false
+          expect(fs.existsSync(config.guvnor.appdir + '/' + appInfo.id + '/v1')).to.be.true
+          expect(fs.existsSync(config.guvnor.appdir + '/' + appInfo.id + '/v2')).to.be.true
+          expect(fs.existsSync(config.guvnor.appdir + '/' + appInfo.id + '/v3')).to.be.false
 
-          boss.switchApplicationRef(appName, 'tags/v1', console.info, console.error, function(error) {
+          guvnor.switchApplicationRef(appName, 'tags/v1', console.info, console.error, function(error) {
             expect(error).to.not.exist
 
             // now at v1
-            expect(fs.existsSync(config.boss.appdir + '/' + appInfo.id + '/v1')).to.be.true
-            expect(fs.existsSync(config.boss.appdir + '/' + appInfo.id + '/v2')).to.be.false
-            expect(fs.existsSync(config.boss.appdir + '/' + appInfo.id + '/v3')).to.be.false
+            expect(fs.existsSync(config.guvnor.appdir + '/' + appInfo.id + '/v1')).to.be.true
+            expect(fs.existsSync(config.guvnor.appdir + '/' + appInfo.id + '/v2')).to.be.false
+            expect(fs.existsSync(config.guvnor.appdir + '/' + appInfo.id + '/v3')).to.be.false
 
             done()
           })
@@ -947,10 +947,10 @@ describe('Boss', function() {
 
       var appName = shortid.generate()
 
-      boss.deployApplication(appName, repo, user.name, console.info, console.error, function(error, appInfo) {
+      guvnor.deployApplication(appName, repo, user.name, console.info, console.error, function(error, appInfo) {
         expect(error).to.not.exist
 
-        boss.listApplicationRefs(appName, function(error, refs) {
+        guvnor.listApplicationRefs(appName, function(error, refs) {
           expect(error).to.not.exist
 
           expect(refs.length).to.equal(6)
@@ -985,10 +985,10 @@ describe('Boss', function() {
 
       var appName = shortid.generate()
 
-      boss.deployApplication(appName, repo, user.name, console.info, console.error, function(error, appInfo) {
+      guvnor.deployApplication(appName, repo, user.name, console.info, console.error, function(error, appInfo) {
         expect(error).to.not.exist
 
-        boss.listApplicationRefs(appName, function(error, refs) {
+        guvnor.listApplicationRefs(appName, function(error, refs) {
           expect(error).to.not.exist
 
           expect(refs.length).to.equal(4)
@@ -1005,15 +1005,15 @@ describe('Boss', function() {
           ], function(error) {
             if(error) throw error
 
-            boss.listApplicationRefs(appName, function(error, refs) {
+            guvnor.listApplicationRefs(appName, function(error, refs) {
               expect(error).to.not.exist
 
               expect(refs.length).to.equal(4)
 
-              boss.updateApplicationRefs(appName, console.info, console.error, function(error) {
+              guvnor.updateApplicationRefs(appName, console.info, console.error, function(error) {
                 expect(error).to.not.exist
 
-                boss.listApplicationRefs(appName, function(error, refs) {
+                guvnor.listApplicationRefs(appName, function(error, refs) {
                   expect(error).to.not.exist
 
                   expect(refs.length).to.equal(6)

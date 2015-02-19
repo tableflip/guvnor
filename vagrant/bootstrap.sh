@@ -10,7 +10,7 @@ apt-get install -y nodejs build-essential git
 # Not required, but useful
 npm install -g node-inspector
 
-# Start boss in debug mode
-mkdir /etc/boss
-echo [debug] > /etc/boss/bossrc
-echo daemon = 5858 >> /etc/boss/bossrc
+# Start guvnor in debug mode
+mkdir /etc/guvnor
+echo [debug] > /etc/guvnor/guvnorrc
+echo daemon = 5858 >> /etc/guvnor/guvnorrc

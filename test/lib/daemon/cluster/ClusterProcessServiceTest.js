@@ -50,7 +50,7 @@ describe('ClusterProcessService', function() {
 
     var script = 'foo.js'
 
-    process.env.BOSS_SCRIPT = script
+    process.env.GUVNOR_SCRIPT = script
 
     service._freeport.callsArgWith(0, undefined, 5)
     service._processInfoStore.create.callsArgWith(1, undefined, initialProcessInfo)

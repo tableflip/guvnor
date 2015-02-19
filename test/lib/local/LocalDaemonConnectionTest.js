@@ -20,7 +20,7 @@ describe('LocalDaemonConnection', function() {
     }
     localDaemonConnection._dnode = sinon.stub()
     localDaemonConnection._config = {
-      boss: {
+      guvnor: {
 
       }
     }
@@ -71,7 +71,7 @@ describe('LocalDaemonConnection', function() {
   })
 
   it('should connect', function(done) {
-    localDaemonConnection._config.boss.rundir = 'run'
+    localDaemonConnection._config.guvnor.rundir = 'run'
 
     var client = {
       connect: sinon.stub(),
@@ -117,7 +117,7 @@ describe('LocalDaemonConnection', function() {
   })
 
   it('should handle connection refused error when connecting and delete a stale socket file', function(done) {
-    localDaemonConnection._config.boss.rundir = 'run'
+    localDaemonConnection._config.guvnor.rundir = 'run'
 
     var connectionRefusedError = new Error('nope!')
     connectionRefusedError.code = 'ECONNREFUSED'
@@ -143,7 +143,7 @@ describe('LocalDaemonConnection', function() {
   })
 
   it('should handle connection refused error when connecting and not be able to delete a stale socket file', function(done) {
-    localDaemonConnection._config.boss.rundir = 'run'
+    localDaemonConnection._config.guvnor.rundir = 'run'
 
     var connectionRefusedError = new Error('nope!')
     connectionRefusedError.code = 'ECONNREFUSED'
@@ -170,7 +170,7 @@ describe('LocalDaemonConnection', function() {
   })
 
   it('should handle the socket file not existing when connecting', function(done) {
-    localDaemonConnection._config.boss.rundir = 'run'
+    localDaemonConnection._config.guvnor.rundir = 'run'
 
     var noSocketFileError = new Error('nope!')
     noSocketFileError.code = 'ENOENT'
@@ -194,7 +194,7 @@ describe('LocalDaemonConnection', function() {
   })
 
   it('should handle the socket file not being a socket file when connecting', function(done) {
-    localDaemonConnection._config.boss.rundir = 'run'
+    localDaemonConnection._config.guvnor.rundir = 'run'
 
     var notASocketFileError = new Error('nope!')
     notASocketFileError.code = 'ENOTSOCK'
@@ -217,7 +217,7 @@ describe('LocalDaemonConnection', function() {
   })
 
   it('should handle unknown errors file when connecting', function(done) {
-    localDaemonConnection._config.boss.rundir = 'run'
+    localDaemonConnection._config.guvnor.rundir = 'run'
 
     var unknownError = new Error('I AM AN ENIGMA!')
     unknownError.code = 'EENIGMA'

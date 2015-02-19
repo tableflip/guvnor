@@ -1,32 +1,32 @@
-[boss]
+[guvnor]
   ; The user the daemon will run as - this user should have sufficient
   ; privileges to spawn new processes and then drop their privileges to
   ; that of other users
   user = root
 
-  ; The group the daemon will run as - if you wish to interact with boss
+  ; The group the daemon will run as - if you wish to interact with guvnor
   ; you should be in this group
-  group = boss
+  group = guvnor
 
-  ; Where boss puts log files. Will be created on first run.
-  logdir = /var/log/boss
+  ; Where guvnor puts log files. Will be created on first run.
+  logdir = /var/log/guvnor
 
   ; Where the dnode sockets are stored. Will be created on first run.
-  rundir = /var/run/boss
+  rundir = /var/run/guvnor
 
   ; Where remote user configuration is stored - should only be accessible
-  ; to ${boss.user}
-  confdir = /etc/boss
+  ; to ${guvnor.user}
+  confdir = /etc/guvnor
 
   ; Boss can download your app from a git repository before running it;
   ; this is where it will be stored
-  appdir = /usr/local/boss
+  appdir = /usr/local/guvnor
 
   ; How long we should wait for remote processes to respond
   timeout = 10000
 
-  ; If true, when boss is killed it will dump process info to
-  ; ${boss.rundir}/processes.json then, the next time it is started, read
+  ; If true, when guvnor is killed it will dump process info to
+  ; ${guvnor.rundir}/processes.json then, the next time it is started, read
   ; that file in and restart those processes
   autoresume = true
 
@@ -35,13 +35,13 @@
 
 [remote]
   ; If true, Boss will start an https server on ${remote.host}:${remote.port}
-  ; to listen for incoming boss-remote connections
+  ; to listen for incoming guvnor-remote connections
   enabled = true
 
-  ; The port Boss will listen on for incoming boss-remote connections
+  ; The port Boss will listen on for incoming guvnor-remote connections
   port = 57483
 
-  ; The host Boss will list on for incoming boss-remote connections
+  ; The host Boss will list on for incoming guvnor-remote connections
   host = 0.0.0.0
 
   ; Set this to provide a path to the private key for this server.  If left
