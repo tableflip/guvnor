@@ -31,7 +31,7 @@ if you want to monitor one or more boss servers from a different machine that is
 $ guv-web
 ```
 
-or run the web interface under boss itself (please read the [guvnor web setup](https://github.com/tableflip/guvnor/blob/master/docs/web.md#prerequisites) section first!):
+or run the web interface under boss itself (please read the [guvnor web setup](./docs/web.md#prerequisites) section first!):
 
 ```sh
 $ guv web
