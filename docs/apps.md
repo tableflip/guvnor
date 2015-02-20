@@ -34,14 +34,16 @@ Your `npm` managed dependencies will be installed after the `install` and `setre
 To add an application to guvnor's application list:
 
 ```sh
-guv install <name> <url>
+guv install <url> [name]
 ```
 
 ### e.g.
 
 ```sh
-$ guv install my-hot-app https://github.com/achingbrain/http-test.git
+$ guv install https://github.com/achingbrain/http-test.git my-hot-app
 ```
+
+The app name is optional - if you omit it, it will be read from package.json.
 
 ## list
 
