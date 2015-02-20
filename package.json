@@ -78,6 +78,7 @@
     "socket.io-client": "^1.2",
     "splitargs": "^0.0",
     "sprintf-js": "^1.0",
+    "stylizer": "achingbrain/stylizer",
     "templatizer-hbs": "^0.0",
     "timeoutify": "^0.0",
     "tv": "^4.0",
@@ -102,7 +103,6 @@
     "pre-commit": "^1.0.4",
     "proxyquire": "^1.0",
     "sinon": "^1.8",
-    "stylizer": "achingbrain/stylizer",
     "testsuite": "^1.0"
   },
   "bin": {
