@@ -10,7 +10,7 @@ describe('CLI', function() {
     cli = new CLI()
     cli._config = {
       guvnor: {
-
+        minnodeversion: process.versions.node
       }
     }
     cli._logger = {
@@ -56,7 +56,8 @@ describe('CLI', function() {
       send: sinon.stub(),
       heapdump: sinon.stub(),
       gc: sinon.stub(),
-      signal: sinon.stub()
+      signal: sinon.stub(),
+      write: sinon.stub()
     }
     cli._cluster = {
       setClusterWorkers: sinon.stub()
@@ -115,6 +116,26 @@ describe('CLI', function() {
     cli._processes.list = done
 
     cli._setUpCommander()
+  })
+
+  it('should reject old versions of node', function(done) {
+    cli._config.guvnor.minnodeversion = '500.0.0'
+
+    cli._checkNodeVersion(function(error) {
+      expect(error).to.be.ok
+
+      done()
+    })
+  })
+
+  it('should accept new versions of node', function(done) {
+    cli._config.guvnor.minnodeversion = '0.0.1'
+
+    cli._checkNodeVersion(function(error) {
+      expect(error).to.not.exist
+
+      done()
+    })
   })
 
   it('should print a warning if the user is in the wrong group on Linux', function() {

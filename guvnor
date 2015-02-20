@@ -33,6 +33,10 @@
   ; How long we wait for remote method invocations to time out
   rpctimeout = 30000
 
+  ; The minimum required version of node/io.js - don't change this unless
+  ; you know what you are doing!
+  minnodeversion = 0.10.29
+
 [remote]
   ; If true, Boss will start an https server on ${remote.host}:${remote.port}
   ; to listen for incoming guvnor-remote connections
