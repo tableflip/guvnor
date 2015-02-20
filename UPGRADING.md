@@ -13,12 +13,12 @@
     * `~/.config/boss/bossweb` becomes `~/.config/guvnor/guvnor-web`
     * `~/.config/boss/bossweb-hosts` becomes `~/.config/guvnor/guvnor-web-hosts`
     * `~/.config/boss/bossweb-users` becomes `~/.config/guvnor/guvnor-web-users`
-    * If you have a `[boss]` section in `/etc/guvnor/guvnor`, rename it `[guvnor]`
- 3. Rename run/log/app directories
+ 3. If you have a `[boss]` section in `/etc/guvnor/guvnor`, rename it `[guvnor]`
+ 4. Rename run/log/app directories
     * `/var/log/boss` becomes `/var/log/guvnor`
     * `/var/run/boss` becomes `/var/run/guvnor`
     * `/usr/local/boss` becomes `/usr/local/guvnor`
- 4. Install guvnor and start
+ 5. Install guvnor and start
 
         $ sudo npm install -g guvnor
         $ sudo guv
