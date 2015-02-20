@@ -3,11 +3,10 @@
 ## 2.x.x to 3.x.x
 
  1. Stop boss and uninstall
-
-        ```sh
-        $ sudo bs kill
-        $ sudo npm remove -g process-boss
-        ```
+    ```sh
+    $ sudo bs kill
+    $ sudo npm remove -g process-boss
+    ```
  2. Rename your configuration files and directories (all .key .json etc files should come too):
     * `/etc/boss` becomes `/etc/guvnor`
     * `/etc/boss/bossrc` becomes `/etc/guvnor/guvnorrc`
