@@ -24,6 +24,8 @@ A node process manager that isn't spanners all the way down.
 
 ![cli](img/cli.png)
 
+Use `guv` (or `guvnor` if you're not into the whole brevity thing).
+
 ## Web interface
 
 Start the web interface with (can be run without guvnor running in the background - for example

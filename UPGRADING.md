@@ -20,4 +20,4 @@
  4. Install guvnor and start
 
         $ sudo npm install -g guvnor
-        $ guv
+        $ sudo guv
