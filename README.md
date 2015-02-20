@@ -2,7 +2,7 @@
 
 # The Guv'nor
 
-[![Discuss](http://img.shields.io/badge/discuss-gitter-brightgreen.svg?style=flat)](https://gitter.im/tableflip/boss/discuss) [![Tasks](http://img.shields.io/badge/tasks-waffle-brightgreen.svg?style=flat)](https://waffle.io/tableflip/boss) [![Build Status](https://travis-ci.org/tableflip/boss.svg)](https://travis-ci.org/tableflip/boss) [![Dependency Status](https://david-dm.org/tableflip/boss.svg)](https://david-dm.org/tableflip/boss) [![Coverage Status](https://img.shields.io/coveralls/tableflip/boss/master.svg?style=flat)](https://coveralls.io/r/tableflip/boss)
+[![Discuss](http://img.shields.io/badge/discuss-gitter-brightgreen.svg?style=flat)](https://gitter.im/tableflip/guvnor/discuss) [![Tasks](http://img.shields.io/badge/tasks-waffle-brightgreen.svg?style=flat)](https://waffle.io/tableflip/guvnor) [![Build Status](https://travis-ci.org/tableflip/guvnor.svg)](https://travis-ci.org/tableflip/guvnor) [![Dependency Status](https://david-dm.org/tableflip/guvnor.svg)](https://david-dm.org/tableflip/guvnor) [![Coverage Status](https://img.shields.io/coveralls/tableflip/guvnor/master.svg?style=flat)](https://coveralls.io/r/tableflip/guvnor)
 
 > Noun 1. guvnor - (British slang) boss
 
@@ -57,6 +57,8 @@ npm remove -g guvnor
 npm install -g guvnor
 guv
 ```
+
+For instructions on how to move between breaking versions, see [upgrading](UPGRADING.md)
 
 ## Usage
 

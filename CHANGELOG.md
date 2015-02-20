@@ -2,9 +2,9 @@
 
 Revision history for guvnor
 
-## [2.6.4](releases/tag/v2.6.4)
+## [3.0.0](releases/tag/v3.0.0)
 
- * Renamed boss to guvnor
+ * Renamed boss to guvnor - see [upgrading](UPGRADING.md)
 
 ## [2.6.3](releases/tag/v2.6.3)
 
