@@ -46,8 +46,10 @@ $ guv web
 ## Install
 
 ```sh
-npm install -g guvnor
+npm install -g guvnor --unsafe-perm
 ```
+
+Why `--unsafe-perm`? Guvnor uses a fair few native modules that require access to `/root/.npm` and `/root/.node-gyp` when building. At the moment this is the only way to allow access.
 
 ## Upgrading
 
