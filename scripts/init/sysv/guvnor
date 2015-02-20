@@ -1,17 +1,17 @@
 #!/bin/bash
 ### BEGIN INIT INFO
-# Provides: boss
+# Provides: guvnor
 # Required-Start: $local_fs $remote_fs
 # Required-Stop: $local_fs $remote_fs
 # Should-Start: $network
 # Should-Stop: $network
 # Default-Start: 2 3 4 5
 # Default-Stop: 0 1 6
-# Short-Description: Boss init script
-# Description: Boss is a process manager for Node.js
+# Short-Description: Guvnor init script
+# Description: Guvnor is a process manager for Node.js
 ### END INIT INFO
 
-NAME=boss
+NAME=guvnor
 RETVAL=0
 
 # Find node on the path
@@ -38,40 +38,50 @@ then
   exit 1
 fi
 
-# Find boss on the path
-BOSS=`which bs`
+# Find guvnor on the path
+GUVNOR=`which guvnor`
 
-if [[ ! -x "$BOSS" ]]
+if [[ ! -x "$GUVNOR" ]]
 then
-  BOSS=/usr/local/bin/bs
+  GUVNOR=/usr/local/bin/guvnor
 fi
 
-if [[ ! -x "$BOSS" ]]
+if [[ ! -x "$GUVNOR" ]]
 then
-  BOSS=/usr/local/lib/node_modules/process-boss/bin/bs
+  GUVNOR=/usr/bin/guvnor
 fi
 
-if [[ ! -x "$BOSS" ]]
+if [[ ! -x "$GUVNOR" ]]
 then
-  echo "Boss could not be found! Is it installed on this system?"
+  GUVNOR=/usr/local/lib/node_modules/guvnor/bin/guvnor
+fi
+
+if [[ ! -x "$GUVNOR" ]]
+then
+  GUVNOR=/usr/lib/node_modules/guvnor/bin/guvnor
+fi
+
+if [[ ! -x "$GUVNOR" ]]
+then
+  echo "Guvnor could not be found! Is it installed on this system?"
   exit 1
 fi
 
-# Ask boss which user we should start it as
-USER=`$BOSS config boss.user`
+# Ask guvnor which user we should start it as
+USER=`$GUVNOR config guvnor.user`
 
-boss() {
-    su - $USER -c "PATH=$PATH;$NODE $BOSS $*"
+guvnor() {
+    su - $USER -c "PATH=$PATH;$NODE $GUVNOR $*"
 }
 
 start() {
     echo "Starting $NAME"
-    boss list
+    guvnor list
 }
 
 stop() {
     echo "Stopping $NAME"
-    boss kill
+    guvnor kill
 }
 
 restart() {
@@ -80,7 +90,7 @@ restart() {
 }
 
 status() {
-    boss status
+    guvnor status
     RETVAL=$?
 }
 

@@ -2,9 +2,9 @@
 
 # The Guv'nor
 
-> Noun 1. guvnor - (British slang) boss
-
 [![Discuss](http://img.shields.io/badge/discuss-gitter-brightgreen.svg?style=flat)](https://gitter.im/tableflip/boss/discuss) [![Tasks](http://img.shields.io/badge/tasks-waffle-brightgreen.svg?style=flat)](https://waffle.io/tableflip/boss) [![Build Status](https://travis-ci.org/tableflip/boss.svg)](https://travis-ci.org/tableflip/boss) [![Dependency Status](https://david-dm.org/tableflip/boss.svg)](https://david-dm.org/tableflip/boss) [![Coverage Status](https://img.shields.io/coveralls/tableflip/boss/master.svg?style=flat)](https://coveralls.io/r/tableflip/boss)
+
+> Noun 1. guvnor - (British slang) boss
 
 A node process manager that isn't spanners all the way down.
 
@@ -26,35 +26,35 @@ A node process manager that isn't spanners all the way down.
 
 ## Web interface
 
-Start the web interface with (can be run without boss running in the background - for example
-if you want to monitor one or more boss servers from a different machine that is not running boss):
+Start the web interface with (can be run without guvnor running in the background - for example
+if you want to monitor one or more guvnor servers from a different machine that is not running guvnor):
 
 ```sh
 $ guv-web
 ```
 
-or run the web interface under boss itself (please read the [guvnor web setup](./docs/web.md#prerequisites) section first!):
+or run the web interface under guvnor itself (please read the [guvnor web setup](./docs/web.md#prerequisites) section first!):
 
 ```sh
 $ guv web
 ```
 
-![boss-web](img/host.png)
+![guvnor-web](img/host.png)
 
 ## Install
 
 ```sh
-npm install -g process-boss
+npm install -g guvnor
 ```
 
 ## Upgrading
 
-npm's upgrade command is [a big angry box of wasps](https://github.com/npm/npm/issues/6247#issuecomment-63022163) so to be sure, kill boss, remove it, reinstall and start it.
+npm's upgrade command is [a big angry box of wasps](https://github.com/npm/npm/issues/6247#issuecomment-63022163) so to be sure, kill guvnor, remove it, reinstall and start it.
 
 ```sh
 guv kill
-npm remove -g process-boss
-npm install -g process-boss
+npm remove -g guvnor
+npm install -g guvnor
 guv
 ```
 
@@ -72,7 +72,7 @@ and with more detail for each subcommand, e.g.:
 guv start --help
 ```
 
-The first time you invoke a boss command, the daemon will start in the background.  Because boss can run processes as different users, it needs to be able to switch to those users.  Consequently you should start boss as root or another privileged user.
+The first time you invoke a guvnor command, the daemon will start in the background.  Because guvnor can run processes as different users, it needs to be able to switch to those users.  Consequently you should start guvnor as root or another privileged user.
 
 ## Help
 
@@ -80,7 +80,7 @@ The first time you invoke a boss command, the daemon will start in the backgroun
 1. [Controlling the Daemon](docs/daemon.md)
 1. [Managing clusters](docs/clusters.md)
 1. [Installing and running apps](docs/apps.md)
-1. [Remote access and monitoring (e.g. boss-web)](docs/remote.md)
+1. [Remote access and monitoring (e.g. guvnor-web)](docs/remote.md)
 1. [Web interface](docs/web.md)
 1. [Web interface - configuration](docs/web-config.md)
 1. [Web interface - user management](docs/web-uesrs.md)
@@ -92,24 +92,24 @@ The first time you invoke a boss command, the daemon will start in the backgroun
 Configure
 ---
 
-A configuration file if run as root can be placed at `/etc/boss/bossrc`. Take a look at the [default configuration file](bossrc) for details.
+A configuration file if run as root can be placed at `/etc/guvnor/guvnorrc`. Take a look at the [default configuration file](guvnorrc) for details.
 
 If you create a configuration file, it will be merged with the default configuration, so if you only want to override one property, you need only specify one property in your config file.
 
-## Starting boss on boot
+## Starting guvnor on boot
 
 Boss comes with a sysv init script.  To configure it to run on system boot run the following:
 
 ```sh
-$ sudo ln -s /usr/local/lib/node_modules/process-boss/scripts/init/sysv/boss /etc/init.d/boss
-$ sudo update-rc.d boss defaults
+$ sudo ln -s /usr/local/lib/node_modules/guvnor/scripts/init/sysv/guvnor /etc/init.d/guvnor
+$ sudo update-rc.d guvnor defaults
 ```
 
 To undo this, run:
 
 ```sh
-$ sudo update-rc.d boss remove
-$ sudo rm /etc/init.d/boss
+$ sudo update-rc.d guvnor remove
+$ sudo rm /etc/init.d/guvnor
 ```
 
 ## apt-get
@@ -133,7 +133,7 @@ Once Vagrant is installed, cd into the vagrant directory and run:
 ```sh
 $ vagrant up
 $ vagrant ssh
-$ sudo npm install -g process-boss
+$ sudo npm install -g guvnor
 ```
 
 Then when you are done, to shut the machine down exit your SSH session and run:
