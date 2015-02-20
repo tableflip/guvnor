@@ -2,6 +2,7 @@
   "name": "guvnor",
   "description": "A node process manager that isn't spanners all the way down",
   "version": "2.6.3",
+  "license": "MIT",
   "prefer-global": true,
   "homepage": "https://github.com/tableflip/guvnor",
   "repository": {

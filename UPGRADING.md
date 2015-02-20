@@ -9,10 +9,11 @@
 
  2. Rename your configuration files and directories (all .key .json etc files should come too):
     * `/etc/boss` becomes `/etc/guvnor`
-    * `/etc/boss/bossrc` becomes `/etc/guvnor/guvnorrc`
+    * `/etc/boss/bossrc` becomes `/etc/guvnor/guvnor`
     * `~/.config/boss/bossweb` becomes `~/.config/guvnor/guvnor-web`
     * `~/.config/boss/bossweb-hosts` becomes `~/.config/guvnor/guvnor-web-hosts`
     * `~/.config/boss/bossweb-users` becomes `~/.config/guvnor/guvnor-web-users`
+    * If you have a `[boss]` section in `/etc/guvnor/guvnor`, rename it `[guvnor]`
  3. Rename run/log/app directories
     * `/var/log/boss` becomes `/var/log/guvnor`
     * `/var/run/boss` becomes `/var/run/guvnor`
