@@ -105,4 +105,4 @@ Revision history for guvnor
 
  * Adds ability to stop/restart multiple processes at once
 
-For older releases, see the [logs](commits/master)
+For older releases, see the [logs](https://github.com/tableflip/boss/commits/master)
