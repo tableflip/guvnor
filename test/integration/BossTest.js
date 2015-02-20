@@ -1027,4 +1027,31 @@ describe('Guvnor', function() {
       })
     })
   })
+
+  it('should write to a processes stdin', function(done) {
+    var message = 'hello world'
+
+    guvnor.on('stdin:received', function(processInfo, answer) {
+      expect(answer).to.equal(message)
+
+      done()
+    })
+
+    guvnor.startProcess(__dirname + '/fixtures/stdin.js', {}, function(error, processInfo) {
+      expect(error).to.not.exist
+      expect(processInfo.id).to.be.ok
+
+      guvnor.on('process:ready', function(readyProcessInfo) {
+        if(readyProcessInfo.id != processInfo.id) {
+          return
+        }
+
+        guvnor.connectToProcess(readyProcessInfo.id, function(error, remote) {
+          expect(error).to.not.exist
+
+          remote.write(message)
+        })
+      })
+    })
+  })
 })

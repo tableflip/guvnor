@@ -23,6 +23,7 @@
  1. [gc](#gc)
  1. [signal](#signal)
  1. [send](#send)
+ 1. [write](#write)
 
 ## start
 
@@ -129,4 +130,18 @@ guv signal <pid> <signal>
 
 ```sh
 $ guv signal 3984 SIGINT
+```
+
+## write
+
+Writes a string to the stdin of your process
+
+```sh
+guv write <pid> <string>
+```
+
+### e.g.
+
+```sh
+$ guv write 3984 'hello world'
 ```
