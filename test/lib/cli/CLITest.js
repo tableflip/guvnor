@@ -248,7 +248,7 @@ describe('CLI', function() {
     cli._posix.getgrnam.withArgs(cli._config.guvnor.group).throws(new Error('group id does not exist'))
     cli._prompt.get.callsArg(1)
 
-    cli._execSync.withArgs('which groupadd').returns('')
+    cli._execSync.withArgs('which groupadd').throws(new Error('no command found'))
     cli._execSync.withArgs('which dscl').returns(dscl)
 
     cli._child_process.exec.withArgs('foo . -list /Groups PrimaryGroupID').callsArgWith(1, undefined, groups)
@@ -277,7 +277,7 @@ describe('CLI', function() {
     cli._posix.getgrnam.withArgs(cli._config.guvnor.group).throws(new Error('group id does not exist'))
     cli._prompt.get.callsArg(1)
 
-    cli._execSync.withArgs('which groupadd').returns('')
+    cli._execSync.withArgs('which groupadd').throws(new Error('no command found'))
     cli._execSync.withArgs('which dscl').returns(dscl)
 
     cli._child_process.exec.withArgs('foo . -list /Groups PrimaryGroupID').callsArgWith(1, undefined, groups)
@@ -298,8 +298,8 @@ describe('CLI', function() {
     cli._posix.getgrnam.withArgs(cli._config.guvnor.group).throws(new Error('group id does not exist'))
     cli._prompt.get.callsArg(1)
 
-    cli._execSync.withArgs('which groupadd').returns('')
-    cli._execSync.withArgs('which dscl').returns('')
+    cli._execSync.withArgs('which groupadd').throws(new Error('no command found'))
+    cli._execSync.withArgs('which dscl').throws(new Error('no command found'))
 
     cli._checkGuvnorGroup(function(error) {
       expect(error.message).to.equal('Automatically creating group foo failed, please create it manually')
