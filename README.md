@@ -139,3 +139,7 @@ Then when you are done, to shut the machine down exit your SSH session and run:
 ```sh
 $ vagrant destroy
 ```
+
+## Changelog
+
+See the [changelog](CHANGELOG.md)
