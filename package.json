@@ -111,7 +111,9 @@
     "bs-web": "bin/guv-web",
     "boss-web": "bin/guv-web",
     "guv": "bin/guv",
-    "guv-web": "bin/guv-web"
+    "guv-web": "bin/guv-web",
+    "guvnor": "bin/guv",
+    "guvnor-web": "bin/guv-web"
   },
   "keywords": [
     "node",
