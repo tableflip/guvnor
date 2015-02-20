@@ -2,6 +2,10 @@
 
 Revision history for guvnor
 
+## [3.0.1](releases/tag/v3.0.1)
+
+ * Fix for loading config files without rc suffixes
+
 ## [3.0.0](releases/tag/v3.0.0)
 
  * Renamed boss to guvnor - see [upgrading](UPGRADING.md)
