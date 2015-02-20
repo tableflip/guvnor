@@ -2,6 +2,10 @@
 
 Revision history for guvnor
 
+## [3.0.2](releases/tag/v3.0.2)
+
+ * Fix to allow web monitor to connect to 2.6.x versions of boss/guvnor and above
+
 ## [3.0.1](releases/tag/v3.0.1)
 
  * Fix for loading config files without rc suffixes
