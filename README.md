@@ -2,6 +2,8 @@
 
 # The Guv'nor
 
+[![Join the chat at https://gitter.im/tableflip/guvnor](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/tableflip/guvnor?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 [![Discuss](http://img.shields.io/badge/discuss-gitter-brightgreen.svg?style=flat)](https://gitter.im/tableflip/guvnor/discuss) [![Tasks](http://img.shields.io/badge/tasks-waffle-brightgreen.svg?style=flat)](https://waffle.io/tableflip/guvnor) [![Build Status](https://travis-ci.org/tableflip/guvnor.svg)](https://travis-ci.org/tableflip/guvnor) [![Dependency Status](https://david-dm.org/tableflip/guvnor.svg)](https://david-dm.org/tableflip/guvnor) [![Coverage Status](https://img.shields.io/coveralls/tableflip/guvnor/master.svg?style=flat)](https://coveralls.io/r/tableflip/guvnor)
 
 > Noun 1. guvnor - (British slang) boss
