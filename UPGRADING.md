@@ -3,10 +3,10 @@
 ## 2.x.x to 3.x.x
 
  1. Stop boss and uninstall
-    ```sh
-    $ sudo bs kill
-    $ sudo npm remove -g process-boss
-    ```
+```sh
+$ sudo bs kill
+$ sudo npm remove -g process-boss
+```
  2. Rename your configuration files and directories (all .key .json etc files should come too):
     * `/etc/boss` becomes `/etc/guvnor`
     * `/etc/boss/bossrc` becomes `/etc/guvnor/guvnorrc`
@@ -18,8 +18,7 @@
     * `/var/run/boss` becomes `/var/run/guvnor`
     * `/usr/local/boss` becomes `/usr/local/guvnor`
  4. Install guvnor and start
-
-        ```sh
-        $ sudo npm install -g guvnor
-        $ guv
-        ```
+```sh
+$ sudo npm install -g guvnor
+$ guv
+```
