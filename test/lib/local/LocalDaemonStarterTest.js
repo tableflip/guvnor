@@ -62,7 +62,6 @@ describe('LocalDaemonStarter', function() {
 
     // should have passed the right arguments to spawn
     expect(localDaemonStarter._child_process.spawn.callCount).to.equal(1)
-    expect(localDaemonStarter._child_process.spawn.getCall(0).args[2].silent).to.be.false
     expect(localDaemonStarter._child_process.spawn.getCall(0).args[2].detached).to.be.true
     expect(localDaemonStarter._child_process.spawn.getCall(0).args[2].uid).to.equal(userId)
     expect(localDaemonStarter._child_process.spawn.getCall(0).args[2].gid).to.equal(groupId)
@@ -75,16 +74,16 @@ describe('LocalDaemonStarter', function() {
 
     // simulate daemon starting up
     onMessage({
-      type: 'daemon:config:request'
+      event: 'daemon:config:request'
     })
 
     // should have sent configuration to daemon
-    expect(daemon.send.getCall(0).args[0].type).to.equal('daemon:config:response')
+    expect(daemon.send.getCall(0).args[0].event).to.equal('daemon:config:response')
     expect(daemon.send.getCall(0).args[0].args[0]).to.equal(localDaemonStarter._config)
 
     onMessage({
-      type: 'daemon:ready',
-      data: 'started'
+      event: 'daemon:ready',
+      args: ['started']
     })
 
     // should have disconnected from daemon process
@@ -123,7 +122,7 @@ describe('LocalDaemonStarter', function() {
 
     // simulate daemon starting up
     onMessage({
-      type: 'daemon:fatality',
+      event: 'daemon:fatality',
       args: [{
         message: 'foo',
         code: 'bar'
@@ -166,7 +165,7 @@ describe('LocalDaemonStarter', function() {
 
     // simulate daemon starting up
     onMessage({
-      type: 'daemon:fatality',
+      event: 'daemon:fatality',
       args: [{
         message: 'foo',
         code: 'EACCES'

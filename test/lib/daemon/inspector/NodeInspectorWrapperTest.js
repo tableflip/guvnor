@@ -68,7 +68,7 @@ describe('NodeInspectorWrapper', function() {
     })
 
     child.on.getCall(0).args[1]({
-      type: 'node-inspector:ready',
+      event: 'node-inspector:ready',
       args: [debugPort]
     })
   })
@@ -110,7 +110,7 @@ describe('NodeInspectorWrapper', function() {
     })
 
     child.on.getCall(0).args[1]({
-      type: 'node-inspector:failed',
+      event: 'node-inspector:failed',
       args: [startupError]
     })
   })

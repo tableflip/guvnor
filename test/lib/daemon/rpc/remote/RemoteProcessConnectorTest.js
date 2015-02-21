@@ -69,8 +69,8 @@ describe('RemoteProcessConnector', function() {
       },
       disconnect: function() {
         expect(process.send.callCount).to.equal(2)
-        expect(process.send.getCall(0).args[0].type).to.equal('remote:ready')
-        expect(process.send.getCall(1).args[0].type).to.equal('remote:success')
+        expect(process.send.getCall(0).args[0].event).to.equal('remote:ready')
+        expect(process.send.getCall(1).args[0].event).to.equal('remote:success')
         expect(process.send.getCall(1).args[0].args[0]).to.not.exist
         expect(process.send.getCall(1).args[0].args[1]).to.equal(8)
         expect(process.send.getCall(1).args[0].args[2]).to.equal(9)
@@ -112,9 +112,9 @@ describe('RemoteProcessConnector', function() {
     connector.afterPropertiesSet()
 
     expect(process.send.callCount).to.equal(1)
-    expect(process.send.getCall(0).args[0].type).to.equal('remote:error')
-    expect(process.send.getCall(0).args[0].message).to.equal('Suprise!')
-    expect(process.send.getCall(0).args[0].stack).to.be.ok
+    expect(process.send.getCall(0).args[0].event).to.equal('remote:error')
+    expect(process.send.getCall(0).args[0].args[0].message).to.equal('Suprise!')
+    expect(process.send.getCall(0).args[0].args[0].stack).to.be.ok
   })
 
   it('should handle an error connecting to the remote process', function() {
@@ -139,8 +139,8 @@ describe('RemoteProcessConnector', function() {
     connector.afterPropertiesSet()
 
     expect(process.send.callCount).to.equal(1)
-    expect(process.send.getCall(0).args[0].type).to.equal('remote:error')
-    expect(process.send.getCall(0).args[0].message).to.equal('nope')
-    expect(process.send.getCall(0).args[0].stack).to.be.ok
+    expect(process.send.getCall(0).args[0].event).to.equal('remote:error')
+    expect(process.send.getCall(0).args[0].args[0].message).to.equal('nope')
+    expect(process.send.getCall(0).args[0].args[0].stack).to.be.ok
   })
 })

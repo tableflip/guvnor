@@ -51,7 +51,7 @@ describe('ParentProcess', function() {
     parentProcess.send('process:foo', 'bar')
 
     expect(process.send.called).to.be.true
-    expect(process.send.getCall(0).args[0].type).to.equal('process:foo')
+    expect(process.send.getCall(0).args[0].event).to.equal('process:foo')
     expect(process.send.getCall(0).args[0].args).to.deep.equal(['bar'])
   })
 
@@ -69,7 +69,7 @@ describe('ParentProcess', function() {
     })
 
     process.emit('message', {
-      type: 'foo:bar',
+      event: 'foo:bar',
       args: ['baz', 'qux']
     })
   })

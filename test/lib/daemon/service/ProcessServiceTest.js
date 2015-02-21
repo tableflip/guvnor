@@ -73,7 +73,7 @@ describe('ProcessService', function() {
 
     expect(processService._child_process.fork.calledOnce).to.be.true
 
-    mockProcess0.emit('message', {type: 'process:ready'})
+    mockProcess0.emit('message', {event: 'process:ready'})
 
     // Exit the mock process
     mockProcess0.emit('exit', 7)
@@ -81,7 +81,7 @@ describe('ProcessService', function() {
     // A new challenger appears
     expect(processService._child_process.fork.calledTwice).to.be.true
 
-    mockProcess1.emit('message', {type: 'process:ready'})
+    mockProcess1.emit('message', {event: 'process:ready'})
 
     expect(processService._processInfoStore.create.calledOnce).to.be.true
   })
@@ -307,7 +307,7 @@ describe('ProcessService', function() {
     childProcess.emit('process:config:request')
 
     expect(childProcess.send.callCount).to.equal(1)
-    expect(childProcess.send.getCall(0).args[0].type).to.equal('daemon:config:response')
+    expect(childProcess.send.getCall(0).args[0].event).to.equal('daemon:config:response')
     expect(childProcess.send.getCall(0).args[0].args[0]).to.equal(processService._config)
   })
 

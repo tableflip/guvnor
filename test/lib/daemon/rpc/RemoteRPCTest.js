@@ -612,13 +612,13 @@ describe('RemoteRPC', function() {
       expect(event.args[1]).to.equal('bar')
 
       process.nextTick(childProcess.emit.bind(childProcess, 'message', {
-        type: 'remote:success'
+        event: 'remote:success'
       }))
     }
 
     // tell the parent we are ready
     childProcess.emit('message', {
-      type: 'remote:ready'
+      event: 'remote:ready'
     })
   })
 
@@ -651,14 +651,16 @@ describe('RemoteRPC', function() {
     // stub out how child process would handle method invocation
     childProcess.send = function(event) {
       process.nextTick(childProcess.emit.bind(childProcess, 'message', {
-        type: 'remote:error',
-        message: 'bail'
+        event: 'remote:error',
+        args: [{
+          message: 'bail'
+        }]
       }))
     }
 
     // tell the parent we are ready
     childProcess.emit('message', {
-      type: 'remote:ready'
+      event: 'remote:ready'
     })
   })
 
@@ -681,8 +683,10 @@ describe('RemoteRPC', function() {
     // stub out how child process would handle method invocation
     childProcess.send = function(event) {
       process.nextTick(childProcess.emit.bind(childProcess, 'message', {
-        type: 'remote:error',
-        message: 'bail'
+        event: 'remote:error',
+        args: [{
+          message: 'bail'
+        }]
       }))
     }
 
@@ -709,8 +713,10 @@ describe('RemoteRPC', function() {
     // stub out how child process would handle method invocation
     childProcess.send = function(event) {
       process.nextTick(childProcess.emit.bind(childProcess, 'message', {
-        type: 'remote:error',
-        message: 'bail'
+        event: 'remote:error',
+        args: [{
+          message: 'bail'
+        }]
       }))
     }
 

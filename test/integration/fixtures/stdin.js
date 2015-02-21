@@ -7,7 +7,7 @@ var rl = readline.createInterface({
 
 rl.question("Say something!", function(answer) {
   process.send({
-    type: 'stdin:received',
+    event: 'stdin:received',
     args: [answer]
   })
 
