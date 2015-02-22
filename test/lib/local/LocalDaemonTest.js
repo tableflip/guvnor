@@ -78,12 +78,15 @@ describe('LocalDaemon', function() {
       userMethod: function() {}
     })
 
+    var error = new Error('Nope!')
+    error.code = 'EACCES'
+
     localDaemon._localDaemonAdminConnection.connect = sinon.stub()
-    localDaemon._localDaemonAdminConnection.connect.callsArgWith(1, new Error('nope!'), {
+    localDaemon._localDaemonAdminConnection.connect.callsArgWith(1, error, {
       adminMethod: function() {}
     })
 
-    localDaemon.connectOrStart(function(error, remote) {
+    localDaemon.connect(function(error, remote) {
       expect(error).to.not.exist
 
       expect(remote).to.equal(localDaemon)

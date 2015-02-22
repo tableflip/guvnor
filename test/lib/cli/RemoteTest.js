@@ -21,7 +21,7 @@ describe('Remote', function() {
       error: sinon.stub(),
       debug: sinon.stub()
     }
-    remote._connect = sinon.stub()
+    remote._connectOrStart = sinon.stub()
     remote._os = {
       hostname: sinon.stub()
     }
@@ -31,7 +31,7 @@ describe('Remote', function() {
       on: sinon.stub()
     }
 
-    remote._connect.callsArgWith(0, undefined, guvnor)
+    remote._connectOrStart.callsArgWith(0, undefined, guvnor)
   })
 
   afterEach(function() {

@@ -3,7 +3,7 @@ var expect = require('chai').expect,
   shortid = require('shortid'),
   os = require('os'),
   fs = require('fs'),
-  connect = require('../../lib/local').connect
+  connectOrStart = require('../../lib/local').connectOrStart
 
 var user = posix.getpwnam(process.getuid())
 var group = posix.getgrnam(process.getgid())
@@ -51,7 +51,7 @@ describe('GuvnorResume', function() {
     conf.guvnor.appdir = (os.tmpdir() + '/' + id + '/apps').replace(/\/\//g, '/')
     conf.guvnor.autoresume = true
 
-    connect(conf, logger, function (error, guvnor) {
+    connectOrStart(conf, logger, function (error, guvnor) {
       if (error) throw error
 
       guvnor.startProcess(__dirname + '/fixtures/hello-world.js', {}, function (error, processInfo) {
@@ -75,7 +75,7 @@ describe('GuvnorResume', function() {
 
               setTimeout(function () {
 
-                connect(conf, logger, function (error, guvnor) {
+                connectOrStart(conf, logger, function (error, guvnor) {
                   if (error) throw error
 
                   guvnor.listProcesses(function (error, processes) {

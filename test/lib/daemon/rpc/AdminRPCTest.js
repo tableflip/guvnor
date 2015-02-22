@@ -24,7 +24,9 @@ describe('AdminRPC', function() {
       listRemoteUsers: sinon.stub(),
       rotateRemoteUserKeys: sinon.stub(),
       generateRemoteRpcCertificates: sinon.stub(),
-      startProcessAsUser: sinon.stub()
+      startProcessAsUser: sinon.stub(),
+      dumpProcesses: sinon.stub(),
+      restoreProcesses: sinon.stub()
     }
     rpc._dnode = sinon.stub()
     rpc._fileSystem = {
@@ -45,5 +47,7 @@ describe('AdminRPC', function() {
     expect(rpc.removeRemoteUser).to.be.a('function')
     expect(rpc.listRemoteUsers).to.be.a('function')
     expect(rpc.rotateRemoteUserKeys).to.be.a('function')
+    expect(rpc.dumpProcesses).to.be.a('function')
+    expect(rpc.restoreProcesses).to.be.a('function')
   })
 })

@@ -23,7 +23,7 @@ describe('Processes', function() {
       error: sinon.stub(),
       debug: sinon.stub()
     }
-    processes._connect = sinon.stub()
+    processes._connectOrStart = sinon.stub()
     processes._moment = {
       duration: sinon.stub(),
       humanize: sinon.stub()
@@ -39,7 +39,7 @@ describe('Processes', function() {
     guvnor.findProcessInfoByName = sinon.stub()
     guvnor.connectToProcess = sinon.stub()
 
-    processes._connect.callsArgWith(0, undefined, guvnor)
+    processes._connectOrStart.callsArgWith(0, undefined, guvnor)
   })
 
   afterEach(function() {

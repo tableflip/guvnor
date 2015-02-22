@@ -37,7 +37,7 @@ var logger = {
   debug: console.info
 }
 
-var local = require('../../lib/local').connect,
+var local = require('../../lib/local').connectOrStart,
   local = local.bind(null, config, logger)
 
 var remote = require('../../lib/remote')

@@ -19,7 +19,7 @@ describe('Cluster', function() {
       error: sinon.stub(),
       debug: sinon.stub()
     }
-    cluster._connect = sinon.stub()
+    cluster._connectOrStart = sinon.stub()
 
     guvnor = {
       disconnect: sinon.stub(),
@@ -29,7 +29,7 @@ describe('Cluster', function() {
       connectToProcess: sinon.stub()
     }
 
-    cluster._connect.callsArgWith(0, undefined, guvnor)
+    cluster._connectOrStart.callsArgWith(0, undefined, guvnor)
   })
 
   it('should set the number of cluster workers', function() {

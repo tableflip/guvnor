@@ -22,7 +22,7 @@ describe('Daemon', function() {
       debug: sinon.stub()
     }
     daemon._running = sinon.stub()
-    daemon._connect = sinon.stub()
+    daemon._connectOrStart = sinon.stub()
 
     guvnor = {
       disconnect: sinon.stub(),
@@ -31,7 +31,7 @@ describe('Daemon', function() {
       connectToProcess: sinon.stub()
     }
 
-    daemon._connect.callsArgWith(0, undefined, guvnor)
+    daemon._connectOrStart.callsArgWith(0, undefined, guvnor)
   })
 
   afterEach(function() {

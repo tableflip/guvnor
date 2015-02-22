@@ -27,7 +27,7 @@ describe('Apps', function() {
     apps._user = {
 
     }
-    apps._connect = sinon.stub()
+    apps._connectOrStart = sinon.stub()
     apps._processes = {
       start: sinon.stub()
     }
@@ -37,7 +37,7 @@ describe('Apps', function() {
       on: sinon.stub()
     }
 
-    apps._connect.callsArgWith(0, undefined, guvnor)
+    apps._connectOrStart.callsArgWith(0, undefined, guvnor)
   })
 
   afterEach(function() {
@@ -98,7 +98,7 @@ describe('Apps', function() {
     var url = 'url'
     var options = {}
     guvnor.deployApplication = sinon.stub()
-    apps._connect.callsArgWith(0, undefined, guvnor)
+    apps._connectOrStart.callsArgWith(0, undefined, guvnor)
 
     guvnor.deployApplication.callsArgWith(5, new Error('urk!'))
 

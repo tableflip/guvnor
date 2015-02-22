@@ -22,7 +22,7 @@ describe('Actions', function() {
       error: sinon.stub(),
       debug: sinon.stub()
     }
-    actions._connect = sinon.stub()
+    actions._connectOrStart = sinon.stub()
     actions._user = {}
     actions._group = {}
 
@@ -33,7 +33,7 @@ describe('Actions', function() {
       connectToProcess: sinon.stub()
     }
 
-    actions._connect.callsArgWith(0, undefined, guvnor)
+    actions._connectOrStart.callsArgWith(0, undefined, guvnor)
   })
 
   afterEach(function() {
@@ -67,8 +67,8 @@ describe('Actions', function() {
   })
 
   it('should fail to connect', function() {
-    actions._connect = sinon.stub()
-    actions._connect.callsArgWith(0, new Error('urk!'))
+    actions._connectOrStart = sinon.stub()
+    actions._connectOrStart.callsArgWith(0, new Error('urk!'))
 
     try {
       actions._do()

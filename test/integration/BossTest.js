@@ -38,7 +38,7 @@ var logger = {
   debug: console.info
 }
 
-var remote = require('../../lib/local').connect,
+var remote = require('../../lib/local').connectOrStart,
   remote = remote.bind(null, config, logger)
 
 var guvnor
