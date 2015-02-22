@@ -56,7 +56,6 @@ describe('RemoteRPC', function() {
       exec: sinon.stub()
     }
     remoteRpc._package = {}
-    remoteRpc._nodeInspectorWrapper = {}
     remoteRpc._os = {
       hostname: sinon.stub(),
       type: sinon.stub(),
@@ -76,6 +75,9 @@ describe('RemoteRPC', function() {
     remoteRpc._mdns = {
       createAdvertisement: sinon.stub(),
       tcp: sinon.stub()
+    }
+    remoteRpc._userDetailsFactory = {
+      create: sinon.stub()
     }
   })
 
@@ -434,7 +436,7 @@ describe('RemoteRPC', function() {
 
       remoteRpc._dnode.getCall(0).args[0].call(dnode, client, connection)
 
-      var details = dnode.getDetails(function(error, details) {
+      dnode.getDetails({}, function(error, details) {
         expect(error).to.not.exist
 
         expect(details.hostname).to.equal(hostname)
@@ -456,7 +458,8 @@ describe('RemoteRPC', function() {
     var hash = 'hash'
     var nonce = 'nonce'
     var user = {
-      secret: 'shh'
+      secret: 'shh',
+      name: principal
     }
     var signature = {
       principal: principal,
@@ -464,11 +467,14 @@ describe('RemoteRPC', function() {
       hash: hash,
       nonce: nonce
     }
+    var userDetails = {}
+    remoteRpc._userDetailsFactory.create.withArgs([user.name]).callsArgWithAsync(1, undefined, userDetails)
 
-    remoteRpc._remoteUserService.findUser.withArgs(principal, sinon.match.func).callsArgWith(1, undefined, user)
+    remoteRpc._remoteUserService.findUser.withArgs(principal, sinon.match.func).callsArgWithAsync(1, undefined, user)
     remoteRpc._crypto.verify.withArgs(signature, user.secret).returns(true)
 
-    remoteRpc._checkSignature(function (one, two, three) {
+    remoteRpc._checkSignature(function (details, one, two, three) {
+      expect(details).to.equal(userDetails)
       expect(one).to.equal('one')
       expect(two).to.equal('two')
       expect(three).to.equal('three')
@@ -557,11 +563,13 @@ describe('RemoteRPC', function() {
       hash: hash,
       nonce: nonce
     }
+    var userDetails = {}
+    remoteRpc._userDetailsFactory.create.withArgs([user.name]).callsArgWithAsync(1, undefined, userDetails)
 
     remoteRpc._remoteUserService.findUser.withArgs(principal, sinon.match.func).callsArgWith(1, undefined, user)
     remoteRpc._crypto.verify.withArgs(signature, user.secret).returns(false)
 
-    remoteRpc._checkSignature(function (one, two, three) {
+    remoteRpc._checkSignature(function (details, one, two, three) {
 
     }, signature, 'one', 'two', 'three', function (error) {
       expect(error.code).to.equal('INVALIDSIGNATURE')
@@ -576,11 +584,12 @@ describe('RemoteRPC', function() {
     var processInfo = {}
     var childProcess = new EventEmitter()
     childProcess.kill = sinon.stub()
+    var userDetails = {}
 
-    remoteRpc._guvnor.findProcessInfoById.withArgs(id, sinon.match.func).callsArgWith(1, undefined, processInfo)
+    remoteRpc._guvnor.findProcessInfoById.withArgs(userDetails, id, sinon.match.func).callsArgWith(2, undefined, processInfo)
     remoteRpc._child_process.fork.returns(childProcess)
 
-    remoteRpc.connectToProcess(id, function(error, remote) {
+    remoteRpc.connectToProcess(userDetails, id, function(error, remote) {
       expect(error).to.not.exist
 
       // should have exposed methods
@@ -628,11 +637,12 @@ describe('RemoteRPC', function() {
     var processInfo = {}
     var childProcess = new EventEmitter()
     childProcess.kill = sinon.stub()
+    var userDetails = {}
 
-    remoteRpc._guvnor.findProcessInfoById.withArgs(id, sinon.match.func).callsArgWith(1, undefined, processInfo)
+    remoteRpc._guvnor.findProcessInfoById.withArgs(userDetails, id, sinon.match.func).callsArgWith(2, undefined, processInfo)
     remoteRpc._child_process.fork.returns(childProcess)
 
-    remoteRpc.connectToProcess(id, function(error, remote) {
+    remoteRpc.connectToProcess(userDetails, id, function(error, remote) {
       expect(error).to.not.exist
 
       // invoke exposed method
@@ -670,11 +680,12 @@ describe('RemoteRPC', function() {
     var processInfo = {}
     var childProcess = new EventEmitter()
     childProcess.kill = sinon.stub()
+    var userDetails = {}
 
-    remoteRpc._guvnor.findProcessInfoById.withArgs(id, sinon.match.func).callsArgWith(1, undefined, processInfo)
+    remoteRpc._guvnor.findProcessInfoById.withArgs(userDetails, id, sinon.match.func).callsArgWith(2, undefined, processInfo)
     remoteRpc._child_process.fork.returns(childProcess)
 
-    remoteRpc.connectToProcess(id, function(error) {
+    remoteRpc.connectToProcess(userDetails, id, function(error) {
       expect(error.message).to.contain('oops')
 
       done()
@@ -700,11 +711,12 @@ describe('RemoteRPC', function() {
     var processInfo = {}
     var childProcess = new EventEmitter()
     childProcess.kill = sinon.stub()
+    var userDetails = {}
 
-    remoteRpc._guvnor.findProcessInfoById.withArgs(id, sinon.match.func).callsArgWith(1, undefined, processInfo)
+    remoteRpc._guvnor.findProcessInfoById.withArgs(userDetails, id, sinon.match.func).callsArgWith(2, undefined, processInfo)
     remoteRpc._child_process.fork.returns(childProcess)
 
-    remoteRpc.connectToProcess(id, function(error) {
+    remoteRpc.connectToProcess(userDetails, id, function(error) {
       expect(error.message).to.contain('with code')
 
       done()

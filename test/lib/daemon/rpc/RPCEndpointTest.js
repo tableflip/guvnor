@@ -2,7 +2,8 @@ var expect = require('chai').expect,
   sinon = require('sinon'),
   inherits = require('util').inherits,
   RPCEndpoint = require('../../../../lib/daemon/rpc/RPCEndpoint'),
-  EventEmitter = require('events').EventEmitter
+  EventEmitter = require('events').EventEmitter,
+  async = require('async')
 
 describe('RPCEndpoint', function() {
   var rpc, clock
@@ -47,6 +48,9 @@ describe('RPCEndpoint', function() {
     }
     rpc._fileSystem = {
       getRunDir: sinon.stub()
+    }
+    rpc._userDetailsFactory = {
+      create: sinon.stub()
     }
   })
 
@@ -256,33 +260,54 @@ describe('RPCEndpoint', function() {
     d.listen.getCall(0).args[1]()
   })
 
-  it('should generate a server api', function() {
-    rpc.foo = sinon.stub()
-    rpc.bar = sinon.stub()
+  it('should generate a server api', function(done) {
+    var uid = 5
+    var userDetails = {}
+    rpc._userDetailsFactory.create.withArgs([5]).callsArgWithAsync(1, undefined, userDetails)
+
+    rpc.foo = sinon.stub().callsArgAsync(1)
+    rpc.bar = sinon.stub().callsArgAsync(1)
     rpc._getApi = function() {
       return ['foo', 'bar']
     }
 
     var api = rpc._generateApi()
-    api.foo()
-    api.bar()
 
-    expect(rpc.foo.calledOnce).to.be.true
-    expect(rpc.bar.calledOnce).to.be.true
+    expect(api.foo).to.be.a('function')
+    expect(api.bar).to.be.a('function')
+
+    async.parallel([
+      api.foo.bind(api, uid), api.bar.bind(api, uid)
+    ], function(error) {
+      expect(error).to.not.exist
+
+      expect(rpc.foo.calledOnce).to.be.true
+      expect(rpc.bar.calledOnce).to.be.true
+
+      done()
+    })
   })
 
-  it('should survive a server api method throwing an exception', function() {
-    rpc.foo = sinon.stub()
-    rpc.foo.throws(new Error('urk!'))
+  it('should survive a server api method throwing an exception', function(done) {
+    var uid = 5
+    var userDetails = {}
+    rpc._userDetailsFactory.create.withArgs([5]).callsArgWithAsync(1, undefined, userDetails)
+
+    var error = new Error('urk!')
+
+    rpc.foo = sinon.stub().throws(error)
 
     rpc._getApi = function() {
       return ['foo']
     }
 
     var api = rpc._generateApi()
-    api.foo()
+    api.foo(uid, function(thrown) {
+      expect(thrown).to.equal(error)
+      expect(rpc.foo.calledOnce).to.be.true
 
-    expect(rpc.foo.calledOnce).to.be.true
+      done()
+    })
   })
 
   it('should survive calling a non-existent server api method', function() {
