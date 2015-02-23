@@ -43,6 +43,7 @@
     "colors": "^1.0",
     "columbo": "^3.0",
     "commander": "^2.0",
+    "component-emitter": "1.1.2",
     "copy-to": "^2.0",
     "cpu-stats": "^1.0",
     "domify": "^1.0",
@@ -95,7 +96,6 @@
   },
   "devDependencies": {
     "chai": "^2.0.0",
-    "component-emitter": "1.1.2",
     "coveralls": "^2.8",
     "debug": "^2.1",
     "istanbul": "^0.3.0",
