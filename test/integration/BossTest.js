@@ -130,12 +130,10 @@ describe('Guvnor', function() {
       expect(error).to.not.exist
       expect(processInfo.id).to.be.ok
 
-      guvnor.on('process:ready', function(readyProcessInfo) {
-        if(readyProcessInfo.id != processInfo.id) {
-          return
-        }
+      console.info('process id', processInfo.id)
 
-        expect(readyProcessInfo.socket).to.include(readyProcessInfo.pid)
+      processInfo.once('process:ready', function() {
+        expect(processInfo.socket).to.include(processInfo.pid)
 
         done()
       })
@@ -147,7 +145,7 @@ describe('Guvnor', function() {
       expect(error).to.not.exist
       expect(processInfo.id).to.be.ok
 
-      guvnor.on('process:ready', function(readyProcessInfo) {
+      guvnor.once('process:ready', function(readyProcessInfo) {
         if(readyProcessInfo.id != processInfo.id) {
           return
         }
@@ -190,12 +188,8 @@ describe('Guvnor', function() {
 
       var continued = false
 
-      guvnor.on('process:ready', function(readyProcessInfo) {
-        if(readyProcessInfo.id != processInfo.id) {
-          return
-        }
-
-        expect(readyProcessInfo.socket).to.include(readyProcessInfo.pid)
+      processInfo.on('process:ready', function() {
+        expect(processInfo.socket).to.include(processInfo.pid)
         expect(continued).to.be.true
 
         done()
@@ -216,41 +210,28 @@ describe('Guvnor', function() {
       expect(error).to.not.exist
       expect(processInfo.id).to.be.ok
 
-      guvnor.on('process:ready', function(readyProcessInfo) {
-        if(readyProcessInfo.id != processInfo.id) {
-          return
-        }
+      processInfo.once('process:exit', function(error, code, signal) {
+        expect(processInfo.status).to.equal('stopped')
+        expect(error).to.not.exist
+        expect(code).to.equal(0)
+        expect(signal).to.not.exist
 
-        expect(readyProcessInfo.socket).to.be.ok
+        console.info('process exited')
 
-        guvnor.connectToProcess(readyProcessInfo.id, function(error, remote) {
+        guvnor.listProcesses(function(error, processes) {
           expect(error).to.not.exist
+          expect(processes.length).to.equal(1)
+          expect(processes[0].id).to.equal(processInfo.id)
+          expect(processes[0].status).to.equal('stopped')
 
-          guvnor.on('process:exit', function(stoppedProcessInfo, error, code, signal) {
-            if(stoppedProcessInfo.id != processInfo.id) {
-              return
-            }
-
-            expect(stoppedProcessInfo.status).to.equal('stopped')
-            expect(error).to.not.exist
-            expect(code).to.equal(0)
-            expect(signal).to.not.exist
-
-            console.info('process exited')
-
-            guvnor.listProcesses(function(error, processes) {
-              expect(error).to.not.exist
-              expect(processes.length).to.equal(1)
-              expect(processes[0].id).to.equal(stoppedProcessInfo.id)
-              expect(processes[0].status).to.equal('stopped')
-
-              done()
-            })
-          })
-
-          remote.kill()
-          remote.disconnect()
+          done()
         })
+      })
+
+      processInfo.once('process:ready', function() {
+        expect(processInfo.socket).to.be.ok
+
+        processInfo.kill()
       })
     })
   })
@@ -260,47 +241,28 @@ describe('Guvnor', function() {
       expect(error).to.not.exist
       expect(processInfo.id).to.be.ok
 
-      guvnor.once('process:ready', function(readyProcessInfo) {
-        if(readyProcessInfo.id != processInfo.id) {
-          return
-        }
+      var notifiedOfRestarting = false
 
-        expect(readyProcessInfo.socket).to.be.ok
+      processInfo.once('process:restarting', function() {
+        notifiedOfRestarting = true
+      })
 
-        guvnor.connectToProcess(processInfo.id, function(error, remote) {
+      processInfo.once('process:restarted', function() {
+        guvnor.listProcesses(function(error, processes) {
+          console.info(error, processes)
           expect(error).to.not.exist
+          expect(notifiedOfRestarting).to.be.true
+          expect(processes.length).to.equal(1)
+          expect(processes[0].restarts).to.equal(1)
 
-          var notifiedOfRestarting = false
-
-          guvnor.on('process:restarting', function(restartingProcessInfo) {
-            if(restartingProcessInfo.id != processInfo.id) {
-              return
-            }
-
-            notifiedOfRestarting = true
-          })
-
-          remote.restart()
-          remote.disconnect()
-
-          guvnor.on('process:restarted', function(restartedProcessInfo) {
-            if(restartedProcessInfo.id != processInfo.id) {
-              return
-            }
-
-            console.info('process restarted')
-
-            guvnor.listProcesses(function(error, processes) {
-              console.info(error, processes)
-              expect(error).to.not.exist
-              expect(notifiedOfRestarting).to.be.true
-              expect(processes.length).to.equal(1)
-              expect(processes[0].restarts).to.equal(1)
-
-              done()
-            })
-          })
+          done()
         })
+      })
+
+      processInfo.once('process:ready', function() {
+        expect(processInfo.socket).to.be.ok
+
+        processInfo.restart()
       })
     })
   })
@@ -314,7 +276,7 @@ describe('Guvnor', function() {
         expect(error).to.not.exist
         expect(processInfo.id).to.be.ok
 
-        guvnor.on('process:ready', function() {
+        guvnor.once('process:ready', function() {
           guvnor.listProcesses(function(error, processes) {
             expect(error).to.not.exist
             expect(processes.length).to.equal(1)
@@ -331,30 +293,16 @@ describe('Guvnor', function() {
       expect(error).to.not.exist
       expect(processInfo.id).to.be.ok
 
-      guvnor.once('process:ready', function(readyProcessInfo) {
-        if(readyProcessInfo.id != processInfo.id) {
-          return
-        }
+      processInfo.once('process:restarted', function(failedPid) {
+        expect(processInfo.pid).to.not.equal(failedPid)
 
-        expect(readyProcessInfo.socket).to.be.ok
+        done()
+      })
 
-        guvnor.connectToProcess(processInfo.id, function(error, remote) {
-          expect(error).to.not.exist
+      processInfo.once('process:ready', function() {
+        expect(processInfo.socket).to.be.ok
 
-          remote.send('custom:euthanise')
-
-          guvnor.once('process:restarted', function(newProcessInfo, failedPid) {
-            if(newProcessInfo.id != processInfo.id) {
-              return
-            }
-
-            expect(newProcessInfo.id).to.equal(processInfo.id)
-            expect(readyProcessInfo.pid).to.equal(failedPid)
-            expect(newProcessInfo.pid).to.not.equal(failedPid)
-
-            done()
-          })
-        })
+        processInfo.send('custom:euthanise')
       })
     })
   })
@@ -363,16 +311,13 @@ describe('Guvnor', function() {
     guvnor.startProcess(__dirname + '/fixtures/first-tick-crash.js', {}, function(error, processInfo) {
       expect(error).to.not.exist
 
-      guvnor.once('process:aborted', function(abortedProcessInfo) {
-        if(abortedProcessInfo.id != processInfo.id) {
-          return
-        }
+      processInfo.once('process:aborted', function() {
 
-        // should not be in the process list
+        // should have status of 'aborted'
         guvnor.listProcesses(function(error, processes) {
           expect(error).to.not.exist
           expect(processes.length).to.equal(1)
-          expect(processes[0].id).to.equal(abortedProcessInfo.id)
+          expect(processes[0].id).to.equal(processInfo.id)
           expect(processes[0].status).to.equal('aborted')
 
           done()
@@ -386,22 +331,13 @@ describe('Guvnor', function() {
       expect(error).to.not.exist
       expect(processInfo.id).to.be.ok
 
-      guvnor.once('process:ready', function(readyProcessInfo) {
-        if(readyProcessInfo.id != processInfo.id) {
-          return
-        }
+      processInfo.once('process:ready', function() {
+        expect(processInfo.socket).to.be.ok
 
-        expect(readyProcessInfo.socket).to.be.ok
+        processInfo.send('custom:hello', function(message) {
+          expect(message).to.equal('hello world')
 
-        guvnor.connectToProcess(processInfo.id, function(error, remote) {
-          expect(error).to.not.exist
-
-          remote.send('custom:hello', function(message) {
-            expect(message).to.equal('hello world')
-
-            remote.disconnect()
-            done()
-          })
+          done()
         })
       })
     })
