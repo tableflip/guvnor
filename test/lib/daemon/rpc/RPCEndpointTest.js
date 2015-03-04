@@ -5,10 +5,10 @@ var expect = require('chai').expect,
   EventEmitter = require('events').EventEmitter,
   async = require('async')
 
-describe('RPCEndpoint', function() {
+describe('RPCEndpoint', function () {
   var rpc, clock
 
-  beforeEach(function() {
+  beforeEach(function () {
     process.setMaxListeners(0)
 
     clock = sinon.useFakeTimers()
@@ -54,11 +54,11 @@ describe('RPCEndpoint', function() {
     }
   })
 
-  afterEach(function() {
+  afterEach(function () {
     clock.restore()
   })
 
-  it('should start dnode', function(done) {
+  it('should start dnode', function (done) {
     var directory = 'run'
     rpc._fileSystem.getRunDir.returns(directory)
     var socketPath = directory + '/socket'
@@ -71,7 +71,7 @@ describe('RPCEndpoint', function() {
 
     rpc._dnode.returns(d)
 
-    rpc.afterPropertiesSet(function(error) {
+    rpc.afterPropertiesSet(function (error) {
       expect(error).to.not.exist
       expect(rpc.socket).to.equal(socketPath)
 
@@ -89,7 +89,7 @@ describe('RPCEndpoint', function() {
     d.listen.getCall(0).args[1]()
   })
 
-  it('should store a client connection and remove when the connection ends', function(done) {
+  it('should store a client connection and remove when the connection ends', function (done) {
     var directory = 'run'
     rpc._fileSystem.getRunDir.returns(directory)
     var socketPath = directory + '/socket'
@@ -107,7 +107,7 @@ describe('RPCEndpoint', function() {
     connection.id = 'foo'
     connection.stream = new EventEmitter()
 
-    rpc.afterPropertiesSet(function() {
+    rpc.afterPropertiesSet(function () {
       var connect = rpc._dnode.getCall(0).args[0]
       connect(client, connection)
 
@@ -130,7 +130,7 @@ describe('RPCEndpoint', function() {
     d.listen.getCall(0).args[1]()
   })
 
-  it('should store a client connection and remove when the connection errors', function(done) {
+  it('should store a client connection and remove when the connection errors', function (done) {
     var directory = 'run'
     rpc._fileSystem.getRunDir.returns(directory)
     var socketPath = directory + '/socket'
@@ -148,7 +148,7 @@ describe('RPCEndpoint', function() {
     connection.id = 'foo'
     connection.stream = new EventEmitter()
 
-    rpc.afterPropertiesSet(function() {
+    rpc.afterPropertiesSet(function () {
       var connect = rpc._dnode.getCall(0).args[0]
       connect(client, connection)
 
@@ -171,7 +171,7 @@ describe('RPCEndpoint', function() {
     d.listen.getCall(0).args[1]()
   })
 
-  it('should store a client connection and remove when the connection stream errors', function(done) {
+  it('should store a client connection and remove when the connection stream errors', function (done) {
     var directory = 'run'
     rpc._fileSystem.getRunDir.returns(directory)
     var socketPath = directory + '/socket'
@@ -189,7 +189,7 @@ describe('RPCEndpoint', function() {
     connection.id = 'foo'
     connection.stream = new EventEmitter()
 
-    rpc.afterPropertiesSet(function() {
+    rpc.afterPropertiesSet(function () {
       var connect = rpc._dnode.getCall(0).args[0]
       connect(client, connection)
 
@@ -212,7 +212,7 @@ describe('RPCEndpoint', function() {
     d.listen.getCall(0).args[1]()
   })
 
-  it('should expose server methods to client', function(done) {
+  it('should expose server methods to client', function (done) {
     var directory = 'run'
     rpc._fileSystem.getRunDir.returns(directory)
     var socketPath = directory + '/socket'
@@ -230,16 +230,15 @@ describe('RPCEndpoint', function() {
     connection.id = 'foo'
     connection.stream = new EventEmitter()
 
-    rpc._generateApi = function() {
+    rpc._generateApi = function () {
       return {
         'foo': sinon.stub(),
         'bar': sinon.stub()
       }
     }
 
-    rpc.afterPropertiesSet(function() {
+    rpc.afterPropertiesSet(function () {
       var actualClient = {}
-
 
       var connect = rpc._dnode.getCall(0).args[0]
       connect.call(actualClient, client, connection)
@@ -260,14 +259,14 @@ describe('RPCEndpoint', function() {
     d.listen.getCall(0).args[1]()
   })
 
-  it('should generate a server api', function(done) {
+  it('should generate a server api', function (done) {
     var uid = 5
     var userDetails = {}
     rpc._userDetailsFactory.create.withArgs([5]).callsArgWithAsync(1, undefined, userDetails)
 
     rpc.foo = sinon.stub().callsArgAsync(1)
     rpc.bar = sinon.stub().callsArgAsync(1)
-    rpc._getApi = function() {
+    rpc._getApi = function () {
       return ['foo', 'bar']
     }
 
@@ -278,17 +277,17 @@ describe('RPCEndpoint', function() {
 
     async.parallel([
       api.foo.bind(api, uid), api.bar.bind(api, uid)
-    ], function(error) {
-      expect(error).to.not.exist
+    ], function (error) {
+        expect(error).to.not.exist
 
-      expect(rpc.foo.calledOnce).to.be.true
-      expect(rpc.bar.calledOnce).to.be.true
+        expect(rpc.foo.calledOnce).to.be.true
+        expect(rpc.bar.calledOnce).to.be.true
 
-      done()
-    })
+        done()
+      })
   })
 
-  it('should survive a server api method throwing an exception', function(done) {
+  it('should survive a server api method throwing an exception', function (done) {
     var uid = 5
     var userDetails = {}
     rpc._userDetailsFactory.create.withArgs([5]).callsArgWithAsync(1, undefined, userDetails)
@@ -297,12 +296,12 @@ describe('RPCEndpoint', function() {
 
     rpc.foo = sinon.stub().throws(error)
 
-    rpc._getApi = function() {
+    rpc._getApi = function () {
       return ['foo']
     }
 
     var api = rpc._generateApi()
-    api.foo(uid, function(thrown) {
+    api.foo(uid, function (thrown) {
       expect(thrown).to.equal(error)
       expect(rpc.foo.calledOnce).to.be.true
 
@@ -310,8 +309,8 @@ describe('RPCEndpoint', function() {
     })
   })
 
-  it('should survive calling a non-existent server api method', function() {
-    rpc._getApi = function() {
+  it('should survive calling a non-existent server api method', function () {
+    rpc._getApi = function () {
       return ['bar']
     }
 
@@ -319,7 +318,7 @@ describe('RPCEndpoint', function() {
     api.bar()
   })
 
-  it('should remove socket file', function() {
+  it('should remove socket file', function () {
     var socket = 'socket'
     rpc.socket = socket
 
@@ -330,7 +329,7 @@ describe('RPCEndpoint', function() {
     expect(rpc._fs.unlinkSync.withArgs(socket).calledOnce).to.be.true
   })
 
-  it('should not remove socket file if it doesn\'t exist', function() {
+  it("should not remove socket file if it doesn't exist", function () {
     var socket = 'socket'
     rpc.socket = socket
 
@@ -341,7 +340,7 @@ describe('RPCEndpoint', function() {
     expect(rpc._fs.unlinkSync.called).to.be.false
   })
 
-  it('should broadcast event to connected clients', function() {
+  it('should broadcast event to connected clients', function () {
     rpc._connections = {
       foo: {
         sendEvent: sinon.stub()
@@ -357,7 +356,7 @@ describe('RPCEndpoint', function() {
     expect(rpc._connections.bar.sendEvent.withArgs('hello').calledOnce).to.be.true
   })
 
-  it('should drop a new socket file if the current one goes away', function(done) {
+  it('should drop a new socket file if the current one goes away', function (done) {
     var directory = 'run'
     rpc._fileSystem.getRunDir.returns(directory)
     var socketPath = directory + '/socket'
@@ -373,7 +372,7 @@ describe('RPCEndpoint', function() {
 
     rpc._dnode.returns(d)
 
-    rpc.afterPropertiesSet(function(error) {
+    rpc.afterPropertiesSet(function (error) {
       expect(error).to.not.exist
       expect(rpc.socket).to.equal(socketPath)
 

@@ -2,9 +2,9 @@ var expect = require('chai').expect,
   sinon = require('sinon'),
   ClusterProcessService = require('../../../../lib/daemon/cluster/ClusterProcessService')
 
-describe('ClusterProcessService', function() {
+describe('ClusterProcessService', function () {
 
-  it('should start a process', function(done) {
+  it('should start a process', function (done) {
     var service = new ClusterProcessService()
     service._freeport = sinon.stub()
     service._processInfoStore = {
@@ -39,10 +39,10 @@ describe('ClusterProcessService', function() {
     var initialProcessInfo = {
       id: 'foo',
       status: 'uninitialised',
-      getProcessOptions: function() {
+      getProcessOptions: function () {
         return processOptions
       },
-      getProcessArgs: function() {
+      getProcessArgs: function () {
         return []
       },
       process: worker.process
@@ -60,8 +60,8 @@ describe('ClusterProcessService', function() {
     var notifiedOfClusterWorkerStarting = false
     var notifiedOfClusterWorkerFork = false
 
-    service.on('worker:starting', function(processInfo) {
-      if(initialProcessInfo.id != processInfo.id) {
+    service.on('worker:starting', function (processInfo) {
+      if (initialProcessInfo.id != processInfo.id) {
         return
       }
 
@@ -69,8 +69,8 @@ describe('ClusterProcessService', function() {
 
       notifiedOfClusterWorkerStarting = true
     })
-    service.on('worker:forked', function(processInfo) {
-      if(initialProcessInfo.id != processInfo.id) {
+    service.on('worker:forked', function (processInfo) {
+      if (initialProcessInfo.id != processInfo.id) {
         return
       }
 
@@ -81,7 +81,7 @@ describe('ClusterProcessService', function() {
 
     service.afterPropertiesSet()
 
-    service.startProcess(function(error, processInfo) {
+    service.startProcess(function (error, processInfo) {
       expect(error).to.not.exist
       expect(processInfo).to.equal(initialProcessInfo)
 

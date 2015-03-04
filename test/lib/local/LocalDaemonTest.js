@@ -2,16 +2,16 @@ var expect = require('chai').expect,
   sinon = require('sinon'),
   LocalDaemon = require('../../../lib/local/LocalDaemon')
 
-describe('LocalDaemon', function() {
+describe('LocalDaemon', function () {
   var localDaemon
 
-  beforeEach(function() {
+  beforeEach(function () {
     localDaemon = new LocalDaemon()
     localDaemon._logger = {
-      info: function() {},
-      warn: function() {},
-      error: function() {},
-      debug: function() {}
+      info: function () {},
+      warn: function () {},
+      error: function () {},
+      debug: function () {}
     }
     localDaemon._semver = {
       satisfies: sinon.stub()
@@ -22,10 +22,10 @@ describe('LocalDaemon', function() {
     localDaemon._localDaemonUserConnection = {}
   })
 
-  it('should reject old node versions', function(done) {
+  it('should reject old node versions', function (done) {
     localDaemon._semver.satisfies.returns(false)
 
-    localDaemon.connectOrStart(function(error) {
+    localDaemon.connectOrStart(function (error) {
       expect(error.message).to.contain('Please use node')
       expect(error.message).to.contain('or later')
 
@@ -33,11 +33,11 @@ describe('LocalDaemon', function() {
     })
   })
 
-  it('should reuse an existing daemon connection', function(done) {
+  it('should reuse an existing daemon connection', function (done) {
     localDaemon._semver.satisfies.returns(true)
     localDaemon._localDaemonUserConnection.connected = true
 
-    localDaemon.connectOrStart(function(error, remote) {
+    localDaemon.connectOrStart(function (error, remote) {
       expect(error).to.not.exist
 
       expect(remote).to.equal(localDaemon)
@@ -46,19 +46,19 @@ describe('LocalDaemon', function() {
     })
   })
 
-  it('should connect to a running daemon and expose remote methods', function(done) {
+  it('should connect to a running daemon and expose remote methods', function (done) {
     localDaemon._semver.satisfies.returns(true)
     localDaemon._localDaemonUserConnection.connect = sinon.stub()
     localDaemon._localDaemonUserConnection.connect.callsArgWith(1, undefined, {
-      userMethod: function() {}
+      userMethod: function () {}
     })
 
     localDaemon._localDaemonAdminConnection.connect = sinon.stub()
     localDaemon._localDaemonAdminConnection.connect.callsArgWith(1, undefined, {
-      adminMethod: function() {}
+      adminMethod: function () {}
     })
 
-    localDaemon.connectOrStart(function(error, remote) {
+    localDaemon.connectOrStart(function (error, remote) {
       expect(error).to.not.exist
 
       expect(remote).to.equal(localDaemon)
@@ -71,11 +71,11 @@ describe('LocalDaemon', function() {
     })
   })
 
-  it('should connect to a running daemon and expose only remote user methods', function(done) {
+  it('should connect to a running daemon and expose only remote user methods', function (done) {
     localDaemon._semver.satisfies.returns(true)
     localDaemon._localDaemonUserConnection.connect = sinon.stub()
     localDaemon._localDaemonUserConnection.connect.callsArgWith(1, undefined, {
-      userMethod: function() {}
+      userMethod: function () {}
     })
 
     var error = new Error('Nope!')
@@ -83,10 +83,10 @@ describe('LocalDaemon', function() {
 
     localDaemon._localDaemonAdminConnection.connect = sinon.stub()
     localDaemon._localDaemonAdminConnection.connect.callsArgWith(1, error, {
-      adminMethod: function() {}
+      adminMethod: function () {}
     })
 
-    localDaemon.connect(function(error, remote) {
+    localDaemon.connect(function (error, remote) {
       expect(error).to.not.exist
 
       expect(remote).to.equal(localDaemon)
@@ -99,7 +99,7 @@ describe('LocalDaemon', function() {
     })
   })
 
-  it('should start a daemon when one is not running', function(done) {
+  it('should start a daemon when one is not running', function (done) {
     localDaemon._semver.satisfies.returns(true)
 
     var notRunningError = new Error('')
@@ -111,15 +111,15 @@ describe('LocalDaemon', function() {
     localDaemon._localDaemonUserConnection.connect = sinon.stub()
     localDaemon._localDaemonUserConnection.connect.onFirstCall().callsArgWith(1, notRunningError)
     localDaemon._localDaemonUserConnection.connect.onSecondCall().callsArgWith(1, undefined, {
-      userMethod: function() {}
+      userMethod: function () {}
     })
 
     localDaemon._localDaemonAdminConnection.connect = sinon.stub()
     localDaemon._localDaemonAdminConnection.connect.callsArgWith(1, undefined, {
-      adminMethod: function() {}
+      adminMethod: function () {}
     })
 
-    localDaemon.connectOrStart(function(error, remote) {
+    localDaemon.connectOrStart(function (error, remote) {
       expect(error).to.not.exist
 
       expect(remote).to.equal(localDaemon)
@@ -132,7 +132,7 @@ describe('LocalDaemon', function() {
     })
   })
 
-  it('should pass error through when starting the daemon fails', function(done) {
+  it('should pass error through when starting the daemon fails', function (done) {
     localDaemon._semver.satisfies.returns(true)
 
     var notRunningError = new Error('')
@@ -146,7 +146,7 @@ describe('LocalDaemon', function() {
     localDaemon._localDaemonUserConnection.connect = sinon.stub()
     localDaemon._localDaemonUserConnection.connect.onFirstCall().callsArgWith(1, notRunningError)
 
-    localDaemon.connectOrStart(function(error) {
+    localDaemon.connectOrStart(function (error) {
       expect(error).to.equal(startingDaemonError)
       expect(error).to.not.equal(notRunningError)
 
@@ -154,7 +154,7 @@ describe('LocalDaemon', function() {
     })
   })
 
-  it('should pass unknown error through when connecting to the daemon fails', function(done) {
+  it('should pass unknown error through when connecting to the daemon fails', function (done) {
     localDaemon._semver.satisfies.returns(true)
 
     var unknownError = new Error('I AM AN ENIGMA')
@@ -162,14 +162,14 @@ describe('LocalDaemon', function() {
     localDaemon._localDaemonUserConnection.connect = sinon.stub()
     localDaemon._localDaemonUserConnection.connect.onFirstCall().callsArgWith(1, unknownError)
 
-    localDaemon.connectOrStart(function(error) {
+    localDaemon.connectOrStart(function (error) {
       expect(error).to.equal(unknownError)
 
       done()
     })
   })
 
-  it('should disconnect from a daemon', function(done) {
+  it('should disconnect from a daemon', function (done) {
     localDaemon._semver.satisfies.returns(true)
 
     localDaemon._localDaemonStarter.disconnect = sinon.stub()
@@ -181,7 +181,7 @@ describe('LocalDaemon', function() {
     localDaemon._localDaemonAdminConnection.disconnect = sinon.stub()
     localDaemon._localDaemonAdminConnection.disconnect.callsArgWith(0, undefined)
 
-    localDaemon.disconnect(function(error) {
+    localDaemon.disconnect(function (error) {
       expect(error).to.not.exist
 
       expect(localDaemon._localDaemonStarter.disconnect.calledOnce).to.be.true
@@ -192,7 +192,7 @@ describe('LocalDaemon', function() {
     })
   })
 
-  it('should pass received error when disconnecting from a daemon', function(done) {
+  it('should pass received error when disconnecting from a daemon', function (done) {
     localDaemon._semver.satisfies.returns(true)
 
     var disconnectionError = new Error('urk!')
@@ -206,7 +206,7 @@ describe('LocalDaemon', function() {
     localDaemon._localDaemonAdminConnection.disconnect = sinon.stub()
     localDaemon._localDaemonAdminConnection.disconnect.callsArgWith(0, undefined)
 
-    localDaemon.disconnect(function(error) {
+    localDaemon.disconnect(function (error) {
       expect(error).to.equal(disconnectionError)
 
       expect(localDaemon._localDaemonStarter.disconnect.calledOnce).to.be.true
@@ -217,19 +217,19 @@ describe('LocalDaemon', function() {
     })
   })
 
-  it('should refuse to connect to a process when not connected to daemon', function(done) {
+  it('should refuse to connect to a process when not connected to daemon', function (done) {
     localDaemon._semver.satisfies.returns(true)
 
     var id = 'foo'
 
-    localDaemon.connectToProcess(id, function(error) {
+    localDaemon.connectToProcess(id, function (error) {
       expect(error).to.be.ok
 
       done()
     })
   })
 
-  it('should connect to a process when connected to daemon', function(done) {
+  it('should connect to a process when connected to daemon', function (done) {
     localDaemon._semver.satisfies.returns(true)
 
     var id = 'foo'
@@ -244,14 +244,14 @@ describe('LocalDaemon', function() {
     localDaemon.findProcessInfoById = sinon.stub()
     localDaemon.findProcessInfoById.withArgs(id, sinon.match.func).callsArgWith(1, undefined, processInfo)
 
-    localDaemon.connectToProcess(id, function(error) {
+    localDaemon.connectToProcess(id, function (error) {
       expect(error).to.not.exist
 
       done()
     })
   })
 
-  it('should refuse to connect to a process that is not ready', function(done) {
+  it('should refuse to connect to a process that is not ready', function (done) {
     localDaemon._semver.satisfies.returns(true)
 
     var id = 'foo'
@@ -264,14 +264,14 @@ describe('LocalDaemon', function() {
     localDaemon.findProcessInfoById = sinon.stub()
     localDaemon.findProcessInfoById.withArgs(id, sinon.match.func).callsArgWith(1, undefined, processInfo)
 
-    localDaemon.connectToProcess(id, function(error) {
+    localDaemon.connectToProcess(id, function (error) {
       expect(error.message).to.contain('not ready')
 
       done()
     })
   })
 
-  it('should expose a sendEvent method to the remote daemon that relays events', function(done) {
+  it('should expose a sendEvent method to the remote daemon that relays events', function (done) {
     localDaemon._semver.satisfies.returns(true)
 
     var notRunningError = new Error('')
@@ -282,15 +282,15 @@ describe('LocalDaemon', function() {
 
     localDaemon._localDaemonUserConnection.connect = sinon.stub()
     localDaemon._localDaemonUserConnection.connect.callsArgWith(1, undefined, {
-      userMethod: function() {}
+      userMethod: function () {}
     })
 
     localDaemon._localDaemonAdminConnection.connect = sinon.stub()
     localDaemon._localDaemonAdminConnection.connect.callsArgWith(1, undefined, {
-      adminMethod: function() {}
+      adminMethod: function () {}
     })
 
-    localDaemon.connectOrStart(function(error, remote) {
+    localDaemon.connectOrStart(function (error, remote) {
       expect(error).to.not.exist
 
       expect(remote).to.equal(localDaemon)

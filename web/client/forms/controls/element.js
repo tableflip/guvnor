@@ -1,5 +1,5 @@
-var View = require('ampersand-view'),
-  _ = require('underscore')
+var View = require('ampersand-view')
+var _ = require('underscore')
 
 module.exports = View.extend({
   render: function () {

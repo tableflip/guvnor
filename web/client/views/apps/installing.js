@@ -1,15 +1,15 @@
-var View = require('ampersand-view'),
-  templates = require('../../templates'),
-  CollectionRenderer = require('ampersand-collection-view'),
-  LineView = require('./line')
+var View = require('ampersand-view')
+var templates = require('../../templates')
+var CollectionRenderer = require('ampersand-collection-view')
+var LineView = require('./line')
 
 module.exports = View.extend({
   template: templates.includes.apps.installing,
-  initialize: function() {
+  initialize: function () {
     this.listenTo(this.model.logs, 'add', this.scrollLogs.bind(this))
   },
-  scrollLogs: function() {
-    setTimeout(function() {
+  scrollLogs: function () {
+    setTimeout(function () {
       var list = this.query('[data-hook=install-log]')
 
       list.scrollTop = list.scrollHeight
@@ -18,12 +18,12 @@ module.exports = View.extend({
   subviews: {
     lines: {
       container: '[data-hook=install-log]',
-      prepareView: function(el) {
+      prepareView: function (el) {
         return new CollectionRenderer({
-          el: el,
-          collection: this.model.logs,
-          view: LineView
-        })
+            el: el,
+            collection: this.model.logs,
+            view: LineView
+          })
       }
     }
   }

@@ -4,9 +4,9 @@ var expect = require('chai').expect,
   UserRPC = require('../../../../lib/daemon/rpc/UserRPC'),
   EventEmitter = require('events').EventEmitter
 
-describe('UserRPC', function() {
+describe('UserRPC', function () {
 
-  it('should expose user methods', function() {
+  it('should expose user methods', function () {
     var rpc = new UserRPC()
     rpc._processFactory = {
       connect: sinon.stub()
@@ -35,7 +35,7 @@ describe('UserRPC', function() {
     }
     rpc._config = {
       guvnor: {
-        
+
       }
     }
     rpc._fileSystem = {

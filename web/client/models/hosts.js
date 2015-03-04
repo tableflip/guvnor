@@ -1,5 +1,5 @@
-var Collection = require('ampersand-collection'),
-  Host = require('./host');
+var Collection = require('ampersand-collection')
+var Host = require('./host')
 
 module.exports = Collection.extend({
   mainIndex: 'name',

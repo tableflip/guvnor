@@ -2,8 +2,8 @@ var sinon = require('sinon'),
   expect = require('chai').expect,
   RemoteProcessLogger = require('../../../../lib/daemon/common/RemoteProcessLogger')
 
-describe('RemoteProcessLogger', function() {
-  it('should swallow log if silent option is true', function() {
+describe('RemoteProcessLogger', function () {
+  it('should swallow log if silent option is true', function () {
     var logger = new RemoteProcessLogger({
       silent: true
     })
@@ -22,7 +22,7 @@ describe('RemoteProcessLogger', function() {
     expect(logger._parentProcess.send.callCount).to.equal(0)
   })
 
-  it('should send log event to parent process', function() {
+  it('should send log event to parent process', function () {
     var logger = new RemoteProcessLogger({
       silent: false
     })
@@ -34,7 +34,7 @@ describe('RemoteProcessLogger', function() {
 
     var emittedLogEvent = false
 
-    logger.once('logged', function() {
+    logger.once('logged', function () {
       emittedLogEvent = true
     })
 
@@ -51,7 +51,7 @@ describe('RemoteProcessLogger', function() {
     expect(emittedLogEvent).to.be.true
   })
 
-  it('should not log empty message', function() {
+  it('should not log empty message', function () {
     var logger = new RemoteProcessLogger({
       silent: false
     })
@@ -63,7 +63,7 @@ describe('RemoteProcessLogger', function() {
 
     var emittedLogEvent = false
 
-    logger.once('logged', function() {
+    logger.once('logged', function () {
       emittedLogEvent = true
     })
 

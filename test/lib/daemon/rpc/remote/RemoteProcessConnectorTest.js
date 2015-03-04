@@ -4,9 +4,9 @@ var expect = require('chai').expect,
   RemoteProcessConnector = require('../../../../../lib/daemon/rpc/remote/RemoteProcessConnector'),
   posix = require('posix')
 
-describe('RemoteProcessConnector', function() {
+describe('RemoteProcessConnector', function () {
 
-  it('should execute a remote process', function(done) {
+  it('should execute a remote process', function (done) {
     var connector = new RemoteProcessConnector()
     connector._managedProcessFactory = {
       create: sinon.stub()
@@ -19,7 +19,7 @@ describe('RemoteProcessConnector', function() {
     process.on = sinon.stub()
 
     var remoteProcess = {
-      foo: function(five, six, seven, callback) {
+      foo: function (five, six, seven, callback) {
         expect(five).to.equal(5)
         expect(six).to.equal(6)
         expect(seven).to.equal(7)
@@ -47,7 +47,7 @@ describe('RemoteProcessConnector', function() {
     })
   })
 
-  it('should pass callback arguments to parent process', function(done) {
+  it('should pass callback arguments to parent process', function (done) {
     var connector = new RemoteProcessConnector()
     connector._managedProcessFactory = {
       create: sinon.stub()
@@ -60,14 +60,14 @@ describe('RemoteProcessConnector', function() {
     process.on = sinon.stub()
 
     var remoteProcess = {
-      foo: function(five, six, seven, callback) {
+      foo: function (five, six, seven, callback) {
         expect(five).to.equal(5)
         expect(six).to.equal(6)
         expect(seven).to.equal(7)
 
         callback(undefined, 8, 9, 10)
       },
-      disconnect: function() {
+      disconnect: function () {
         expect(process.send.callCount).to.equal(2)
         expect(process.send.getCall(0).args[0].event).to.equal('remote:ready')
         expect(process.send.getCall(1).args[0].event).to.equal('remote:success')
@@ -97,10 +97,10 @@ describe('RemoteProcessConnector', function() {
     })
   })
 
-  it('should pass error to parent process', function() {
+  it('should pass error to parent process', function () {
     var connector = new RemoteProcessConnector()
     connector._posix = {
-      getpwnam: function() {
+      getpwnam: function () {
         throw new Error('Suprise!')
       }
     }
@@ -116,7 +116,7 @@ describe('RemoteProcessConnector', function() {
     expect(process.send.getCall(0).args[0].args[0].stack).to.be.ok
   })
 
-  it('should emit an error when remote method name is wrong', function() {
+  it('should emit an error when remote method name is wrong', function () {
     var connector = new RemoteProcessConnector()
     connector._managedProcessFactory = {
       create: sinon.stub()

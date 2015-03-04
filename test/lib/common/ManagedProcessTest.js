@@ -2,10 +2,10 @@ var expect = require('chai').expect,
   sinon = require('sinon'),
   Process = require('../../../lib/common/ManagedProcess')
 
-describe('ManagedProcess', function() {
+describe('ManagedProcess', function () {
   var proc, socket
 
-  beforeEach(function() {
+  beforeEach(function () {
     socket = 'foo'
 
     proc = new Process(socket)
@@ -15,27 +15,27 @@ describe('ManagedProcess', function() {
       }
     }
     proc._logger = {
-      info: function() {},
-      warn: function() {},
-      error: function() {},
-      debug: function() {}
+      info: function () {},
+      warn: function () {},
+      error: function () {},
+      debug: function () {}
     }
     proc._dnode = {
       connect: sinon.stub()
     }
   })
 
-  it('should connect to the remote process RPC socket', function(done) {
+  it('should connect to the remote process RPC socket', function (done) {
     var dnode = {
       on: sinon.stub(),
       connect: sinon.stub()
     }
 
-    proc._dnode = function() {
+    proc._dnode = function () {
       return dnode
     }
 
-    proc.connect(function(error, remote) {
+    proc.connect(function (error, remote) {
       expect(error).to.not.exist
 
       expect(remote.kill).to.be.a('function')
@@ -50,17 +50,17 @@ describe('ManagedProcess', function() {
     var readyCallback = dnode.on.getCall(1).args[1]
 
     readyCallback({
-      foo: function() {}
+      foo: function () {}
     })
   })
 
-  it('should defer dnode connection until method is invoked', function(done) {
+  it('should defer dnode connection until method is invoked', function (done) {
     var dnode = {
       on: sinon.stub(),
       connect: sinon.stub()
     }
 
-    proc._dnode = function() {
+    proc._dnode = function () {
       return dnode
     }
 
@@ -68,7 +68,7 @@ describe('ManagedProcess', function() {
     expect(dnode.on.called).to.be.false
 
     // invoke the proxied method
-    proc.kill(function() {
+    proc.kill(function () {
       expect(dnode.on.calledTwice).to.be.true
       expect(dnode.on.getCall(0).args[0]).to.equal('error')
       expect(dnode.on.getCall(1).args[0]).to.equal('remote')
@@ -84,17 +84,17 @@ describe('ManagedProcess', function() {
     })
   })
 
-  it('should pass dnode errors to a callback', function(done) {
+  it('should pass dnode errors to a callback', function (done) {
     var dnode = {
       on: sinon.stub(),
       connect: sinon.stub()
     }
 
-    proc._dnode = function() {
+    proc._dnode = function () {
       return dnode
     }
 
-    proc.connect(function(error) {
+    proc.connect(function (error) {
       expect(error).to.be.ok
 
       done()
@@ -109,7 +109,7 @@ describe('ManagedProcess', function() {
     errorCallback(new Error('urk!'))
   })
 
-  it('should end the dnode stream on disconnect', function() {
+  it('should end the dnode stream on disconnect', function () {
     proc._remote = {
       end: sinon.stub()
     }

@@ -4,10 +4,10 @@ var expect = require('chai').expect,
   posix = require('posix'),
   semver = require('semver')
 
-describe('ProcessInfo', function() {
-  var fileSystemStub = {findOrCreateLogFileDirectory: sinon.stub()}
+describe('ProcessInfo', function () {
+  var fileSystemStub = { findOrCreateLogFileDirectory: sinon.stub() }
 
-  it('should serialize and deserialize', function() {
+  it('should serialize and deserialize', function () {
     var processInfo = new ProcessInfo({
       script: '/foo/bar/baz.js',
       cwd: '/foo/bar'
@@ -27,8 +27,8 @@ describe('ProcessInfo', function() {
     processInfo._fileSystem = {
       getLogDir: sinon.stub()
     }
-    processInfo._posix.getpwnam.returns({name: 'foo'})
-    processInfo._posix.getgrnam.returns({name: 'bar'})
+    processInfo._posix.getpwnam.returns({ name: 'foo' })
+    processInfo._posix.getgrnam.returns({ name: 'bar' })
 
     var otherProcessInfo = new ProcessInfo(JSON.parse(JSON.stringify(processInfo)))
     otherProcessInfo._posix = {
@@ -46,11 +46,11 @@ describe('ProcessInfo', function() {
     otherProcessInfo._fileSystem = {
       getLogDir: sinon.stub()
     }
-    otherProcessInfo._posix.getpwnam.returns({name: 'foo'})
-    otherProcessInfo._posix.getgrnam.returns({name: 'bar'})
+    otherProcessInfo._posix.getpwnam.returns({ name: 'foo' })
+    otherProcessInfo._posix.getgrnam.returns({ name: 'bar' })
 
-    for(var key in processInfo) {
-      if(key == 'id' || key.substring(0, 1) == '_') {
+    for (var key in processInfo) {
+      if (key == 'id' || key.substring(0, 1) == '_') {
         continue
       }
 
@@ -58,7 +58,7 @@ describe('ProcessInfo', function() {
     }
   })
 
-  it('should remove debug flags', function() {
+  it('should remove debug flags', function () {
     var processInfo = new ProcessInfo({
       script: '/foo/bar/baz.js',
       execArgv: [
@@ -72,7 +72,7 @@ describe('ProcessInfo', function() {
     expect(processInfo.execArgv).to.be.empty
   })
 
-  it('should have default options', function() {
+  it('should have default options', function () {
     var processInfo = new ProcessInfo({
       script: '/foo/bar/baz.js'
     })
@@ -91,10 +91,10 @@ describe('ProcessInfo', function() {
     processInfo._fileSystem = {
       getLogDir: sinon.stub()
     }
-    processInfo._posix.getpwnam.returns({name: 'foo'})
-    processInfo._posix.getgrnam.returns({name: 'bar'})
+    processInfo._posix.getpwnam.returns({ name: 'foo' })
+    processInfo._posix.getgrnam.returns({ name: 'bar' })
     processInfo._fs.statSync.withArgs('/foo/bar/baz.js').returns({
-      isDirectory: function() {
+      isDirectory: function () {
         return false
       }
     })
@@ -113,7 +113,7 @@ describe('ProcessInfo', function() {
     expect(processInfo.getProcessOptions().env.GUVNOR_PROCESS_NAME).to.equal('baz.js')
   })
 
-  it('should remove the old debug port', function() {
+  it('should remove the old debug port', function () {
     var processInfo = new ProcessInfo({
       script: 'test.js',
       debug: true,
@@ -145,10 +145,10 @@ describe('ProcessInfo', function() {
     processInfo._fileSystem = {
       getLogDir: sinon.stub()
     }
-    processInfo._posix.getpwnam.returns({name: 'foo'})
-    processInfo._posix.getgrnam.returns({name: 'bar'})
+    processInfo._posix.getpwnam.returns({ name: 'foo' })
+    processInfo._posix.getgrnam.returns({ name: 'bar' })
     processInfo._fs.statSync.withArgs('test.js').returns({
-      isDirectory: function() {
+      isDirectory: function () {
         return false
       }
     })
@@ -159,7 +159,7 @@ describe('ProcessInfo', function() {
     expect(processInfo.getProcessOptions().execArgv.indexOf('--debug-brk=5')).to.equal(-1)
   })
 
-  it('should update the debug port for processes', function() {
+  it('should update the debug port for processes', function () {
     var processInfo = new ProcessInfo({
       script: 'test.js',
       debug: true
@@ -190,10 +190,10 @@ describe('ProcessInfo', function() {
     processInfo._fileSystem = {
       getLogDir: sinon.stub()
     }
-    processInfo._posix.getpwnam.returns({name: 'foo'})
-    processInfo._posix.getgrnam.returns({name: 'bar'})
+    processInfo._posix.getpwnam.returns({ name: 'foo' })
+    processInfo._posix.getgrnam.returns({ name: 'bar' })
     processInfo._fs.statSync.withArgs('test.js').returns({
-      isDirectory: function() {
+      isDirectory: function () {
         return false
       }
     })
@@ -202,7 +202,7 @@ describe('ProcessInfo', function() {
     expect(processInfo.getProcessOptions().execArgv.indexOf('--debug-brk=5')).to.equal(0)
   })
 
-  it('should not debug-brk cluster manager when config says not to', function() {
+  it('should not debug-brk cluster manager when config says not to', function () {
     var processInfo = new ProcessInfo({
       script: 'test.js',
       debug: true,
@@ -234,10 +234,10 @@ describe('ProcessInfo', function() {
     processInfo._fileSystem = {
       getLogDir: sinon.stub()
     }
-    processInfo._posix.getpwnam.returns({name: 'foo'})
-    processInfo._posix.getgrnam.returns({name: 'bar'})
+    processInfo._posix.getpwnam.returns({ name: 'foo' })
+    processInfo._posix.getgrnam.returns({ name: 'bar' })
     processInfo._fs.statSync.withArgs('test.js').returns({
-      isDirectory: function() {
+      isDirectory: function () {
         return false
       }
     })
@@ -245,7 +245,7 @@ describe('ProcessInfo', function() {
 
     var portArg = '--debug=5'
 
-    if(semver.gt(process.version, '0.11.0')) {
+    if (semver.gt(process.version, '0.11.0')) {
       portArg = '--debug-port=5'
     }
 
@@ -253,7 +253,7 @@ describe('ProcessInfo', function() {
     expect(processInfo.getProcessOptions().execArgv).to.not.contain('--debug-brk=5')
   })
 
-  it('should debug-brk cluster manager when config says to', function() {
+  it('should debug-brk cluster manager when config says to', function () {
     var processInfo = new ProcessInfo({
       script: 'test.js',
       debug: true,
@@ -285,10 +285,10 @@ describe('ProcessInfo', function() {
     processInfo._fileSystem = {
       getLogDir: sinon.stub()
     }
-    processInfo._posix.getpwnam.returns({name: 'foo'})
-    processInfo._posix.getgrnam.returns({name: 'bar'})
+    processInfo._posix.getpwnam.returns({ name: 'foo' })
+    processInfo._posix.getgrnam.returns({ name: 'bar' })
     processInfo._fs.statSync.withArgs('test.js').returns({
-      isDirectory: function() {
+      isDirectory: function () {
         return false
       }
     })
@@ -296,7 +296,7 @@ describe('ProcessInfo', function() {
 
     var portArg = '--debug=5'
 
-    if(semver.gt(process.version, '0.11.0')) {
+    if (semver.gt(process.version, '0.11.0')) {
       portArg = '--debug-port=5'
     }
 
@@ -304,7 +304,7 @@ describe('ProcessInfo', function() {
     expect(processInfo.getProcessOptions().execArgv).to.contain('--debug-brk=5')
   })
 
-  it('should not include default fields in simple object', function(done) {
+  it('should not include default fields in simple object', function (done) {
     var processInfo = new ProcessInfo({
       script: 'test.js',
       user: 'foo',
@@ -334,16 +334,16 @@ describe('ProcessInfo', function() {
     processInfo._fileSystem = {
       getLogDir: sinon.stub()
     }
-    processInfo._posix.getpwnam.withArgs('foo').returns({name: 'foo'})
-    processInfo._posix.getgrnam.returns({name: 'bar'})
+    processInfo._posix.getpwnam.withArgs('foo').returns({ name: 'foo' })
+    processInfo._posix.getgrnam.returns({ name: 'bar' })
     processInfo._fs.statSync.withArgs('test.js').returns({
-      isDirectory: function() {
+      isDirectory: function () {
         return false
       }
     })
     processInfo._child_process.execFile.withArgs('sudo', ['-u', 'foo', 'env']).callsArgWith(3, undefined, 'IN_ENV=world')
 
-    processInfo.toSimpleObject(function(error, simple) {
+    processInfo.toSimpleObject(function (error, simple) {
       expect(error).to.not.exist
 
       // there are a few fields we don't want written out to disk
@@ -371,7 +371,7 @@ describe('ProcessInfo', function() {
     })
   })
 
-  it('should propagate environmental variables', function() {
+  it('should propagate environmental variables', function () {
     var processInfo = new ProcessInfo({
       script: 'test.js'
     })

@@ -2,8 +2,8 @@ var sinon = require('sinon'),
   expect = require('chai').expect,
   ConfigLoader = require('../../../../lib/daemon/common/ConfigLoader')
 
-describe('ConfigLoader', function() {
-  it('should invoke afterPropertiesSet callback when config has been sent', function(done) {
+describe('ConfigLoader', function () {
+  it('should invoke afterPropertiesSet callback when config has been sent', function (done) {
     var configLoader = new ConfigLoader()
     configLoader._parentProcess = {
       once: sinon.stub(),
@@ -13,7 +13,7 @@ describe('ConfigLoader', function() {
 
     configLoader._coercer.returnsArg(0)
 
-    configLoader.afterPropertiesSet(function() {
+    configLoader.afterPropertiesSet(function () {
       // should have applied config options
       expect(configLoader.foo).to.equal('bar')
 
@@ -23,7 +23,7 @@ describe('ConfigLoader', function() {
       done()
     })
 
-    process.nextTick(function() {
+    process.nextTick(function () {
       // should have asked parent process for config
       expect(configLoader._parentProcess.send.callCount).to.equal(1)
       expect(configLoader._parentProcess.send.getCall(0).args[0]).to.equal('process:config:request')

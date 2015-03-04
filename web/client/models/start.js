@@ -8,13 +8,13 @@ module.exports = AmpersandModel.extend({
     group: 'string',
     script: 'string',
     cwd: 'string',
-    env: ['object', true, function() {
+    env: ['object', true, function () {
       return {}
     }],
-    argv: ['array', true, function() {
+    argv: ['array', true, function () {
       return []
     }],
-    execArgv: ['array', true, function() {
+    execArgv: ['array', true, function () {
       return []
     }],
     instances: ['number', true, 1]

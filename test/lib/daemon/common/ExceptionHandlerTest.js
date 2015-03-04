@@ -1,7 +1,7 @@
 var expect = require('chai').expect
-  sinon = require('sinon'),
-  path = require('path'),
-  ExceptionHandler = require('../../../../lib/daemon/common/ExceptionHandler')
+sinon = require('sinon'),
+path = require('path'),
+ExceptionHandler = require('../../../../lib/daemon/common/ExceptionHandler')
 
 var loggerStub = {
   info: sinon.stub(),
@@ -13,9 +13,9 @@ var parentProcessStub = {
   send: sinon.stub()
 }
 
-describe('ExceptionHandler', function() {
+describe('ExceptionHandler', function () {
 
-  it('should notify of uncaught exceptions', function() {
+  it('should notify of uncaught exceptions', function () {
     process.listeners = sinon.stub()
     process.listeners.withArgs('uncaughtException').returns([{}, {}])
 
@@ -27,12 +27,12 @@ describe('ExceptionHandler', function() {
     // the method under test
     exceptionHandler._onUncaughtException({})
 
-    var foundUncaughtExceptionEvent = false;
+    var foundUncaughtExceptionEvent = false
 
-    for(var i = 0; i < parentProcessStub.send.callCount; i++) {
+    for (var i = 0; i < parentProcessStub.send.callCount; i++) {
       var event = parentProcessStub.send.getCall(i).args[0]
 
-      if(event == 'process:uncaughtexception') {
+      if (event == 'process:uncaughtexception') {
         foundUncaughtExceptionEvent = true
       }
     }

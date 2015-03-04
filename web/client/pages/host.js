@@ -1,10 +1,10 @@
 var PageView = require('./base')
 
 module.exports = PageView.extend({
-  initialize: function() {
+  initialize: function () {
     // if this host is removed from the collection while we are looking at it, redirect the user to the overview
-    this.listenTo(window.app.hosts, 'remove', function(host) {
-      if(host.name == this.model.name) {
+    this.listenTo(window.app.hosts, 'remove', function (host) {
+      if (host.name === this.model.name) {
         window.app.navigate('/')
       }
     })
@@ -12,10 +12,10 @@ module.exports = PageView.extend({
   bindings: {
     'model.name': '[data-hook=host-name]',
     'model.status': {
-      type: function(el, value) {
+      type: function (el, value) {
         // if the status of a process changes while we are watching it, redirect the
         // user to a page with an appropriate message
-        if(window.location.href.substring(window.location.href.length - value.length) == value) {
+        if (window.location.href.substring(window.location.href.length - value.length) === value) {
           return
         }
 

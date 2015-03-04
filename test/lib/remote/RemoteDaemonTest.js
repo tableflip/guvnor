@@ -2,18 +2,18 @@ var expect = require('chai').expect,
   sinon = require('sinon'),
   RemoteDaemon = require('../../../lib/remote/RemoteDaemon')
 
-describe('RemoteDaemon', function() {
+describe('RemoteDaemon', function () {
   var remoteDaemon, clock
 
-  beforeEach(function() {
+  beforeEach(function () {
     clock = sinon.useFakeTimers()
 
     remoteDaemon = new RemoteDaemon()
     remoteDaemon._logger = {
-      info: function() {},
-      warn: function() {},
-      error: function() {},
-      debug: function() {}
+      info: function () {},
+      warn: function () {},
+      error: function () {},
+      debug: function () {}
     }
     remoteDaemon._dnode = sinon.stub()
     remoteDaemon._crypto = {}
@@ -22,14 +22,14 @@ describe('RemoteDaemon', function() {
     }
   })
 
-  afterEach(function() {
+  afterEach(function () {
     clock.restore()
   })
 
-  it('should connect to a remote daemon if already connected', function(done) {
+  it('should connect to a remote daemon if already connected', function (done) {
     remoteDaemon._connected = true
 
-    remoteDaemon.connect(function(error, remote) {
+    remoteDaemon.connect(function (error, remote) {
       expect(error).to.not.exist
       expect(remote).to.equal(remoteDaemon)
 
@@ -37,7 +37,7 @@ describe('RemoteDaemon', function() {
     })
   })
 
-  it('should connect to a remote daemon', function(done) {
+  it('should connect to a remote daemon', function (done) {
     var port = 80
     var host = 'foo'
 
@@ -63,7 +63,7 @@ describe('RemoteDaemon', function() {
 
     remoteDaemon._tls.connect.returns(stream)
 
-    remoteDaemon.connect(function(error, remote) {
+    remoteDaemon.connect(function (error, remote) {
       expect(error).to.not.exist
 
       expect(d.on.calledWith('remote', sinon.match.func)).to.be.true
@@ -82,7 +82,7 @@ describe('RemoteDaemon', function() {
 
   })
 
-  it('should call callback when disconnecting from a remote daemon', function(done) {
+  it('should call callback when disconnecting from a remote daemon', function (done) {
     var client = {
       end: sinon.stub(),
       once: sinon.stub()
@@ -101,7 +101,7 @@ describe('RemoteDaemon', function() {
     client.once.getCall(0).args[1]()
   })
 
-  it('should only end connection once no matter how many times disconnect is invoked', function() {
+  it('should only end connection once no matter how many times disconnect is invoked', function () {
     var client = {
       end: sinon.stub(),
       once: sinon.stub()
@@ -110,7 +110,7 @@ describe('RemoteDaemon', function() {
 
     var invocations = 0
 
-    var func = function() {
+    var func = function () {
       invocations++
     }
 
@@ -129,11 +129,11 @@ describe('RemoteDaemon', function() {
     expect(invocations).to.equal(3)
   })
 
-  it('should call callback when disconnecting from a remote daemon even if not connected', function(done) {
+  it('should call callback when disconnecting from a remote daemon even if not connected', function (done) {
     remoteDaemon.disconnect(done)
   })
 
-  it('should connect to a remote process', function(done) {
+  it('should connect to a remote process', function (done) {
     var remoteProcess = {
       foo: sinon.stub
     }
@@ -142,7 +142,7 @@ describe('RemoteDaemon', function() {
     remoteDaemon._connectToProcess = sinon.stub()
     remoteDaemon._connectToProcess.withArgs(processId, sinon.match.func).callsArgWith(1, undefined, remoteProcess)
 
-    remoteDaemon.connectToProcess(processId, function(error, remote) {
+    remoteDaemon.connectToProcess(processId, function (error, remote) {
       expect(error).to.not.exist
       expect(remote.foo).to.be.a('function')
 
@@ -150,7 +150,7 @@ describe('RemoteDaemon', function() {
     })
   })
 
-  it('should not wrap dumpHeap with timeoutify', function(done) {
+  it('should not wrap dumpHeap with timeoutify', function (done) {
     var remoteProcess = {
       dumpHeap: sinon.stub(),
       meh: sinon.stub()
@@ -173,27 +173,27 @@ describe('RemoteDaemon', function() {
     })
   })
 
-  it('should reconnect to a remote daemon if the connection is refused', function(done) {
+  it('should reconnect to a remote daemon if the connection is refused', function (done) {
     testErrorHandler('ECONNREFUSED', 'CONNECTIONREFUSED', done)
   })
 
-  it('should reconnect to a remote daemon if the connection is reset', function(done) {
+  it('should reconnect to a remote daemon if the connection is reset', function (done) {
     testErrorHandler('ECONNRESET', 'CONNECTIONRESET', done)
   })
 
-  it('should reconnect to a remote daemon if the host is not found', function(done) {
+  it('should reconnect to a remote daemon if the host is not found', function (done) {
     testErrorHandler('ENOTFOUND', 'HOSTNOTFOUND', done)
   })
 
-  it('should reconnect to a remote daemon if the connection times out', function(done) {
+  it('should reconnect to a remote daemon if the connection times out', function (done) {
     testErrorHandler('ETIMEDOUT', 'TIMEDOUT', done)
   })
 
-  it('should reconnect to a remote daemon if the network goes away', function(done) {
+  it('should reconnect to a remote daemon if the network goes away', function (done) {
     testErrorHandler('ENETDOWN', 'NETWORKDOWN', done)
   })
 
-  it('should reconnect to a remote daemon the connection ends and we are not disconnecting', function(done) {
+  it('should reconnect to a remote daemon the connection ends and we are not disconnecting', function (done) {
     var stream = {
       on: sinon.stub(),
       pipe: sinon.stub()
@@ -201,7 +201,7 @@ describe('RemoteDaemon', function() {
     stream.pipe.returnsArg(0)
     remoteDaemon._tls.connect.returns(stream)
 
-    remoteDaemon.connect(function(error) {
+    remoteDaemon.connect(function (error) {
       expect(error).to.not.exist
 
       done()
@@ -233,7 +233,7 @@ describe('RemoteDaemon', function() {
     remoteDaemon._tls.connect.getCall(1).args[2]()
   })
 
-  it('should sign a message', function(done) {
+  it('should sign a message', function (done) {
     var principal = 'principal'
     var secret = 'secret'
     var signature = 'signature'
@@ -244,7 +244,7 @@ describe('RemoteDaemon', function() {
     remoteDaemon._crypto.sign = sinon.stub()
     remoteDaemon._crypto.sign.withArgs(principal, secret, sinon.match.func).callsArgWith(2, undefined, signature)
 
-    remoteDaemon._signAndInvoke(function(sig, one, two, three) {
+    remoteDaemon._signAndInvoke(function (sig, one, two, three) {
       expect(sig).to.equal(signature)
       expect(one).to.equal('one')
       expect(two).to.equal('two')
@@ -254,7 +254,7 @@ describe('RemoteDaemon', function() {
     }, 'one', 'two', 'three')
   })
 
-  function testErrorHandler(code, friendlyCode, done) {
+  function testErrorHandler (code, friendlyCode, done) {
     var error = new Error('nope!')
     error.code = code
 
@@ -267,11 +267,11 @@ describe('RemoteDaemon', function() {
 
     var invocations = 0
 
-    remoteDaemon.connect(function(error) {
-      if(invocations == 0) {
+    remoteDaemon.connect(function (error) {
+      if (invocations == 0) {
         expect(error.message).to.contain('Could not connect')
         expect(error.code).to.equal(friendlyCode)
-      } else if(invocations == 1) {
+      } else if (invocations == 1) {
         expect(error).to.not.exist
 
         done()

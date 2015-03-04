@@ -3,10 +3,10 @@ var expect = require('chai').expect,
   path = require('path'),
   Cluster = require('../../../lib/cli/Cluster')
 
-describe('Cluster', function() {
+describe('Cluster', function () {
   var cluster, guvnor
 
-  beforeEach(function() {
+  beforeEach(function () {
     cluster = new Cluster()
     cluster._config = {
       guvnor: {
@@ -32,7 +32,7 @@ describe('Cluster', function() {
     cluster._connectOrStart.callsArgWith(0, undefined, guvnor)
   })
 
-  it('should set the number of cluster workers', function() {
+  it('should set the number of cluster workers', function () {
     var pid = 'pid'
     var workers = 5
     var options = {}
@@ -55,13 +55,13 @@ describe('Cluster', function() {
     expect(remote.disconnect.called).to.be.true
   })
 
-  it('should object when trying to set workers to something that isn\'t a number', function() {
+  it("should object when trying to set workers to something that isn't a number", function () {
     cluster.setClusterWorkers('one', 'two')
 
     expect(cluster._logger.error.called).to.be.true
   })
 
-  it('should fail to set the number of cluster workers', function() {
+  it('should fail to set the number of cluster workers', function () {
     var pid = 'pid'
     var workers = 5
     var options = {}

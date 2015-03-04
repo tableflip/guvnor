@@ -1,7 +1,7 @@
-var View = require('ampersand-view'),
-  templates = require('../../templates'),
-  dom = require('ampersand-dom'),
-  semver = require('semver')
+var View = require('ampersand-view')
+var templates = require('../../templates')
+var dom = require('ampersand-dom')
+var semver = require('semver')
 
 module.exports = View.extend({
   template: templates.includes.hostlist.process,
@@ -12,7 +12,7 @@ module.exports = View.extend({
         var nodeVersion = this.model.collection.parent.versions.node
         var className = semver.satisfies(nodeVersion, '>=1.0.0') ? 'iojsIcon' : 'nodeIcon'
 
-        if(value == 'coffee') {
+        if (value === 'coffee') {
           className += ' fa fa-coffee'
         } else {
           className += ' icon-nodejs'
@@ -26,7 +26,7 @@ module.exports = View.extend({
   events: {
     'click a[href]': 'updateActiveNav'
   },
-  updateActiveNav: function() {
+  updateActiveNav: function () {
     var el = this.query('.process')
     dom.addClass(el, 'active')
   }

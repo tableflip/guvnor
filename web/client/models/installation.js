@@ -1,5 +1,5 @@
-var AmpersandModel = require('ampersand-model'),
-  Logs = require('./logs')
+var AmpersandModel = require('ampersand-model')
+var Logs = require('./logs')
 
 module.exports = AmpersandModel.extend({
   props: {

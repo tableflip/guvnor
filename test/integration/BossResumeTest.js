@@ -37,11 +37,11 @@ var logger = {
 
 var guvnor
 
-describe('GuvnorResume', function() {
+describe('GuvnorResume', function () {
   // integration tests are slow
   this.timeout(60000)
 
-  it('should autoresume processes when restarted', function(done) {
+  it('should autoresume processes when restarted', function (done) {
     var conf = JSON.parse(JSON.stringify(config))
 
     var id = shortid.generate()
@@ -52,7 +52,8 @@ describe('GuvnorResume', function() {
     conf.guvnor.autoresume = true
 
     connectOrStart(conf, logger, function (error, guvnor) {
-      if (error) throw error
+      if (error)
+        throw error
 
       guvnor.startProcess(__dirname + '/fixtures/hello-world.js', {}, function (error, processInfo) {
         expect(error).to.not.exist
@@ -76,7 +77,8 @@ describe('GuvnorResume', function() {
               setTimeout(function () {
 
                 connectOrStart(conf, logger, function (error, guvnor) {
-                  if (error) throw error
+                  if (error)
+                    throw error
 
                   guvnor.listProcesses(function (error, processes) {
                     expect(error).to.not.exist

@@ -2,10 +2,10 @@ var expect = require('chai').expect,
   sinon = require('sinon'),
   StartupNotifier = require('../../../lib/daemon/StartupNotifier')
 
-describe('StartupNotifier', function() {
+describe('StartupNotifier', function () {
   var notifier
 
-  beforeEach(function() {
+  beforeEach(function () {
     notifier = new StartupNotifier()
     notifier._parentProcess = {}
     notifier._userRpc = {}
@@ -18,13 +18,13 @@ describe('StartupNotifier', function() {
     }
   })
 
-  it('should notify of startup', function(done) {
+  it('should notify of startup', function (done) {
     notifier._userRpc.socket = 'usersocket'
     notifier._adminRpc.socket = 'adminsocket'
     notifier._remoteRpc.port = 'rpcport'
     notifier._nodeInspectorWrapper.debuggerPort = 'debuggerport'
 
-    notifier._parentProcess.send = function(type, sockets) {
+    notifier._parentProcess.send = function (type, sockets) {
       expect(type).to.equal('daemon:ready')
 
       // should have been sent the non-privileged socket

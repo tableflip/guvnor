@@ -1,7 +1,7 @@
-var Emitter = require('component-emitter'),
-  config = require('clientconfig')
+var Emitter = require('component-emitter')
+var config = require('clientconfig')
 
-if(config.debugMode) {
+if (config.debugMode) {
   // only extend if we're in debug mode
   Emitter.prototype.emit = function (event) {
     this._callbacks = this._callbacks || {}
@@ -15,14 +15,14 @@ if(config.debugMode) {
       }
 
       var callbacks = this._callbacks[eventName].slice()
-      var hasWildCard = eventName.indexOf('*') != -1
+      var hasWildCard = eventName.indexOf('*') !== -1
       var subEvent = eventName.split('*')[0]
 
-      if (eventName == event) {
+      if (eventName === event) {
         for (var i = 0; i < callbacks.length; i++) {
           callbacks[i].apply(this, argsWithoutEvent)
         }
-      } else if (hasWildCard && event.substring(0, subEvent.length) == subEvent) {
+      } else if (hasWildCard && event.substring(0, subEvent.length) === subEvent) {
         for (var n = 0; n < callbacks.length; n++) {
           callbacks[n].apply(this, argsWithEvent)
         }
@@ -31,14 +31,14 @@ if(config.debugMode) {
   }
 }
 
-var notify = require('./notification'),
-  SocketIO = require('socket.io-client')
+var notify = require('./notification')
+var SocketIO = require('socket.io-client')
 
-function withHostAndProcess(hostName, processId, callback) {
-  withHost(hostName, function(host) {
+function withHostAndProcess (hostName, processId, callback) {
+  withHost(hostName, function (host) {
     var process = host.processes.get(processId)
 
-    if(!process) {
+    if (!process) {
       return
     }
 
@@ -46,84 +46,84 @@ function withHostAndProcess(hostName, processId, callback) {
   })
 }
 
-function withHost(hostName, callback) {
+function withHost (hostName, callback) {
   var host = window.app.hosts.get(hostName)
 
-  if(!host) {
+  if (!host) {
     return
   }
 
   callback(host)
 }
 
-function updateProcess(hostName, processInfo) {
-  withHost(hostName, function(host) {
+function updateProcess (hostName, processInfo) {
+  withHost(hostName, function (host) {
     host.processes.addOrUpdate(processInfo)
   })
 }
 
 var socket = SocketIO('//')
 
-if(config.debugMode) {
-  socket.on('*', function() {
-    if(arguments[0].substring(0, 'process:log'.length) != 'process:log' &&
-      arguments[0].substring(0, 'server:status'.length) != 'server:status' &&
-      arguments[0].substring(0, 'server:processes'.length) != 'server:processes'
+if (config.debugMode) {
+  socket.on('*', function () {
+    if (arguments[0].substring(0, 'process:log'.length) !== 'process:log' &&
+      arguments[0].substring(0, 'server:status'.length) !== 'server:status' &&
+      arguments[0].substring(0, 'server:processes'.length) !== 'server:processes'
     ) {
       console.info('incoming!', arguments)
     }
   })
 
-  socket.on('connect_error', function(error) {
+  socket.on('connect_error', function (error) {
     console.info('connect_error', error)
   })
-  socket.on('reconnect_attempt', function() {
+  socket.on('reconnect_attempt', function () {
     console.info('reconnect_attempt')
   })
-  socket.on('reconnecting', function(count) {
+  socket.on('reconnecting', function (count) {
     console.info('reconnecting', count)
   })
-  socket.on('reconnect_error', function(error) {
+  socket.on('reconnect_error', function (error) {
     console.info('reconnect_error', error)
   })
-  socket.on('reconnect_failed', function() {
+  socket.on('reconnect_failed', function () {
     console.info('reconnect_failed')
   })
-  socket.on('event', function() {
+  socket.on('event', function () {
     console.info('event', arguments)
   })
 }
 
-socket.on('connect_timeout', function() {
+socket.on('connect_timeout', function () {
   notify({
     header: 'Connection timeout',
     message: 'The websocket timed out while connecting to guvnor-web',
     type: 'danger'
   })
 })
-socket.on('reconnect', function(count) {
+socket.on('reconnect', function (count) {
   notify({
     header: 'guvnor-web came back',
     message: ['Reconnected after %d attempts', count],
     type: 'info'
   })
 })
-socket.on('disconnect', function() {
+socket.on('disconnect', function () {
   notify({
     header: 'guvnor-web went away',
     message: 'Lost connection',
     type: 'danger'
   })
 })
-socket.on('disconnected', function(hostName) {
+socket.on('disconnected', function (hostName) {
   notify({
     header: 'Lost connection',
     message: ['Disconnected from %s', hostName],
     type: 'danger'
   })
 })
-socket.on('process:log:info', function(hostName, processInfo, log) {
-  withHostAndProcess(hostName, processInfo.id, function(host, process) {
+socket.on('process:log:info', function (hostName, processInfo, log) {
+  withHostAndProcess(hostName, processInfo.id, function (host, process) {
     process.logs.add({
       type: 'info',
       date: log.date,
@@ -131,8 +131,8 @@ socket.on('process:log:info', function(hostName, processInfo, log) {
     })
   })
 })
-socket.on('process:log:warn', function(hostName, processInfo, log) {
-  withHostAndProcess(hostName, processInfo.id, function(host, process) {
+socket.on('process:log:warn', function (hostName, processInfo, log) {
+  withHostAndProcess(hostName, processInfo.id, function (host, process) {
     process.logs.add({
       type: 'warn',
       date: log.date,
@@ -140,8 +140,8 @@ socket.on('process:log:warn', function(hostName, processInfo, log) {
     })
   })
 })
-socket.on('process:log:debug', function(hostName, processInfo, log) {
-  withHostAndProcess(hostName, processInfo.id, function(host, process) {
+socket.on('process:log:debug', function (hostName, processInfo, log) {
+  withHostAndProcess(hostName, processInfo.id, function (host, process) {
     process.logs.add({
       type: 'debug',
       date: log.date,
@@ -149,8 +149,8 @@ socket.on('process:log:debug', function(hostName, processInfo, log) {
     })
   })
 })
-socket.on('process:log:error', function(hostName, processInfo, log) {
-  withHostAndProcess(hostName, processInfo.id, function(host, process) {
+socket.on('process:log:error', function (hostName, processInfo, log) {
+  withHostAndProcess(hostName, processInfo.id, function (host, process) {
     process.logs.add({
       type: 'error',
       date: log.date,
@@ -158,8 +158,8 @@ socket.on('process:log:error', function(hostName, processInfo, log) {
     })
   })
 })
-socket.on('cluster:log:info', function(hostName, clusterInfo, log) {
-  withHostAndProcess(hostName, clusterInfo.id, function(host, process) {
+socket.on('cluster:log:info', function (hostName, clusterInfo, log) {
+  withHostAndProcess(hostName, clusterInfo.id, function (host, process) {
     process.logs.add({
       type: 'info',
       date: log.date,
@@ -167,8 +167,8 @@ socket.on('cluster:log:info', function(hostName, clusterInfo, log) {
     })
   })
 })
-socket.on('cluster:log:warn', function(hostName, clusterInfo, log) {
-  withHostAndProcess(hostName, clusterInfo.id, function(host, process) {
+socket.on('cluster:log:warn', function (hostName, clusterInfo, log) {
+  withHostAndProcess(hostName, clusterInfo.id, function (host, process) {
     process.logs.add({
       type: 'warn',
       date: log.date,
@@ -176,8 +176,8 @@ socket.on('cluster:log:warn', function(hostName, clusterInfo, log) {
     })
   })
 })
-socket.on('cluster:log:debug', function(hostName, clusterInfo, log) {
-  withHostAndProcess(hostName, clusterInfo.id, function(host, process) {
+socket.on('cluster:log:debug', function (hostName, clusterInfo, log) {
+  withHostAndProcess(hostName, clusterInfo.id, function (host, process) {
     process.logs.add({
       type: 'debug',
       date: log.date,
@@ -185,8 +185,8 @@ socket.on('cluster:log:debug', function(hostName, clusterInfo, log) {
     })
   })
 })
-socket.on('cluster:log:error', function(hostName, clusterInfo, log) {
-  withHostAndProcess(hostName, clusterInfo.id, function(host, process) {
+socket.on('cluster:log:error', function (hostName, clusterInfo, log) {
+  withHostAndProcess(hostName, clusterInfo.id, function (host, process) {
     process.logs.add({
       type: 'error',
       date: log.date,
@@ -194,8 +194,8 @@ socket.on('cluster:log:error', function(hostName, clusterInfo, log) {
     })
   })
 })
-socket.on('worker:log:info', function(hostName, clusterInfo, workerInfo, log) {
-  withHostAndProcess(hostName, workerInfo.id, function(host, process) {
+socket.on('worker:log:info', function (hostName, clusterInfo, workerInfo, log) {
+  withHostAndProcess(hostName, workerInfo.id, function (host, process) {
     process.logs.add({
       type: 'info',
       date: log.date,
@@ -203,8 +203,8 @@ socket.on('worker:log:info', function(hostName, clusterInfo, workerInfo, log) {
     })
   })
 })
-socket.on('worker:log:warn', function(hostName, clusterInfo, workerInfo, log) {
-  withHostAndProcess(hostName, workerInfo.id, function(host, process) {
+socket.on('worker:log:warn', function (hostName, clusterInfo, workerInfo, log) {
+  withHostAndProcess(hostName, workerInfo.id, function (host, process) {
     process.logs.add({
       type: 'warn',
       date: log.date,
@@ -212,8 +212,8 @@ socket.on('worker:log:warn', function(hostName, clusterInfo, workerInfo, log) {
     })
   })
 })
-socket.on('worker:log:debug', function(hostName, clusterInfo, workerInfo, log) {
-  withHostAndProcess(hostName, workerInfo.id, function(host, process) {
+socket.on('worker:log:debug', function (hostName, clusterInfo, workerInfo, log) {
+  withHostAndProcess(hostName, workerInfo.id, function (host, process) {
     process.logs.add({
       type: 'debug',
       date: log.date,
@@ -221,8 +221,8 @@ socket.on('worker:log:debug', function(hostName, clusterInfo, workerInfo, log) {
     })
   })
 })
-socket.on('worker:log:error', function(hostName, clusterInfo, workerInfo, log) {
-  withHostAndProcess(hostName, workerInfo.id, function(host, process) {
+socket.on('worker:log:error', function (hostName, clusterInfo, workerInfo, log) {
+  withHostAndProcess(hostName, workerInfo.id, function (host, process) {
     process.logs.add({
       type: 'error',
       date: log.date,
@@ -230,8 +230,8 @@ socket.on('worker:log:error', function(hostName, clusterInfo, workerInfo, log) {
     })
   })
 })
-socket.on('process:uncaughtexception', function(hostName, processInfo, error) {
-  withHostAndProcess(hostName, processInfo.id, function(host, process) {
+socket.on('process:uncaughtexception', function (hostName, processInfo, error) {
+  withHostAndProcess(hostName, processInfo.id, function (host, process) {
     process.exceptions.add({
       id: error.id,
       date: error.date,
@@ -241,40 +241,40 @@ socket.on('process:uncaughtexception', function(hostName, processInfo, error) {
     })
   })
 })
-socket.on('server:status', function(hostName, data) {
+socket.on('server:status', function (hostName, data) {
   var newHost = !window.app.hosts.get(hostName)
   var host = window.app.hosts.add(data, {
     merge: true
   })
 
-  if(newHost) {
+  if (newHost) {
     host.apps.fetch()
 
-    host.on('change:status', function(host, value) {
-      if(value != 'connected') {
+    host.on('change:status', function (host, value) {
+      if (value !== 'connected') {
         host.processes.reset()
 
         var sub = '/host/' + hostName + '/process'
 
-        if(window.location.pathname.substring(0, sub.length) == sub) {
+        if (window.location.pathname.substring(0, sub.length) === sub) {
           window.app.navigate('/host/' + hostName)
         }
       }
     })
   }
 })
-socket.on('server:processes', function(hostName, processes) {
-  withHost(hostName, function(host) {
+socket.on('server:processes', function (hostName, processes) {
+  withHost(hostName, function (host) {
     processes.forEach(host.processes.addOrUpdate.bind(host.processes))
 
-    host.processes.forEach(function(existingProcess) {
-      var present = processes.some(function(process) {
-        return (process.workers && process.workers.some(function(worker) {
-            return worker.id == existingProcess.id
-          })) || process.id == existingProcess.id
+    host.processes.forEach(function (existingProcess) {
+      var present = processes.some(function (process) {
+        return (process.workers && process.workers.some(function (worker) {
+            return worker.id === existingProcess.id
+          })) || process.id === existingProcess.id
       })
 
-      if(!present) {
+      if (!present) {
         host.processes.remove(existingProcess)
       }
     })
@@ -282,54 +282,54 @@ socket.on('server:processes', function(hostName, processes) {
 })
 
 // listen for events for these properties as they could have been initiated by another user
-socket.on('process:gc:start', function(hostName, processInfo) {
-  withHostAndProcess(hostName, processInfo.id, function(host, process) {
+socket.on('process:gc:start', function (hostName, processInfo) {
+  withHostAndProcess(hostName, processInfo.id, function (host, process) {
     process.isGc = true
   })
 })
-socket.on('process:gc:complete', function(hostName, processInfo) {
-  withHostAndProcess(hostName, processInfo.id, function(host, process) {
+socket.on('process:gc:complete', function (hostName, processInfo) {
+  withHostAndProcess(hostName, processInfo.id, function (host, process) {
     process.isGc = false
   })
 })
-socket.on('process:heapdump:start', function(hostName, processInfo) {
-  withHostAndProcess(hostName, processInfo.id, function(host, process) {
+socket.on('process:heapdump:start', function (hostName, processInfo) {
+  withHostAndProcess(hostName, processInfo.id, function (host, process) {
     process.isHeapDump = true
   })
 })
-socket.on('process:heapdump:complete', function(hostName, processInfo) {
-  withHostAndProcess(hostName, processInfo.id, function(host, process) {
+socket.on('process:heapdump:complete', function (hostName, processInfo) {
+  withHostAndProcess(hostName, processInfo.id, function (host, process) {
     process.isHeapDump = false
   })
 })
-socket.on('process:heapdump:error', function(hostName, processInfo) {
-  withHostAndProcess(hostName, processInfo.id, function(host, process) {
+socket.on('process:heapdump:error', function (hostName, processInfo) {
+  withHostAndProcess(hostName, processInfo.id, function (host, process) {
     process.isHeapDump = false
   })
 })
-socket.on('process:restarting', function(hostName, processInfo) {
-  withHostAndProcess(hostName, processInfo.id, function(host, process) {
+socket.on('process:restarting', function (hostName, processInfo) {
+  withHostAndProcess(hostName, processInfo.id, function (host, process) {
     process.isRestarting = true
   })
 })
-socket.on('process:restarted', function(hostName, processInfo) {
-  withHostAndProcess(hostName, processInfo.id, function(host, process) {
+socket.on('process:restarted', function (hostName, processInfo) {
+  withHostAndProcess(hostName, processInfo.id, function (host, process) {
     process.isRestarting = false
   })
 })
-socket.on('app:installed', function(hostName, appInfo) {
-  withHost(hostName, function(host) {
+socket.on('app:installed', function (hostName, appInfo) {
+  withHost(hostName, function (host) {
     host.apps.add(appInfo)
   })
 })
-socket.on('app:removed', function(hostName, appInfo) {
-  withHost(hostName, function(host) {
+socket.on('app:removed', function (hostName, appInfo) {
+  withHost(hostName, function (host) {
     host.apps.remove(appInfo.id)
   })
 })
 
-socket.on('process:aborted', function(hostName, processInfo) {
-  withHostAndProcess(hostName, processInfo.id, function(host, process) {
+socket.on('process:aborted', function (hostName, processInfo) {
+  withHostAndProcess(hostName, processInfo.id, function (host, process) {
     notify({
       header: 'Aborted',
       message: ['%s restarted too many times and was aborted', process.name],
@@ -337,8 +337,8 @@ socket.on('process:aborted', function(hostName, processInfo) {
     })
   })
 })
-socket.on('cluster:aborted', function(hostName, processInfo) {
-  withHostAndProcess(hostName, processInfo.id, function(host, process) {
+socket.on('cluster:aborted', function (hostName, processInfo) {
+  withHostAndProcess(hostName, processInfo.id, function (host, process) {
     notify({
       header: 'Aborted',
       message: ['%s restarted too many times and was aborted', process.name],
@@ -346,8 +346,8 @@ socket.on('cluster:aborted', function(hostName, processInfo) {
     })
   })
 })
-socket.on('process:failed', function(hostName, processInfo, error) {
-  withHostAndProcess(hostName, processInfo.id, function(host, process) {
+socket.on('process:failed', function (hostName, processInfo, error) {
+  withHostAndProcess(hostName, processInfo.id, function (host, process) {
     host.processes.addOrUpdate(processInfo)
 
     process.exceptions.add({
@@ -359,8 +359,8 @@ socket.on('process:failed', function(hostName, processInfo, error) {
     })
   })
 })
-socket.on('process:errored', function(hostName, processInfo, error) {
-  withHostAndProcess(hostName, processInfo.id, function(host, process) {
+socket.on('process:errored', function (hostName, processInfo, error) {
+  withHostAndProcess(hostName, processInfo.id, function (host, process) {
     host.processes.addOrUpdate(processInfo)
 
     process.exceptions.add({

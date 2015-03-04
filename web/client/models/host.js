@@ -1,10 +1,9 @@
-var AmpersandModel = require('ampersand-model'),
-  config = require('clientconfig'),
-  moment = require('moment'),
-  prettysize = require('prettysize'),
-  Processes = require('./processes'),
-  Apps = require('./apps'),
-  semver = require('semver')
+var AmpersandModel = require('ampersand-model')
+var moment = require('moment')
+var prettysize = require('prettysize')
+var Processes = require('./processes')
+var Apps = require('./apps')
+var semver = require('semver')
 
 module.exports = AmpersandModel.extend({
   idAttribute: 'name',
@@ -34,9 +33,13 @@ module.exports = AmpersandModel.extend({
     freeMemory: 'number',
     totalMemory: 'number',
     debuggerPort: 'number',
-    users: ['array', true, function() { return []}],
-    groups: ['array', true, function() { return []}],
-    cpus: ['array', true, function() {
+    users: ['array', true, function () {
+      return []
+    }],
+    groups: ['array', true, function () {
+      return []
+    }],
+    cpus: ['array', true, function () {
       return [{
         model: 'string',
         speed: 'number',
@@ -70,7 +73,7 @@ module.exports = AmpersandModel.extend({
     timeFormatted: {
       deps: ['time'],
       fn: function () {
-        return moment(this.time).format("YYYY-MM-DD HH:mm:ss Z")
+        return moment(this.time).format('YYYY-MM-DD HH:mm:ss Z')
       }
     },
     uptimeFormatted: {
@@ -83,16 +86,16 @@ module.exports = AmpersandModel.extend({
     cpuSpeed: {
       deps: ['cpus'],
       fn: function () {
-        if(!this.cpus[0]) {
+        if (!this.cpus[0]) {
           return ''
         }
 
-        return this.cpus.length + 'x ' + (this.cpus[0].speed/1000).toFixed(2) + 'GHz'
+        return this.cpus.length + 'x ' + (this.cpus[0].speed / 1000).toFixed(2) + 'GHz'
       }
     },
     usedMemory: {
       deps: ['freeMemory', 'totalMemory'],
-      fn: function() {
+      fn: function () {
         return ~~(((this.totalMemory - this.freeMemory) / this.totalMemory) * 100)
       }
     },

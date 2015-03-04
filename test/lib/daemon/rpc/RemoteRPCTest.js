@@ -4,7 +4,7 @@ var expect = require('chai').expect,
   WildEmitter = require('wildemitter'),
   EventEmitter = require('events').EventEmitter
 
-describe('RemoteRPC', function() {
+describe('RemoteRPC', function () {
   var remoteRpc
 
   beforeEach(function () {
@@ -81,17 +81,17 @@ describe('RemoteRPC', function() {
     }
   })
 
-  it('should not start dnode if remote is not enabled', function(done) {
+  it('should not start dnode if remote is not enabled', function (done) {
     remoteRpc._config.remote.enabled = false
 
-    remoteRpc.afterPropertiesSet(function() {
+    remoteRpc.afterPropertiesSet(function () {
       expect(remoteRpc._dnode.called).to.be.false
 
       done()
     })
   })
 
-  it('should start dnode', function(done) {
+  it('should start dnode', function (done) {
     remoteRpc._config.remote.port = 8080
     remoteRpc._config.remote.host = 'foo'
 
@@ -111,7 +111,7 @@ describe('RemoteRPC', function() {
 
     remoteRpc._tls.createServer.returns(server)
 
-    remoteRpc.afterPropertiesSet(function(error) {
+    remoteRpc.afterPropertiesSet(function (error) {
       expect(error).to.not.exist
       expect(remoteRpc.port).to.equal(remoteRpc._config.remote.port)
 
@@ -139,7 +139,7 @@ describe('RemoteRPC', function() {
 
     remoteRpc._tls.createServer.returns(server)
 
-    remoteRpc.afterPropertiesSet(function(error) {
+    remoteRpc.afterPropertiesSet(function (error) {
       expect(error).to.not.exist
       expect(remoteRpc.port).to.equal(remoteRpc._config.remote.port)
       expect(remoteRpc._pem.createCertificate.called).to.be.false
@@ -172,7 +172,7 @@ describe('RemoteRPC', function() {
 
     remoteRpc._tls.createServer.returns(server)
 
-    remoteRpc.afterPropertiesSet(function(error) {
+    remoteRpc.afterPropertiesSet(function (error) {
       expect(error).to.not.exist
 
       var events = 0
@@ -219,7 +219,7 @@ describe('RemoteRPC', function() {
 
     remoteRpc._tls.createServer.callsArgWith(1, stream).returns(server)
 
-    remoteRpc.afterPropertiesSet(function(error) {
+    remoteRpc.afterPropertiesSet(function (error) {
       expect(error).to.not.exist
 
       var client = {}
@@ -234,7 +234,7 @@ describe('RemoteRPC', function() {
     })
   })
 
-  it('should remove a client connection when the connection ends', function(done) {
+  it('should remove a client connection when the connection ends', function (done) {
     var d = {
       pipe: sinon.stub()
     }
@@ -261,7 +261,7 @@ describe('RemoteRPC', function() {
 
     remoteRpc._tls.createServer.callsArgWith(1, stream).returns(server)
 
-    remoteRpc.afterPropertiesSet(function(error) {
+    remoteRpc.afterPropertiesSet(function (error) {
       expect(error).to.not.exist
 
       var client = {}
@@ -430,13 +430,13 @@ describe('RemoteRPC', function() {
 
       var dnode = {}
 
-      remoteRpc._checkSignature = function(callback) {
+      remoteRpc._checkSignature = function (callback) {
         callback.apply(null, Array.prototype.slice.call(arguments, 1))
       }
 
       remoteRpc._dnode.getCall(0).args[0].call(dnode, client, connection)
 
-      dnode.getDetails({}, function(error, details) {
+      dnode.getDetails({}, function (error, details) {
         expect(error).to.not.exist
 
         expect(details.hostname).to.equal(hostname)
@@ -494,9 +494,7 @@ describe('RemoteRPC', function() {
       hash: hash
     }
 
-    remoteRpc._checkSignature(function (one, two, three) {
-
-    }, signature, 'one', 'two', 'three', function (error) {
+    remoteRpc._checkSignature(function (one, two, three) {}, signature, 'one', 'two', 'three', function (error) {
       expect(error.code).to.equal('INVALIDSIGNATURE')
 
       done()
@@ -517,9 +515,7 @@ describe('RemoteRPC', function() {
 
     remoteRpc._remoteUserService.findUser.withArgs(principal, sinon.match.func).callsArg(1)
 
-    remoteRpc._checkSignature(function (one, two, three) {
-
-    }, signature, 'one', 'two', 'three', function (error) {
+    remoteRpc._checkSignature(function (one, two, three) {}, signature, 'one', 'two', 'three', function (error) {
       expect(error.code).to.equal('INVALIDSIGNATURE')
 
       done()
@@ -540,9 +536,7 @@ describe('RemoteRPC', function() {
 
     remoteRpc._remoteUserService.findUser.withArgs(principal, sinon.match.func).callsArgWith(1, new Error('urk!'))
 
-    remoteRpc._checkSignature(function (one, two, three) {
-
-    }, signature, 'one', 'two', 'three', function (error) {
+    remoteRpc._checkSignature(function (one, two, three) {}, signature, 'one', 'two', 'three', function (error) {
       expect(error.code).to.equal('INVALIDSIGNATURE')
 
       done()
@@ -569,9 +563,7 @@ describe('RemoteRPC', function() {
     remoteRpc._remoteUserService.findUser.withArgs(principal, sinon.match.func).callsArgWith(1, undefined, user)
     remoteRpc._crypto.verify.withArgs(signature, user.secret).returns(false)
 
-    remoteRpc._checkSignature(function (details, one, two, three) {
-
-    }, signature, 'one', 'two', 'three', function (error) {
+    remoteRpc._checkSignature(function (details, one, two, three) {}, signature, 'one', 'two', 'three', function (error) {
       expect(error.code).to.equal('INVALIDSIGNATURE')
 
       done()
@@ -589,7 +581,7 @@ describe('RemoteRPC', function() {
     remoteRpc._guvnor.findProcessInfoById.withArgs(userDetails, id, sinon.match.func).callsArgWith(2, undefined, processInfo)
     remoteRpc._child_process.fork.returns(childProcess)
 
-    remoteRpc.connectToProcess(userDetails, id, function(error, remote) {
+    remoteRpc.connectToProcess(userDetails, id, function (error, remote) {
       expect(error).to.not.exist
 
       // should have exposed methods
@@ -602,9 +594,9 @@ describe('RemoteRPC', function() {
       expect(remote.setClusterWorkers).to.be.a('function')
 
       // invoke exposed method
-      remote.restart('foo', 'bar', function() {
+      remote.restart('foo', 'bar', function () {
         // give the parent time to kill the child
-        process.nextTick(function() {
+        process.nextTick(function () {
           expect(childProcess.kill.calledOnce).to.be.true
 
           done()
@@ -613,7 +605,7 @@ describe('RemoteRPC', function() {
     }, user)
 
     // stub out how child process would handle method invocation
-    childProcess.send = function(event) {
+    childProcess.send = function (event) {
       expect(event.type).to.equal('invoke')
       expect(event.method).to.equal('restart')
       expect(event.args).to.be.an('array')
@@ -642,15 +634,15 @@ describe('RemoteRPC', function() {
     remoteRpc._guvnor.findProcessInfoById.withArgs(userDetails, id, sinon.match.func).callsArgWith(2, undefined, processInfo)
     remoteRpc._child_process.fork.returns(childProcess)
 
-    remoteRpc.connectToProcess(userDetails, id, function(error, remote) {
+    remoteRpc.connectToProcess(userDetails, id, function (error, remote) {
       expect(error).to.not.exist
 
       // invoke exposed method
-      remote.restart('foo', 'bar', function(error) {
+      remote.restart('foo', 'bar', function (error) {
         expect(error.message).to.contain('bail')
 
         // give the parent time to kill the child
-        process.nextTick(function() {
+        process.nextTick(function () {
           expect(childProcess.kill.calledOnce).to.be.true
 
           done()
@@ -659,7 +651,7 @@ describe('RemoteRPC', function() {
     }, user)
 
     // stub out how child process would handle method invocation
-    childProcess.send = function(event) {
+    childProcess.send = function (event) {
       process.nextTick(childProcess.emit.bind(childProcess, 'message', {
         event: 'remote:error',
         args: [{
@@ -685,14 +677,14 @@ describe('RemoteRPC', function() {
     remoteRpc._guvnor.findProcessInfoById.withArgs(userDetails, id, sinon.match.func).callsArgWith(2, undefined, processInfo)
     remoteRpc._child_process.fork.returns(childProcess)
 
-    remoteRpc.connectToProcess(userDetails, id, function(error) {
+    remoteRpc.connectToProcess(userDetails, id, function (error) {
       expect(error.message).to.contain('oops')
 
       done()
     }, user)
 
     // stub out how child process would handle method invocation
-    childProcess.send = function(event) {
+    childProcess.send = function (event) {
       process.nextTick(childProcess.emit.bind(childProcess, 'message', {
         event: 'remote:error',
         args: [{
@@ -716,14 +708,14 @@ describe('RemoteRPC', function() {
     remoteRpc._guvnor.findProcessInfoById.withArgs(userDetails, id, sinon.match.func).callsArgWith(2, undefined, processInfo)
     remoteRpc._child_process.fork.returns(childProcess)
 
-    remoteRpc.connectToProcess(userDetails, id, function(error) {
+    remoteRpc.connectToProcess(userDetails, id, function (error) {
       expect(error.message).to.contain('with code')
 
       done()
     }, user)
 
     // stub out how child process would handle method invocation
-    childProcess.send = function(event) {
+    childProcess.send = function (event) {
       process.nextTick(childProcess.emit.bind(childProcess, 'message', {
         event: 'remote:error',
         args: [{
@@ -736,7 +728,7 @@ describe('RemoteRPC', function() {
     childProcess.emit('exit', 1)
   })
 
-  it('should start mdns advert', function() {
+  it('should start mdns advert', function () {
     var advert = {
       start: sinon.stub()
     }
@@ -751,7 +743,7 @@ describe('RemoteRPC', function() {
     expect(advert.start.called).to.be.true
   })
 
-  it('should survive mdns advert failure', function() {
+  it('should survive mdns advert failure', function () {
     var value = true
     remoteRpc._config.remote.advertise = true
     remoteRpc._mdns.createAdvertisement.throws(new Error('urk!'))

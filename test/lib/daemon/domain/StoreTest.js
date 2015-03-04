@@ -2,17 +2,17 @@ var expect = require('chai').expect,
   sinon = require('sinon'),
   Store = require('../../../../lib/daemon/domain/Store')
 
-describe('Store', function() {
+describe('Store', function () {
   var store
 
-  beforeEach(function() {
+  beforeEach(function () {
     store = new Store()
     store._factory = {
       create: sinon.stub()
     }
   })
 
-  it('should find items in the store', function() {
+  it('should find items in the store', function () {
     var users = [
       {
         name: 'foo',
@@ -31,7 +31,7 @@ describe('Store', function() {
     expect(result).to.equal(users[0])
   })
 
-  it('should find items in the store with deep keys', function() {
+  it('should find items in the store with deep keys', function () {
     var users = [
       {
         name: 'foo',
@@ -53,7 +53,7 @@ describe('Store', function() {
     expect(result).to.equal(users[1])
   })
 
-  it('should remove items from the store', function() {
+  it('should remove items from the store', function () {
     var users = [
       {
         name: 'foo',
@@ -76,7 +76,7 @@ describe('Store', function() {
     expect(store._store[0].name).to.equal('bar')
   })
 
-  it('should remove items from the store with deep keys', function() {
+  it('should remove items from the store with deep keys', function () {
     var users = [
       {
         name: 'foo',

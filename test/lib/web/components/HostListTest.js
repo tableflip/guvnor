@@ -2,10 +2,10 @@ var HostList = require('../../../../lib/web/components/HostList'),
   sinon = require('sinon'),
   expect = require('chai').expect
 
-describe('HostList', function() {
+describe('HostList', function () {
   var list
 
-  beforeEach(function() {
+  beforeEach(function () {
     list = new HostList()
     list._logger = {
       info: sinon.stub(),
@@ -18,13 +18,13 @@ describe('HostList', function() {
     list._mdns = {}
   })
 
-  it('should survive mdns not being available', function() {
+  it('should survive mdns not being available', function () {
     list._mdns = null
 
     list._createMdnsBrowser()
   })
 
-  it('should start mdns browser', function() {
+  it('should start mdns browser', function () {
     var browser = {
       on: sinon.stub(),
       start: sinon.stub()
@@ -42,7 +42,7 @@ describe('HostList', function() {
     expect(browser.start.called).to.be.true
   })
 
-  it('should warn on mdns error', function() {
+  it('should warn on mdns error', function () {
     var browser = {
       on: sinon.stub(),
       start: sinon.stub()
@@ -64,7 +64,7 @@ describe('HostList', function() {
     expect(list._logger.warn.called).to.be.true
   })
 
-  it('should ignore mdns guvnor advert with no configuration', function() {
+  it('should ignore mdns guvnor advert with no configuration', function () {
     list._config.hosts = {}
 
     var browser = {
@@ -88,8 +88,8 @@ describe('HostList', function() {
     expect(list._hostData).to.be.empty
   })
 
-  it('should ignore duplicated mdns guvnor', function() {
-    list._config.hosts = {'foo': {}}
+  it('should ignore duplicated mdns guvnor', function () {
+    list._config.hosts = { 'foo': {} }
     list._hostData.foo = {}
 
     var browser = {
@@ -115,8 +115,8 @@ describe('HostList', function() {
     expect(Object.keys(list._hostData).length).to.equal(1)
   })
 
-  it('should create host data from mdns advert', function() {
-    list._config.hosts = {'foo': {}}
+  it('should create host data from mdns advert', function () {
+    list._config.hosts = { 'foo': {} }
 
     var browser = {
       on: sinon.stub(),
@@ -149,8 +149,8 @@ describe('HostList', function() {
     expect(list._hostData.foo).to.equal(hostData)
   })
 
-  it('should ignore host data when creating host data fails', function() {
-    list._config.hosts = {'foo': {}}
+  it('should ignore host data when creating host data fails', function () {
+    list._config.hosts = { 'foo': {} }
 
     var browser = {
       on: sinon.stub(),
@@ -183,7 +183,7 @@ describe('HostList', function() {
     expect(list._hostData).to.be.empty
   })
 
-  it('should return hosts as array', function() {
+  it('should return hosts as array', function () {
     list._hostData['foo'] = 'bar'
 
     var output = list.getHosts()
@@ -192,7 +192,7 @@ describe('HostList', function() {
     expect(output).to.contain('bar')
   })
 
-  it('should return host by name', function() {
+  it('should return host by name', function () {
     list._hostData['foo'] = 'bar'
 
     var output = list.getHostByName('foo')
@@ -200,7 +200,7 @@ describe('HostList', function() {
     expect(output).to.equal('bar')
   })
 
-  it('should create host data', function() {
+  it('should create host data', function () {
     list._config.hosts = {
       'foo': {
         host: 'host',
@@ -221,7 +221,7 @@ describe('HostList', function() {
     expect(list._hostData.foo).to.equal(hostData)
   })
 
-  it('should ignore invalid host data', function() {
+  it('should ignore invalid host data', function () {
     list._config.hosts = {
       'foo': {
         host: 'host'
@@ -233,7 +233,7 @@ describe('HostList', function() {
     expect(list._hostData).to.be.empty
   })
 
-  it('should ignore host data that errors', function() {
+  it('should ignore host data that errors', function () {
     list._config.hosts = {
       'foo': {
         host: 'host',
@@ -254,7 +254,7 @@ describe('HostList', function() {
     expect(list._hostData).to.be.empty
   })
 
-  it('should create host data and mdns browser', function() {
+  it('should create host data and mdns browser', function () {
     list._createHostData = sinon.stub()
     list._createMdnsBrowser = sinon.stub()
 

@@ -11,10 +11,10 @@ var text = [
   'Rainbo'
 ]
 
-function rand(arr) {
-  return arr[Math.floor(Math.random()*arr.length)]
+function rand (arr) {
+  return arr[Math.floor(Math.random() * arr.length)]
 }
 
-setInterval(function() {
+setInterval(function () {
   console.log(rand(text)[rand(colours)])
 }, 1000)

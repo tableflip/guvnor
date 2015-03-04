@@ -1,6 +1,6 @@
-var AmpersandModel = require('ampersand-model'),
-  ansiHtml = require('ansi-html'),
-  moment = require('moment')
+var AmpersandModel = require('ampersand-model')
+var ansiHtml = require('ansi-html')
+var moment = require('moment')
 
 module.exports = AmpersandModel.extend({
   idAttribute: 'date',
@@ -16,7 +16,7 @@ module.exports = AmpersandModel.extend({
     messageFormatted: {
       deps: ['message'],
       fn: function () {
-        if(!this.message) {
+        if (!this.message) {
           return ''
         }
 
@@ -28,7 +28,7 @@ module.exports = AmpersandModel.extend({
     },
     dateFormatted: {
       deps: ['date'],
-      fn: function() {
+      fn: function () {
         var date = new Date(this.date)
 
         return moment(date).format('YYYY-MM-DD HH:mm:ss Z')

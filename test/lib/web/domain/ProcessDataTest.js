@@ -2,10 +2,10 @@ var ProcessData = require('../../../../lib/web/domain/ProcessData'),
   sinon = require('sinon'),
   expect = require('chai').expect
 
-describe('ProcessData', function() {
+describe('ProcessData', function () {
   var data
 
-  beforeEach(function() {
+  beforeEach(function () {
     data = new ProcessData({
       'id': 0, 'pid': 0, 'name': '', 'script': '',
       'uptime': 0, 'restarts': 0, 'status': '',
@@ -19,7 +19,7 @@ describe('ProcessData', function() {
     data._processDataFactory = {}
   })
 
-  it('should accept existing log data', function() {
+  it('should accept existing log data', function () {
     expect(data.logs.length).to.equal(0)
 
     data = new ProcessData({
@@ -40,7 +40,7 @@ describe('ProcessData', function() {
     expect(data.logs[0].message).to.equal('bar')
   })
 
-  it('should not overflow log limit', function() {
+  it('should not overflow log limit', function () {
     data.logs.length = 100
     expect(data.logs.length).to.equal(100)
 
@@ -58,7 +58,7 @@ describe('ProcessData', function() {
     expect(data.logs[99].message).to.equal('bar')
   })
 
-  it('should append usage information', function() {
+  it('should append usage information', function () {
     data.update({
       heapTotal: 123098230,
       heapUsed: 43098230,
@@ -86,14 +86,14 @@ describe('ProcessData', function() {
     expect(data.usage.latency[0].y).to.equal(12.32)
   })
 
-  it('should append usage information for new workers', function() {
+  it('should append usage information for new workers', function () {
     var incoming = {
       workers: [{
         id: 'foo',
         pid: 1,
         heapTotal: 5,
         latency: 1
-      }, {
+        }, {
         id: 'bar',
         pid: 1,
         heapTotal: 6,
@@ -102,7 +102,7 @@ describe('ProcessData', function() {
     }
 
     data._processDataFactory = {
-      create: function(args, callback) {
+      create: function (args, callback) {
         var proc = new ProcessData(args[0])
         proc._config = {
           graph: {
@@ -124,7 +124,7 @@ describe('ProcessData', function() {
     expect(data.workers[1].usage.heapTotal.length).to.equal(1)
   })
 
-  it('should append usage information for existing workers', function() {
+  it('should append usage information for existing workers', function () {
     var incoming = {
       workers: [{
         id: 'foo',
@@ -151,7 +151,7 @@ describe('ProcessData', function() {
     expect(data.workers[0].usage.heapTotal.length).to.equal(2)
   })
 
-  it('should not overflow exception limit', function() {
+  it('should not overflow exception limit', function () {
     data.exceptions.length = 100
     expect(data.exceptions.length).to.equal(100)
 

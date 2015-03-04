@@ -1,11 +1,11 @@
-var ProcessPage = require('../process'),
-  templates = require('../../templates'),
-  CollectionRenderer = require('ampersand-collection-view'),
-  LogListView = require('../../views/process/loglist/entry')
+var ProcessPage = require('../process')
+var templates = require('../../templates')
+var CollectionRenderer = require('ampersand-collection-view')
+var LogListView = require('../../views/process/loglist/entry')
 
 module.exports = ProcessPage.extend({
   template: templates.pages.process.logs,
-  initialize: function() {
+  initialize: function () {
     ProcessPage.prototype.initialize.call(this)
 
     this.listenTo(this.model.logs, 'add', this.scrollLogs.bind(this))
@@ -13,12 +13,12 @@ module.exports = ProcessPage.extend({
   subviews: {
     logs: {
       container: '[data-hook=logs]',
-      prepareView: function(el) {
+      prepareView: function (el) {
         return new CollectionRenderer({
-          el: el,
-          collection: this.model.logs,
-          view: LogListView
-        })
+            el: el,
+            collection: this.model.logs,
+            view: LogListView
+          })
       }
     }
   },
@@ -27,23 +27,23 @@ module.exports = ProcessPage.extend({
     'click button.logs-pin': 'pinLogs',
     'click button.logs-clear': 'clearLogs'
   },
-  toggleTimes: function(event) {
+  toggleTimes: function (event) {
     this.model.shouldShowTimes = !this.model.shouldShowTimes
   },
-  pinLogs: function(event) {
+  pinLogs: function (event) {
     this.model.areLogsPinned = !this.model.areLogsPinned
   },
-  clearLogs: function(event) {
-    this.model.logs.forEach(function(log) {
+  clearLogs: function (event) {
+    this.model.logs.forEach(function (log) {
       log.visible = false
     })
   },
-  scrollLogs: function() {
-    setTimeout(function() {
-      if(!this.model.areLogsPinned) {
+  scrollLogs: function () {
+    setTimeout(function () {
+      if (!this.model.areLogsPinned) {
         var list = this.query('[data-hook=logs]')
 
-        if(!list) {
+        if (!list) {
           return
         }
 
@@ -61,7 +61,7 @@ module.exports = ProcessPage.extend({
       type: 'booleanClass',
       name: 'showTimes',
       selector: 'ul.logs'
-    }, {
+      }, {
       type: 'booleanClass',
       name: 'active',
       selector: '.logs-time'

@@ -1,3 +1,3 @@
-setTimeout(function() {
-  throw new Error('Oh Noes!');
-}, 6000);
+setTimeout(function () {
+  throw new Error('Oh Noes!')
+}, 6000)

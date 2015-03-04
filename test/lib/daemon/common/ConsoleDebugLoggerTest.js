@@ -2,8 +2,8 @@ var sinon = require('sinon'),
   expect = require('chai').expect,
   proxyquire = require('proxyquire')
 
-describe('ConsoleDebugLogger', function() {
-  it('should swallow log if silent option is true', function() {
+describe('ConsoleDebugLogger', function () {
+  it('should swallow log if silent option is true', function () {
     var ConsoleDebugLogger = require('../../../../lib/daemon/common/ConsoleDebugLogger')
     var logger = new ConsoleDebugLogger({
       silent: true
@@ -18,13 +18,11 @@ describe('ConsoleDebugLogger', function() {
     expect(stub.getCall(0).args[1]).to.equal(true)
   })
 
-  it('should defer to console if there is no parent process', function() {
+  it('should defer to console if there is no parent process', function () {
     var stubs = {
       winston: {
         transports: {
-          Console: function() {
-
-          }
+          Console: function () {}
         }
       }
     }
@@ -42,13 +40,11 @@ describe('ConsoleDebugLogger', function() {
     expect(stubs.winston.transports.Console.prototype.log.getCall(0).args[0]).to.equal('foo')
   })
 
-  it('should swallow log if process.send is defined', function() {
+  it('should swallow log if process.send is defined', function () {
     var stubs = {
       winston: {
         transports: {
-          Console: function() {
-
-          }
+          Console: function () {}
         }
       }
     }

@@ -2,9 +2,9 @@ var expect = require('chai').expect,
   path = require('path'),
   ParentProcess = require('../../../../lib/daemon/common/ParentProcess')
 
-describe('ParentProcess', function() {
+describe('ParentProcess', function () {
 
-  it('should remote private fields from objects', function() {
+  it('should remote private fields from objects', function () {
     var parentProcess = new ParentProcess()
 
     var output = parentProcess._remotePrivateFieldsFromObject({
@@ -16,7 +16,7 @@ describe('ParentProcess', function() {
     expect(output._foo).to.not.exist
   })
 
-  it('should remote private fields from objects with array properties', function() {
+  it('should remote private fields from objects with array properties', function () {
     var parentProcess = new ParentProcess()
 
     var output = parentProcess._remotePrivateFieldsFromObject({
@@ -29,7 +29,7 @@ describe('ParentProcess', function() {
         waldo: {
           fred: undefined,
           plugh: null,
-          xyzzy: new String("thud")
+          xyzzy: new String('thud')
         }
       }]
     })
@@ -41,10 +41,10 @@ describe('ParentProcess', function() {
     expect(output.baz[0].grault).to.equal(false)
     expect(output.baz[0].waldo.fred).to.equal(undefined)
     expect(output.baz[0].waldo.plugh).to.equal(null)
-    expect(output.baz[0].waldo.xyzzy.toString()).to.equal("thud")
+    expect(output.baz[0].waldo.xyzzy.toString()).to.equal('thud')
   })
 
-  it('should send a message', function() {
+  it('should send a message', function () {
     process.send = sinon.stub()
 
     var parentProcess = new ParentProcess()
@@ -55,13 +55,13 @@ describe('ParentProcess', function() {
     expect(process.send.getCall(0).args[0].args).to.deep.equal(['bar'])
   })
 
-  it('should emit a message', function(done) {
+  it('should emit a message', function (done) {
     process.send = sinon.stub()
 
     // sets up handlers for messages
     var parent = new ParentProcess()
 
-    parent.on('foo:bar', function(arg1, arg2) {
+    parent.on('foo:bar', function (arg1, arg2) {
       expect(arg1).to.equal('baz')
       expect(arg2).to.equal('qux')
 

@@ -2,10 +2,10 @@ var expect = require('chai').expect,
   sinon = require('sinon'),
   RemoteUserService = require('../../../../lib/daemon/service/RemoteUserService')
 
-describe('RemoteUserService', function() {
+describe('RemoteUserService', function () {
   var service
 
-  beforeEach(function() {
+  beforeEach(function () {
     service = new RemoteUserService()
     service._remoteUserStore = {
       save: sinon.stub(),
@@ -25,7 +25,7 @@ describe('RemoteUserService', function() {
     }
   })
 
-  it('should find a user', function(done) {
+  it('should find a user', function (done) {
     var user = {
       name: 'foo',
       secret: 'shush'
@@ -33,7 +33,7 @@ describe('RemoteUserService', function() {
 
     service._remoteUserStore.find.withArgs('name', 'foo').returns(user)
 
-    service.findUser('foo', function(error, user) {
+    service.findUser('foo', function (error, user) {
       expect(error).to.not.exist
       expect(user).to.deep.equal({
         name: 'foo',
@@ -44,7 +44,7 @@ describe('RemoteUserService', function() {
     })
   })
 
-  it('should create a user', function(done) {
+  it('should create a user', function (done) {
     var userName = 'foo'
     var user = {
       uid: 5,
@@ -57,7 +57,7 @@ describe('RemoteUserService', function() {
     })
     service._remoteUserStore.save.callsArgWith(0, undefined)
 
-    service.createUser(userName, function(error, user) {
+    service.createUser(userName, function (error, user) {
       expect(error).to.not.exist
       expect(user.secret).to.be.ok
 
@@ -65,12 +65,12 @@ describe('RemoteUserService', function() {
     })
   })
 
-  it('should fail to create when username is invalid', function(done) {
+  it('should fail to create when username is invalid', function (done) {
     var userName = 'foo'
 
-    service._posix.getpwnam.withArgs(userName).throws("Who?!")
+    service._posix.getpwnam.withArgs(userName).throws('Who?!')
 
-    service.createUser(userName, function(error, user) {
+    service.createUser(userName, function (error, user) {
       expect(error).to.be.ok
       expect(error.code).to.equal('INVALIDUSER')
       expect(user).to.not.exist
@@ -79,7 +79,7 @@ describe('RemoteUserService', function() {
     })
   })
 
-  it('should not create a user when the user already exists', function(done) {
+  it('should not create a user when the user already exists', function (done) {
     var userName = 'foo'
     var users = [
       {
@@ -90,7 +90,7 @@ describe('RemoteUserService', function() {
 
     service._remoteUserStore.find.withArgs('name', userName).returns(users[0])
 
-    service.findOrCreateUser(userName, function(error, user) {
+    service.findOrCreateUser(userName, function (error, user) {
       expect(error).to.not.exist
       expect(user.secret).to.be.ok
 
@@ -100,7 +100,7 @@ describe('RemoteUserService', function() {
     })
   })
 
-  it('should remove a user', function() {
+  it('should remove a user', function () {
     var userName = 'foo'
 
     service.removeUser(userName)
@@ -109,7 +109,7 @@ describe('RemoteUserService', function() {
     expect(service._remoteUserStore.save.called).to.be.true
   })
 
-  it('should rotate keys for a user', function(done) {
+  it('should rotate keys for a user', function (done) {
     var userName = 'foo'
     var originalUser = {
       name: userName,
@@ -121,7 +121,7 @@ describe('RemoteUserService', function() {
 
     var originalSecret = originalUser.secret
 
-    service.rotateKeys(userName, function(error, user) {
+    service.rotateKeys(userName, function (error, user) {
       expect(error).to.not.exist
       expect(user).to.equal(originalUser)
 
@@ -132,7 +132,7 @@ describe('RemoteUserService', function() {
     })
   })
 
-  it('should list users', function(done) {
+  it('should list users', function (done) {
     var users = [
       {
         name: 'foo',
@@ -142,7 +142,7 @@ describe('RemoteUserService', function() {
 
     service._remoteUserStore.all.returns(users)
 
-    service.listUsers(function(error, userlist) {
+    service.listUsers(function (error, userlist) {
       expect(error).to.not.exist
 
       expect(userlist.foo).to.equal(users.foo)

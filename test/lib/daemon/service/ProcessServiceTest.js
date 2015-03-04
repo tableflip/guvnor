@@ -5,10 +5,10 @@ var expect = require('chai').expect,
   ProcessInfo = require('../../../../lib/daemon/domain/ProcessInfo'),
   ProcessService = require('../../../../lib/daemon/service/ProcessService')
 
-describe('ProcessService', function() {
+describe('ProcessService', function () {
   var processService
 
-  beforeEach(function() {
+  beforeEach(function () {
     processService = new ProcessService()
     processService._logger = {
       info: sinon.stub(),
@@ -36,8 +36,8 @@ describe('ProcessService', function() {
     }
   })
 
-  it('should automatically restart a process on exit with non-zero code', function() {
-    function MockProcess() {
+  it('should automatically restart a process on exit with non-zero code', function () {
+    function MockProcess () {
       this.pid = Math.floor(Math.random() * 1000)
     }
     inherits(MockProcess, EventEmitter)
@@ -63,7 +63,7 @@ describe('ProcessService', function() {
       getProcessArgs: sinon.stub(),
       getProcessOptions: sinon.stub()
     }
-    //processInfo.validate
+    // processInfo.validate
 
     processService._processInfoStore.create.callsArgWith(1, undefined, processInfo)
     processService._processInfoStore.find.withArgs('id', processInfo.id).returns(processInfo)
@@ -73,7 +73,7 @@ describe('ProcessService', function() {
 
     expect(processService._child_process.fork.calledOnce).to.be.true
 
-    mockProcess0.emit('message', {event: 'process:ready'})
+    mockProcess0.emit('message', { event: 'process:ready' })
 
     // Exit the mock process
     mockProcess0.emit('exit', 7)
@@ -81,12 +81,12 @@ describe('ProcessService', function() {
     // A new challenger appears
     expect(processService._child_process.fork.calledTwice).to.be.true
 
-    mockProcess1.emit('message', {event: 'process:ready'})
+    mockProcess1.emit('message', { event: 'process:ready' })
 
     expect(processService._processInfoStore.create.calledOnce).to.be.true
   })
 
-  it('should find a process by pid', function() {
+  it('should find a process by pid', function () {
     processService._processInfoStore.find.withArgs('process.pid', 1).returns({
       prop: 'baz',
       process: {
@@ -97,7 +97,7 @@ describe('ProcessService', function() {
     expect(processService.findByPid(1).prop).to.equal('baz')
   })
 
-  it('should notify of failure if reserving a debug port fails', function(done) {
+  it('should notify of failure if reserving a debug port fails', function (done) {
     var processInfo = {
       validate: sinon.stub()
     }
@@ -105,7 +105,7 @@ describe('ProcessService', function() {
 
     processService._processInfoStore.create.callsArgWithAsync(1, undefined, processInfo)
 
-    processService.on('process:failed', function(processInfo) {
+    processService.on('process:failed', function (processInfo) {
       expect(processInfo.status).to.equal('failed')
 
       done()
@@ -113,12 +113,10 @@ describe('ProcessService', function() {
 
     processService._freeport.callsArgWith(0, new Error('AAIIIIEEEE!'))
 
-    processService.startProcess('foo', {}, function() {
-
-    })
+    processService.startProcess('foo', {}, function () {})
   })
 
-  it('should start a cluster manager', function(done) {
+  it('should start a cluster manager', function (done) {
     var processInfo = {
       cluster: true,
       validate: sinon.stub(),
@@ -136,11 +134,11 @@ describe('ProcessService', function() {
 
     var emittedStartedClusterEvent = false
 
-    processService.on('cluster:starting', function() {
+    processService.on('cluster:starting', function () {
       emittedStartedClusterEvent = true
     })
 
-    processService.on('cluster:forked', function(processInfo) {
+    processService.on('cluster:forked', function (processInfo) {
       expect(emittedStartedClusterEvent).to.be.true
       expect(processInfo.cluster).to.be.true
 
@@ -151,13 +149,11 @@ describe('ProcessService', function() {
 
     processService.startProcess('foo', {
       instances: 2
-    }, function() {
-
-    })
+    }, function () {})
   })
 
-  it('should forward events', function(done) {
-    processService.on('foo:bar', function(processInfo, one, two, three) {
+  it('should forward events', function (done) {
+    processService.on('foo:bar', function (processInfo, one, two, three) {
       expect(one).to.equal('one')
       expect(two).to.equal('two')
       expect(three).to.equal('three')
@@ -175,7 +171,7 @@ describe('ProcessService', function() {
     processInfo.process.emit('foo:bar', 'one', 'two', 'three')
   })
 
-  it('should not restart a failing process when restartOnError is false', function() {
+  it('should not restart a failing process when restartOnError is false', function () {
     var processInfo = {
       id: 'foo',
       restartOnError: false,
@@ -190,7 +186,7 @@ describe('ProcessService', function() {
     expect(processService._child_process.fork.notCalled).to.be.true
   })
 
-  it('should not restart a failing process when retries exceeded', function(done) {
+  it('should not restart a failing process when retries exceeded', function (done) {
     var processInfo = {
       id: 'foo',
       restartOnError: true,
@@ -205,7 +201,7 @@ describe('ProcessService', function() {
       foo: processInfo
     }
 
-    processService.on('process:aborted', function(info) {
+    processService.on('process:aborted', function (info) {
       expect(info).to.equal(processInfo)
 
       // should have set status
@@ -220,7 +216,7 @@ describe('ProcessService', function() {
     expect(processService._child_process.fork.called).to.be.false
   })
 
-  it('should restart a failing process when restarts are fewer than retries', function() {
+  it('should restart a failing process when restarts are fewer than retries', function () {
     var processInfo = {
       id: 'foo',
       process: {
@@ -241,7 +237,7 @@ describe('ProcessService', function() {
     expect(processService._startProcess.calledOnce).to.be.true
   })
 
-  it('should forward events from child process', function(done) {
+  it('should forward events from child process', function (done) {
     var childProcess = new EventEmitter()
     childProcess.pid = 5
     var processInfo = {
@@ -266,24 +262,24 @@ describe('ProcessService', function() {
     ]
     var invocations = 0
 
-    events.forEach(function(event) {
-      processService.on(event, function() {
+    events.forEach(function (event) {
+      processService.on(event, function () {
         invocations++
 
-        if(invocations == events.length) {
+        if (invocations == events.length) {
           done()
         }
       })
     })
 
-    events.forEach(function(event) {
+    events.forEach(function (event) {
       childProcess.emit(event, {
         message: 'hello'
       })
     })
   })
 
-  it('should send config to child process when requested', function() {
+  it('should send config to child process when requested', function () {
     var childProcess = new EventEmitter()
     childProcess.pid = 5
     childProcess.send = sinon.stub()
@@ -311,7 +307,7 @@ describe('ProcessService', function() {
     expect(childProcess.send.getCall(0).args[0].args[0]).to.equal(processService._config)
   })
 
-  it('should connect to process rpc socket after startup', function(done) {
+  it('should connect to process rpc socket after startup', function (done) {
     var remote = {
       connect: sinon.stub()
     }
@@ -333,7 +329,7 @@ describe('ProcessService', function() {
     processService._child_process.fork.returns(childProcess)
     processService._processInfoStore.create.callsArgWith(1, undefined, processInfo)
 
-    processService.on('process:ready', function(info) {
+    processService.on('process:ready', function (info) {
       expect(info).to.equal(processInfo)
 
       done()
@@ -351,7 +347,7 @@ describe('ProcessService', function() {
     expect(processInfo.remote).to.equal(remote)
   })
 
-  it('should connect to cluster rpc socket after startup', function(done) {
+  it('should connect to cluster rpc socket after startup', function (done) {
     var remote = {
       connect: sinon.stub()
     }
@@ -360,7 +356,7 @@ describe('ProcessService', function() {
       process: new EventEmitter()
     }
 
-    processService.on('cluster:ready', function(info) {
+    processService.on('cluster:ready', function (info) {
       expect(info).to.equal(processInfo)
       expect(processInfo.status).to.equal('running')
       expect(processInfo.socket).to.equal('socket')
@@ -378,7 +374,7 @@ describe('ProcessService', function() {
     processInfo.process.emit('cluster:started', 'socket')
   })
 
-  it('should mark processInfo as failed if connect to process rpc socket after startup fails', function(done) {
+  it('should mark processInfo as failed if connect to process rpc socket after startup fails', function (done) {
     var remote = {
       connect: sinon.stub()
     }
@@ -399,7 +395,7 @@ describe('ProcessService', function() {
     processService._child_process.fork.returns(childProcess)
     processService._processInfoStore.create.callsArgWith(1, undefined, processInfo)
 
-    processService.on('process:failed', function(info) {
+    processService.on('process:failed', function (info) {
       expect(info).to.equal(processInfo)
       expect(info.status).to.equal('failed')
 
@@ -418,7 +414,7 @@ describe('ProcessService', function() {
     expect(processInfo.remote).to.not.exist
   })
 
-  it('should mark processInfo as errored if connect to process rpc socket after startup fails', function(done) {
+  it('should mark processInfo as errored if connect to process rpc socket after startup fails', function (done) {
     var childProcess = new EventEmitter()
     childProcess.pid = 5
     var processInfo = {
@@ -436,7 +432,7 @@ describe('ProcessService', function() {
     processService._child_process.fork.returns(childProcess)
     processService._processInfoStore.create.callsArgWith(1, undefined, processInfo)
 
-    processService.on('process:errored', function(info) {
+    processService.on('process:errored', function (info) {
       expect(info).to.equal(processInfo)
       expect(info.status).to.equal('errored')
 
@@ -448,7 +444,7 @@ describe('ProcessService', function() {
     childProcess.emit('process:errored', 'socket')
   })
 
-  it('should mark cluster processInfo as failed if connect to process rpc socket after startup fails', function(done) {
+  it('should mark cluster processInfo as failed if connect to process rpc socket after startup fails', function (done) {
     var remote = {
       connect: sinon.stub()
     }
@@ -457,7 +453,7 @@ describe('ProcessService', function() {
       process: new EventEmitter()
     }
 
-    processService.on('cluster:failed', function(info) {
+    processService.on('cluster:failed', function (info) {
       expect(info).to.equal(processInfo)
       expect(info.status).to.equal('failed')
 
@@ -471,13 +467,13 @@ describe('ProcessService', function() {
     processInfo.process.emit('cluster:started', 'socket')
   })
 
-  it('should forward stopping event and set status to stopping', function(done) {
+  it('should forward stopping event and set status to stopping', function (done) {
     var processInfo = {
       id: 'foo',
       process: new EventEmitter()
     }
 
-    processService.on('cluster:stopping', function(info) {
+    processService.on('cluster:stopping', function (info) {
       expect(info).to.equal(processInfo)
       expect(info.status).to.equal('stopping')
 
@@ -488,13 +484,13 @@ describe('ProcessService', function() {
     processInfo.process.emit('cluster:stopping', 'socket')
   })
 
-  it('should forward failed event and set status to failed', function(done) {
+  it('should forward failed event and set status to failed', function (done) {
     var processInfo = {
       id: 'foo',
       process: new EventEmitter()
     }
 
-    processService.on('cluster:failed', function(info) {
+    processService.on('cluster:failed', function (info) {
       expect(info).to.equal(processInfo)
       expect(info.status).to.equal('failed')
 
@@ -505,7 +501,7 @@ describe('ProcessService', function() {
     processInfo.process.emit('cluster:failed', new Error('urk!'))
   })
 
-  it('should forward restarting event and set status to restarting', function(done) {
+  it('should forward restarting event and set status to restarting', function (done) {
     var childProcess = new EventEmitter()
     childProcess.pid = 5
     var processInfo = {
@@ -524,7 +520,7 @@ describe('ProcessService', function() {
     processService._processInfoStore.create.callsArgWith(1, undefined, processInfo)
     processService.startProcess(__filename, {}, sinon.stub())
 
-    processService.on('process:restarting', function(info) {
+    processService.on('process:restarting', function (info) {
       expect(info).to.equal(processInfo)
       expect(info.status).to.equal('restarting')
       expect(info.restarts).to.equal(0)
@@ -535,7 +531,7 @@ describe('ProcessService', function() {
     childProcess.emit('process:restarting')
   })
 
-  it('should forward uncaughtexception event', function(done) {
+  it('should forward uncaughtexception event', function (done) {
     var childProcess = new EventEmitter()
     childProcess.pid = 5
     var processInfo = {
@@ -554,7 +550,7 @@ describe('ProcessService', function() {
     processService._processInfoStore.create.callsArgWith(1, undefined, processInfo)
     processService.startProcess(__filename, {}, sinon.stub())
 
-    processService.on('process:uncaughtexception', function(info) {
+    processService.on('process:uncaughtexception', function (info) {
       expect(info).to.equal(processInfo)
 
       done()
@@ -563,7 +559,7 @@ describe('ProcessService', function() {
     childProcess.emit('process:uncaughtexception', new Error('urk!'))
   })
 
-  it('should forward process events from child process', function(done) {
+  it('should forward process events from child process', function (done) {
     var childProcess = new EventEmitter()
     childProcess.pid = 5
     var processInfo = {
@@ -590,28 +586,28 @@ describe('ProcessService', function() {
     ]
     var invocations = 0
 
-    events.forEach(function(event) {
-      processService.on(event, function() {
+    events.forEach(function (event) {
+      processService.on(event, function () {
         invocations++
 
-        if(invocations == events.length) {
+        if (invocations == events.length) {
           done()
         }
       })
     })
 
-    events.forEach(function(event) {
+    events.forEach(function (event) {
       childProcess.emit(event)
     })
   })
 
-  it('should forward cluster failed event and set status to failed', function(done) {
+  it('should forward cluster failed event and set status to failed', function (done) {
     var processInfo = {
       id: 'foo',
       process: new EventEmitter()
     }
 
-    processService.on('cluster:failed', function(info) {
+    processService.on('cluster:failed', function (info) {
       expect(info).to.equal(processInfo)
       expect(info.status).to.equal('failed')
 
@@ -622,7 +618,7 @@ describe('ProcessService', function() {
     processInfo.process.emit('cluster:failed', new Error('urk!'))
   })
 
-  it('should forward cluster online event', function(done) {
+  it('should forward cluster online event', function (done) {
     var childProcess = new EventEmitter()
     childProcess.pid = 5
     var processInfo = {
@@ -642,7 +638,7 @@ describe('ProcessService', function() {
     processService._processInfoStore.create.callsArgWith(1, undefined, processInfo)
     processService.startProcess(__filename, {}, sinon.stub())
 
-    processService.on('cluster:online', function(info) {
+    processService.on('cluster:online', function (info) {
       expect(info).to.equal(processInfo)
 
       done()
@@ -650,49 +646,49 @@ describe('ProcessService', function() {
 
     childProcess.emit('cluster:online')
   })
-/*
-  it('should forward cluster ready event', function(done) {
-    var socket = 'socket'
-    var remote = {
-      connect: sinon.stub()
-    }
-    var processInfo = {
-      id: 'foo',
-      process: new EventEmitter()
-    }
-    processService._processes = {
-      foo: processInfo
-    }
-    processService._freeport.callsArgWithAsync(0, undefined, 5)
-    processService._child_process.fork.returns(childProcess)
-    processService._processInfoStore.create.callsArgWithAsync(1, undefined, processInfo)
-    processService._managedProcessFactory.create.withArgs(['socket']).callsArgWithAsync(1, undefined, remote)
-    remote.connect.callsArgWithAsync(0, undefined, remote)
-    processService.startProcess(__filename, {}, sinon.stub())
+  /*
+    it('should forward cluster ready event', function(done) {
+      var socket = 'socket'
+      var remote = {
+        connect: sinon.stub()
+      }
+      var processInfo = {
+        id: 'foo',
+        process: new EventEmitter()
+      }
+      processService._processes = {
+        foo: processInfo
+      }
+      processService._freeport.callsArgWithAsync(0, undefined, 5)
+      processService._child_process.fork.returns(childProcess)
+      processService._processInfoStore.create.callsArgWithAsync(1, undefined, processInfo)
+      processService._managedProcessFactory.create.withArgs(['socket']).callsArgWithAsync(1, undefined, remote)
+      remote.connect.callsArgWithAsync(0, undefined, remote)
+      processService.startProcess(__filename, {}, sinon.stub())
 
-    var receivedStartedEvent = false
+      var receivedStartedEvent = false
 
-    processService.on('process:started', function(info) {
-      expect(info).to.equal(processInfo)
-      expect(info.status).to.equal('started')
+      processService.on('process:started', function(info) {
+        expect(info).to.equal(processInfo)
+        expect(info.status).to.equal('started')
 
-      receivedStartedEvent = true
+        receivedStartedEvent = true
+      })
+
+      processService.on('cluster:ready', function(info) {
+        expect(info).to.equal(processInfo)
+        expect(info.remote).to.equal(remote)
+        expect(info.status).to.equal('running')
+
+        expect(receivedStartedEvent).to.be.true
+
+        done()
+      })
+
+      childProcess.emit('cluster:started', socket)
     })
-
-    processService.on('cluster:ready', function(info) {
-      expect(info).to.equal(processInfo)
-      expect(info.remote).to.equal(remote)
-      expect(info.status).to.equal('running')
-
-      expect(receivedStartedEvent).to.be.true
-
-      done()
-    })
-
-    childProcess.emit('cluster:started', socket)
-  })
-*/
-  it('should emit cluster failed event if connecting to cluster rpc fails', function(done) {
+  */
+  it('should emit cluster failed event if connecting to cluster rpc fails', function (done) {
     var socket = 'socket'
     var remote = {
       connect: sinon.stub()
@@ -706,14 +702,14 @@ describe('ProcessService', function() {
 
     var receivedStartedEvent = false
 
-    processService.on('cluster:started', function(info) {
+    processService.on('cluster:started', function (info) {
       expect(info).to.equal(processInfo)
       expect(info.status).to.equal('started')
 
       receivedStartedEvent = true
     })
 
-    processService.on('cluster:failed', function(info) {
+    processService.on('cluster:failed', function (info) {
       expect(info).to.equal(processInfo)
       expect(info.status).to.equal('failed')
 
@@ -726,7 +722,7 @@ describe('ProcessService', function() {
     processInfo.process.emit('cluster:started', socket)
   })
 
-  it('should forward cluster worker events from child process', function(done) {
+  it('should forward cluster worker events from child process', function (done) {
     var childProcess = new EventEmitter()
     childProcess.pid = 5
     var processInfo = {
@@ -748,8 +744,8 @@ describe('ProcessService', function() {
     processService.startProcess(__filename, {}, sinon.stub())
 
     var events = [
-      'worker:forked', 'worker:starting', 'worker:started',  'worker:ready',
-      'worker:stopping', 'worker:exit', 'worker:failed',  'worker:restarting',
+      'worker:forked', 'worker:starting', 'worker:started', 'worker:ready',
+      'worker:stopping', 'worker:exit', 'worker:failed', 'worker:restarting',
       'worker:aborted', 'worker:uncaughtexception',
       'worker:heapdump:start', 'worker:heapdump:error',
       'worker:heapdump:complete', 'worker:gc:start',
@@ -757,22 +753,22 @@ describe('ProcessService', function() {
     ]
     var invocations = 0
 
-    events.forEach(function(event) {
-      processService.on(event, function() {
+    events.forEach(function (event) {
+      processService.on(event, function () {
         invocations++
 
-        if(invocations == events.length) {
+        if (invocations == events.length) {
           done()
         }
       })
     })
 
-    events.forEach(function(event) {
+    events.forEach(function (event) {
       childProcess.emit(event)
     })
   })
 
-  it('should update number of cluster workers event', function() {
+  it('should update number of cluster workers event', function () {
     var childProcess = new EventEmitter()
     childProcess.pid = 5
     var processInfo = {
@@ -800,7 +796,7 @@ describe('ProcessService', function() {
     expect(processInfo.instances).to.equal(5)
   })
 
-  it('should forward event when process exits cleanly', function(done) {
+  it('should forward event when process exits cleanly', function (done) {
     var childProcess = new EventEmitter()
     childProcess.pid = 5
     var processInfo = {
@@ -820,7 +816,7 @@ describe('ProcessService', function() {
     processService.startProcess(__filename, {}, sinon.stub())
     processService._processInfoStore.find.withArgs('id', processInfo.id).returns(processInfo)
 
-    processService.on('process:exit', function(info) {
+    processService.on('process:exit', function (info) {
       expect(info).to.equal(processInfo)
 
       done()
@@ -831,7 +827,7 @@ describe('ProcessService', function() {
     expect(processInfo.status).to.equal('stopped')
   })
 
-  it('should only emit process exit once if error and exit are both fired', function() {
+  it('should only emit process exit once if error and exit are both fired', function () {
     var childProcess = new EventEmitter()
     childProcess.pid = 5
     var processInfo = {
@@ -855,7 +851,7 @@ describe('ProcessService', function() {
 
     var invoked = 0
 
-    processService.on('process:exit', function(info) {
+    processService.on('process:exit', function (info) {
       expect(info).to.equal(processInfo)
 
       invoked++
@@ -873,7 +869,7 @@ describe('ProcessService', function() {
     expect(processInfo.status).to.equal('errored')
   })
 
-  it('should remove a process', function(done) {
+  it('should remove a process', function (done) {
     var id = 'foo'
     var processInfo = {
       running: false
@@ -881,14 +877,14 @@ describe('ProcessService', function() {
 
     processService._processInfoStore.find.withArgs('id', id).returns(processInfo)
 
-    processService.removeProcess(id, function(error) {
+    processService.removeProcess(id, function (error) {
       expect(error).to.not.exist
       expect(processService._processInfoStore.remove.withArgs('id', id).called).to.be.true
       done()
     })
   })
 
-  it('should object when removing a running process', function(done) {
+  it('should object when removing a running process', function (done) {
     var id = 'foo'
     var processInfo = {
       running: true
@@ -896,23 +892,23 @@ describe('ProcessService', function() {
 
     processService._processInfoStore.find.withArgs('id', id).returns(processInfo)
 
-    processService.removeProcess(id, function(error) {
+    processService.removeProcess(id, function (error) {
       expect(error).to.be.ok
       done()
     })
   })
 
-  it('should not remove a process when that process does not exist', function(done) {
+  it('should not remove a process when that process does not exist', function (done) {
     var id = 'foo'
 
-    processService.removeProcess(id, function(error) {
+    processService.removeProcess(id, function (error) {
       expect(error).to.not.exist
       expect(processService._processInfoStore.remove.called).to.be.false
       done()
     })
   })
 
-  it('should list all processes', function() {
+  it('should list all processes', function () {
     var processes = []
 
     processService._processInfoStore.all.returns(processes)
@@ -922,7 +918,7 @@ describe('ProcessService', function() {
     expect(list).to.equal(processes)
   })
 
-  it('should kill all processes', function() {
+  it('should kill all processes', function () {
     var processes = [{
       remote: {
         kill: sinon.stub()
@@ -930,7 +926,7 @@ describe('ProcessService', function() {
       process: {
         kill: sinon.stub()
       }
-    }, {
+      }, {
       process: {
         kill: sinon.stub()
       }
@@ -945,7 +941,7 @@ describe('ProcessService', function() {
     expect(processes[1].process.kill.called).to.be.true
   })
 
-  it('should find a process by name', function() {
+  it('should find a process by name', function () {
     var name = 'foo'
     var processInfo = {}
 

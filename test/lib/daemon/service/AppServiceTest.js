@@ -4,10 +4,10 @@ var expect = require('chai').expect,
   EventEmitter = require('events').EventEmitter,
   AppService = require('../../../../lib/daemon/service/AppService')
 
-describe('AppService', function() {
+describe('AppService', function () {
   var service
 
-  beforeEach(function() {
+  beforeEach(function () {
     service = new AppService()
     service._config = {
       deployments: {
@@ -26,7 +26,7 @@ describe('AppService', function() {
     }
   })
 
-  it('should find an app by name', function() {
+  it('should find an app by name', function () {
     var name = 'foo'
     var app = {}
 
@@ -37,19 +37,19 @@ describe('AppService', function() {
     expect(returned).to.equal(app)
   })
 
-  it('should return all apps', function(done) {
+  it('should return all apps', function (done) {
     var apps = []
 
     service._applicationStore.all.returns(apps)
 
-    service.list(function(error, returned) {
+    service.list(function (error, returned) {
       expect(returned).to.equal(apps)
 
       done()
     })
   })
 
-  it('should deploy a project', function(done) {
+  it('should deploy a project', function (done) {
     var name = 'foo'
     var url = 'bar'
     var user = 'baz'
@@ -73,11 +73,11 @@ describe('AppService', function() {
 
     var eventEmitted = false
 
-    service.once('app:installed', function() {
+    service.once('app:installed', function () {
       eventEmitted = true
     })
 
-    service.deploy(name, url, user, onOut, onErr, function(error) {
+    service.deploy(name, url, user, onOut, onErr, function (error) {
       expect(error).to.not.exist
       expect(service._applicationStore.find.withArgs('name', name).called).to.be.true
       expect(eventEmitted).to.be.true
@@ -86,7 +86,7 @@ describe('AppService', function() {
     })
   })
 
-  it('should not deploy a project with a duplicate name', function(done) {
+  it('should not deploy a project with a duplicate name', function (done) {
     var name = 'foo'
     var url = 'bar'
     var user = 'baz'
@@ -95,14 +95,14 @@ describe('AppService', function() {
 
     service._applicationStore.find.withArgs('name', name).returns({})
 
-    service.deploy(name, url, user, onOut, onErr, function(error) {
+    service.deploy(name, url, user, onOut, onErr, function (error) {
       expect(error.message).to.contain('already exists')
 
       done()
     })
   })
 
-  it('should pass error encountered when creating an application', function(done) {
+  it('should pass error encountered when creating an application', function (done) {
     var name = 'foo'
     var url = 'bar'
     var user = 'baz'
@@ -116,14 +116,14 @@ describe('AppService', function() {
       user: user
     }]).callsArgWith(1, appCreationError)
 
-    service.deploy(name, url, user, onOut, onErr, function(error) {
+    service.deploy(name, url, user, onOut, onErr, function (error) {
       expect(error).to.equal(appCreationError)
 
       done()
     })
   })
 
-  it('should remove repo when cloning or installing fails', function(done) {
+  it('should remove repo when cloning or installing fails', function (done) {
     var name = 'foo'
     var url = 'bar'
     var user = 'baz'
@@ -146,14 +146,14 @@ describe('AppService', function() {
       user: user
     }]).callsArgWith(1, undefined, appInfo)
 
-    service.deploy(name, url, user, onOut, onErr, function(error) {
+    service.deploy(name, url, user, onOut, onErr, function (error) {
       expect(error).to.equal(installError)
 
       done()
     })
   })
 
-  it('should remove an app', function(done) {
+  it('should remove an app', function (done) {
     var name = 'foo'
     var appInfo = {
       id: 'bar',
@@ -167,11 +167,11 @@ describe('AppService', function() {
 
     var eventEmitted = false
 
-    service.once('app:removed', function() {
+    service.once('app:removed', function () {
       eventEmitted = true
     })
 
-    service.remove(name, function(error) {
+    service.remove(name, function (error) {
       expect(error).to.not.exist
       expect(service._applicationStore.remove.withArgs('id', appInfo.id).called).to.be.true
       expect(eventEmitted).to.be.true

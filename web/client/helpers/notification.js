@@ -2,8 +2,8 @@ require('bootstrap-growl')
 
 var sprintf = require('sprintf-js').sprintf
 
-module.exports = function(options) {
-  if(!Array.isArray(options.message)) {
+module.exports = function (options) {
+  if (!Array.isArray(options.message)) {
     options.message = [options.message]
   }
 

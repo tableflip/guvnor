@@ -1,8 +1,8 @@
-var Collection = require('ampersand-rest-collection'),
-  Exception = require('./exception');
+var Collection = require('ampersand-rest-collection')
+var Exception = require('./exception')
 
 module.exports = Collection.extend({
-  url: function() {
+  url: function () {
     return '/hosts/' + this.parent.collection.parent.name + '/processes/' + this.parent.id + '/exceptions'
   },
   model: Exception

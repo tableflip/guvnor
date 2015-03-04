@@ -2,10 +2,10 @@ var expect = require('chai').expect,
   sinon = require('sinon'),
   LocalDaemonStarter = require('../../../lib/local/LocalDaemonStarter')
 
-describe('LocalDaemonStarter', function() {
+describe('LocalDaemonStarter', function () {
   var localDaemonStarter
 
-  beforeEach(function() {
+  beforeEach(function () {
     localDaemonStarter = new LocalDaemonStarter()
     localDaemonStarter._logger = {
       info: sinon.stub(),
@@ -29,7 +29,7 @@ describe('LocalDaemonStarter', function() {
     localDaemonStarter._child_process = {}
   })
 
-  it('should start the daemon', function(done) {
+  it('should start the daemon', function (done) {
     localDaemonStarter._config.guvnor.user = 'user'
     localDaemonStarter._config.guvnor.group = 'group'
 
@@ -53,7 +53,7 @@ describe('LocalDaemonStarter', function() {
     localDaemonStarter._child_process.spawn = sinon.stub()
     localDaemonStarter._child_process.spawn.returns(daemon)
 
-    localDaemonStarter.start(function(error, sockets) {
+    localDaemonStarter.start(function (error, sockets) {
       expect(error).to.not.exist
       expect(sockets).to.equal('started')
 
@@ -90,7 +90,7 @@ describe('LocalDaemonStarter', function() {
     expect(daemon.disconnect.callCount).to.equal(1)
   })
 
-  it('should kill the daemon if it fails to start up', function(done) {
+  it('should kill the daemon if it fails to start up', function (done) {
     var daemon = {
       on: sinon.stub(),
       unref: sinon.stub(),
@@ -111,7 +111,7 @@ describe('LocalDaemonStarter', function() {
       gid: 5
     })
 
-    localDaemonStarter.start(function(error) {
+    localDaemonStarter.start(function (error) {
       expect(error.code).to.equal('bar')
 
       done()
@@ -133,7 +133,7 @@ describe('LocalDaemonStarter', function() {
     expect(daemon.kill.callCount).to.equal(1)
   })
 
-  it('should warn the user when a permissions error is encountered while starting the daemon', function(done) {
+  it('should warn the user when a permissions error is encountered while starting the daemon', function (done) {
     var daemon = {
       on: sinon.stub(),
       unref: sinon.stub(),
@@ -154,7 +154,7 @@ describe('LocalDaemonStarter', function() {
       gid: 5
     })
 
-    localDaemonStarter.start(function(error) {
+    localDaemonStarter.start(function (error) {
       expect(error.message).to.contain('permissions')
 
       done()
@@ -173,7 +173,7 @@ describe('LocalDaemonStarter', function() {
     })
   })
 
-  it('should start the daemon with a specified debug port', function() {
+  it('should start the daemon with a specified debug port', function () {
     localDaemonStarter._config.debug.daemon = 10
 
     var daemon = {
@@ -202,7 +202,7 @@ describe('LocalDaemonStarter', function() {
     expect(localDaemonStarter._child_process.spawn.getCall(0).args[1]).to.contain('--debug-brk=' + localDaemonStarter._config.debug.daemon)
   })
 
-  it('should start the daemon with a generated debug port', function() {
+  it('should start the daemon with a generated debug port', function () {
     localDaemonStarter._config.debug.daemon = true
     var port = 5
 
@@ -234,20 +234,20 @@ describe('LocalDaemonStarter', function() {
     expect(localDaemonStarter._child_process.spawn.getCall(0).args[1]).to.contain('--debug-brk=' + port)
   })
 
-  it('should pass back error when generating a debug port', function(done) {
+  it('should pass back error when generating a debug port', function (done) {
     localDaemonStarter._config.debug.daemon = true
     var portError = new Error('nope!')
 
     localDaemonStarter._freeport.callsArgWith(0, portError)
 
-    localDaemonStarter.start(function(error) {
+    localDaemonStarter.start(function (error) {
       expect(error).to.equal(portError)
 
       done()
     })
   })
 
-  it('should log when disconnecting from the daemon', function() {
+  it('should log when disconnecting from the daemon', function () {
     var daemon = {
       on: sinon.stub(),
       unref: sinon.stub(),

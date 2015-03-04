@@ -3,16 +3,16 @@ var expect = require('chai').expect,
   path = require('path'),
   LogRedirector = require('../../../../lib/daemon/common/LogRedirector')
 
-describe('LogRedirector', function() {
+describe('LogRedirector', function () {
   var stderr, stdout
 
-  before(function() {
-    stderr =  process.stderr.write
-    stdout =  process.stdout.write
+  before(function () {
+    stderr = process.stderr.write
+    stdout = process.stdout.write
   })
 
   // ProcessWrapper has the side effects of overriding stderr and stdout so restore them after every test
-  afterEach(function() {
+  afterEach(function () {
     process.stderr.write = stderr
     process.stdout.write = stdout
 
@@ -21,7 +21,7 @@ describe('LogRedirector', function() {
 
   var logRedirector
 
-  beforeEach(function() {
+  beforeEach(function () {
     logRedirector = new LogRedirector()
     logRedirector._logger = {
       info: sinon.stub(),
@@ -35,7 +35,7 @@ describe('LogRedirector', function() {
     process.send = sinon.stub()
   })
 
-  it('should redirect logs', function() {
+  it('should redirect logs', function () {
     var message = 'hello world'
 
     expect(logRedirector._logger.info.callCount).to.equal(0)

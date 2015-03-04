@@ -1,6 +1,6 @@
-var View = require('ampersand-view'),
-  templates = require('../../../templates'),
-  config = require('clientconfig')
+var View = require('ampersand-view')
+var templates = require('../../../templates')
+var config = require('clientconfig')
 
 module.exports = View.extend({
   template: templates.includes.process.overview.cpu,
@@ -17,16 +17,16 @@ module.exports = View.extend({
 
     this._chart = new window.Highcharts.Chart({
       chart: {
-        type: "areaspline",
+        type: 'areaspline',
         renderTo: this.query('[data-hook=cpu-usage]'),
         backgroundColor: 'rgba(0, 0, 0, 0)',
         borderColor: '#444',
         events: {
-          load: function() {
+          load: function () {
             this.query('.highcharts-container').style.width = '100%'
 
-            setTimeout(function() {
-              $(window).resize()
+            setTimeout(function () {
+              window.$(window).resize()
             }, 10)
           }.bind(this)
         }
@@ -44,9 +44,9 @@ module.exports = View.extend({
         enabled: false
       },
       xAxis: {
-        type: "datetime",
+        type: 'datetime',
         labels: {
-          overflow: "justify",
+          overflow: 'justify',
           y: 25,
           style: fontStyle
         },
@@ -67,8 +67,8 @@ module.exports = View.extend({
       },
       tooltip: {
         enabled: true,
-        formatter: function() {
-         return '<span style="color:' + this.series.color + '">'+ this.series.name +'</span>: ' + this.y.toFixed(2) + ' %'
+        formatter: function () {
+          return '<span style="color:' + this.series.color + '">' + this.series.name + '</span>: ' + this.y.toFixed(2) + ' %'
         },
         backgroundColor: '#333',
         borderColor: '#666',
@@ -100,16 +100,16 @@ module.exports = View.extend({
         }
       },
       series: [{
-        name: "CPU",
+        name: 'CPU',
         data: this.model.cpu
       }]
     })
 
-    this.listenTo(this.model, 'update', function() {
+    this.listenTo(this.model, 'update', function () {
       var last = 0
 
-      this.model.cpu.forEach(function(cpu, index) {
-        if(cpu.x > last) {
+      this.model.cpu.forEach(function (cpu, index) {
+        if (cpu.x > last) {
           last = cpu.x
         } else {
           console.error('cpu index', index, 'of', this.model.cpu.length, 'not sorted')
@@ -120,10 +120,10 @@ module.exports = View.extend({
       this._chart.redraw()
     }.bind(this))
   },
-  remove: function() {
+  remove: function () {
     View.prototype.remove.call(this)
 
-    if(this._chart) {
+    if (this._chart) {
       this._chart.destroy()
       this._chart = null
     }

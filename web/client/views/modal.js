@@ -1,6 +1,6 @@
-var View = require('ampersand-view'),
-  templates = require('../templates'),
-  AmpersandModel = require('ampersand-model')
+var View = require('ampersand-view')
+var templates = require('../templates')
+var AmpersandModel = require('ampersand-model')
 
 var Model = AmpersandModel.extend({
   props: {
@@ -17,7 +17,7 @@ var Model = AmpersandModel.extend({
 
 module.exports = View.extend({
   template: templates.includes.modal,
-  initialize: function() {
+  initialize: function () {
     this.model = new Model()
   },
   bindings: {
@@ -50,55 +50,55 @@ module.exports = View.extend({
   events: {
     'click [data-hook=ok-button]': 'okClicked'
   },
-  setTitle: function(title) {
+  setTitle: function (title) {
     this.model.title = title
   },
-  setOkText: function(text) {
+  setOkText: function (text) {
     this.model.okText = text
   },
-  setCancelText: function(text) {
+  setCancelText: function (text) {
     this.model.cancelText = text
   },
-  setIsDanger: function(danger) {
+  setIsDanger: function (danger) {
     this.model.isDanger = danger
   },
-  setContent: function(content) {
-    if(this._content) {
+  setContent: function (content) {
+    if (this._content) {
       this._content.remove()
     }
 
     this._content = this.renderSubview(content, '[data-hook=modal-content]')
   },
-  setCallback: function(callback) {
+  setCallback: function (callback) {
     this._callback = callback
   },
-  setShowButtons: function(show) {
+  setShowButtons: function (show) {
     this.model.showButtons = show
   },
-  setShowOk: function(show) {
+  setShowOk: function (show) {
     this.model.showOk = show
   },
-  setShowCancel: function(show) {
+  setShowCancel: function (show) {
     this.model.showCancel = show
   },
-  okClicked: function() {
-    if(this._callback) {
+  okClicked: function () {
+    if (this._callback) {
       var result = this._callback()
 
-      if(result === false) {
+      if (result === false) {
         return
       }
     }
 
     this.dismiss()
   },
-  dismiss: function() {
+  dismiss: function () {
     window.$(this.el).modal('hide')
   },
-  show: function() {
+  show: function () {
     window.$(this.el).modal('show')
   },
-  reset: function() {
+  reset: function () {
     this.setShowButtons(true)
     this.setShowOk(true)
     this.setShowCancel(true)

@@ -44,11 +44,11 @@ var remote = require('../../lib/local').connectOrStart,
 var guvnor
 var tmpdir
 
-describe('Guvnor', function() {
+describe('Guvnor', function () {
   // integration tests are slow
   this.timeout(60000)
 
-  beforeEach(function(done) {
+  beforeEach(function (done) {
     tmpdir = os.tmpdir() + '/' + shortid.generate()
     tmpdir = tmpdir.replace(/\/\//g, '/')
 
@@ -57,14 +57,15 @@ describe('Guvnor', function() {
     config.guvnor.confdir = tmpdir + '/conf'
     config.guvnor.appdir = tmpdir + '/apps'
 
-    remote(function(error, b) {
-      if(error) throw error
+    remote(function (error, b) {
+      if (error)
+        throw error
 
       guvnor = b
 
       // log all received events
-      guvnor.on('*', function(type) {
-        if(type.substring(0, 'daemon:log'.length) == 'daemon:log' ||
+      guvnor.on('*', function (type) {
+        if (type.substring(0, 'daemon:log'.length) == 'daemon:log' ||
           type.substring(0, 'process:uncaughtexception'.length) == 'process:uncaughtexception' ||
           type.substring(0, 'daemon:fatality'.length) == 'daemon:fatality' ||
           type.substring(0, 'process:log'.length) == 'process:log' ||
@@ -75,22 +76,22 @@ describe('Guvnor', function() {
 
         console.info(type)
       })
-      guvnor.on('daemon:log:*', function(type, event) {
+      guvnor.on('daemon:log:*', function (type, event) {
         console.info(type, event.message)
       })
-      guvnor.on('process:log:*', function(type, processInfo, event) {
+      guvnor.on('process:log:*', function (type, processInfo, event) {
         console.info(type, event)
       })
-      guvnor.on('cluster:log:*', function(type, processInfo, event) {
+      guvnor.on('cluster:log:*', function (type, processInfo, event) {
         console.info(type, event)
       })
-      guvnor.on('worker:log:*', function(type, clusterInfo, processInfo, event) {
+      guvnor.on('worker:log:*', function (type, clusterInfo, processInfo, event) {
         console.info(type, event)
       })
-      guvnor.on('process:uncaughtexception:*', function(type, error) {
+      guvnor.on('process:uncaughtexception:*', function (type, error) {
         console.log(error.stack)
       })
-      guvnor.on('daemon:fatality', function(error) {
+      guvnor.on('daemon:fatality', function (error) {
         console.log(error.stack)
       })
 
@@ -98,13 +99,13 @@ describe('Guvnor', function() {
     })
   })
 
-  afterEach(function(done) {
+  afterEach(function (done) {
     guvnor.callbacks = {}
     guvnor.kill(guvnor.disconnect.bind(guvnor, done))
   })
 
-  it('should have npm available', function(done) {
-    child_process.exec('which npm', function(error, stdout, stderr) {
+  it('should have npm available', function (done) {
+    child_process.exec('which npm', function (error, stdout, stderr) {
       console.info('which npm')
       console.info('error', error)
       console.info('stdout', stdout)
@@ -114,8 +115,8 @@ describe('Guvnor', function() {
     })
   })
 
-  it('should have git available', function(done) {
-    child_process.exec('which git', function(error, stdout, stderr) {
+  it('should have git available', function (done) {
+    child_process.exec('which git', function (error, stdout, stderr) {
       console.info('which git')
       console.info('error', error)
       console.info('stdout', stdout)
@@ -125,14 +126,14 @@ describe('Guvnor', function() {
     })
   })
 
-  it('should start a process', function(done) {
-    guvnor.startProcess(__dirname + '/fixtures/hello-world.js', {}, function(error, processInfo) {
+  it('should start a process', function (done) {
+    guvnor.startProcess(__dirname + '/fixtures/hello-world.js', {}, function (error, processInfo) {
       expect(error).to.not.exist
       expect(processInfo.id).to.be.ok
 
       console.info('process id', processInfo.id)
 
-      processInfo.once('process:ready', function() {
+      processInfo.once('process:ready', function () {
         expect(processInfo.socket).to.include(processInfo.pid)
 
         done()
@@ -140,13 +141,13 @@ describe('Guvnor', function() {
     })
   })
 
-  it('should start a coffeescript process', function(done) {
-    guvnor.startProcess(__dirname + '/fixtures/hello-world.coffee', {}, function(error, processInfo) {
+  it('should start a coffeescript process', function (done) {
+    guvnor.startProcess(__dirname + '/fixtures/hello-world.coffee', {}, function (error, processInfo) {
       expect(error).to.not.exist
       expect(processInfo.id).to.be.ok
 
-      guvnor.once('process:ready', function(readyProcessInfo) {
-        if(readyProcessInfo.id != processInfo.id) {
+      guvnor.once('process:ready', function (readyProcessInfo) {
+        if (readyProcessInfo.id != processInfo.id) {
           return
         }
 
@@ -157,60 +158,60 @@ describe('Guvnor', function() {
     })
   })
 
-  it('should survive starting a process with the wrong group name', function(done) {
+  it('should survive starting a process with the wrong group name', function (done) {
     guvnor.startProcess(__dirname + '/fixtures/hello-world.js', {
       group: shortid.generate()
-    }, function(error) {
-      expect(error).to.be.ok
-      expect(error.message).to.contain('group')
-
-      done()
-    })
-  })
-
-  it('should survive starting a process with the wrong user name', function(done) {
-    guvnor.startProcess(__dirname + '/fixtures/hello-world.js', {
-      user: shortid.generate()
-    }, function(error) {
-      expect(error).to.be.ok
-      expect(error.message).to.contain('user')
-
-      done()
-    })
-  })
-
-  it('should start a process in debug mode', function(done) {
-    guvnor.startProcess(__dirname + '/fixtures/hello-world.js', {
-      debug: true
-    }, function(error, processInfo) {
-      expect(error).to.not.exist
-      expect(processInfo.id).to.be.ok
-      expect(processInfo.status).to.equal('paused')
-      expect(processInfo.debugPort).to.be.a('number')
-
-      var continued = false
-
-      processInfo.on('process:ready', function() {
-        expect(processInfo.socket).to.include(processInfo.pid)
-        expect(continued).to.be.true
+    }, function (error) {
+        expect(error).to.be.ok
+        expect(error.message).to.contain('group')
 
         done()
       })
-
-      continueProcess(processInfo.debugPort, function(error) {
-        expect(error).to.not.exist
-
-        continued = true
-      })
-    })
   })
 
-  it('should stop a process', function(done) {
-    guvnor.startProcess(__dirname + '/fixtures/hello-world.js', {}, function(error, processInfo) {
+  it('should survive starting a process with the wrong user name', function (done) {
+    guvnor.startProcess(__dirname + '/fixtures/hello-world.js', {
+      user: shortid.generate()
+    }, function (error) {
+        expect(error).to.be.ok
+        expect(error.message).to.contain('user')
+
+        done()
+      })
+  })
+
+  it('should start a process in debug mode', function (done) {
+    guvnor.startProcess(__dirname + '/fixtures/hello-world.js', {
+      debug: true
+    }, function (error, processInfo) {
+        expect(error).to.not.exist
+        expect(processInfo.id).to.be.ok
+        expect(processInfo.status).to.equal('paused')
+        expect(processInfo.debugPort).to.be.a('number')
+
+        var continued = false
+
+        processInfo.on('process:ready', function () {
+          expect(processInfo.socket).to.include(processInfo.pid)
+          expect(continued).to.be.true
+
+          done()
+        })
+
+        continueProcess(processInfo.debugPort, function (error) {
+          expect(error).to.not.exist
+
+          continued = true
+        })
+      })
+  })
+
+  it('should stop a process', function (done) {
+    guvnor.startProcess(__dirname + '/fixtures/hello-world.js', {}, function (error, processInfo) {
       expect(error).to.not.exist
       expect(processInfo.id).to.be.ok
 
-      processInfo.once('process:exit', function(error, code, signal) {
+      processInfo.once('process:exit', function (error, code, signal) {
         expect(processInfo.status).to.equal('stopped')
         expect(error).to.not.exist
         expect(code).to.equal(0)
@@ -218,7 +219,7 @@ describe('Guvnor', function() {
 
         console.info('process exited')
 
-        guvnor.listProcesses(function(error, processes) {
+        guvnor.listProcesses(function (error, processes) {
           expect(error).to.not.exist
           expect(processes.length).to.equal(1)
           expect(processes[0].id).to.equal(processInfo.id)
@@ -228,7 +229,7 @@ describe('Guvnor', function() {
         })
       })
 
-      processInfo.once('process:ready', function() {
+      processInfo.once('process:ready', function () {
         expect(processInfo.socket).to.be.ok
 
         processInfo.kill()
@@ -236,19 +237,19 @@ describe('Guvnor', function() {
     })
   })
 
-  it('should restart a process', function(done) {
-    guvnor.startProcess(__dirname + '/fixtures/hello-world.js', {}, function(error, processInfo) {
+  it('should restart a process', function (done) {
+    guvnor.startProcess(__dirname + '/fixtures/hello-world.js', {}, function (error, processInfo) {
       expect(error).to.not.exist
       expect(processInfo.id).to.be.ok
 
       var notifiedOfRestarting = false
 
-      processInfo.once('process:restarting', function() {
+      processInfo.once('process:restarting', function () {
         notifiedOfRestarting = true
       })
 
-      processInfo.once('process:restarted', function() {
-        guvnor.listProcesses(function(error, processes) {
+      processInfo.once('process:restarted', function () {
+        guvnor.listProcesses(function (error, processes) {
           console.info(error, processes)
           expect(error).to.not.exist
           expect(notifiedOfRestarting).to.be.true
@@ -259,7 +260,7 @@ describe('Guvnor', function() {
         })
       })
 
-      processInfo.once('process:ready', function() {
+      processInfo.once('process:ready', function () {
         expect(processInfo.socket).to.be.ok
 
         processInfo.restart()
@@ -267,17 +268,17 @@ describe('Guvnor', function() {
     })
   })
 
-  it('should list processes', function(done) {
-    guvnor.listProcesses(function(error, processes) {
+  it('should list processes', function (done) {
+    guvnor.listProcesses(function (error, processes) {
       expect(error).to.not.exist
       expect(processes.length).to.equal(0)
 
-      guvnor.startProcess(__dirname + '/fixtures/hello-world.js', {}, function(error, processInfo) {
+      guvnor.startProcess(__dirname + '/fixtures/hello-world.js', {}, function (error, processInfo) {
         expect(error).to.not.exist
         expect(processInfo.id).to.be.ok
 
-        guvnor.once('process:ready', function() {
-          guvnor.listProcesses(function(error, processes) {
+        guvnor.once('process:ready', function () {
+          guvnor.listProcesses(function (error, processes) {
             expect(error).to.not.exist
             expect(processes.length).to.equal(1)
 
@@ -288,18 +289,18 @@ describe('Guvnor', function() {
     })
   })
 
-  it('should restart a failing process', function(done) {
-    guvnor.startProcess(__dirname + '/fixtures/crash-on-message.js', {}, function(error, processInfo) {
+  it('should restart a failing process', function (done) {
+    guvnor.startProcess(__dirname + '/fixtures/crash-on-message.js', {}, function (error, processInfo) {
       expect(error).to.not.exist
       expect(processInfo.id).to.be.ok
 
-      processInfo.once('process:restarted', function(failedPid) {
+      processInfo.once('process:restarted', function (failedPid) {
         expect(processInfo.pid).to.not.equal(failedPid)
 
         done()
       })
 
-      processInfo.once('process:ready', function() {
+      processInfo.once('process:ready', function () {
         expect(processInfo.socket).to.be.ok
 
         processInfo.send('custom:euthanise')
@@ -307,14 +308,14 @@ describe('Guvnor', function() {
     })
   })
 
-  it('should abort a constantly failing process', function(done) {
-    guvnor.startProcess(__dirname + '/fixtures/first-tick-crash.js', {}, function(error, processInfo) {
+  it('should abort a constantly failing process', function (done) {
+    guvnor.startProcess(__dirname + '/fixtures/first-tick-crash.js', {}, function (error, processInfo) {
       expect(error).to.not.exist
 
-      processInfo.once('process:aborted', function() {
+      processInfo.once('process:aborted', function () {
 
         // should have status of 'aborted'
-        guvnor.listProcesses(function(error, processes) {
+        guvnor.listProcesses(function (error, processes) {
           expect(error).to.not.exist
           expect(processes.length).to.equal(1)
           expect(processes[0].id).to.equal(processInfo.id)
@@ -326,15 +327,15 @@ describe('Guvnor', function() {
     })
   })
 
-  it('should invoke a remote callback', function(done) {
+  it('should invoke a remote callback', function (done) {
     guvnor.startProcess(__dirname + '/fixtures/remote-executor.js', {}, function (error, processInfo) {
       expect(error).to.not.exist
       expect(processInfo.id).to.be.ok
 
-      processInfo.once('process:ready', function() {
+      processInfo.once('process:ready', function () {
         expect(processInfo.socket).to.be.ok
 
-        processInfo.send('custom:hello', function(message) {
+        processInfo.send('custom:hello', function (message) {
           expect(message).to.equal('hello world')
 
           done()
@@ -343,89 +344,89 @@ describe('Guvnor', function() {
     })
   })
 
-  it('should start cluster and report online when all processes have started', function(done) {
+  it('should start cluster and report online when all processes have started', function (done) {
     guvnor.startProcess(__dirname + '/fixtures/http-server.js', {
       env: {
         PORT: 0
       },
       instances: 2
     }, function (error, processInfo) {
-      expect(error).to.not.exist
-      expect(processInfo.id).to.be.ok
+        expect(error).to.not.exist
+        expect(processInfo.id).to.be.ok
 
-      var workersForked = 0
-      var workersStarting = 0
-      var workersStarted = 0
-      var workersReady = 0
+        var workersForked = 0
+        var workersStarting = 0
+        var workersStarted = 0
+        var workersReady = 0
 
-      processInfo.on('worker:forked', function(workerProcessInfo) {
-        expect(workerProcessInfo).to.be.ok
+        processInfo.on('worker:forked', function (workerProcessInfo) {
+          expect(workerProcessInfo).to.be.ok
 
-        workersForked++
-      })
+          workersForked++
+        })
 
-      processInfo.on('worker:starting', function(workerProcessInfo) {
-        expect(workerProcessInfo).to.be.ok
+        processInfo.on('worker:starting', function (workerProcessInfo) {
+          expect(workerProcessInfo).to.be.ok
 
-        workersStarting++
-      })
+          workersStarting++
+        })
 
-      processInfo.on('worker:started', function(workerProcessInfo) {
-        expect(workerProcessInfo).to.be.ok
+        processInfo.on('worker:started', function (workerProcessInfo) {
+          expect(workerProcessInfo).to.be.ok
 
-        workersStarted++
-      })
+          workersStarted++
+        })
 
-      processInfo.on('worker:ready', function(workerProcessInfo) {
-        expect(workerProcessInfo).to.be.ok
+        processInfo.on('worker:ready', function (workerProcessInfo) {
+          expect(workerProcessInfo).to.be.ok
 
-        workersReady++
-      })
+          workersReady++
+        })
 
-      processInfo.once('cluster:online', function() {
-        expect(workersForked).to.equal(2)
-        expect(workersStarting).to.equal(2)
-        expect(workersStarted).to.equal(2)
-        expect(workersReady).to.equal(2)
-
-        done()
-      })
-    })
-  })
-
-  it('should report status for cluster workers', function(done) {
-    guvnor.startProcess(__dirname + '/fixtures/http-server.js', {
-      env: {
-        PORT: 0
-      },
-      instances: 2
-    }, function (error, processInfo) {
-      expect(error).to.not.exist
-      expect(processInfo.id).to.be.ok
-
-      var debugPort = processInfo.debugPort
-
-      processInfo.once('cluster:online', function() {
-        guvnor.listProcesses(function(error, processes) {
-          expect(error).to.not.exist
-          expect(processes.length).to.equal(1)
-
-          expect(processes[0].workers.length).to.equal(2)
-
-          expect(processes[0].workers[0].title).to.equal(processes[0].workers[1].title)
-          expect(processes[0].workers[0].pid).to.not.equal(processes[0].workers[1].pid)
-
-          // should have assigned sequential debug ports
-          expect(processes[0].workers[0].debugPort).to.equal(debugPort + 1)
-          expect(processes[0].workers[1].debugPort).to.equal(debugPort + 2)
+        processInfo.once('cluster:online', function () {
+          expect(workersForked).to.equal(2)
+          expect(workersStarting).to.equal(2)
+          expect(workersStarted).to.equal(2)
+          expect(workersReady).to.equal(2)
 
           done()
         })
       })
-    })
   })
 
-  it('should reduce number of cluster workers', function(done) {
+  it('should report status for cluster workers', function (done) {
+    guvnor.startProcess(__dirname + '/fixtures/http-server.js', {
+      env: {
+        PORT: 0
+      },
+      instances: 2
+    }, function (error, processInfo) {
+        expect(error).to.not.exist
+        expect(processInfo.id).to.be.ok
+
+        var debugPort = processInfo.debugPort
+
+        processInfo.once('cluster:online', function () {
+          guvnor.listProcesses(function (error, processes) {
+            expect(error).to.not.exist
+            expect(processes.length).to.equal(1)
+
+            expect(processes[0].workers.length).to.equal(2)
+
+            expect(processes[0].workers[0].title).to.equal(processes[0].workers[1].title)
+            expect(processes[0].workers[0].pid).to.not.equal(processes[0].workers[1].pid)
+
+            // should have assigned sequential debug ports
+            expect(processes[0].workers[0].debugPort).to.equal(debugPort + 1)
+            expect(processes[0].workers[1].debugPort).to.equal(debugPort + 2)
+
+            done()
+          })
+        })
+      })
+  })
+
+  it('should reduce number of cluster workers', function (done) {
     var instances = 3
 
     guvnor.startProcess(__dirname + '/fixtures/http-server.js', {
@@ -434,55 +435,14 @@ describe('Guvnor', function() {
       },
       instances: instances
     }, function (error, processInfo) {
-      expect(error).to.not.exist
-      expect(processInfo.id).to.be.ok
+        expect(error).to.not.exist
+        expect(processInfo.id).to.be.ok
 
-      processInfo.once('cluster:online', function() {
-        instances--
+        processInfo.once('cluster:online', function () {
+          instances--
 
-        processInfo.setClusterWorkers(instances, function (error) {
-          expect(error).to.not.exist
-
-          guvnor.listProcesses(function (error, processes) {
+          processInfo.setClusterWorkers(instances, function (error) {
             expect(error).to.not.exist
-            expect(processes.length).to.equal(1)
-            expect(processes[0].workers.length).to.equal(instances)
-
-            guvnor.findProcessInfoById(processInfo.id, function (error, processInfo) {
-              expect(error).to.not.exist
-              expect(processInfo.instances).to.equal(instances)
-
-              done()
-            })
-          })
-        })
-      })
-    })
-  })
-
-  it('should increase number of cluster workers', function(done) {
-    var instances = 2
-
-    guvnor.startProcess(__dirname + '/fixtures/http-server.js', {
-      env: {
-        PORT: 0
-      },
-      instances: instances,
-      debug: true
-    }, function (error, processInfo) {
-      expect(error).to.not.exist
-      expect(processInfo.id).to.be.ok
-
-      processInfo.once('cluster:online', function () {
-        instances++
-
-        processInfo.setClusterWorkers(instances, function (error) {
-          expect(error).to.not.exist
-
-          guvnor.once('cluster:online', function (clusterProcessInfo) {
-            if (clusterProcessInfo.id != processInfo.id) {
-              return
-            }
 
             guvnor.listProcesses(function (error, processes) {
               expect(error).to.not.exist
@@ -499,18 +459,59 @@ describe('Guvnor', function() {
           })
         })
       })
-    })
   })
 
-  it('should dump process info', function(done) {
-    guvnor.startProcess(__dirname + '/fixtures/hello-world.js', {}, function(error, processInfo) {
+  it('should increase number of cluster workers', function (done) {
+    var instances = 2
+
+    guvnor.startProcess(__dirname + '/fixtures/http-server.js', {
+      env: {
+        PORT: 0
+      },
+      instances: instances,
+      debug: true
+    }, function (error, processInfo) {
+        expect(error).to.not.exist
+        expect(processInfo.id).to.be.ok
+
+        processInfo.once('cluster:online', function () {
+          instances++
+
+          processInfo.setClusterWorkers(instances, function (error) {
+            expect(error).to.not.exist
+
+            guvnor.once('cluster:online', function (clusterProcessInfo) {
+              if (clusterProcessInfo.id != processInfo.id) {
+                return
+              }
+
+              guvnor.listProcesses(function (error, processes) {
+                expect(error).to.not.exist
+                expect(processes.length).to.equal(1)
+                expect(processes[0].workers.length).to.equal(instances)
+
+                guvnor.findProcessInfoById(processInfo.id, function (error, processInfo) {
+                  expect(error).to.not.exist
+                  expect(processInfo.instances).to.equal(instances)
+
+                  done()
+                })
+              })
+            })
+          })
+        })
+      })
+  })
+
+  it('should dump process info', function (done) {
+    guvnor.startProcess(__dirname + '/fixtures/hello-world.js', {}, function (error, processInfo) {
       expect(error).to.not.exist
       expect(processInfo.id).to.be.ok
 
-      processInfo.once('process:ready', function() {
+      processInfo.once('process:ready', function () {
         expect(processInfo.socket).to.include(processInfo.pid)
 
-        guvnor.dumpProcesses(function(error) {
+        guvnor.dumpProcesses(function (error) {
           expect(error).to.not.exist
           expect(fs.existsSync(config.guvnor.confdir + '/processes.json')).to.be.true
 
@@ -520,20 +521,20 @@ describe('Guvnor', function() {
     })
   })
 
-  it('should restore process info', function(done) {
+  it('should restore process info', function (done) {
     fs.writeFileSync(
-        config.guvnor.confdir + '/processes.json',
-        '[{"script": "' + __dirname + '/fixtures/hello-world.js' + '", "name": "super-fun"}]'
+      config.guvnor.confdir + '/processes.json',
+      '[{"script": "' + __dirname + '/fixtures/hello-world.js' + '", "name": "super-fun"}]'
     )
 
-    guvnor.listProcesses(function(error, processes) {
+    guvnor.listProcesses(function (error, processes) {
       expect(error).to.not.exist
       expect(processes.length).to.equal(0)
 
-      guvnor.restoreProcesses(function(error) {
+      guvnor.restoreProcesses(function (error) {
         expect(error).to.not.exist
 
-        guvnor.listProcesses(function(error, processes) {
+        guvnor.listProcesses(function (error, processes) {
           expect(processes.length).to.equal(1)
           done()
         })
@@ -541,23 +542,20 @@ describe('Guvnor', function() {
     })
   })
 
-  it('should make a process do a heap dump', function(done) {
-    guvnor.startProcess(__dirname + '/fixtures/hello-world.js', {}, function(error, processInfo) {
+  it('should make a process do a heap dump', function (done) {
+    guvnor.startProcess(__dirname + '/fixtures/hello-world.js', {}, function (error, processInfo) {
       expect(error).to.not.exist
       expect(processInfo.id).to.be.ok
 
-      processInfo.on('process:ready', function() {
+      processInfo.on('process:ready', function () {
         expect(processInfo.socket).to.be.ok
 
-        async.parallel([
-          function(callback) {
+        async.parallel([function (callback) {
             processInfo.on('process:heapdump:start', callback)
-          },
-          function(callback) {
+          }, function (callback) {
             processInfo.on('process:heapdump:complete', callback)
-          },
-          function(callback) {
-            processInfo.dumpHeap(function(error, path) {
+          }, function (callback) {
+            processInfo.dumpHeap(function (error, path) {
               expect(error).to.not.exist
               expect(fs.existsSync(path)).to.be.true
 
@@ -574,23 +572,20 @@ describe('Guvnor', function() {
     })
   })
 
-  it('should force a process to garbage collect', function(done) {
-    guvnor.startProcess(__dirname + '/fixtures/hello-world.js', {}, function(error, processInfo) {
+  it('should force a process to garbage collect', function (done) {
+    guvnor.startProcess(__dirname + '/fixtures/hello-world.js', {}, function (error, processInfo) {
       expect(error).to.not.exist
       expect(processInfo.id).to.be.ok
 
-      processInfo.on('process:ready', function() {
+      processInfo.on('process:ready', function () {
         expect(processInfo.socket, 'socket was missing').to.be.ok
 
-        async.parallel([
-          function(callback) {
+        async.parallel([function (callback) {
             processInfo.on('process:gc:start', callback)
-          },
-          function(callback) {
+          }, function (callback) {
             processInfo.on('process:gc:complete', callback)
-          },
-          function(callback) {
-            processInfo.forceGc(function(error) {
+          }, function (callback) {
+            processInfo.forceGc(function (error) {
               expect(error, 'could not perform gc').to.not.exist
 
               processInfo.kill()
@@ -603,7 +598,7 @@ describe('Guvnor', function() {
     })
   })
 
-  it('should deploy an application', function(done) {
+  it('should deploy an application', function (done) {
     var repo = tmpdir + '/' + shortid.generate()
 
     async.series([
@@ -614,22 +609,23 @@ describe('Guvnor', function() {
       exec.bind(null, 'touch', ['file'], repo),
       exec.bind(null, 'git', ['add', '-A'], repo),
       exec.bind(null, 'git', ['commit', '-m', 'initial commit'], repo)
-    ], function(error) {
-      if(error) throw error
+    ], function (error) {
+        if (error)
+          throw error
 
-      var appName = shortid.generate()
+        var appName = shortid.generate()
 
-      guvnor.deployApplication(appName, repo, user.name, console.info, console.error, function(error, appInfo) {
-        expect(error).to.not.exist
-        expect(fs.existsSync(config.guvnor.appdir + '/' + appInfo.id)).to.be.true
+        guvnor.deployApplication(appName, repo, user.name, console.info, console.error, function (error, appInfo) {
+          expect(error).to.not.exist
+          expect(fs.existsSync(config.guvnor.appdir + '/' + appInfo.id)).to.be.true
 
-        done()
+          done()
+        })
       })
-    })
   })
 
-  it('should list deployed applications', function(done) {
-    var deployApp = function(callback) {
+  it('should list deployed applications', function (done) {
+    var deployApp = function (callback) {
       var repo = tmpdir + '/' + shortid.generate()
 
       async.series([
@@ -640,29 +636,30 @@ describe('Guvnor', function() {
         exec.bind(null, 'touch', ['file'], repo),
         exec.bind(null, 'git', ['add', '-A'], repo),
         exec.bind(null, 'git', ['commit', '-m', 'initial commit'], repo)
-      ], function(error) {
-        if(error) throw error
+      ], function (error) {
+          if (error)
+            throw error
 
-        var appName = shortid.generate()
+          var appName = shortid.generate()
 
-        guvnor.deployApplication(appName, repo, user.name, console.info, console.error, callback)
-      })
+          guvnor.deployApplication(appName, repo, user.name, console.info, console.error, callback)
+        })
     }
 
     var tasks = [deployApp, deployApp, deployApp, deployApp, deployApp]
 
-    async.parallel(tasks, function(error, results) {
+    async.parallel(tasks, function (error, results) {
       expect(error).to.not.exist
 
-      guvnor.listApplications(function(error, apps) {
+      guvnor.listApplications(function (error, apps) {
         expect(error).to.not.exist
         expect(apps.length).to.equal(tasks.length)
 
         var found = 0
 
-        results.forEach(function(result) {
-          apps.forEach(function(app) {
-            if(result.id == app.id) {
+        results.forEach(function (result) {
+          apps.forEach(function (app) {
+            if (result.id == app.id) {
               found++
             }
           })
@@ -675,7 +672,7 @@ describe('Guvnor', function() {
     })
   })
 
-  it('should remove deployed applications', function(done) {
+  it('should remove deployed applications', function (done) {
     var repo = tmpdir + '/' + shortid.generate()
 
     async.series([
@@ -686,36 +683,94 @@ describe('Guvnor', function() {
       exec.bind(null, 'touch', ['file'], repo),
       exec.bind(null, 'git', ['add', '-A'], repo),
       exec.bind(null, 'git', ['commit', '-m', 'initial commit'], repo)
-    ], function(error) {
-      if(error) throw error
+    ], function (error) {
+        if (error)
+          throw error
 
-      var appName = shortid.generate()
+        var appName = shortid.generate()
 
-      guvnor.deployApplication(appName, repo, user.name, console.info, console.error, function(error, appInfo) {
-        expect(error).to.not.exist
-        expect(fs.existsSync(config.guvnor.appdir + '/' + appInfo.id)).to.be.true
-
-        guvnor.listApplications(function(error, apps) {
+        guvnor.deployApplication(appName, repo, user.name, console.info, console.error, function (error, appInfo) {
           expect(error).to.not.exist
-          expect(apps.length).to.equal(1)
+          expect(fs.existsSync(config.guvnor.appdir + '/' + appInfo.id)).to.be.true
 
-          guvnor.removeApplication(appName, function(error) {
+          guvnor.listApplications(function (error, apps) {
             expect(error).to.not.exist
-            expect(fs.existsSync(config.guvnor.appdir + '/' + appInfo.id)).to.be.false
+            expect(apps.length).to.equal(1)
 
-            guvnor.listApplications(function(error, apps) {
+            guvnor.removeApplication(appName, function (error) {
               expect(error).to.not.exist
-              expect(apps.length).to.equal(0)
+              expect(fs.existsSync(config.guvnor.appdir + '/' + appInfo.id)).to.be.false
+
+              guvnor.listApplications(function (error, apps) {
+                expect(error).to.not.exist
+                expect(apps.length).to.equal(0)
+
+                done()
+              })
+            })
+          })
+        })
+      })
+  })
+
+  it('should switch an application ref', function (done) {
+    var repo = tmpdir + '/' + shortid.generate()
+
+    async.series([
+      exec.bind(null, 'mkdir', [repo]),
+      exec.bind(null, 'git', ['init'], repo),
+      exec.bind(null, 'git', ['config', 'user.email', 'foo@bar.com'], repo),
+      exec.bind(null, 'git', ['config', 'user.name', 'foo'], repo),
+      exec.bind(null, 'touch', ['v1'], repo),
+      exec.bind(null, 'git', ['add', '-A'], repo),
+      exec.bind(null, 'git', ['commit', '-m', 'v1'], repo),
+      exec.bind(null, 'git', ['tag', 'v1'], repo),
+      exec.bind(null, 'touch', ['v2'], repo),
+      exec.bind(null, 'git', ['add', '-A'], repo),
+      exec.bind(null, 'git', ['commit', '-m', 'v2'], repo),
+      exec.bind(null, 'git', ['tag', 'v2'], repo),
+      exec.bind(null, 'touch', ['v3'], repo),
+      exec.bind(null, 'git', ['add', '-A'], repo),
+      exec.bind(null, 'git', ['commit', '-m', 'v3'], repo),
+      exec.bind(null, 'git', ['tag', 'v3'], repo)
+    ], function (error) {
+        if (error)
+          throw error
+
+        var appName = shortid.generate()
+
+        guvnor.deployApplication(appName, repo, user.name, console.info, console.error, function (error, appInfo) {
+          expect(error).to.not.exist
+
+          // should be at latest version
+          expect(fs.existsSync(config.guvnor.appdir + '/' + appInfo.id + '/v1')).to.be.true
+          expect(fs.existsSync(config.guvnor.appdir + '/' + appInfo.id + '/v2')).to.be.true
+          expect(fs.existsSync(config.guvnor.appdir + '/' + appInfo.id + '/v3')).to.be.true
+
+          guvnor.switchApplicationRef(appName, 'tags/v2', console.info, console.error, function (error) {
+            expect(error).to.not.exist
+
+            // now at v2
+            expect(fs.existsSync(config.guvnor.appdir + '/' + appInfo.id + '/v1')).to.be.true
+            expect(fs.existsSync(config.guvnor.appdir + '/' + appInfo.id + '/v2')).to.be.true
+            expect(fs.existsSync(config.guvnor.appdir + '/' + appInfo.id + '/v3')).to.be.false
+
+            guvnor.switchApplicationRef(appName, 'tags/v1', console.info, console.error, function (error) {
+              expect(error).to.not.exist
+
+              // now at v1
+              expect(fs.existsSync(config.guvnor.appdir + '/' + appInfo.id + '/v1')).to.be.true
+              expect(fs.existsSync(config.guvnor.appdir + '/' + appInfo.id + '/v2')).to.be.false
+              expect(fs.existsSync(config.guvnor.appdir + '/' + appInfo.id + '/v3')).to.be.false
 
               done()
             })
           })
         })
       })
-    })
   })
 
-  it('should switch an application ref', function(done) {
+  it('should list available application refs', function (done) {
     var repo = tmpdir + '/' + shortid.generate()
 
     async.series([
@@ -735,90 +790,35 @@ describe('Guvnor', function() {
       exec.bind(null, 'git', ['add', '-A'], repo),
       exec.bind(null, 'git', ['commit', '-m', 'v3'], repo),
       exec.bind(null, 'git', ['tag', 'v3'], repo)
-    ], function(error) {
-      if(error) throw error
+    ], function (error) {
+        if (error)
+          throw error
 
-      var appName = shortid.generate()
+        var appName = shortid.generate()
 
-      guvnor.deployApplication(appName, repo, user.name, console.info, console.error, function(error, appInfo) {
-        expect(error).to.not.exist
-
-        // should be at latest version
-        expect(fs.existsSync(config.guvnor.appdir + '/' + appInfo.id + '/v1')).to.be.true
-        expect(fs.existsSync(config.guvnor.appdir + '/' + appInfo.id + '/v2')).to.be.true
-        expect(fs.existsSync(config.guvnor.appdir + '/' + appInfo.id + '/v3')).to.be.true
-
-        guvnor.switchApplicationRef(appName, 'tags/v2', console.info, console.error, function(error) {
+        guvnor.deployApplication(appName, repo, user.name, console.info, console.error, function (error, appInfo) {
           expect(error).to.not.exist
+          expect(appInfo.id).to.be.ok
 
-          // now at v2
-          expect(fs.existsSync(config.guvnor.appdir + '/' + appInfo.id + '/v1')).to.be.true
-          expect(fs.existsSync(config.guvnor.appdir + '/' + appInfo.id + '/v2')).to.be.true
-          expect(fs.existsSync(config.guvnor.appdir + '/' + appInfo.id + '/v3')).to.be.false
-
-          guvnor.switchApplicationRef(appName, 'tags/v1', console.info, console.error, function(error) {
+          guvnor.listApplicationRefs(appName, function (error, refs) {
             expect(error).to.not.exist
 
-            // now at v1
-            expect(fs.existsSync(config.guvnor.appdir + '/' + appInfo.id + '/v1')).to.be.true
-            expect(fs.existsSync(config.guvnor.appdir + '/' + appInfo.id + '/v2')).to.be.false
-            expect(fs.existsSync(config.guvnor.appdir + '/' + appInfo.id + '/v3')).to.be.false
+            expect(refs.length).to.equal(6)
+
+            expect(refs[0].name).to.equal('refs/heads/master')
+            expect(refs[1].name).to.equal('refs/remotes/origin/HEAD')
+            expect(refs[2].name).to.equal('refs/remotes/origin/master')
+            expect(refs[3].name).to.equal('refs/tags/v1')
+            expect(refs[4].name).to.equal('refs/tags/v2')
+            expect(refs[5].name).to.equal('refs/tags/v3')
 
             done()
           })
         })
       })
-    })
   })
 
-  it('should list available application refs', function(done) {
-    var repo = tmpdir + '/' + shortid.generate()
-
-    async.series([
-      exec.bind(null, 'mkdir', [repo]),
-      exec.bind(null, 'git', ['init'], repo),
-      exec.bind(null, 'git', ['config', 'user.email', 'foo@bar.com'], repo),
-      exec.bind(null, 'git', ['config', 'user.name', 'foo'], repo),
-      exec.bind(null, 'touch', ['v1'], repo),
-      exec.bind(null, 'git', ['add', '-A'], repo),
-      exec.bind(null, 'git', ['commit', '-m', 'v1'], repo),
-      exec.bind(null, 'git', ['tag', 'v1'], repo),
-      exec.bind(null, 'touch', ['v2'], repo),
-      exec.bind(null, 'git', ['add', '-A'], repo),
-      exec.bind(null, 'git', ['commit', '-m', 'v2'], repo),
-      exec.bind(null, 'git', ['tag', 'v2'], repo),
-      exec.bind(null, 'touch', ['v3'], repo),
-      exec.bind(null, 'git', ['add', '-A'], repo),
-      exec.bind(null, 'git', ['commit', '-m', 'v3'], repo),
-      exec.bind(null, 'git', ['tag', 'v3'], repo)
-    ], function(error) {
-      if(error) throw error
-
-      var appName = shortid.generate()
-
-      guvnor.deployApplication(appName, repo, user.name, console.info, console.error, function(error, appInfo) {
-        expect(error).to.not.exist
-        expect(appInfo.id).to.be.ok
-
-        guvnor.listApplicationRefs(appName, function(error, refs) {
-          expect(error).to.not.exist
-
-          expect(refs.length).to.equal(6)
-
-          expect(refs[0].name).to.equal('refs/heads/master')
-          expect(refs[1].name).to.equal('refs/remotes/origin/HEAD')
-          expect(refs[2].name).to.equal('refs/remotes/origin/master')
-          expect(refs[3].name).to.equal('refs/tags/v1')
-          expect(refs[4].name).to.equal('refs/tags/v2')
-          expect(refs[5].name).to.equal('refs/tags/v3')
-
-          done()
-        })
-      })
-    })
-  })
-
-  it('should update application refs', function(done) {
+  it('should update application refs', function (done) {
     var repo = tmpdir + '/' + shortid.generate()
 
     async.series([
@@ -830,69 +830,71 @@ describe('Guvnor', function() {
       exec.bind(null, 'git', ['add', '-A'], repo),
       exec.bind(null, 'git', ['commit', '-m', 'v1'], repo),
       exec.bind(null, 'git', ['tag', 'v1'], repo)
-    ], function(error) {
-      if(error) throw error
+    ], function (error) {
+        if (error)
+          throw error
 
-      var appName = shortid.generate()
+        var appName = shortid.generate()
 
-      guvnor.deployApplication(appName, repo, user.name, console.info, console.error, function(error, appInfo) {
-        expect(error).to.not.exist
-        expect(appInfo.id).to.be.ok
-
-        guvnor.listApplicationRefs(appName, function(error, refs) {
+        guvnor.deployApplication(appName, repo, user.name, console.info, console.error, function (error, appInfo) {
           expect(error).to.not.exist
+          expect(appInfo.id).to.be.ok
 
-          expect(refs.length).to.equal(4)
+          guvnor.listApplicationRefs(appName, function (error, refs) {
+            expect(error).to.not.exist
 
-          async.series([
-            exec.bind(null, 'touch', ['v2'], repo),
-            exec.bind(null, 'git', ['add', '-A'], repo),
-            exec.bind(null, 'git', ['commit', '-m', 'v2'], repo),
-            exec.bind(null, 'git', ['tag', 'v2'], repo),
-            exec.bind(null, 'touch', ['v3'], repo),
-            exec.bind(null, 'git', ['add', '-A'], repo),
-            exec.bind(null, 'git', ['commit', '-m', 'v3'], repo),
-            exec.bind(null, 'git', ['tag', 'v3'], repo)
-          ], function(error) {
-            if(error) throw error
+            expect(refs.length).to.equal(4)
 
-            guvnor.listApplicationRefs(appName, function(error, refs) {
-              expect(error).to.not.exist
+            async.series([
+              exec.bind(null, 'touch', ['v2'], repo),
+              exec.bind(null, 'git', ['add', '-A'], repo),
+              exec.bind(null, 'git', ['commit', '-m', 'v2'], repo),
+              exec.bind(null, 'git', ['tag', 'v2'], repo),
+              exec.bind(null, 'touch', ['v3'], repo),
+              exec.bind(null, 'git', ['add', '-A'], repo),
+              exec.bind(null, 'git', ['commit', '-m', 'v3'], repo),
+              exec.bind(null, 'git', ['tag', 'v3'], repo)
+            ], function (error) {
+                if (error)
+                  throw error
 
-              expect(refs.length).to.equal(4)
-
-              guvnor.updateApplicationRefs(appName, console.info, console.error, function(error) {
-                expect(error).to.not.exist
-
-                guvnor.listApplicationRefs(appName, function(error, refs) {
+                guvnor.listApplicationRefs(appName, function (error, refs) {
                   expect(error).to.not.exist
 
-                  expect(refs.length).to.equal(6)
+                  expect(refs.length).to.equal(4)
 
-                  done()
+                  guvnor.updateApplicationRefs(appName, console.info, console.error, function (error) {
+                    expect(error).to.not.exist
+
+                    guvnor.listApplicationRefs(appName, function (error, refs) {
+                      expect(error).to.not.exist
+
+                      expect(refs.length).to.equal(6)
+
+                      done()
+                    })
+                  })
                 })
               })
-            })
           })
         })
       })
-    })
   })
 
-  it('should write to a processes stdin', function(done) {
+  it('should write to a processes stdin', function (done) {
     var message = 'hello world'
 
-    guvnor.on('stdin:received', function(processInfo, answer) {
+    guvnor.on('stdin:received', function (processInfo, answer) {
       expect(answer).to.equal(message)
 
       done()
     })
 
-    guvnor.startProcess(__dirname + '/fixtures/stdin.js', {}, function(error, processInfo) {
+    guvnor.startProcess(__dirname + '/fixtures/stdin.js', {}, function (error, processInfo) {
       expect(error).to.not.exist
       expect(processInfo.id).to.be.ok
 
-      processInfo.on('process:ready', function() {
+      processInfo.on('process:ready', function () {
         processInfo.write(message)
       })
     })

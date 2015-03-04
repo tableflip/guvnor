@@ -2,18 +2,18 @@ var expect = require('chai').expect,
   sinon = require('sinon'),
   LocalDaemonConnection = require('../../../lib/local/LocalDaemonConnection')
 
-describe('LocalDaemonConnection', function() {
+describe('LocalDaemonConnection', function () {
   var localDaemonConnection, socket
 
-  beforeEach(function() {
+  beforeEach(function () {
     socket = 'socket'
 
     localDaemonConnection = new LocalDaemonConnection(socket)
     localDaemonConnection._logger = {
-      info: function() {},
-      warn: function() {},
-      error: function() {},
-      debug: function() {}
+      info: function () {},
+      warn: function () {},
+      error: function () {},
+      debug: function () {}
     }
     localDaemonConnection._fs = {
       unlink: sinon.stub()
@@ -26,7 +26,7 @@ describe('LocalDaemonConnection', function() {
     }
   })
 
-  it('should disconnect from the daemon', function(done) {
+  it('should disconnect from the daemon', function (done) {
     var stream = {
       end: sinon.stub(),
       destroy: sinon.stub()
@@ -34,14 +34,14 @@ describe('LocalDaemonConnection', function() {
 
     localDaemonConnection._client = {
       once: sinon.stub(),
-      destroy: function() {
+      destroy: function () {
         localDaemonConnection._client.once.getCall(0).args[1]()
       },
       stream: stream
     }
     localDaemonConnection._connected = true
 
-    localDaemonConnection.disconnect(function() {
+    localDaemonConnection.disconnect(function () {
       expect(localDaemonConnection._client).to.not.exist
 
       // should have explicitly closed the stream
@@ -52,25 +52,25 @@ describe('LocalDaemonConnection', function() {
     })
   })
 
-  it('should not destroy the client unless connected', function(done) {
-    localDaemonConnection.disconnect(function() {
+  it('should not destroy the client unless connected', function (done) {
+    localDaemonConnection.disconnect(function () {
       expect(localDaemonConnection._client).to.not.exist
 
       done()
     })
   })
 
-  it('should not destroy the client if not connected', function(done) {
+  it('should not destroy the client if not connected', function (done) {
     localDaemonConnection._client = {}
 
-    localDaemonConnection.disconnect(function() {
+    localDaemonConnection.disconnect(function () {
       expect(localDaemonConnection._client).to.be.ok
 
       done()
     })
   })
 
-  it('should connect', function(done) {
+  it('should connect', function (done) {
     localDaemonConnection._config.guvnor.rundir = 'run'
 
     var client = {
@@ -86,7 +86,7 @@ describe('LocalDaemonConnection', function() {
 
     client.connect.withArgs('run/socket', sinon.match.func).callsArgWith(1, remote)
 
-    localDaemonConnection.connect({}, function(error, serverApi) {
+    localDaemonConnection.connect({}, function (error, serverApi) {
       expect(error).to.not.exist
 
       expect(serverApi.foo).to.be.a('function')
@@ -95,7 +95,7 @@ describe('LocalDaemonConnection', function() {
     })
   })
 
-  it('should handle socket permissions error when connecting', function(done) {
+  it('should handle socket permissions error when connecting', function (done) {
     var permissionsError = new Error('nope!')
     permissionsError.code = 'EACCES'
 
@@ -106,7 +106,7 @@ describe('LocalDaemonConnection', function() {
 
     localDaemonConnection._dnode.returns(client)
 
-    localDaemonConnection.connect({}, function(error) {
+    localDaemonConnection.connect({}, function (error) {
       expect(error.message).to.contain('permission')
 
       done()
@@ -116,7 +116,7 @@ describe('LocalDaemonConnection', function() {
     client.on.getCall(0).args[1](permissionsError)
   })
 
-  it('should handle connection refused error when connecting and delete a stale socket file', function(done) {
+  it('should handle connection refused error when connecting and delete a stale socket file', function (done) {
     localDaemonConnection._config.guvnor.rundir = 'run'
 
     var connectionRefusedError = new Error('nope!')
@@ -131,7 +131,7 @@ describe('LocalDaemonConnection', function() {
 
     localDaemonConnection._fs.unlink.withArgs('run/socket', sinon.match.func).callsArgWith(1, undefined)
 
-    localDaemonConnection.connect({}, function(error) {
+    localDaemonConnection.connect({}, function (error) {
       expect(error.message).to.contain('not running')
       expect(error.code).to.equal('DAEMON_NOT_RUNNING')
 
@@ -142,7 +142,7 @@ describe('LocalDaemonConnection', function() {
     client.on.getCall(0).args[1](connectionRefusedError)
   })
 
-  it('should handle connection refused error when connecting and not be able to delete a stale socket file', function(done) {
+  it('should handle connection refused error when connecting and not be able to delete a stale socket file', function (done) {
     localDaemonConnection._config.guvnor.rundir = 'run'
 
     var connectionRefusedError = new Error('nope!')
@@ -159,7 +159,7 @@ describe('LocalDaemonConnection', function() {
 
     localDaemonConnection._fs.unlink.withArgs('run/socket', sinon.match.func).callsArgWith(1, deleteSocketFileError)
 
-    localDaemonConnection.connect({}, function(error) {
+    localDaemonConnection.connect({}, function (error) {
       expect(error).to.equal(deleteSocketFileError)
 
       done()
@@ -169,7 +169,7 @@ describe('LocalDaemonConnection', function() {
     client.on.getCall(0).args[1](connectionRefusedError)
   })
 
-  it('should handle the socket file not existing when connecting', function(done) {
+  it('should handle the socket file not existing when connecting', function (done) {
     localDaemonConnection._config.guvnor.rundir = 'run'
 
     var noSocketFileError = new Error('nope!')
@@ -182,7 +182,7 @@ describe('LocalDaemonConnection', function() {
 
     localDaemonConnection._dnode.returns(client)
 
-    localDaemonConnection.connect({}, function(error) {
+    localDaemonConnection.connect({}, function (error) {
       expect(error.message).to.contain('not running')
       expect(error.code).to.equal('DAEMON_NOT_RUNNING')
 
@@ -193,7 +193,7 @@ describe('LocalDaemonConnection', function() {
     client.on.getCall(0).args[1](noSocketFileError)
   })
 
-  it('should handle the socket file not being a socket file when connecting', function(done) {
+  it('should handle the socket file not being a socket file when connecting', function (done) {
     localDaemonConnection._config.guvnor.rundir = 'run'
 
     var notASocketFileError = new Error('nope!')
@@ -206,7 +206,7 @@ describe('LocalDaemonConnection', function() {
 
     localDaemonConnection._dnode.returns(client)
 
-    localDaemonConnection.connect({}, function(error) {
+    localDaemonConnection.connect({}, function (error) {
       expect(error.message).to.contain('not a socket')
 
       done()
@@ -216,7 +216,7 @@ describe('LocalDaemonConnection', function() {
     client.on.getCall(0).args[1](notASocketFileError)
   })
 
-  it('should handle unknown errors file when connecting', function(done) {
+  it('should handle unknown errors file when connecting', function (done) {
     localDaemonConnection._config.guvnor.rundir = 'run'
 
     var unknownError = new Error('I AM AN ENIGMA!')
@@ -229,7 +229,7 @@ describe('LocalDaemonConnection', function() {
 
     localDaemonConnection._dnode.returns(client)
 
-    localDaemonConnection.connect({}, function(error) {
+    localDaemonConnection.connect({}, function (error) {
       expect(error).to.equal(unknownError)
 
       done()
@@ -239,7 +239,7 @@ describe('LocalDaemonConnection', function() {
     client.on.getCall(0).args[1](unknownError)
   })
 
-  it('should throw an exception if an error is received after connecting', function(done) {
+  it('should throw an exception if an error is received after connecting', function (done) {
     var unknownError = new Error('I AM AN ENIGMA!')
     unknownError.code = 'EENIGMA'
 
@@ -252,7 +252,7 @@ describe('LocalDaemonConnection', function() {
 
     localDaemonConnection._dnode.returns(client)
 
-    localDaemonConnection.connect({}, function(error) {
+    localDaemonConnection.connect({}, function (error) {
       expect(error).to.equal(unknownError)
     })
 
@@ -260,7 +260,7 @@ describe('LocalDaemonConnection', function() {
 
     try {
       client.on.getCall(0).args[1](unknownError)
-    } catch(e) {
+    } catch (e) {
       done()
     }
   })

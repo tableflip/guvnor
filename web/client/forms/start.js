@@ -1,22 +1,21 @@
-var FormView = require('ampersand-form-view'),
-  InputView = require('ampersand-input-view'),
-  CheckboxView = require('ampersand-checkbox-view'),
-  SelectView = require('ampersand-select-view'),
-  MapInputView = require('./controls/map'),
-  templates = require('../templates')
+var FormView = require('ampersand-form-view')
+var InputView = require('ampersand-input-view')
+var CheckboxView = require('ampersand-checkbox-view')
+var SelectView = require('ampersand-select-view')
+var MapInputView = require('./controls/map')
+var templates = require('../templates')
 
 module.exports = FormView.extend({
   fields: function () {
-
     var instances = []
 
-    if(window.app.host.cpus.length == 1) {
+    if (window.app.host.cpus.length === 1) {
       // single core machines can't do clusters...
-      instances = ["1"]
+      instances = ['1']
     } else {
       // clusters can have $CPUs - 1 instances
-      for(var i = 0; i < window.app.host.cpus.length - 1; i++) {
-        instances.push("" + (i + 1))
+      for (var i = 0; i < window.app.host.cpus.length - 1; i++) {
+        instances.push('' + (i + 1))
       }
     }
 
@@ -49,7 +48,7 @@ module.exports = FormView.extend({
         name: 'instances',
         parent: this,
         options: instances,
-        value: "1",
+        value: '1',
         template: templates.forms.controls.select()
       }),
       new InputView({
@@ -98,7 +97,7 @@ module.exports = FormView.extend({
       })
     ]
 
-    if(this.model.cwd) {
+    if (this.model.cwd) {
       // apps don't have a cwd to speak of..
       fields.splice(3, 0, new InputView({
         label: 'Current working directory',

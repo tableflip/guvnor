@@ -1,9 +1,5 @@
-var http = require('http');
+var http = require('http')
 
-http.createServer(function (req, res) {
+http.createServer(function (req, res) {}).listen(9000)
 
-}).listen(9000);
-
-http.createServer(function (req, res) {
-	
-}).listen(9000);
+http.createServer(function (req, res) {}).listen(9000)

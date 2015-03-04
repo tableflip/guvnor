@@ -1,10 +1,10 @@
-var Collection = require('ampersand-collection'),
-  Process = require('./process'),
-  config = require('clientconfig')
+var Collection = require('ampersand-collection')
+var Process = require('./process')
+var config = require('clientconfig')
 
 module.exports = Collection.extend({
   model: Process,
-  addOrUpdate: function(processInfo) {
+  addOrUpdate: function (processInfo) {
     var usage = {
       cpu: processInfo.cpu,
       residentSize: processInfo.residentSize,
@@ -27,34 +27,34 @@ module.exports = Collection.extend({
       merge: true
     })
 
-    if(isNew) {
+    if (isNew) {
       process.logs.fetch()
       process.exceptions.fetch()
     }
 
-    if(usage.cpu !== undefined) {
+    if (usage.cpu !== undefined) {
       this._addDataPoint(usage, 'cpu', process)
     }
 
-    if(usage.residentSize !== undefined) {
+    if (usage.residentSize !== undefined) {
       this._addDataPoint(usage, 'residentSize', process)
     }
 
-    if(usage.heapTotal !== undefined) {
+    if (usage.heapTotal !== undefined) {
       this._addDataPoint(usage, 'heapTotal', process)
     }
 
-    if(usage.heapUsed !== undefined) {
+    if (usage.heapUsed !== undefined) {
       this._addDataPoint(usage, 'heapUsed', process)
     }
 
-    if(usage.latency !== undefined) {
+    if (usage.latency !== undefined) {
       this._addDataPoint(usage, 'latency', process)
     }
 
     // make sure we show workers in the main list
-    if(processInfo.workers) {
-      processInfo.workers.forEach(function(worker) {
+    if (processInfo.workers) {
+      processInfo.workers.forEach(function (worker) {
         worker.clusterManager = processInfo.id
 
         this.addOrUpdate(worker)
@@ -64,27 +64,27 @@ module.exports = Collection.extend({
     process.trigger('update')
   },
 
-  _addDataPoint: function(usage, prop, process) {
-    if(usage[prop] !== undefined) {
+  _addDataPoint: function (usage, prop, process) {
+    if (usage[prop] !== undefined) {
       var list = process[prop]
 
-      if(list.length == 0) {
+      if (list.length === 0) {
         window.$.ajax({
           url: '/hosts/' + process.collection.parent.name + '/processes/' + process.id + '/' + prop,
           settings: {
             dataType: 'json'
           }
-        }).success(function(data) {
-          data.forEach(function(datum) {
+        }).success(function (data) {
+          data.forEach(function (datum) {
             list.push(datum)
           })
 
-          list.sort(function(a, b) {
-            if(a.x < b.x) {
+          list.sort(function (a, b) {
+            if (a.x < b.x) {
               return -1
             }
 
-            if(a.x > b.x) {
+            if (a.x > b.x) {
               return 1
             }
 
@@ -93,7 +93,7 @@ module.exports = Collection.extend({
         })
       }
 
-      if(list.length == 0 || list[list.length - 1].x < this.parent.time) {
+      if (list.length === 0 || list[list.length - 1].x < this.parent.time) {
         // only add resource stat if it's more recent than the last entry
         // (the ajax request above can return data more recent than the last
         // event from the web socket)
@@ -103,7 +103,7 @@ module.exports = Collection.extend({
         })
       }
 
-      if(list.length > config.dataPoints) {
+      if (list.length > config.dataPoints) {
         list.splice(0, list.length - config.dataPoints)
       }
     }

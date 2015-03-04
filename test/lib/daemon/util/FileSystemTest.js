@@ -7,10 +7,10 @@ var expect = require('chai').expect,
   mkdirp = require('mkdirp'),
   shortId = require('shortid')
 
-describe('FileSystem', function() {
+describe('FileSystem', function () {
   var temp, fileSystem
 
-  beforeEach(function() {
+  beforeEach(function () {
     temp = os.tmpdir() + '/' + shortId.generate()
     fileSystem = new FileSystem()
     fileSystem._config = {
@@ -24,17 +24,17 @@ describe('FileSystem', function() {
       }
     }
     fileSystem._logger = {
-      info: function() {},
-      warn: function() {},
-      error: function() {},
-      debug: function() {}
+      info: function () {},
+      warn: function () {},
+      error: function () {},
+      debug: function () {}
     }
     fileSystem._posix = posix
     fileSystem._fs = fs
     fileSystem._mkdirp = mkdirp
   })
 
-  it('should create directories', function() {
+  it('should create directories', function () {
     expect(fs.existsSync(fileSystem._config.guvnor.rundir)).to.be.false
 
     fileSystem.afterPropertiesSet()
@@ -46,7 +46,7 @@ describe('FileSystem', function() {
     expect(fs.existsSync(fileSystem._config.guvnor.appdir)).to.be.true
   })
 
-  it('should not create a directory when one exists', function() {
+  it('should not create a directory when one exists', function () {
     fileSystem._fs = {
       existsSync: sinon.stub()
     }
@@ -61,7 +61,7 @@ describe('FileSystem', function() {
     expect(fileSystem._mkdirp.sync.callCount).to.equal(0)
   })
 
-  it('should throw an error when directory creation fails', function() {
+  it('should throw an error when directory creation fails', function () {
     fileSystem._fs = {
       existsSync: sinon.stub(),
       chownSync: sinon.stub()
@@ -75,8 +75,9 @@ describe('FileSystem', function() {
 
     try {
       fileSystem.afterPropertiesSet()
-    } catch(e) {
-      if(e.message != 'urk!') throw e
+    } catch (e) {
+      if (e.message != 'urk!')
+        throw e
     }
 
     expect(fileSystem._fs.chownSync.callCount).to.equal(0)

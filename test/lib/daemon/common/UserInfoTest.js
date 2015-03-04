@@ -3,10 +3,10 @@ var sinon = require('sinon'),
   path = require('path'),
   UserInfo = require('../../../../lib/daemon/common/UserInfo')
 
-describe('UserInfo', function() {
+describe('UserInfo', function () {
   var userInfo
 
-  beforeEach(function() {
+  beforeEach(function () {
     userInfo = new UserInfo()
     userInfo._posix = {
       getgrnam: sinon.stub(),
@@ -14,7 +14,7 @@ describe('UserInfo', function() {
     }
   })
 
-  it('find uid/gid', function() {
+  it('find uid/gid', function () {
     var groupName = 'foo'
     var gid = 10
 

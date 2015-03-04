@@ -4,9 +4,9 @@ var expect = require('chai').expect,
   AdminRPC = require('../../../../lib/daemon/rpc/AdminRPC'),
   EventEmitter = require('events').EventEmitter
 
-describe('AdminRPC', function() {
+describe('AdminRPC', function () {
 
-  it('should expose admin methods', function() {
+  it('should expose admin methods', function () {
     var rpc = new AdminRPC()
     rpc._config = {
       guvnor: {

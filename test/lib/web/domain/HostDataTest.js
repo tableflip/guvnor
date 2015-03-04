@@ -2,11 +2,11 @@ var HostData = require('../../../../lib/web/domain/HostData'),
   sinon = require('sinon'),
   expect = require('chai').expect
 
-describe('HostData', function() {
+describe('HostData', function () {
   var data
   var credentials = {}
 
-  beforeEach(function() {
+  beforeEach(function () {
     data = new HostData('test', credentials)
     data._logger = {
       info: sinon.stub(),
@@ -25,7 +25,7 @@ describe('HostData', function() {
     }
   })
 
-  it('should remove missing processes', function() {
+  it('should remove missing processes', function () {
     data.processes.push({
       id: 'foo'
     })
@@ -43,7 +43,7 @@ describe('HostData', function() {
     expect(data.processes[0].id).to.equal('foo')
   })
 
-  it('should find process by id', function() {
+  it('should find process by id', function () {
     data.processes.push({
       id: 'foo'
     })
@@ -56,7 +56,7 @@ describe('HostData', function() {
     expect(returned.id).to.equal('bar')
   })
 
-  it('should fail to find process by id', function() {
+  it('should fail to find process by id', function () {
     data.processes.push({
       id: 'foo'
     })
@@ -69,15 +69,15 @@ describe('HostData', function() {
     expect(returned).to.not.exist
   })
 
-  it('should find worker process by id', function() {
+  it('should find worker process by id', function () {
     data.processes.push({
       id: 'foo'
     })
     data.processes.push({
       id: 'bar',
       workers: [
-        {id: 'qux'},
-        {id: 'baz'}
+        { id: 'qux' },
+        { id: 'baz' }
       ]
     })
 
@@ -86,14 +86,14 @@ describe('HostData', function() {
     expect(returned.id).to.equal('baz')
   })
 
-  it('should find apps', function(done) {
+  it('should find apps', function (done) {
     var apps = []
     data._daemon = {
       listApplications: sinon.stub()
     }
     data._daemon.listApplications.callsArgWithAsync(0, undefined, apps)
 
-    data.findApps(function(error, returnedApps) {
+    data.findApps(function (error, returnedApps) {
       expect(error).not.to.exist
       expect(returnedApps).to.equal(apps)
 
@@ -101,8 +101,8 @@ describe('HostData', function() {
     })
   })
 
-  it('should return empty array for apps when remote not connected', function(done) {
-    data.findApps(function(error, apps) {
+  it('should return empty array for apps when remote not connected', function (done) {
+    data.findApps(function (error, apps) {
       expect(error).not.to.exist
       expect(apps.length).to.equal(0)
 
@@ -110,7 +110,7 @@ describe('HostData', function() {
     })
   })
 
-  it('should handle a remote timeout', function() {
+  it('should handle a remote timeout', function () {
     var error = new Error()
     error.code = 'TIMEOUT'
     data.lastUpdated = 10
@@ -120,7 +120,7 @@ describe('HostData', function() {
     expect(data.status).to.equal('timeout')
   })
 
-  it('should not mark data as timedout when a recent update had occured', function() {
+  it('should not mark data as timedout when a recent update had occured', function () {
     var error = new Error()
     error.code = 'TIMEOUT'
     data.lastUpdated = Date.now() - 10
@@ -132,7 +132,7 @@ describe('HostData', function() {
     expect(data.status).to.equal('connected')
   })
 
-  it('should handle a remote signature failure', function() {
+  it('should handle a remote signature failure', function () {
     var error = new Error()
     error.code = 'INVALIDSIGNATURE'
 
@@ -141,7 +141,7 @@ describe('HostData', function() {
     expect(data.status).to.equal('badsignature')
   })
 
-  it('should handle an unknown remote error', function() {
+  it('should handle an unknown remote error', function () {
     var error = new Error()
 
     data._handleRemoteError(error)
@@ -149,14 +149,14 @@ describe('HostData', function() {
     expect(data.status).to.equal('error')
   })
 
-  it('should connect to remote after properties set', function(done) {
+  it('should connect to remote after properties set', function (done) {
     data._connectToDaemon = done
 
     data.afterPropertiesSet()
   })
 
-  it('should connect to remote', function(done) {
-    data._remote = function(logger, credentials, callback) {
+  it('should connect to remote', function (done) {
+    data._remote = function (logger, credentials, callback) {
       expect(data.status).to.equal('connecting')
       expect(logger).to.equal(data._logger)
       expect(credentials).to.equal(data._data)
@@ -168,7 +168,7 @@ describe('HostData', function() {
     data._connectToDaemon()
   })
 
-  it('should update details from server', function(done) {
+  it('should update details from server', function (done) {
     var arg = {}
 
     data._daemon = {
@@ -176,7 +176,7 @@ describe('HostData', function() {
     }
     data._daemon.foo.callsArgWithAsync(0, undefined, arg)
 
-    data._update('foo', function(returned, callback) {
+    data._update('foo', function (returned, callback) {
       expect(returned).to.equal(arg)
 
       callback()
@@ -188,7 +188,7 @@ describe('HostData', function() {
     }, 'bar')
   })
 
-  it('should handle error when updating details from server', function() {
+  it('should handle error when updating details from server', function () {
     data._daemon = {
       foo: sinon.stub()
     }
@@ -209,14 +209,14 @@ describe('HostData', function() {
     clearTimeout(data.bar)
   })
 
-  it('should handle updated server status', function(done) {
+  it('should handle updated server status', function (done) {
     var status = {
       foo: 'bar'
     }
 
     expect(data.foo).to.not.exist
 
-    data._handleUpdatedServerStatus(status, function() {
+    data._handleUpdatedServerStatus(status, function () {
       expect(data.foo).to.equal('bar')
       expect(data._webSocketResponder.broadcast.called).to.be.true
 
@@ -224,17 +224,17 @@ describe('HostData', function() {
     })
   })
 
-  it('should handle new processes', function(done) {
+  it('should handle new processes', function (done) {
     var processes = [{
       id: 'foo'
-    }, {
+      }, {
       id: 'bar'
     }]
 
     var createdProcesses = [{
       id: 'foo',
       update: sinon.stub()
-    }, {
+      }, {
       id: 'bar',
       update: sinon.stub()
     }]
@@ -244,24 +244,24 @@ describe('HostData', function() {
 
     expect(data.processes.length).to.equal(0)
 
-    data._handleUpdatedProcesses(processes, function() {
+    data._handleUpdatedProcesses(processes, function () {
       expect(data.processes.length).to.equal(2)
 
       done()
     })
   })
 
-  it('should handle updated processes', function(done) {
+  it('should handle updated processes', function (done) {
     var processes = [{
       id: 'foo'
-    }, {
+      }, {
       id: 'bar'
     }]
 
     var createdProcesses = [{
       id: 'foo',
       update: sinon.stub()
-    }, {
+      }, {
       id: 'bar',
       update: sinon.stub()
     }]
@@ -270,7 +270,7 @@ describe('HostData', function() {
 
     data.processes.push(createdProcesses[1])
 
-    data._handleUpdatedProcesses(processes, function() {
+    data._handleUpdatedProcesses(processes, function () {
       expect(data.processes.length).to.equal(2)
 
       expect(createdProcesses[0].update.called).to.be.false
@@ -280,7 +280,7 @@ describe('HostData', function() {
     })
   })
 
-  it('should handle connection refused when connecting to remote', function() {
+  it('should handle connection refused when connecting to remote', function () {
     var error = new Error()
     error.code = 'CONNECTIONREFUSED'
 
@@ -289,7 +289,7 @@ describe('HostData', function() {
     expect(data.status).to.equal('connectionrefused')
   })
 
-  it('should handle connection reset when connecting to remote', function() {
+  it('should handle connection reset when connecting to remote', function () {
     var error = new Error()
     error.code = 'CONNECTIONRESET'
 
@@ -298,7 +298,7 @@ describe('HostData', function() {
     expect(data.status).to.equal('connectionreset')
   })
 
-  it('should handle host not found when connecting to remote', function() {
+  it('should handle host not found when connecting to remote', function () {
     var error = new Error()
     error.code = 'HOSTNOTFOUND'
 
@@ -307,7 +307,7 @@ describe('HostData', function() {
     expect(data.status).to.equal('hostnotfound')
   })
 
-  it('should handle connection timeout when connecting to remote', function() {
+  it('should handle connection timeout when connecting to remote', function () {
     var error = new Error()
     error.code = 'TIMEDOUT'
 
@@ -316,7 +316,7 @@ describe('HostData', function() {
     expect(data.status).to.equal('connectiontimedout')
   })
 
-  it('should handle network down when connecting to remote', function() {
+  it('should handle network down when connecting to remote', function () {
     var error = new Error()
     error.code = 'NETWORKDOWN'
 
@@ -325,7 +325,7 @@ describe('HostData', function() {
     expect(data.status).to.equal('networkdown')
   })
 
-  it('should handle unknown error when connecting to remote', function() {
+  it('should handle unknown error when connecting to remote', function () {
     var error = new Error()
 
     data._connectedToDaemon(error)
@@ -333,7 +333,7 @@ describe('HostData', function() {
     expect(data.status).to.equal('error')
   })
 
-  it('should remove disconnected listener if reconnecting to daemon', function() {
+  it('should remove disconnected listener if reconnecting to daemon', function () {
     var oldDaemon = {
       off: sinon.stub()
     }
@@ -349,7 +349,7 @@ describe('HostData', function() {
     expect(oldDaemon.off.calledWith('disconnected')).to.be.true
   })
 
-  it('should remove listeners when daemon disconnects', function() {
+  it('should remove listeners when daemon disconnects', function () {
     var newDaemon = {
       on: sinon.stub(),
       once: sinon.stub(),
@@ -371,14 +371,14 @@ describe('HostData', function() {
     expect(newDaemon.once.getCall(0).args[0]).to.equal('disconnected')
     newDaemon.once.getCall(0).args[1]()
 
-    for(var i = 0; i < newDaemon.on.callCount; i++) {
+    for (var i = 0; i < newDaemon.on.callCount; i++) {
       expect(newDaemon.off.calledWith(newDaemon.on.getCall(i).args[0])).to.be.true
     }
 
     expect(data.status).to.equal('connecting')
   })
 
-  it('should handle remote error when getting daemon status', function() {
+  it('should handle remote error when getting daemon status', function () {
     var newDaemon = {
       once: sinon.stub(),
       getDetails: sinon.stub(),
@@ -392,7 +392,7 @@ describe('HostData', function() {
     expect(data.status).to.equal('error')
   })
 
-  it('should mark daemon as incompatible when version is too old', function() {
+  it('should mark daemon as incompatible when version is too old', function () {
     var newDaemon = {
       once: sinon.stub(),
       getDetails: sinon.stub(),
@@ -412,7 +412,7 @@ describe('HostData', function() {
     expect(data.status).to.equal('incompatible')
   })
 
-  it('should mark daemon as connected when connection is successful', function() {
+  it('should mark daemon as connected when connection is successful', function () {
     var newDaemon = {
       once: sinon.stub(),
       getDetails: sinon.stub(),
@@ -436,7 +436,7 @@ describe('HostData', function() {
     expect(data._update.calledWith('listProcesses')).to.be.true
   })
 
-  it('should pass log event to process', function() {
+  it('should pass log event to process', function () {
     var newDaemon = {
       once: sinon.stub(),
       getDetails: sinon.stub(),
@@ -466,14 +466,14 @@ describe('HostData', function() {
     newDaemon.on.getCall(0).args[1]('process:log:error', {
       id: 'foo'
     }, {
-      date: 'bar',
-      message: 'baz'
-    })
+        date: 'bar',
+        message: 'baz'
+      })
 
     expect(proc.log.calledWith('error', 'bar', 'baz')).to.be.true
   })
 
-  it('should pass uncaught exception to process', function() {
+  it('should pass uncaught exception to process', function () {
     var newDaemon = {
       once: sinon.stub(),
       getDetails: sinon.stub(),
@@ -503,16 +503,16 @@ describe('HostData', function() {
     newDaemon.on.getCall(3).args[1]({
       id: 'foo'
     }, {
-      date: 'bar',
-      message: 'baz',
-      code: 'qux',
-      stack: 'quux'
-    })
+        date: 'bar',
+        message: 'baz',
+        code: 'qux',
+        stack: 'quux'
+      })
 
     expect(proc.exception.calledWith('bar', 'baz', 'qux', 'quux')).to.be.true
   })
 
-  it('should broadcast process events', function() {
+  it('should broadcast process events', function () {
     var newDaemon = {
       once: sinon.stub(),
       getDetails: sinon.stub(),

@@ -7,13 +7,13 @@ module.exports = AmpersandModel.extend({
     user: 'string',
     url: 'string',
 
-    execArgv: ['array', true, function() {
+    execArgv: ['array', true, function () {
       return []
     }],
-    argv: ['array', true, function() {
+    argv: ['array', true, function () {
       return []
     }],
-    env: ['object', true, function() {
+    env: ['object', true, function () {
       return {}
     }],
     group: 'string',

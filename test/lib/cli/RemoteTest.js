@@ -2,10 +2,10 @@ var expect = require('chai').expect,
   sinon = require('sinon'),
   Remote = require('../../../lib/cli/Remote')
 
-describe('Remote', function() {
+describe('Remote', function () {
   var remote, guvnor, info
 
-  beforeEach(function() {
+  beforeEach(function () {
     info = console.info
     console.info = sinon.stub()
 
@@ -34,11 +34,11 @@ describe('Remote', function() {
     remote._connectOrStart.callsArgWith(0, undefined, guvnor)
   })
 
-  afterEach(function() {
+  afterEach(function () {
     console.info = info
   })
 
-  it('should print hostconfig', function() {
+  it('should print hostconfig', function () {
     var hostname = 'hostname'
     var port = 'port'
     var user = 'user'
@@ -56,7 +56,7 @@ describe('Remote', function() {
     expect(console.info.calledWith(sinon.match.string, secret)).to.be.true
   })
 
-  it('should add a remote user', function() {
+  it('should add a remote user', function () {
     var userName = 'userName'
     var hostName = 'hostName.foo.bar.com'
     var user = {
@@ -74,7 +74,7 @@ describe('Remote', function() {
     expect(console.info.calledWith(sinon.match.string, user.secret)).to.be.true
   })
 
-  it('should delete a remote user', function() {
+  it('should delete a remote user', function () {
     var userName = 'userName'
 
     guvnor.removeRemoteUser = sinon.stub()
@@ -85,12 +85,12 @@ describe('Remote', function() {
     expect(guvnor.disconnect.called).to.be.true
   })
 
-  it('should list remote users', function() {
+  it('should list remote users', function () {
     var users = [{
       name: 'foo'
-    }, {
+      }, {
       name: 'bar'
-    }, {
+      }, {
       name: 'baz'
     }]
 
@@ -105,7 +105,7 @@ describe('Remote', function() {
     expect(console.info.calledWith(users[2].name)).to.be.true
   })
 
-  it('should print a message when there are no remote users', function() {
+  it('should print a message when there are no remote users', function () {
     var users = []
 
     guvnor.listRemoteUsers = sinon.stub()
@@ -117,7 +117,7 @@ describe('Remote', function() {
     expect(console.info.getCall(0).args[0]).to.contain('No remote users')
   })
 
-  it('should rotate remote user keys', function() {
+  it('should rotate remote user keys', function () {
     var userName = 'userName'
     var hostName = 'hostName.foo.bar.com'
     var user = {
@@ -135,7 +135,7 @@ describe('Remote', function() {
     expect(console.info.calledWith(sinon.match.string, user.secret)).to.be.true
   })
 
-  it('should generate an ssl certificate', function() {
+  it('should generate an ssl certificate', function () {
     var location = '/foo/bar'
 
     guvnor.generateRemoteRpcCertificates = sinon.stub()

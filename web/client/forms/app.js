@@ -1,6 +1,6 @@
-var FormView = require('ampersand-form-view'),
-  InputView = require('ampersand-input-view'),
-  CheckboxView = require('ampersand-checkbox-view')
+var FormView = require('ampersand-form-view')
+var InputView = require('ampersand-input-view')
+var CheckboxView = require('ampersand-checkbox-view')
 
 module.exports = FormView.extend({
   fields: function () {

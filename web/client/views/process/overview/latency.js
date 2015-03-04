@@ -1,6 +1,6 @@
-var View = require('ampersand-view'),
-  templates = require('../../../templates'),
-  config = require('clientconfig')
+var View = require('ampersand-view')
+var templates = require('../../../templates')
+var config = require('clientconfig')
 
 module.exports = View.extend({
   template: templates.includes.process.overview.latency,
@@ -17,19 +17,19 @@ module.exports = View.extend({
 
     this._chart = new window.Highcharts.Chart({
       colors: [
-        "rgba(223, 83, 83, 0.8)"
+        'rgba(223, 83, 83, 0.8)'
       ],
       chart: {
-        type: "areaspline",
+        type: 'areaspline',
         renderTo: this.query('[data-hook=latency-usage]'),
         backgroundColor: 'rgba(0, 0, 0, 0)',
         borderColor: '#444',
         events: {
-          load: function() {
+          load: function () {
             this.query('[data-hook=latency-usage] .highcharts-container').style.width = '100%'
 
-            setTimeout(function() {
-              $(window).resize()
+            setTimeout(function () {
+              window.$(window).resize()
             }, 10)
           }.bind(this)
         }
@@ -47,9 +47,9 @@ module.exports = View.extend({
         enabled: false
       },
       xAxis: {
-        type: "datetime",
+        type: 'datetime',
         labels: {
-          overflow: "justify",
+          overflow: 'justify',
           y: 25,
           style: fontStyle
         },
@@ -61,7 +61,7 @@ module.exports = View.extend({
           text: null
         },
         labels: {
-          formatter: function() {
+          formatter: function () {
             return this.value + ' ms'
           },
           style: fontStyle
@@ -71,12 +71,12 @@ module.exports = View.extend({
       },
       tooltip: {
         enabled: true,
-        formatter: function() {
-          var s = [];
+        formatter: function () {
+          var s = []
 
-          window.$.each(this.points, function(i, point) {
-            s.push('<span style="color:' + point.series.color + '">' + point.series.name + '</span>: ' + this.y.toFixed(2) + ' ms');
-          });
+          window.$.each(this.points, function (i, point) {
+            s.push('<span style="color:' + point.series.color + '">' + point.series.name + '</span>: ' + this.y.toFixed(2) + ' ms')
+          })
 
           return s.join('<br/>')
         },
@@ -111,20 +111,20 @@ module.exports = View.extend({
         }
       },
       series: [{
-        name: "Latency",
+        name: 'Latency',
         data: this.model.latency
       }]
     })
 
-    this.listenTo(this.model, 'update', function() {
+    this.listenTo(this.model, 'update', function () {
       this._chart.series[0].setData(this.model.latency, false)
       this._chart.redraw()
     }.bind(this))
   },
-  remove: function() {
+  remove: function () {
     View.prototype.remove.call(this)
 
-    if(this._chart) {
+    if (this._chart) {
       this._chart.destroy()
       this._chart = null
     }

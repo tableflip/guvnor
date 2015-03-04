@@ -3,9 +3,9 @@ var expect = require('chai').expect,
   inherits = require('util').inherits,
   NodeInspectorWrapper = require('../../../../lib/daemon/inspector/NodeInspectorWrapper')
 
-describe('NodeInspectorWrapper', function() {
+describe('NodeInspectorWrapper', function () {
 
-  it('should not start node-inspector when it is not enabled', function(done) {
+  it('should not start node-inspector when it is not enabled', function (done) {
     var wrapper = new NodeInspectorWrapper()
     wrapper._child_process = {
       fork: sinon.stub()
@@ -18,20 +18,20 @@ describe('NodeInspectorWrapper', function() {
       }
     }
     wrapper._logger = {
-      info: function() {},
-      warn: function() {},
-      error: function() {},
-      debug: function() {}
+      info: function () {},
+      warn: function () {},
+      error: function () {},
+      debug: function () {}
     }
 
-    wrapper.afterPropertiesSet(function() {
+    wrapper.afterPropertiesSet(function () {
       expect(wrapper._child_process.fork.callCount).to.equal(0)
 
       done()
     })
   })
 
-  it('should start node-inspector and inform the callback of the port', function(done) {
+  it('should start node-inspector and inform the callback of the port', function (done) {
     var debugPort = 5
 
     var wrapper = new NodeInspectorWrapper()
@@ -47,10 +47,10 @@ describe('NodeInspectorWrapper', function() {
       }
     }
     wrapper._logger = {
-      info: function() {},
-      warn: function() {},
-      error: function() {},
-      debug: function() {}
+      info: function () {},
+      warn: function () {},
+      error: function () {},
+      debug: function () {}
     }
     var child = {
       on: sinon.stub()
@@ -58,7 +58,7 @@ describe('NodeInspectorWrapper', function() {
 
     wrapper._child_process.fork.returns(child)
 
-    wrapper.afterPropertiesSet(function(error) {
+    wrapper.afterPropertiesSet(function (error) {
       expect(error).to.not.exist
       expect(wrapper.debuggerPort).to.equal(debugPort)
       expect(child.on.callCount).to.equal(3)
@@ -73,7 +73,7 @@ describe('NodeInspectorWrapper', function() {
     })
   })
 
-  it('should report error when starting node-inspector', function(done) {
+  it('should report error when starting node-inspector', function (done) {
     var wrapper = new NodeInspectorWrapper()
     wrapper._child_process = {
       fork: sinon.stub()
@@ -86,10 +86,10 @@ describe('NodeInspectorWrapper', function() {
       }
     }
     wrapper._logger = {
-      info: function() {},
-      warn: function() {},
-      error: function() {},
-      debug: function() {}
+      info: function () {},
+      warn: function () {},
+      error: function () {},
+      debug: function () {}
     }
     var child = {
       on: sinon.stub()
@@ -99,7 +99,7 @@ describe('NodeInspectorWrapper', function() {
 
     var startupError = new Error()
 
-    wrapper.afterPropertiesSet(function(error) {
+    wrapper.afterPropertiesSet(function (error) {
       expect(error.message).to.equal(startupError.message)
       expect(error.stack).to.equal(startupError.stack)
 
@@ -115,7 +115,7 @@ describe('NodeInspectorWrapper', function() {
     })
   })
 
-  it('should restart node-inspector when it fails', function(done) {
+  it('should restart node-inspector when it fails', function (done) {
     var wrapper = new NodeInspectorWrapper()
     wrapper._child_process = {
       fork: sinon.stub()
@@ -128,10 +128,10 @@ describe('NodeInspectorWrapper', function() {
       }
     }
     wrapper._logger = {
-      info: function() {},
-      warn: function() {},
-      error: function() {},
-      debug: function() {}
+      info: function () {},
+      warn: function () {},
+      error: function () {},
+      debug: function () {}
     }
     var child = {
       on: sinon.stub()
@@ -151,14 +151,14 @@ describe('NodeInspectorWrapper', function() {
     // invoke exit callback
     child.on.getCall(2).args[1](5)
 
-    process.nextTick(function() {
+    process.nextTick(function () {
       expect(wrapper._child_process.fork.callCount).to.equal(2)
 
       done()
     })
   })
 
-  it('should restart node-inspector only once when it errors and exits', function(done) {
+  it('should restart node-inspector only once when it errors and exits', function (done) {
     var wrapper = new NodeInspectorWrapper()
     wrapper._child_process = {
       fork: sinon.stub()
@@ -171,10 +171,10 @@ describe('NodeInspectorWrapper', function() {
       }
     }
     wrapper._logger = {
-      info: function() {},
-      warn: function() {},
-      error: function() {},
-      debug: function() {}
+      info: function () {},
+      warn: function () {},
+      error: function () {},
+      debug: function () {}
     }
     var child = {
       on: sinon.stub()
@@ -197,7 +197,7 @@ describe('NodeInspectorWrapper', function() {
     // invoke exit callback
     child.on.getCall(2).args[1](5)
 
-    process.nextTick(function() {
+    process.nextTick(function () {
       expect(wrapper._child_process.fork.callCount).to.equal(2)
 
       done()

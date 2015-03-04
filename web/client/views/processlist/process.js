@@ -1,5 +1,5 @@
-var View = require('ampersand-view'),
-  templates = require('../../templates')
+var View = require('ampersand-view')
+var templates = require('../../templates')
 
 module.exports = View.extend({
   template: templates.includes.processlist.process,
@@ -14,9 +14,9 @@ module.exports = View.extend({
     'model.cpuFormatted': '[data-hook=cpu]'
   },
   events: {
-    "click td": "showProcess"
+    'click td': 'showProcess'
   },
-  showProcess: function() {
+  showProcess: function () {
     window.app.navigate('/host/' + this.model.collection.parent.name + '/process/' + this.model.id)
   }
 })

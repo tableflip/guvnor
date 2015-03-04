@@ -13,6 +13,7 @@
     "url": "https://github.com/tableflip/guvnor/issues"
   },
   "scripts": {
+    "lint": "standard",
     "test": "istanbul cover _mocha",
     "coveralls": "cat ./coverage/lcov.info | coveralls",
     "postinstall": "chmod +x scripts/init/sysv/guvnor"
@@ -103,6 +104,7 @@
     "pre-commit": "^1.0.4",
     "proxyquire": "^1.0",
     "sinon": "^1.8",
+    "standard": "^2.10.0",
     "testsuite": "^1.0"
   },
   "bin": {
@@ -148,5 +150,18 @@
     "undef": true,
     "white": true,
     "mocha": true
-  }
+  },
+  "standard": {
+    "ignore": [
+      "web/public/javascript/**",
+      "web/client/templates.js",
+      "test/**",
+      "lib/web/index.js",
+      "web/client/views/host/resources.js"
+    ]
+  },
+  "pre-commit": [
+    "lint",
+    "test"
+  ]
 }

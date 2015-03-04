@@ -1,7 +1,7 @@
-var View = require('ampersand-view'),
-  templates = require('../../templates'),
-  StartForm = require('../../forms/start'),
-  splitargs = require('splitargs')
+var View = require('ampersand-view')
+var templates = require('../../templates')
+var StartForm = require('../../forms/start')
+var splitargs = require('splitargs')
 
 module.exports = View.extend({
   template: templates.includes.process.start,
@@ -13,23 +13,19 @@ module.exports = View.extend({
       container: '[data-hook=start-form]',
       prepareView: function (el) {
         return new StartForm({
-          model: this.model,
-          el: el,
-          submitCallback: function (data) {
-            data.execArgv = splitargs(data.execArgv)
-            data.argv = splitargs(data.argv)
-            data.instances = parseInt(data.instances, 10)
+            model: this.model,
+            el: el,
+            submitCallback: function (data) {
+              data.execArgv = splitargs(data.execArgv)
+              data.argv = splitargs(data.argv)
+              data.instances = parseInt(data.instances, 10)
 
-            this.onSubmit(data)
-          }.bind(this)
-        })
+              this.onSubmit(data)
+            }.bind(this)
+          })
       }
     }
   },
-  onCancel: function() {
-
-  },
-  onSubmit: function(data) {
-
-  }
+  onCancel: function () {},
+  onSubmit: function (data) {}
 })

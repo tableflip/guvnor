@@ -1,10 +1,10 @@
 var child_process = require('child_process'),
   posix = require('posix')
 
-module.exports = function(command, args, path, callback) {
+module.exports = function (command, args, path, callback) {
   var userDetails = posix.getpwnam(process.getuid())
 
-  if(arguments.length == 3) {
+  if (arguments.length == 3) {
     callback = path
     path = process.cwd()
   }
@@ -20,13 +20,13 @@ module.exports = function(command, args, path, callback) {
       }
     }
   )
-  proc.stdout.on('data', function(buff) {
+  proc.stdout.on('data', function (buff) {
     console.info(buff.toString('utf8'))
   })
-  proc.stderr.on('data', function(buff) {
+  proc.stderr.on('data', function (buff) {
     console.info(buff.toString('utf8'))
   })
-  proc.once('close', function(code) {
+  proc.once('close', function (code) {
     proc.removeAllListeners('data')
 
     callback(code != 0 ? new Error('Process failed') : undefined)

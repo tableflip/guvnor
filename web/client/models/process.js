@@ -1,8 +1,8 @@
-var AmpersandModel = require('ampersand-model'),
-  moment = require('moment'),
-  prettysize = require('prettysize'),
-  Logs = require('./logs'),
-  Exceptions = require('./exceptions')
+var AmpersandModel = require('ampersand-model')
+var moment = require('moment')
+var prettysize = require('prettysize')
+var Logs = require('./logs')
+var Exceptions = require('./exceptions')
 
 module.exports = AmpersandModel.extend({
   props: {
@@ -19,13 +19,13 @@ module.exports = AmpersandModel.extend({
     script: ['string', true, '?'],
     cwd: ['string', false, ''],
     language: ['string', false, ''],
-    env: ['object', true, function() {
+    env: ['object', true, function () {
       return {}
     }],
-    argv: ['array', true, function() {
+    argv: ['array', true, function () {
       return []
     }],
-    execArgv: ['array', true, function() {
+    execArgv: ['array', true, function () {
       return []
     }],
     status: {
@@ -38,11 +38,21 @@ module.exports = AmpersandModel.extend({
     cluster: ['boolean', false, false],
     clusterManager: ['string', false, null],
 
-    cpu: ['array', true, function() { return [] }],
-    residentSize: ['array', true, function() { return [] }],
-    heapTotal: ['array', true, function() { return [] }],
-    heapUsed: ['array', true, function() { return [] }],
-    latency: ['array', true, function() { return [] }]
+    cpu: ['array', true, function () {
+      return []
+    }],
+    residentSize: ['array', true, function () {
+      return []
+    }],
+    heapTotal: ['array', true, function () {
+      return []
+    }],
+    heapUsed: ['array', true, function () {
+      return []
+    }],
+    latency: ['array', true, function () {
+      return []
+    }]
   },
   session: {
     isGc: ['boolean', true, false],
@@ -59,13 +69,13 @@ module.exports = AmpersandModel.extend({
     cpuFormatted: {
       deps: ['uptime'],
       fn: function () {
-        if(this.cpu.length === 0) {
+        if (this.cpu.length === 0) {
           return '?'
         }
 
         var last = this.cpu[this.cpu.length - 1]
 
-        if(!last) {
+        if (!last) {
           return '?'
         }
 
@@ -75,13 +85,13 @@ module.exports = AmpersandModel.extend({
     memoryFormatted: {
       deps: ['uptime'],
       fn: function () {
-        if(this.heapUsed.length === 0) {
+        if (this.heapUsed.length === 0) {
           return '?'
         }
 
         var last = this.heapUsed[this.heapUsed.length - 1]
 
-        if(!last) {
+        if (!last) {
           return '?'
         }
 
@@ -91,7 +101,7 @@ module.exports = AmpersandModel.extend({
     uptimeFormatted: {
       deps: ['uptime'],
       fn: function () {
-        if(this.uptime == '?') {
+        if (this.uptime === '?') {
           return this.uptime
         }
 
@@ -102,13 +112,13 @@ module.exports = AmpersandModel.extend({
     isRunning: {
       deps: ['status'],
       fn: function () {
-        return ['starting', 'started', 'running', 'restarting', 'stopping', 'paused', 'unresponsive'].indexOf(this.status) != -1
+        return ['starting', 'started', 'running', 'restarting', 'stopping', 'paused', 'unresponsive'].indexOf(this.status) !== -1
       }
     },
     isPaused: {
       deps: ['status'],
       fn: function () {
-        return this.status == 'paused'
+        return this.status === 'paused'
       }
     }
   },

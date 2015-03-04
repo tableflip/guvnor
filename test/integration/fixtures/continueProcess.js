@@ -6,35 +6,35 @@ var CallbackHandler = {
    * Create a callback container
    * @return {Object} that wraps callbacks and returns a one-time id.
    */
-  create: function() {
+  create: function () {
     var lastId = 1,
-      callbacks = {};
+      callbacks = {}
 
     return Object.create({}, {
       wrap: {
-        value: function(callback) {
-          var callbackId = lastId++;
-          callbacks[callbackId] = callback || function() {};
-          return callbackId;
+        value: function (callback) {
+          var callbackId = lastId++
+          callbacks[callbackId] = callback || function () {}
+          return callbackId
         }
       },
       processResponse: {
-        value: function(callbackId, args) {
-          var callback = callbacks[callbackId];
+        value: function (callbackId, args) {
+          var callback = callbacks[callbackId]
 
           if (callback) {
-            callback.apply(null, args);
+            callback.apply(null, args)
           }
 
-          delete callbacks[callbackId];
+          delete callbacks[callbackId]
         }
       },
       removeResponseCallbackEntry: {
-        value: function(callbackId) {
-          delete callbacks[callbackId];
+        value: function (callbackId) {
+          delete callbacks[callbackId]
         }
       }
-    });
+    })
   }
 }
 
@@ -43,21 +43,21 @@ var Net = require('net'),
   inherits = require('util').inherits,
   EventEmitter = require('events').EventEmitter,
   debugProtocol = require('debug')('node-inspector:protocol:v8-debug'),
-  callbackHandler = CallbackHandler.create();
+  callbackHandler = CallbackHandler.create()
 
 /**
  * @param {Number} port
  */
-function Debugger(port){
-  this._port = port;
-  this._connected = false;
-  this._connection = null;
-  this._lastError = null;
+function Debugger (port) {
+  this._port = port
+  this._connected = false
+  this._connection = null
+  this._lastError = null
 
-  this._setupConnection();
+  this._setupConnection()
 }
 
-inherits(Debugger, EventEmitter);
+inherits(Debugger, EventEmitter)
 
 Object.defineProperties(Debugger.prototype, {
   /** @type {boolean} */
@@ -65,17 +65,17 @@ Object.defineProperties(Debugger.prototype, {
 
   /** @type {boolean} */
   connected: {
-    get: function() {
-      return this._connected;
+    get: function () {
+      return this._connected
     }
   }
-});
+})
 
-Debugger.prototype._setupConnection = function() {
+Debugger.prototype._setupConnection = function () {
   var connection = Net.createConnection(this._port),
-    protocol = new Protocol();
+    protocol = new Protocol()
 
-  protocol.onResponse = this._processResponse.bind(this);
+  protocol.onResponse = this._processResponse.bind(this)
 
   connection
     .on('connect', this._onConnectionOpen.bind(this))
@@ -83,115 +83,112 @@ Debugger.prototype._setupConnection = function() {
     .on('error', this._onConnectionError.bind(this))
     .on('end', this.close.bind(this))
     .on('close', this._onConnectionClose.bind(this))
-    .setEncoding('utf8');
+    .setEncoding('utf8')
 
-  this._connection = connection;
-};
+  this._connection = connection
+}
 
-Debugger.prototype._onConnectionOpen = function() {
-  this._connected = true;
-  this.emit('connect');
-};
+Debugger.prototype._onConnectionOpen = function () {
+  this._connected = true
+  this.emit('connect')
+}
 
 /**
  * @param {Error} err
  */
-Debugger.prototype._onConnectionError = function(err) {
+Debugger.prototype._onConnectionError = function (err) {
   if (err.code == 'ECONNREFUSED') {
-    err.helpString = 'Is node running with --debug port ' + this._port + '?';
+    err.helpString = 'Is node running with --debug port ' + this._port + '?'
   } else if (err.code == 'ECONNRESET') {
-    err.helpString = 'Check there is no other debugger client attached to port ' + this._port + '.';
+    err.helpString = 'Check there is no other debugger client attached to port ' + this._port + '.'
   }
 
-  this._lastError = err.toString();
+  this._lastError = err.toString()
   if (err.helpString) {
-    this._lastError += '. ' + err.helpString;
+    this._lastError += '. ' + err.helpString
   }
 
-  this.emit('error', err);
-};
+  this.emit('error', err)
+}
 
-Debugger.prototype._onConnectionClose = function(hadError) {
-  this.emit('close', hadError ? this._lastError : 'Debugged process exited.');
+Debugger.prototype._onConnectionClose = function (hadError) {
+  this.emit('close', hadError ? this._lastError : 'Debugged process exited.')
 
-  this._port = null;
-  this._connected = false;
-  this._connection = null;
-  this._lastError = null;
-};
+  this._port = null
+  this._connected = false
+  this._connection = null
+  this._lastError = null
+}
 
-Debugger.prototype._processResponse = function(message) {
-  var obj = message.body;
+Debugger.prototype._processResponse = function (message) {
+  var obj = message.body
 
   if (typeof obj.running === 'boolean') {
-    this.isRunning = obj.running;
+    this.isRunning = obj.running
   }
   if (obj.type === 'response' && obj.request_seq > 0) {
-    debugProtocol('response: ' + JSON.stringify(message.body));
-    callbackHandler.processResponse(obj.request_seq, [obj]);
-  }
-  else if (obj.type === 'event') {
-    debugProtocol('event: ' + JSON.stringify(message.body));
+    debugProtocol('response: ' + JSON.stringify(message.body))
+    callbackHandler.processResponse(obj.request_seq, [obj])
+  } else if (obj.type === 'event') {
+    debugProtocol('event: ' + JSON.stringify(message.body))
     if (['break', 'exception'].indexOf(obj.event) > -1) {
-      this.isRunning = false;
+      this.isRunning = false
     }
-    this.emit(obj.event, obj);
+    this.emit(obj.event, obj)
+  } else {
+    debugProtocol('unknown: ' + JSON.stringify(message.body))
   }
-  else {
-    debugProtocol('unknown: ' + JSON.stringify(message.body));
-  }
-};
+}
 
 /**
  * @param {string} data
  */
-Debugger.prototype.send = function(data) {
-  debugProtocol('request: ' + data);
+Debugger.prototype.send = function (data) {
+  debugProtocol('request: ' + data)
   if (this.connected) {
-    this._connection.write('Content-Length: ' + Buffer.byteLength(data, 'utf8') + '\r\n\r\n' + data);
+    this._connection.write('Content-Length: ' + Buffer.byteLength(data, 'utf8') + '\r\n\r\n' + data)
   }
-};
-
+}
 
 /**
  * @param {string} command
  * @param {Object} params
  * @param {function} callback
  */
-Debugger.prototype.request = function(command, params, callback) {
+Debugger.prototype.request = function (command, params, callback) {
   var message = {
     seq: 0,
     type: 'request',
     command: command
-  };
+  }
   if (typeof callback === 'function') {
-    message.seq = callbackHandler.wrap(callback);
+    message.seq = callbackHandler.wrap(callback)
   }
   if (params) {
-    Object.keys(params).forEach(function(key) {
-      message[key] = params[key];
-    });
+    Object.keys(params).forEach(function (key) {
+      message[key] = params[key]
+    })
   }
-  this.send(JSON.stringify(message));
-};
+  this.send(JSON.stringify(message))
+}
 
 /**
  */
-Debugger.prototype.close = function() {
-  this._connection.end();
-};
+Debugger.prototype.close = function () {
+  this._connection.end()
+}
 
-module.exports = function(debugPort, callback) {
+module.exports = function (debugPort, callback) {
   // give the process time to start up
-  setTimeout(function() {
+  setTimeout(function () {
     var debuggerClient = new Debugger(debugPort)
     debuggerClient.on('error', callback)
-    debuggerClient.on('connect', function() {
+    debuggerClient.on('connect', function () {
 
-      debuggerClient.request('continue', undefined, function(response) {
+      debuggerClient.request('continue', undefined, function (response) {
         debuggerClient.close()
 
-        if(!response.success) return callback(new Error('Could not continue process'))
+        if (!response.success) return callback(new Error('Could not continue process'))
 
         callback()
       })

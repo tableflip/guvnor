@@ -1,10 +1,10 @@
-var View = require('ampersand-view'),
-  templates = require('../../templates')
+var View = require('ampersand-view')
+var templates = require('../../templates')
 
 module.exports = View.extend({
   template: templates.includes.host.resources,
   render: function () {
-    this.renderWithTemplate(this);
+    this.renderWithTemplate(this)
 
     var cpuUsage = this.query('[data-hook=cpu-usage]')
 
@@ -18,19 +18,19 @@ module.exports = View.extend({
     var cpuSeries = [{
       name: 'user',
       data: []
-    }, {
+      }, {
       name: 'sys',
       data: []
-    }, {
+      }, {
       name: 'nice',
       data: []
-    }, {
+      }, {
       name: 'irq',
       data: []
     }]
 
-    if(this.model.cpus) {
-      this.model.cpus.forEach(function(cpu) {
+    if (this.model.cpus) {
+      this.model.cpus.forEach(function (cpu) {
         cpuSeries[0].data.push(cpu.load.user)
         cpuSeries[1].data.push(cpu.load.sys)
         cpuSeries[2].data.push(cpu.load.nice)
@@ -157,12 +157,12 @@ module.exports = View.extend({
           to: 60,
           color: '#55BF3B', // green
           zIndex: 5
-        }, {
+          }, {
           from: 60,
           to: 80,
           color: '#DDDF0D', // yellow
           zIndex: 5
-        }, {
+          }, {
           from: 80,
           to: 100,
           color: '#DF5353', // red
@@ -191,39 +191,39 @@ module.exports = View.extend({
   },
   bindings: {
     'model.cpus': {
-      type: function(el, cpus) {
-        if(!cpus || !cpus.length) {
+      type: function (el, cpus) {
+        if (!cpus || !cpus.length) {
           return
         }
 
         var chart = window.Highcharts.charts[el.getAttribute('data-highcharts-chart')]
 
-        if(!chart) {
+        if (!chart) {
           return
         }
 
         var data = [{
           name: 'user',
           data: []
-        }, {
+          }, {
           name: 'sys',
           data: []
-        }, {
+          }, {
           name: 'nice',
           data: []
-        }, {
+          }, {
           name: 'irq',
           data: []
         }]
 
-        cpus.forEach(function(cpu, index) {
+        cpus.forEach(function (cpu, index) {
           data[0].data[index] = cpu.load.user
           data[1].data[index] = cpu.load.sys
           data[2].data[index] = cpu.load.nice
           data[3].data[index] = cpu.load.irq
         })
 
-        data.forEach(function(data, index) {
+        data.forEach(function (data, index) {
           // set series data but do not redraw yet
           chart.series[index].setData(data.data, false)
         })
@@ -236,13 +236,13 @@ module.exports = View.extend({
 
     'model.usedMemory': {
       type: function (el, usedMemory) {
-        if(!usedMemory) {
+        if (!usedMemory) {
           return
         }
 
         var chart = window.Highcharts.charts[el.getAttribute('data-highcharts-chart')]
 
-        if(!chart) {
+        if (!chart) {
           return
         }
 

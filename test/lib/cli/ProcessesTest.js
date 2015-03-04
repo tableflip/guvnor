@@ -4,10 +4,10 @@ var expect = require('chai').expect,
   Processes = require('../../../lib/cli/Processes'),
   path = require('path')
 
-describe('Processes', function() {
+describe('Processes', function () {
   var processes, guvnor, info
 
-  beforeEach(function() {
+  beforeEach(function () {
     info = console.info
     console.info = sinon.stub()
 
@@ -42,11 +42,11 @@ describe('Processes', function() {
     processes._connectOrStart.callsArgWith(0, undefined, guvnor)
   })
 
-  afterEach(function() {
+  afterEach(function () {
     console.info = info
   })
 
-  it('should list processes', function() {
+  it('should list processes', function () {
     var processList = [{
       pid: 'pid',
       user: 'user',
@@ -72,7 +72,7 @@ describe('Processes', function() {
     expect(console.info.called).to.be.true
   })
 
-  it('should not throw formatting process list with undefined values', function() {
+  it('should not throw formatting process list with undefined values', function () {
     var processList = [{}]
 
     guvnor.listProcesses = sinon.stub()
@@ -83,7 +83,7 @@ describe('Processes', function() {
     expect(guvnor.listProcesses.threw()).to.be.false
   })
 
-  it('should not throw formatting process list with null values', function() {
+  it('should not throw formatting process list with null values', function () {
     var processList = [{
       pid: null,
       user: null,
@@ -106,7 +106,7 @@ describe('Processes', function() {
     expect(guvnor.listProcesses.threw()).to.be.false
   })
 
-  it('should not throw formatting process list with non-numeric values', function() {
+  it('should not throw formatting process list with non-numeric values', function () {
     // Set properties that require extra numeric formatting to non-numeric objects
     var processList = [{
       uptime: 'uptime',
@@ -124,7 +124,7 @@ describe('Processes', function() {
     expect(guvnor.listProcesses.threw()).to.be.false
   })
 
-  it('should start a process', function() {
+  it('should start a process', function () {
     var script = 'script'
     var options = {}
     var processInfo = {
@@ -142,7 +142,7 @@ describe('Processes', function() {
     expect(guvnor.disconnect.called).to.be.true
   })
 
-  it('should stop a process', function() {
+  it('should stop a process', function () {
     var pid = 'pid'
     var processInfo = {
       id: 'id'
@@ -163,7 +163,7 @@ describe('Processes', function() {
     expect(remote.disconnect.called).to.be.true
   })
 
-  it('should stop multiple processes', function() {
+  it('should stop multiple processes', function () {
     var pid0 = 'pid0'
     var processInfo0 = {
       id: 'id0'
@@ -202,11 +202,11 @@ describe('Processes', function() {
     expect(remote1.disconnect.called).to.be.true
   })
 
-  it('should stop all processes', function() {
+  it('should stop all processes', function () {
     var processList = [{
       pid: 'pid0',
       id: 'id0'
-    }, {
+      }, {
       pid: 'pid1',
       id: 'id1'
     }]
@@ -242,7 +242,7 @@ describe('Processes', function() {
     expect(remote1.disconnect.called).to.be.true
   })
 
-  it('should restart a process', function() {
+  it('should restart a process', function () {
     var pid = 'pid'
     var processInfo = {
       id: 'id'
@@ -264,7 +264,7 @@ describe('Processes', function() {
     expect(remote.disconnect.called).to.be.true
   })
 
-  it('should restart multiple processes', function() {
+  it('should restart multiple processes', function () {
     var pid0 = 'pid0'
     var processInfo0 = {
       id: 'id0'
@@ -303,11 +303,11 @@ describe('Processes', function() {
     expect(remote1.disconnect.called).to.be.true
   })
 
-  it('should restart all processes', function() {
+  it('should restart all processes', function () {
     var processList = [{
       pid: 'pid0',
       id: 'id0'
-    }, {
+      }, {
       pid: 'pid1',
       id: 'id1'
     }]
@@ -343,7 +343,7 @@ describe('Processes', function() {
     expect(remote1.disconnect.called).to.be.true
   })
 
-  it('should send a message to a process', function() {
+  it('should send a message to a process', function () {
     var pid = 'pid'
     var event = 'foo:bar'
     var args = ['one', 'two', 'three']
@@ -365,7 +365,7 @@ describe('Processes', function() {
     expect(remote.disconnect.called).to.be.true
   })
 
-  it('should send a signal to a process', function() {
+  it('should send a signal to a process', function () {
     var pid = 'pid'
     var signal = 'signal'
     var processInfo = {
@@ -382,7 +382,7 @@ describe('Processes', function() {
     expect(guvnor.sendSignal.calledWith(processInfo.id, signal, sinon.match.func)).to.be.true
   })
 
-  it('should make a process dump heap', function() {
+  it('should make a process dump heap', function () {
     var pid = 'pid'
     var path = 'path'
     var processInfo = {
@@ -405,7 +405,7 @@ describe('Processes', function() {
     expect(console.info.calledWith(sinon.match.string, path)).to.be.true
   })
 
-  it('should make a process garbage collect', function() {
+  it('should make a process garbage collect', function () {
     var pid = 'pid'
     var processInfo = {
       id: 'id'
@@ -426,7 +426,7 @@ describe('Processes', function() {
     expect(remote.disconnect.called).to.be.true
   })
 
-  it('should find a process by pid if the passed id is numeric', function() {
+  it('should find a process by pid if the passed id is numeric', function () {
     var pid = 5
     var signal = 'signal'
     var processInfo = {
@@ -443,7 +443,7 @@ describe('Processes', function() {
     expect(guvnor.sendSignal.calledWith(processInfo.id, signal, sinon.match.func)).to.be.true
   })
 
-  it('should remove a process', function() {
+  it('should remove a process', function () {
     var pid = 5
     var signal = 'signal'
     var processInfo = {
@@ -460,7 +460,7 @@ describe('Processes', function() {
     expect(guvnor.sendSignal.calledWith(processInfo.id, signal, sinon.match.func)).to.be.true
   })
 
-  it('should start guvnor-web', function() {
+  it('should start guvnor-web', function () {
     var script = path.resolve(__dirname + '/../../lib/web')
     var options = {}
     var processInfo = {
@@ -479,7 +479,7 @@ describe('Processes', function() {
     expect(guvnor.startProcess.getCall(0).args[1].name).to.equal('guvnor-web')
   })
 
-  it('should use the admin socket to start a process as a different user', function() {
+  it('should use the admin socket to start a process as a different user', function () {
     var script = 'script'
     var options = {
       user: 'foo'

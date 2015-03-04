@@ -1,2 +1,1 @@
-
-module.exports = require("testsuite")(__dirname);
+module.exports = require('testsuite')(__dirname)

@@ -1,7 +1,7 @@
-var View = require('ampersand-view'),
-  templates = require('../../../templates'),
-  prettysize = require('prettysize'),
-  config = require('clientconfig')
+var View = require('ampersand-view')
+var templates = require('../../../templates')
+var prettysize = require('prettysize')
+var config = require('clientconfig')
 
 module.exports = View.extend({
   template: templates.includes.process.overview.memory,
@@ -18,21 +18,21 @@ module.exports = View.extend({
 
     this._chart = new window.Highcharts.Chart({
       colors: [
-        "rgba(245, 255, 92, 0.8)",
-        "rgba(0, 255, 0, 0.8)",
-        "rgba(42, 159, 214, 0.8)",
+        'rgba(245, 255, 92, 0.8)',
+        'rgba(0, 255, 0, 0.8)',
+        'rgba(42, 159, 214, 0.8)'
       ],
       chart: {
-        type: "areaspline",
+        type: 'areaspline',
         renderTo: this.query('[data-hook=memory-usage]'),
         backgroundColor: 'rgba(0, 0, 0, 0)',
         borderColor: '#444',
         events: {
-          load: function() {
+          load: function () {
             this.query('[data-hook=memory-usage] .highcharts-container').style.width = '100%'
 
-            setTimeout(function() {
-              $(window).resize()
+            setTimeout(function () {
+              window.$(window).resize()
             }, 10)
           }.bind(this)
         }
@@ -56,9 +56,9 @@ module.exports = View.extend({
         enabled: false
       },
       xAxis: {
-        type: "datetime",
+        type: 'datetime',
         labels: {
-          overflow: "justify",
+          overflow: 'justify',
           y: 25,
           style: fontStyle
         },
@@ -70,7 +70,7 @@ module.exports = View.extend({
           text: null
         },
         labels: {
-          formatter: function() {
+          formatter: function () {
             return prettysize(this.value)
           },
           style: fontStyle
@@ -79,12 +79,12 @@ module.exports = View.extend({
       },
       tooltip: {
         enabled: true,
-        formatter: function() {
-          var s = [];
+        formatter: function () {
+          var s = []
 
-          window.$.each(this.points, function(i, point) {
-            s.push('<span style="color:' + point.series.color + '">' + point.series.name + '</span>: ' + prettysize(this.y));
-          });
+          window.$.each(this.points, function (i, point) {
+            s.push('<span style="color:' + point.series.color + '">' + point.series.name + '</span>: ' + prettysize(this.y))
+          })
 
           return s.join('<br/>')
         },
@@ -119,29 +119,29 @@ module.exports = View.extend({
         }
       },
       series: [{
-          name: "Heap used",
-          data: this.model.heapUsed
+        name: 'Heap used',
+        data: this.model.heapUsed
         }, {
-          name: "Heap size",
-          data: this.model.heapTotal
+        name: 'Heap size',
+        data: this.model.heapTotal
         }, {
-          name: "Resident set size",
-          data: this.model.residentSize
+        name: 'Resident set size',
+        data: this.model.residentSize
         }
       ]
     })
 
-    this.listenTo(this.model, 'update', function() {
+    this.listenTo(this.model, 'update', function () {
       this._chart.series[0].setData(this.model.heapUsed, false)
       this._chart.series[1].setData(this.model.heapTotal, false)
       this._chart.series[2].setData(this.model.residentSize, false)
       this._chart.redraw()
     }.bind(this))
   },
-  remove: function() {
+  remove: function () {
     View.prototype.remove.call(this)
 
-    if(this._chart) {
+    if (this._chart) {
       this._chart.destroy()
       this._chart = null
     }

@@ -3,10 +3,10 @@ var expect = require('chai').expect,
   path = require('path'),
   ProcessWrapper = require('../../../../lib/daemon/process/ProcessWrapper')
 
-describe('ProcessWrapper', function() {
+describe('ProcessWrapper', function () {
   var processWrapper, name
 
-  beforeEach(function() {
+  beforeEach(function () {
     name = process.title
 
     processWrapper = new ProcessWrapper()
@@ -30,11 +30,11 @@ describe('ProcessWrapper', function() {
     }
   })
 
-  afterEach(function() {
+  afterEach(function () {
     process.title = name
   })
 
-  it('should set the process title', function() {
+  it('should set the process title', function () {
     var processTitle = 'blah'
 
     process.env.GUVNOR_PROCESS_NAME = processTitle
@@ -44,7 +44,7 @@ describe('ProcessWrapper', function() {
     expect(process.title).to.equal(processTitle)
   })
 
-  it('should switch process uid and gid', function(done) {
+  it('should switch process uid and gid', function (done) {
     var uid = 482
     var gid = 503
 
@@ -73,7 +73,7 @@ describe('ProcessWrapper', function() {
     done()
   })
 
-  it('should remove guvnor properties from the environment', function(done) {
+  it('should remove guvnor properties from the environment', function (done) {
     process.env.GUVNOR_TEST_PROPERTY = 'foo'
 
     processWrapper._removePropertiesFromEnvironment(sinon.stub())
@@ -83,16 +83,16 @@ describe('ProcessWrapper', function() {
     done()
   })
 
-  it('should start a process', function(done) {
-    processWrapper._startProcess('mocha', function(error) {
+  it('should start a process', function (done) {
+    processWrapper._startProcess('mocha', function (error) {
       expect(error).to.not.exist
 
       done()
     })
   })
 
-  it('should inform parent process that we failed to start', function() {
-    processWrapper._setProcessName = function(callback) {
+  it('should inform parent process that we failed to start', function () {
+    processWrapper._setProcessName = function (callback) {
       callback(new Error('urk!'))
     }
 
@@ -101,10 +101,10 @@ describe('ProcessWrapper', function() {
     expect(processWrapper._parentProcess.send.calledWith('process:failed', sinon.match.object)).to.be.true
   })
 
-  it('should throw if the users process errors', function() {
+  it('should throw if the users process errors', function () {
     process.env.GUVNOR_PROCESS_NAME = 'ProcessWrapperTest-process-error'
 
-    processWrapper._startProcess = function(script, callback) {
+    processWrapper._startProcess = function (script, callback) {
       callback(new Error('urk!'))
     }
 

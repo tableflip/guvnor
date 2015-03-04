@@ -1,8 +1,8 @@
 /*
-process.on('uncaughtException', function uncaughtListener(err) {
+process.on('uncaughtException', function uncaughtListener (err) {
   console.info('i caught an exception')
 })
 */
-setTimeout(function() {
+setTimeout(function () {
   throw new Error('panic!')
 }, 1000)

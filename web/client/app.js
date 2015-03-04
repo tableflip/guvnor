@@ -1,16 +1,15 @@
-var _ = require('underscore'),
-  config = require('clientconfig'),
-  Router = require('./router'),
-  MainView = require('./views/main'),
-  Hosts = require('./models/hosts'),
-  domReady = require('domready'),
-  User = require('./models/user')
+var config = require('clientconfig')
+var Router = require('./router')
+var MainView = require('./views/main')
+var Hosts = require('./models/hosts')
+var domReady = require('domready')
+var User = require('./models/user')
 
 module.exports = {
   // this is the the whole app initialiser
   blastoff: function () {
-    setInterval(function() {
-      if(!config.auth) {
+    setInterval(function () {
+      if (!config.auth) {
         config.toString()
       }
     }, 1000)
@@ -42,12 +41,12 @@ module.exports = {
 
       // n.b. main.render() must be called before we add the once listener, otherwise the host list
       // gets populated after we've bounced the user to the first host and it'll never get highlighted.
-      window.app.hosts.once('add', function(host) {
+      window.app.hosts.once('add', function (host) {
         window.app.navigate('/host/' + host.name)
       })
 
       // we have what we need, we can now start our router and show the appropriate page
-      window.app.router.history.start({pushState: true, root: '/'})
+      window.app.router.history.start({ pushState: true, root: '/' })
     })
   },
 
@@ -56,11 +55,11 @@ module.exports = {
   // all the <a> tags in the app.
   // it expects a url without a leading slash.
   // for example: "costello/settings".
-  navigate: function(page) {
+  navigate: function (page) {
     var url = (page.charAt(0) === '/') ? page.slice(1) : page
-    this.router.history.navigate(url, {trigger: true})
+    this.router.history.navigate(url, { trigger: true })
   }
 }
 
 // run it
-module.exports.blastoff();
+module.exports.blastoff()

@@ -1,5 +1,5 @@
-var AmpersandModel = require('ampersand-model'),
-  moment = require('moment')
+var AmpersandModel = require('ampersand-model')
+var moment = require('moment')
 
 module.exports = AmpersandModel.extend({
   props: {
@@ -15,14 +15,14 @@ module.exports = AmpersandModel.extend({
   derived: {
     dateFormatted: {
       deps: ['date'],
-      fn: function(value) {
+      fn: function (value) {
         return moment(value).format('YYYY-MM-DD HH:mm:ss Z')
       }
     },
     messageOrStackSummary: {
       deps: ['message', 'stack'],
-      fn: function() {
-        if(this.message) {
+      fn: function () {
+        if (this.message) {
           return this.message
         }
 

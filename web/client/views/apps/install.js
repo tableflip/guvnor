@@ -1,7 +1,7 @@
-var View = require('ampersand-view'),
-  templates = require('../../templates'),
-  InstallForm = require('../../forms/install'),
-  App = require('../../models/app')
+var View = require('ampersand-view')
+var templates = require('../../templates')
+var InstallForm = require('../../forms/install')
+var App = require('../../models/app')
 
 module.exports = View.extend({
   template: templates.includes.apps.install,
@@ -11,21 +11,17 @@ module.exports = View.extend({
   subviews: {
     form: {
       container: 'form',
-      prepareView: function(el) {
+      prepareView: function (el) {
         return new InstallForm({
-          model: new App(),
-          el: el,
-          submitCallback: function (data) {
-            this.onSubmit(data)
-          }.bind(this)
-        })
+            model: new App(),
+            el: el,
+            submitCallback: function (data) {
+              this.onSubmit(data)
+            }.bind(this)
+          })
       }
     }
   },
-  onCancel: function() {
-
-  },
-  onSubmit: function(data) {
-
-  }
+  onCancel: function () {},
+  onSubmit: function (data) {}
 })

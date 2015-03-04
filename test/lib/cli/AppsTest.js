@@ -5,10 +5,10 @@ var expect = require('chai').expect,
 
 require('colors')
 
-describe('Apps', function() {
+describe('Apps', function () {
   var apps, guvnor, info, error
 
-  beforeEach(function() {
+  beforeEach(function () {
     info = console.info
     error = console.error
 
@@ -40,12 +40,12 @@ describe('Apps', function() {
     apps._connectOrStart.callsArgWith(0, undefined, guvnor)
   })
 
-  afterEach(function() {
+  afterEach(function () {
     console.info = info
     console.error = error
   })
 
-  it('should install an application', function() {
+  it('should install an application', function () {
     var name = 'name'
     var url = 'url'
     var options = {}
@@ -57,16 +57,16 @@ describe('Apps', function() {
     expect(guvnor.disconnect.called).to.be.true
   })
 
-  it('should relay stdout when installing an application', function(done) {
+  it('should relay stdout when installing an application', function (done) {
     var name = 'name'
     var url = 'url'
     var options = {}
-    guvnor.deployApplication = function(name, url, user, info, error, complete) {
+    guvnor.deployApplication = function (name, url, user, info, error, complete) {
       info('foo')
       complete()
     }
 
-    console.info = function(data) {
+    console.info = function (data) {
       expect(data).to.equal('foo')
 
       done()
@@ -75,16 +75,16 @@ describe('Apps', function() {
     apps.installApplication(url, name, options)
   })
 
-  it('should relay stderr when installing an application', function(done) {
+  it('should relay stderr when installing an application', function (done) {
     var name = 'name'
     var url = 'url'
     var options = {}
-    guvnor.deployApplication = function(name, url, user, info, error, complete) {
+    guvnor.deployApplication = function (name, url, user, info, error, complete) {
       error('foo')
       complete()
     }
 
-    console.error = function(data) {
+    console.error = function (data) {
       expect(data).to.contain('foo')
 
       done()
@@ -93,7 +93,7 @@ describe('Apps', function() {
     apps.installApplication(url, name, options)
   })
 
-  it('should fail to install application', function() {
+  it('should fail to install application', function () {
     var name = 'name'
     var url = 'url'
     var options = {}
@@ -104,12 +104,13 @@ describe('Apps', function() {
 
     try {
       apps.installApplication(url, name, options)
-    } catch(e) {
-      if(e.message != 'urk!') throw e
+    } catch (e) {
+      if (e.message != 'urk!')
+        throw e
     }
   })
 
-  it('should list installed applications', function(done) {
+  it('should list installed applications', function (done) {
     var options = {}
     var applications = [{
       name: 'foo',
@@ -121,8 +122,8 @@ describe('Apps', function() {
 
     var invocations = 1
 
-    console.info = function(data) {
-      if(invocations == 2) {
+    console.info = function (data) {
+      if (invocations == 2) {
         // first invocation is table header..
         expect(data).to.contain('foo')
 
@@ -135,19 +136,20 @@ describe('Apps', function() {
     apps.listApplications(options)
   })
 
-  it('should fail to list installed applications', function() {
+  it('should fail to list installed applications', function () {
     var options = {}
     guvnor.listApplications = sinon.stub()
     guvnor.listApplications.callsArgWith(0, new Error('urk!'))
 
     try {
       apps.listApplications(options)
-    } catch(e) {
-      if(e.message != 'urk!') throw e
+    } catch (e) {
+      if (e.message != 'urk!')
+        throw e
     }
   })
 
-  it('should remove an application', function() {
+  it('should remove an application', function () {
     var name = 'foo'
     var options = {}
     guvnor.removeApplication = sinon.stub()
@@ -158,7 +160,7 @@ describe('Apps', function() {
     expect(guvnor.disconnect.called).to.be.true
   })
 
-  it('should fail to remove an application', function() {
+  it('should fail to remove an application', function () {
     var name = 'foo'
     var options = {}
     guvnor.removeApplication = sinon.stub()
@@ -166,12 +168,13 @@ describe('Apps', function() {
 
     try {
       apps.removeApplication(name, options)
-    } catch(e) {
-      if(e.message != 'urk!') throw e
+    } catch (e) {
+      if (e.message != 'urk!')
+        throw e
     }
   })
 
-  it('should run an application', function() {
+  it('should run an application', function () {
     var name = 'foo'
     var ref = 'bar'
     var options = {}
@@ -186,7 +189,7 @@ describe('Apps', function() {
     expect(apps._processes.start.called).to.be.true
   })
 
-  it('should fail to run an application', function() {
+  it('should fail to run an application', function () {
     var name = 'foo'
     var ref = 'bar'
     var options = {}
@@ -195,13 +198,14 @@ describe('Apps', function() {
 
     try {
       apps.runApplication(name, ref, options)
-    } catch(e) {
-      if(e.message != 'urk!') throw e
+    } catch (e) {
+      if (e.message != 'urk!')
+        throw e
     }
   })
 
-  it('should relay stdout when running an application', function(done) {
-    console.info = function(data) {
+  it('should relay stdout when running an application', function (done) {
+    console.info = function (data) {
       expect(data).to.equal('foo')
 
       done()
@@ -216,8 +220,8 @@ describe('Apps', function() {
     apps.runApplication(name, ref, options)
   })
 
-  it('should relay stderr when running an application', function(done) {
-    console.error = function(data) {
+  it('should relay stderr when running an application', function (done) {
+    console.error = function (data) {
       expect(data).to.equal('foo')
 
       done()
@@ -232,7 +236,7 @@ describe('Apps', function() {
     apps.runApplication(name, ref, options)
   })
 
-  it('should default to master ref', function() {
+  it('should default to master ref', function () {
     var name = 'foo'
     var options = {}
     guvnor.switchApplicationRef = sinon.stub()
@@ -242,7 +246,7 @@ describe('Apps', function() {
     expect(guvnor.switchApplicationRef.withArgs(name, 'master', sinon.match.func, sinon.match.func, sinon.match.func).called).to.be.true
   })
 
-  it('should list application refs', function(done) {
+  it('should list application refs', function (done) {
     var app = 'foo'
     var options = {}
     var refs = [{
@@ -254,8 +258,8 @@ describe('Apps', function() {
 
     var invocations = 1
 
-    console.info = function(data) {
-      if(invocations == 2) {
+    console.info = function (data) {
+      if (invocations == 2) {
         // first invocation is table header..
         expect(data).to.contain('bar')
 
@@ -268,7 +272,7 @@ describe('Apps', function() {
     apps.listRefs(app, options)
   })
 
-  it('should fail to list application refs', function() {
+  it('should fail to list application refs', function () {
     var app = 'foo'
     var options = {}
     guvnor.listApplicationRefs = sinon.stub()
@@ -276,12 +280,13 @@ describe('Apps', function() {
 
     try {
       apps.listRefs(app, options)
-    } catch(e) {
-      if(e.message != 'urk!') throw e
+    } catch (e) {
+      if (e.message != 'urk!')
+        throw e
     }
   })
 
-  it('should update application refs', function() {
+  it('should update application refs', function () {
     var app = 'foo'
     var options = {}
     var refs = [{
@@ -296,7 +301,7 @@ describe('Apps', function() {
     expect(guvnor.disconnect.called).to.be.true
   })
 
-  it('should fail to update application refs', function() {
+  it('should fail to update application refs', function () {
     var app = 'foo'
     var options = {}
     guvnor.updateApplicationRefs = sinon.stub()
@@ -304,8 +309,9 @@ describe('Apps', function() {
 
     try {
       apps.updateRefs(app, options)
-    } catch(e) {
-      if(e.message != 'urk!') throw e
+    } catch (e) {
+      if (e.message != 'urk!')
+        throw e
     }
   })
 })
