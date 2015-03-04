@@ -1,8 +1,8 @@
 var expect = require('chai').expect,
   sinon = require('sinon'),
-  Process = require('../../../lib/common/Process')
+  Process = require('../../../lib/common/ManagedProcess')
 
-describe('Process', function() {
+describe('ManagedProcess', function() {
   var proc, socket
 
   beforeEach(function() {
@@ -38,7 +38,7 @@ describe('Process', function() {
     proc.connect(function(error, remote) {
       expect(error).to.not.exist
 
-      expect(remote.foo).to.be.a('function')
+      expect(remote.kill).to.be.a('function')
 
       done()
     })
@@ -51,6 +51,36 @@ describe('Process', function() {
 
     readyCallback({
       foo: function() {}
+    })
+  })
+
+  it('should defer dnode connection until method is invoked', function(done) {
+    var dnode = {
+      on: sinon.stub(),
+      connect: sinon.stub()
+    }
+
+    proc._dnode = function() {
+      return dnode
+    }
+
+    // should not have interacted with dnode yet
+    expect(dnode.on.called).to.be.false
+
+    // invoke the proxied method
+    proc.kill(function() {
+      expect(dnode.on.calledTwice).to.be.true
+      expect(dnode.on.getCall(0).args[0]).to.equal('error')
+      expect(dnode.on.getCall(1).args[0]).to.equal('remote')
+
+      done()
+    })
+
+    var readyCallback = dnode.on.getCall(1).args[1]
+
+    // simulate dnode having connected
+    readyCallback({
+      kill: sinon.stub().callsArg(0)
     })
   })
 

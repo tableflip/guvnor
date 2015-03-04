@@ -235,21 +235,14 @@ describe('LocalDaemon', function() {
     var id = 'foo'
     var processInfo = {
       id: id,
-      socket: 'bar'
+      socket: 'bar',
+      connect: sinon.stub().callsArg(0)
     }
 
     localDaemon._localDaemonUserConnection.connected = true
 
     localDaemon.findProcessInfoById = sinon.stub()
     localDaemon.findProcessInfoById.withArgs(id, sinon.match.func).callsArgWith(1, undefined, processInfo)
-
-    var proc = {
-      connect: sinon.stub()
-    }
-    proc.connect.callsArg(0)
-
-    localDaemon._processFactory.create = sinon.stub()
-    localDaemon._processFactory.create.withArgs([processInfo.socket]).callsArgWith(1, undefined, proc)
 
     localDaemon.connectToProcess(id, function(error) {
       expect(error).to.not.exist

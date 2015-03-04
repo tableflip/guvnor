@@ -8,7 +8,7 @@ describe('RemoteProcessConnector', function() {
 
   it('should execute a remote process', function(done) {
     var connector = new RemoteProcessConnector()
-    connector._processFactory = {
+    connector._managedProcessFactory = {
       create: sinon.stub()
     }
     connector._posix = posix
@@ -30,7 +30,7 @@ describe('RemoteProcessConnector', function() {
       connect: sinon.stub()
     }
 
-    connector._processFactory.create.withArgs(['/sock'], sinon.match.func).callsArgWith(1, undefined, remoteProcess)
+    connector._managedProcessFactory.create.withArgs(['/sock'], sinon.match.func).callsArgWith(1, undefined, remoteProcess)
     remoteProcess.connect.withArgs(sinon.match.func).callsArgWith(0, undefined, remoteProcess)
 
     connector.afterPropertiesSet()
@@ -49,7 +49,7 @@ describe('RemoteProcessConnector', function() {
 
   it('should pass callback arguments to parent process', function(done) {
     var connector = new RemoteProcessConnector()
-    connector._processFactory = {
+    connector._managedProcessFactory = {
       create: sinon.stub()
     }
     connector._posix = posix
@@ -81,7 +81,7 @@ describe('RemoteProcessConnector', function() {
       connect: sinon.stub()
     }
 
-    connector._processFactory.create.withArgs(['/sock'], sinon.match.func).callsArgWith(1, undefined, remoteProcess)
+    connector._managedProcessFactory.create.withArgs(['/sock'], sinon.match.func).callsArgWith(1, undefined, remoteProcess)
     remoteProcess.connect.withArgs(sinon.match.func).callsArgWith(0, undefined, remoteProcess)
 
     connector.afterPropertiesSet()
@@ -92,7 +92,6 @@ describe('RemoteProcessConnector', function() {
     var callback = process.on.getCall(0).args[1]
 
     callback({
-      type: 'invoke',
       method: 'foo',
       args: [5, 6, 7]
     })
@@ -117,9 +116,9 @@ describe('RemoteProcessConnector', function() {
     expect(process.send.getCall(0).args[0].args[0].stack).to.be.ok
   })
 
-  it('should handle an error connecting to the remote process', function() {
+  it('should emit an error when remote method name is wrong', function() {
     var connector = new RemoteProcessConnector()
-    connector._processFactory = {
+    connector._managedProcessFactory = {
       create: sinon.stub()
     }
     connector._posix = posix
@@ -130,17 +129,27 @@ describe('RemoteProcessConnector', function() {
     process.on = sinon.stub()
 
     var remoteProcess = {
-      connect: sinon.stub()
+      connect: sinon.stub(),
+      disconnect: sinon.stub()
     }
 
-    connector._processFactory.create.withArgs(['/sock'], sinon.match.func).callsArgWith(1, undefined, remoteProcess)
-    remoteProcess.connect.withArgs(sinon.match.func).callsArgWith(0, new Error('nope'))
+    connector._managedProcessFactory.create.withArgs(['/sock'], sinon.match.func).callsArgWith(1, undefined, remoteProcess)
 
     connector.afterPropertiesSet()
 
-    expect(process.send.callCount).to.equal(1)
-    expect(process.send.getCall(0).args[0].event).to.equal('remote:error')
-    expect(process.send.getCall(0).args[0].args[0].message).to.equal('nope')
-    expect(process.send.getCall(0).args[0].args[0].stack).to.be.ok
+    expect(process.send.calledOnce).to.be.true
+    expect(process.send.getCall(0).args[0].event).to.equal('remote:ready')
+
+    var callback = process.on.getCall(0).args[1]
+
+    callback({
+      method: 'non existent method name',
+      args: []
+    })
+
+    expect(process.send.calledTwice).to.be.true
+    expect(process.send.getCall(1).args[0].event).to.equal('remote:error')
+    expect(process.send.getCall(1).args[0].args[0].message).to.equal('Invalid method name')
+    expect(process.send.getCall(1).args[0].args[0].stack).to.be.ok
   })
 })

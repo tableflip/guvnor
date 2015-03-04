@@ -185,6 +185,8 @@ describe('Guvnor', function() {
     }, function(error, processInfo) {
       expect(error).to.not.exist
       expect(processInfo.id).to.be.ok
+      expect(processInfo.status).to.equal('paused')
+      expect(processInfo.debugPort).to.be.a('number')
 
       var continued = false
 
@@ -194,8 +196,6 @@ describe('Guvnor', function() {
 
         done()
       })
-
-      expect(processInfo.status).to.equal('paused')
 
       continueProcess(processInfo.debugPort, function(error) {
         expect(error).to.not.exist
@@ -358,51 +358,31 @@ describe('Guvnor', function() {
       var workersStarted = 0
       var workersReady = 0
 
-      guvnor.on('worker:forked', function(clusterProcessInfo, workerProcessInfo) {
-        if(clusterProcessInfo.id != processInfo.id) {
-          return
-        }
-
+      processInfo.on('worker:forked', function(workerProcessInfo) {
         expect(workerProcessInfo).to.be.ok
 
         workersForked++
       })
 
-      guvnor.on('worker:starting', function(clusterProcessInfo, workerProcessInfo) {
-        if(clusterProcessInfo.id != processInfo.id) {
-          return
-        }
-
+      processInfo.on('worker:starting', function(workerProcessInfo) {
         expect(workerProcessInfo).to.be.ok
 
         workersStarting++
       })
 
-      guvnor.on('worker:started', function(clusterProcessInfo, workerProcessInfo) {
-        if(clusterProcessInfo.id != processInfo.id) {
-          return
-        }
-
+      processInfo.on('worker:started', function(workerProcessInfo) {
         expect(workerProcessInfo).to.be.ok
 
         workersStarted++
       })
 
-      guvnor.on('worker:ready', function(clusterProcessInfo, workerProcessInfo) {
-        if(clusterProcessInfo.id != processInfo.id) {
-          return
-        }
-
+      processInfo.on('worker:ready', function(workerProcessInfo) {
         expect(workerProcessInfo).to.be.ok
 
         workersReady++
       })
 
-      guvnor.once('cluster:online', function(clusterProcessInfo) {
-        if(clusterProcessInfo.id != processInfo.id) {
-          return
-        }
-
+      processInfo.once('cluster:online', function() {
         expect(workersForked).to.equal(2)
         expect(workersStarting).to.equal(2)
         expect(workersStarted).to.equal(2)
@@ -425,11 +405,7 @@ describe('Guvnor', function() {
 
       var debugPort = processInfo.debugPort
 
-      guvnor.once('cluster:online', function(clusterProcessInfo) {
-        if(clusterProcessInfo.id != processInfo.id) {
-          return
-        }
-
+      processInfo.once('cluster:online', function() {
         guvnor.listProcesses(function(error, processes) {
           expect(error).to.not.exist
           expect(processes.length).to.equal(1)
@@ -461,31 +437,22 @@ describe('Guvnor', function() {
       expect(error).to.not.exist
       expect(processInfo.id).to.be.ok
 
-      guvnor.once('cluster:online', function(clusterProcessInfo) {
-        if(clusterProcessInfo.id != processInfo.id) {
-          return
-        }
-
+      processInfo.once('cluster:online', function() {
         instances--
 
-        guvnor.connectToProcess(clusterProcessInfo.id, function(error, remoteProcess) {
-          if(error) return callback(error)
+        processInfo.setClusterWorkers(instances, function (error) {
+          expect(error).to.not.exist
 
-          remoteProcess.setClusterWorkers(instances, function (error) {
-
+          guvnor.listProcesses(function (error, processes) {
             expect(error).to.not.exist
+            expect(processes.length).to.equal(1)
+            expect(processes[0].workers.length).to.equal(instances)
 
-            guvnor.listProcesses(function (error, processes) {
+            guvnor.findProcessInfoById(processInfo.id, function (error, processInfo) {
               expect(error).to.not.exist
-              expect(processes.length).to.equal(1)
-              expect(processes[0].workers.length).to.equal(instances)
+              expect(processInfo.instances).to.equal(instances)
 
-              guvnor.findProcessInfoById(processInfo.id, function (error, processInfo) {
-                expect(error).to.not.exist
-                expect(processInfo.instances).to.equal(instances)
-
-                done()
-              })
+              done()
             })
           })
         })
@@ -506,35 +473,27 @@ describe('Guvnor', function() {
       expect(error).to.not.exist
       expect(processInfo.id).to.be.ok
 
-      guvnor.once('cluster:online', function (clusterProcessInfo) {
-        if(clusterProcessInfo.id != processInfo.id) {
-          return
-        }
-
+      processInfo.once('cluster:online', function () {
         instances++
 
-        guvnor.connectToProcess(clusterProcessInfo.id, function(error, remoteProcess) {
-          if(error) return callback(error)
+        processInfo.setClusterWorkers(instances, function (error) {
+          expect(error).to.not.exist
 
-          remoteProcess.setClusterWorkers(instances, function (error) {
-            expect(error).to.not.exist
+          guvnor.once('cluster:online', function (clusterProcessInfo) {
+            if (clusterProcessInfo.id != processInfo.id) {
+              return
+            }
 
-            guvnor.once('cluster:online', function (clusterProcessInfo) {
-              if (clusterProcessInfo.id != processInfo.id) {
-                return
-              }
+            guvnor.listProcesses(function (error, processes) {
+              expect(error).to.not.exist
+              expect(processes.length).to.equal(1)
+              expect(processes[0].workers.length).to.equal(instances)
 
-              guvnor.listProcesses(function (error, processes) {
+              guvnor.findProcessInfoById(processInfo.id, function (error, processInfo) {
                 expect(error).to.not.exist
-                expect(processes.length).to.equal(1)
-                expect(processes[0].workers.length).to.equal(instances)
+                expect(processInfo.instances).to.equal(instances)
 
-                guvnor.findProcessInfoById(processInfo.id, function (error, processInfo) {
-                  expect(error).to.not.exist
-                  expect(processInfo.instances).to.equal(instances)
-
-                  done()
-                })
+                done()
               })
             })
           })
@@ -548,12 +507,8 @@ describe('Guvnor', function() {
       expect(error).to.not.exist
       expect(processInfo.id).to.be.ok
 
-      guvnor.once('process:ready', function(readyProcessInfo) {
-        if(readyProcessInfo.id != processInfo.id) {
-          return
-        }
-
-        expect(readyProcessInfo.socket).to.include(readyProcessInfo.pid)
+      processInfo.once('process:ready', function() {
+        expect(processInfo.socket).to.include(processInfo.pid)
 
         guvnor.dumpProcesses(function(error) {
           expect(error).to.not.exist
@@ -591,48 +546,27 @@ describe('Guvnor', function() {
       expect(error).to.not.exist
       expect(processInfo.id).to.be.ok
 
-      guvnor.on('process:ready', function(readyProcessInfo) {
-        if(readyProcessInfo.id != processInfo.id) {
-          return
-        }
-
-        expect(readyProcessInfo.socket).to.be.ok
+      processInfo.on('process:ready', function() {
+        expect(processInfo.socket).to.be.ok
 
         async.parallel([
           function(callback) {
-            guvnor.on('process:heapdump:start', function(heapDumpProcessInfo) {
-              if(heapDumpProcessInfo.id != processInfo.id) {
-                return
-              }
-
-              callback()
-            })
+            processInfo.on('process:heapdump:start', callback)
           },
           function(callback) {
-            guvnor.on('process:heapdump:complete', function(heapDumpProcessInfo) {
-              if(heapDumpProcessInfo.id != processInfo.id) {
-                return
-              }
-
-              callback()
-            })
+            processInfo.on('process:heapdump:complete', callback)
           },
           function(callback) {
-            guvnor.connectToProcess(processInfo.id, function(error, remote) {
+            processInfo.dumpHeap(function(error, path) {
               expect(error).to.not.exist
+              expect(fs.existsSync(path)).to.be.true
 
-              remote.dumpHeap(function(error, path) {
-                expect(error).to.not.exist
-                expect(fs.existsSync(path)).to.be.true
+              // tidy up dump file
+              fs.unlinkSync(path)
 
-                // tidy up dump file
-                fs.unlinkSync(path)
+              processInfo.kill()
 
-                remote.kill()
-                remote.disconnect()
-
-                callback()
-              })
+              callback()
             })
           }
         ], done)
@@ -645,47 +579,26 @@ describe('Guvnor', function() {
       expect(error).to.not.exist
       expect(processInfo.id).to.be.ok
 
-      guvnor.on('process:ready', function(readyProcessInfo) {
-        if(readyProcessInfo.id != processInfo.id) {
-          return
-        }
+      processInfo.on('process:ready', function() {
+        expect(processInfo.socket, 'socket was missing').to.be.ok
 
-        expect(readyProcessInfo.socket, 'socket was missing').to.be.ok
+        async.parallel([
+          function(callback) {
+            processInfo.on('process:gc:start', callback)
+          },
+          function(callback) {
+            processInfo.on('process:gc:complete', callback)
+          },
+          function(callback) {
+            processInfo.forceGc(function(error) {
+              expect(error, 'could not perform gc').to.not.exist
 
-        guvnor.connectToProcess(processInfo.id, function(error, remote) {
-          expect(error, 'could not connect to process').to.not.exist
+              processInfo.kill()
 
-          async.parallel([
-            function(callback) {
-              guvnor.on('process:gc:start', function(gcProcessInfo) {
-                if (gcProcessInfo.id != processInfo.id) {
-                  return
-                }
-
-                callback()
-              })
-            },
-            function(callback) {
-              guvnor.on('process:gc:complete', function(gcProcessInfo) {
-                if(gcProcessInfo.id != processInfo.id) {
-                  return
-                }
-
-                callback()
-              })
-            },
-            function(callback) {
-              remote.forceGc(function(error) {
-                expect(error, 'could not perform gc').to.not.exist
-
-                remote.kill()
-                remote.disconnect()
-
-                callback()
-              })
-            }
-          ], done)
-        })
+              callback()
+            })
+          }
+        ], done)
       })
     })
   })
@@ -885,6 +798,7 @@ describe('Guvnor', function() {
 
       guvnor.deployApplication(appName, repo, user.name, console.info, console.error, function(error, appInfo) {
         expect(error).to.not.exist
+        expect(appInfo.id).to.be.ok
 
         guvnor.listApplicationRefs(appName, function(error, refs) {
           expect(error).to.not.exist
@@ -923,6 +837,7 @@ describe('Guvnor', function() {
 
       guvnor.deployApplication(appName, repo, user.name, console.info, console.error, function(error, appInfo) {
         expect(error).to.not.exist
+        expect(appInfo.id).to.be.ok
 
         guvnor.listApplicationRefs(appName, function(error, refs) {
           expect(error).to.not.exist
@@ -977,16 +892,8 @@ describe('Guvnor', function() {
       expect(error).to.not.exist
       expect(processInfo.id).to.be.ok
 
-      guvnor.on('process:ready', function(readyProcessInfo) {
-        if(readyProcessInfo.id != processInfo.id) {
-          return
-        }
-
-        guvnor.connectToProcess(readyProcessInfo.id, function(error, remote) {
-          expect(error).to.not.exist
-
-          remote.write(message)
-        })
+      processInfo.on('process:ready', function() {
+        processInfo.write(message)
       })
     })
   })
