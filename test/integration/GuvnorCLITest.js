@@ -299,10 +299,44 @@ describe('Guvnor CLI', function () {
   })
 
   it('should start a process as a cluster', function (done) {
-    guvnor.once('cluster:ready', function (clusterInfo) {
+    guvnor.once('cluster:online', function (clusterInfo) {
       expect(clusterInfo.workers.length).to.equal(2)
 
       done()
+    })
+
+    runCli('start', __dirname + '/fixtures/hello-world.js', '-i', '2')
+  })
+
+  it('should increase cluster workers', function (done) {
+    guvnor.once('cluster:online', function (clusterInfo) {
+      expect(clusterInfo.instances).to.equal(2)
+      expect(clusterInfo.workers.length).to.equal(2)
+
+      guvnor.once('cluster:online', function (clusterInfo) {
+        expect(clusterInfo.instances).to.equal(3)
+        expect(clusterInfo.workers.length).to.equal(3)
+
+        done()
+      })
+
+      runCli('workers', 'hello-world.js', '3')
+    })
+
+    runCli('start', __dirname + '/fixtures/hello-world.js', '-i', '2')
+  })
+
+  it('should decrease cluster workers', function (done) {
+    guvnor.once('cluster:online', function (clusterInfo) {
+      expect(clusterInfo.instances).to.equal(2)
+
+      guvnor.once('cluster:online', function (clusterInfo) {
+        expect(clusterInfo.instances).to.equal(1)
+
+        done()
+      })
+
+      runCli('workers', 'hello-world.js', '1')
     })
 
     runCli('start', __dirname + '/fixtures/hello-world.js', '-i', '2')
