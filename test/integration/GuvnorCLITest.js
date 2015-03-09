@@ -202,6 +202,34 @@ describe('Guvnor CLI', function () {
     runCli('start', __dirname + '/fixtures/hello-world.js')
   })
 
+  it('should start a process and override the name', function (done) {
+    var name = 'foo'
+
+    guvnor.once('process:ready', function (processInfo) {
+      expect(processInfo.name).to.equal(name)
+
+      done()
+    })
+
+    runCli('start', __dirname + '/fixtures/hello-world.js', '-n', name)
+  })
+
+  it('should restart a process', function (done) {
+    guvnor.once('process:ready', function (readyProcessInfo) {
+      expect(readyProcessInfo.name).to.equal('hello-world.js')
+
+      guvnor.once('process:restarted', function (restartedProcessInfo) {
+        expect(restartedProcessInfo.id).to.equal(readyProcessInfo.id)
+
+        done()
+      })
+
+      runCli('restart', 'hello-world.js')
+    })
+
+    runCli('start', __dirname + '/fixtures/hello-world.js')
+  })
+
   it('should stop a process', function (done) {
     guvnor.once('process:exit', function (processInfo) {
       expect(processInfo.name).to.equal('hello-world.js')
@@ -247,9 +275,36 @@ describe('Guvnor CLI', function () {
       expect(b).to.equal('-b')
       expect(bar).to.equal('bar')
 
+      expect(processInfo.argv).to.contain('-a')
+      expect(processInfo.argv).to.contain('foo')
+      expect(processInfo.argv).to.contain('-b')
+      expect(processInfo.argv).to.contain('bar')
+
       done()
     })
 
     runCli('start', __dirname + '/fixtures/arguments.js', '-a', '-a foo -b bar')
+  })
+
+  it('should start a process with exec arguments', function (done) {
+    guvnor.once('arguments:received', function (processInfo, harmony) {
+      expect(harmony).to.equal('--harmony')
+
+      expect(processInfo.execArgv).to.contain('--harmony')
+
+      done()
+    })
+
+    runCli('start', __dirname + '/fixtures/exec-arguments.js', '-e', '--harmony')
+  })
+
+  it('should start a process as a cluster', function (done) {
+    guvnor.once('cluster:ready', function (clusterInfo) {
+      expect(clusterInfo.workers.length).to.equal(2)
+
+      done()
+    })
+
+    runCli('start', __dirname + '/fixtures/hello-world.js', '-i', '2')
   })
 })
