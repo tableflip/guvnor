@@ -9,7 +9,9 @@ describe('ClusterProcessService', function () {
     service._freeport = sinon.stub()
     service._processInfoStore = {
       create: sinon.stub(),
-      find: sinon.stub()
+      find: sinon.stub(),
+      all: sinon.stub().returns([]),
+      remove: sinon.stub()
     }
     service._parentProcess = {
       send: sinon.stub()

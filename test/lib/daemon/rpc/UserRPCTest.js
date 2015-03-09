@@ -42,6 +42,18 @@ describe('UserRPC', function () {
       getRunDir: sinon.stub()
     }
     rpc._dnode = sinon.stub()
+    rpc._fs = {
+      existsSync: sinon.stub(),
+      unlinkSync: sinon.stub(),
+      chown: sinon.stub(),
+      exists: sinon.stub()
+    }
+    rpc._logger = {
+      info: sinon.stub(),
+      warn: sinon.stub(),
+      error: sinon.stub(),
+      debug: sinon.stub()
+    }
 
     var socket = new EventEmitter()
     var dnode = new EventEmitter()

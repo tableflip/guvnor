@@ -110,12 +110,14 @@ describe('ManagedProcess', function () {
   })
 
   it('should end the dnode stream on disconnect', function () {
-    proc._remote = {
+    var remote = {
       end: sinon.stub()
     }
 
+    proc._remote = remote
+
     proc.disconnect()
 
-    expect(proc._remote.end.calledOnce).to.be.true
+    expect(remote.end.calledOnce).to.be.true
   })
 })

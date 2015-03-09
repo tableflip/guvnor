@@ -53,7 +53,9 @@ describe('NodeInspectorWrapper', function () {
       debug: function () {}
     }
     var child = {
-      on: sinon.stub()
+      on: sinon.stub(),
+      removeAllListeners: sinon.stub(),
+      kill: sinon.stub()
     }
 
     wrapper._child_process.fork.returns(child)
@@ -92,7 +94,9 @@ describe('NodeInspectorWrapper', function () {
       debug: function () {}
     }
     var child = {
-      on: sinon.stub()
+      on: sinon.stub(),
+      removeAllListeners: sinon.stub(),
+      kill: sinon.stub()
     }
 
     wrapper._child_process.fork.returns(child)
@@ -134,7 +138,9 @@ describe('NodeInspectorWrapper', function () {
       debug: function () {}
     }
     var child = {
-      on: sinon.stub()
+      on: sinon.stub(),
+      removeAllListeners: sinon.stub(),
+      kill: sinon.stub()
     }
 
     wrapper._child_process.fork.returns(child)
@@ -177,7 +183,9 @@ describe('NodeInspectorWrapper', function () {
       debug: function () {}
     }
     var child = {
-      on: sinon.stub()
+      on: sinon.stub(),
+      removeAllListeners: sinon.stub(),
+      kill: sinon.stub()
     }
 
     wrapper._child_process.fork.returns(child)

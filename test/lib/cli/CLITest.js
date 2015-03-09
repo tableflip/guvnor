@@ -93,6 +93,7 @@ describe('CLI', function () {
     command.description = sinon.stub().returns(command)
     command.option = sinon.stub().returns(command)
     command.action = sinon.stub().returns(command)
+    command.allowUnknownOption = sinon.stub()
 
     cli._commander.command.returns(command)
     cli._commander.parse.returns({
@@ -107,6 +108,7 @@ describe('CLI', function () {
     command.description = sinon.stub().returns(command)
     command.option = sinon.stub().returns(command)
     command.action = sinon.stub().returns(command)
+    command.allowUnknownOption = sinon.stub()
 
     cli._commander.command.returns(command)
     cli._commander.parse.returns({
