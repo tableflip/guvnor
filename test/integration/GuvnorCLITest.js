@@ -308,7 +308,7 @@ describe('Guvnor CLI', function () {
     runCli('start', __dirname + '/fixtures/hello-world.js', '-i', '2')
   })
 
-  it('should increase cluster workers', function (done) {
+  it('should increase number of cluster workers', function (done) {
     guvnor.once('cluster:online', function (clusterInfo) {
       expect(clusterInfo.instances).to.equal(2)
       expect(clusterInfo.workers.length).to.equal(2)
@@ -326,12 +326,14 @@ describe('Guvnor CLI', function () {
     runCli('start', __dirname + '/fixtures/hello-world.js', '-i', '2')
   })
 
-  it('should decrease cluster workers', function (done) {
+  it('should decrease number of cluster workers', function (done) {
     guvnor.once('cluster:online', function (clusterInfo) {
       expect(clusterInfo.instances).to.equal(2)
+      expect(clusterInfo.workers.length).to.equal(2)
 
       guvnor.once('cluster:online', function (clusterInfo) {
         expect(clusterInfo.instances).to.equal(1)
+        expect(clusterInfo.workers.length).to.equal(1)
 
         done()
       })
