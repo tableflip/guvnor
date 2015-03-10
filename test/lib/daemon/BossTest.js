@@ -361,61 +361,6 @@ describe('Guvnor', function () {
     })
   })
 
-  it('should send a signal to a process', function (done) {
-    guvnor._processService.processes = {
-      foo: {
-        process: {
-          kill: sinon.stub()
-        }
-      }
-    }
-
-    guvnor.sendSignal({}, 'foo', 'bar', function (error) {
-      expect(error).to.not.exist
-
-      expect(guvnor._processService.processes.foo.process.kill.calledWith('bar')).to.be.true
-
-      done()
-    })
-  })
-
-  it('should not send a signal to a process when wrong process id sent', function (done) {
-    guvnor._processService.processes = {
-      foo: {
-        process: {
-          kill: sinon.stub()
-        }
-      }
-    }
-
-    guvnor.sendSignal({}, 'bar', 'foo', function (error) {
-      expect(error).to.be.ok
-      expect(error.message).to.contain('No process')
-
-      expect(guvnor._processService.processes.foo.process.kill.called).to.be.false
-
-      done()
-    })
-  })
-
-  it('should not send a signal to a process when signal name is invalid', function (done) {
-    guvnor._processService.processes = {
-      foo: {
-        process: {
-          kill: sinon.stub()
-        }
-      }
-    }
-    guvnor._processService.processes.foo.process.kill.throws(new Error('bad signal'))
-
-    guvnor.sendSignal({}, 'foo', 'bar', function (error) {
-      expect(error).to.be.ok
-      expect(error.message).to.contain('bad signal')
-
-      done()
-    })
-  })
-
   it('should delegate to app service for deploying applications', function () {
     var name = 'name'
     var url = 'url'

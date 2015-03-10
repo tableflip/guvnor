@@ -34,18 +34,38 @@ var logger = {
   debug: console.log
 }
 
-function requireUncached(module) {
-  var dirPath = path.resolve(__dirname + '/../../lib')
+function runCli () {
+  process.env.GUVNOR_ALLOW_UKNOWN_OPTION = true
 
-  for(var key in require.cache) {
-    if(key.substring(0, dirPath.length) == dirPath) {
-      delete require.cache[key]
-    }
-  }
+  process.argv = process.argv.slice(0, 2).concat(Array.prototype.slice.call(arguments)).concat([
+    '--guvnor.rundir=' + config.guvnor.rundir,
+    '--guvnor.logdir=' + config.guvnor.logdir,
+    '--guvnor.confdir=' + config.guvnor.confdir,
+    '--guvnor.appdir=' + config.guvnor.appdir,
+    '--guvnor.user=' + config.guvnor.user,
+    '--guvnor.group=' + config.guvnor.group,
+    '--guvnor.timeout=' + config.guvnor.timeout,
+    '--guvnor.autoresume=' + config.guvnor.autoresume,
+    '--guvnor.rpctimeout=' + config.guvnor.rpctimeout,
+    '--remote.enabled=' + config.remote.enabled,
+    '--remote.inspector.enabled=' + config.remote.inspector.enabled,
+    '--debug.daemon=' + config.debug.daemon,
+    '--debug.cluster=' + config.debug.cluster
+  ])
 
-  delete require.cache[path.resolve(__dirname + '/../../node_modules/commander/index.js')]
+   var paths = [
+     path.resolve(__dirname + '/../../lib'),
+     path.resolve(__dirname + '/../../node_modules/commander/index.js')
+   ]
+   paths.forEach(function(path) {
+     for (var key in require.cache) {
+       if (key.indexOf(path) != -1) {
+         delete require.cache[key]
+       }
+     }
+   })
 
-  return require(module)
+   require('../../lib/cli')()
 }
 
 var remote = require('../../lib/local').connectOrStart,
@@ -75,8 +95,9 @@ describe('Guvnor CLI', function () {
     console.info('rundir:', config.guvnor.rundir)
 
     remote(function (error, daemon) {
-      if (error)
+      if (error) {
         throw error
+      }
 
       guvnor = daemon
 
@@ -123,28 +144,6 @@ describe('Guvnor CLI', function () {
     guvnor.callbacks = {}
     guvnor.kill(guvnor.disconnect.bind(guvnor, done))
   })
-
-  function runCli () {
-    process.env.GUVNOR_ALLOW_UKNOWN_OPTION = true
-
-    process.argv = [process.argv[0], process.argv[1]].concat(Array.prototype.slice.call(arguments)).concat([
-      '--guvnor.rundir=' + config.guvnor.rundir,
-      '--guvnor.logdir=' + config.guvnor.logdir,
-      '--guvnor.confdir=' + config.guvnor.confdir,
-      '--guvnor.appdir=' + config.guvnor.appdir,
-      '--guvnor.user=' + config.guvnor.user,
-      '--guvnor.group=' + config.guvnor.group,
-      '--guvnor.timeout=' + config.guvnor.timeout,
-      '--guvnor.autoresume=' + config.guvnor.autoresume,
-      '--guvnor.rpctimeout=' + config.guvnor.rpctimeout,
-      '--remote.enabled=' + config.remote.enabled,
-      '--remote.inspector.enabled=' + config.remote.inspector.enabled,
-      '--debug.daemon=' + config.debug.daemon,
-      '--debug.cluster=' + config.debug.cluster
-    ])
-
-    requireUncached('../../lib/cli')
-  }
 
   it('should print message when no processes are running', function (done) {
     console.info = function(string) {
@@ -342,5 +341,59 @@ describe('Guvnor CLI', function () {
     })
 
     runCli('start', __dirname + '/fixtures/hello-world.js', '-i', '2')
+  })
+
+  it('should send an event to a process', function (done) {
+    guvnor.once('process:ready', function (processInfo) {
+      guvnor.once('custom:event:received', function (processInfo, one, two, three) {
+        expect(one).to.equal('one')
+        expect(two).to.equal('two')
+        expect(three).to.equal('three')
+
+        done()
+      })
+
+      runCli('send', 'receive-event.js', 'custom:event:sent', 'one', 'two', 'three', '-v')
+    })
+
+    runCli('start', __dirname + '/fixtures/receive-event.js')
+  })
+
+  it('should make a process dump heap', function (done) {
+    guvnor.once('process:ready', function () {
+      console.info = function(string) {
+        expect(string).to.contain('Written heap dump to')
+
+        done()
+      }
+
+      runCli('heapdump', 'hello-world.js')
+    })
+
+    runCli('start', __dirname + '/fixtures/hello-world.js')
+  })
+
+  it('should make a process collect garbage', function (done) {
+    guvnor.once('process:ready', function (processInfo) {
+      processInfo.on('process:gc:complete', done)
+
+      runCli('gc', 'hello-world.js')
+    })
+
+    runCli('start', __dirname + '/fixtures/hello-world.js')
+  })
+
+  it('should send a signal to a process', function (done) {
+    guvnor.once('process:ready', function (processInfo) {
+      guvnor.once('signal:received', function (proc, signal) {
+        expect(signal).to.equal('SIGWINCH')
+
+        done()
+      })
+
+      runCli('signal', 'siglisten.js', 'SIGWINCH')
+    })
+
+    runCli('start', __dirname + '/fixtures/siglisten.js')
   })
 })

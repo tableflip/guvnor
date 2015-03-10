@@ -39,7 +39,6 @@ describe('Processes', function () {
     guvnor.findProcessInfoByName = sinon.stub()
     guvnor.connectToProcess = sinon.stub()
     guvnor.listProcesses = sinon.stub()
-    guvnor.sendSignal = sinon.stub()
     guvnor.removeProcess = sinon.stub()
 
     processes._connectOrStart.callsArgWith(0, undefined, guvnor)
@@ -254,13 +253,13 @@ describe('Processes', function () {
     expect(managedProcess.disconnect.called).to.be.true
   })
 
-  it('should send a message to a process', function () {
+  it('should send an event to a process', function () {
     var name = 'name'
     var event = 'foo:bar'
     var args = ['one', 'two', 'three']
     var managedProcess = {
       name: name,
-      send: sinon.stub(),
+      send: sinon.stub().callsArg(4),
       disconnect: sinon.stub().callsArg(0)
     }
 
@@ -271,7 +270,7 @@ describe('Processes', function () {
     processes.send(name, event, args)
 
     expect(guvnor.disconnect.called).to.be.true
-    expect(managedProcess.send.calledWith(event, args[0], args[1], args[2])).to.be.true
+    expect(managedProcess.send.calledWith(event, args[0], args[1], args[2], sinon.match.func)).to.be.true
     expect(managedProcess.disconnect.called).to.be.true
   })
 
@@ -281,7 +280,7 @@ describe('Processes', function () {
     var managedProcess = {
       id: 'foo',
       name: name,
-      send: sinon.stub().callsArg(2),
+      signal: sinon.stub().callsArg(1),
       disconnect: sinon.stub().callsArg(0)
     }
 
@@ -289,11 +288,9 @@ describe('Processes', function () {
       managedProcess
     ])
 
-    guvnor.sendSignal.callsArg(2)
-
     processes.signal(name, signal)
 
-    expect(guvnor.sendSignal.calledWith(managedProcess.id, signal, sinon.match.func)).to.be.true
+    expect(managedProcess.signal.calledWith(signal, sinon.match.func)).to.be.true
     expect(guvnor.disconnect.called).to.be.true
   })
 

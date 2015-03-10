@@ -18,7 +18,6 @@ describe('UserRPC', function () {
       findProcessInfoById: sinon.stub(),
       findProcessInfoByPid: sinon.stub(),
       findProcessInfoByName: sinon.stub(),
-      sendSignal: sinon.stub(),
       deployApplication: sinon.stub(),
       removeApplication: sinon.stub(),
       listApplications: sinon.stub(),
@@ -67,7 +66,6 @@ describe('UserRPC', function () {
     expect(rpc.listProcesses).to.be.a('function')
     expect(rpc.findProcessInfoById).to.be.a('function')
     expect(rpc.findProcessInfoByPid).to.be.a('function')
-    expect(rpc.sendSignal).to.be.a('function')
     expect(rpc.deployApplication).to.be.a('function')
     expect(rpc.removeApplication).to.be.a('function')
     expect(rpc.listApplications).to.be.a('function')
