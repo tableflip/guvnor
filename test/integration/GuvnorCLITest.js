@@ -4,7 +4,8 @@ var expect = require('chai').expect,
   os = require('os'),
   path = require('path'),
   util = require('util'),
-  async = require('async')
+  async = require('async'),
+  fs = require('fs')
 
 var user = posix.getpwnam(process.getuid())
 var group = posix.getgrnam(process.getgid())
@@ -413,7 +414,6 @@ describe('Guvnor CLI', function () {
     runCli('start', __dirname + '/fixtures/stdin.js')
   })
 
-
   it('should show logs', function (done) {
     console.info = function() {
       var string = util.format.apply(util, arguments)
@@ -481,5 +481,121 @@ describe('Guvnor CLI', function () {
     })
 
     runCli('kill')
+  })
+
+  it('should dump processes', function (done) {
+    guvnor.once('process:ready', function () {
+      guvnor.once('daemon:dump', function () {
+        var contents
+
+        try {
+          contents = fs.readFileSync(config.guvnor.confdir + '/processes.json')
+        } catch (e) {
+          return done(e)
+        }
+
+        var processes = JSON.parse(contents)
+
+        expect(processes[0].script).to.equal(__dirname + '/fixtures/hello-world.js')
+
+        done()
+      })
+
+      runCli('dump')
+    })
+
+    runCli('start', __dirname + '/fixtures/hello-world.js')
+  })
+
+  it('should restore processes', function (done) {
+    var processes = [{
+      script: __dirname + '/fixtures/hello-world.js'
+    }]
+
+    fs.writeFileSync(config.guvnor.confdir + '/processes.json', JSON.stringify(processes))
+
+    guvnor.once('process:ready', function (managedProcess) {
+      expect(managedProcess.script).to.equal(__dirname + '/fixtures/hello-world.js')
+
+      done()
+    })
+
+    runCli('restore')
+  })
+
+  it('should print config options', function (done) {
+    console.info = function (string) {
+      expect(string).to.equal(config.guvnor.rundir)
+
+      done()
+    }
+
+    runCli('config', 'guvnor.rundir')
+  })
+
+  it('should report daemon status', function (done) {
+    console.info = function(string) {
+      expect(string).to.contain('Daemon is running')
+
+      done()
+    }
+
+    runCli('status')
+  })
+
+  it('should print config for the web monitor', function (done) {
+    var output = ''
+    var lines = 0
+
+    console.info = function() {
+      output += util.format.apply(util, arguments) + '\n'
+
+      lines++
+
+      if(lines === 9) {
+        expect(output).to.contain('host =')
+        expect(output).to.contain('port =')
+        expect(output).to.contain('user =')
+        expect(output).to.contain('secret =')
+
+        done()
+      }
+    }
+
+    runCli('remoteconfig')
+  })
+
+  it('should list users for the web monitor', function (done) {
+    console.info = function() {
+      var output = util.format.apply(util, arguments) + '\n'
+
+      expect(output).to.contain(user.name)
+
+      done()
+    }
+
+    runCli('lsusers')
+  })
+
+  it('should reset users password for the web monitor', function (done) {
+    var output = ''
+    var lines = 0
+
+    console.info = function() {
+      output += util.format.apply(util, arguments) + '\n'
+
+      lines++
+
+      if (lines === 6) {
+        console.log(lines)
+
+        expect(output).to.contain('[' + user.name)
+        expect(output).to.contain('secret = ')
+
+        done()
+      }
+    }
+
+    runCli('reset', user.name)
   })
 })

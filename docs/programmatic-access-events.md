@@ -142,6 +142,14 @@ Guvnor crashed. Hopefully you'll never see this.
 
 The daemon is about to shut down cleanly, usually in response to the `guv kill` command.
 
+### 'daemon:dump'
+
+The daemon has written process information out to `/etc/guvnor/processes.json`, usually in response to the `guv dump` command.
+
+### 'daemon:restore'
+
+The daemon has loaded process information from `/etc/guvnor/processes.json` if available, usually in response to the `guv restore` command.
+
 ### 'daemon:config:response'
 
 Guvnor is sending configuration to a managed process
