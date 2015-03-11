@@ -26,7 +26,8 @@ describe('CommandLine', function () {
   })
 
   it('should fail to find a command', function (done) {
-    cl._child_process.exec.callsArgWith(2, new Error('child process failed'))
+    cl._child_process.exec.withArgs(sinon.match.string, sinon.match.object, sinon.match.func).callsArgWith(2, new Error('child process failed'))
+    cl._child_process.exec.withArgs(sinon.match.string, sinon.match.func).callsArgWith(1, new Error('child process still failed'))
 
     cl._find('foo', {}, function (error, found) {
       expect(error).to.be.ok
