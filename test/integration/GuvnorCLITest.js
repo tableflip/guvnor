@@ -2,7 +2,9 @@ var expect = require('chai').expect,
   posix = require('posix'),
   shortid = require('shortid'),
   os = require('os'),
-  path = require('path')
+  path = require('path'),
+  util = require('util'),
+  async = require('async')
 
 var user = posix.getpwnam(process.getuid())
 var group = posix.getgrnam(process.getgid())
@@ -384,7 +386,7 @@ describe('Guvnor CLI', function () {
   })
 
   it('should send a signal to a process', function (done) {
-    guvnor.once('process:ready', function (processInfo) {
+    guvnor.once('process:ready', function () {
       guvnor.once('signal:received', function (proc, signal) {
         expect(signal).to.equal('SIGWINCH')
 
@@ -395,5 +397,89 @@ describe('Guvnor CLI', function () {
     })
 
     runCli('start', __dirname + '/fixtures/siglisten.js')
+  })
+
+  it('should write to a processes stdin', function (done) {
+    guvnor.once('process:ready', function () {
+      guvnor.once('stdin:received', function (proc, string) {
+        expect(string).to.equal('hello world')
+
+        done()
+      })
+
+      runCli('write', 'stdin.js', 'hello world')
+    })
+
+    runCli('start', __dirname + '/fixtures/stdin.js')
+  })
+
+
+  it('should show logs', function (done) {
+    console.info = function() {
+      var string = util.format.apply(util, arguments)
+
+      expect(string).to.contain('hello world')
+
+      done()
+    }
+
+    guvnor.once('process:ready', function () {
+      runCli('logs')
+    })
+
+    runCli('start', __dirname + '/fixtures/hello-world.js')
+  })
+
+  it('should only show logs for one process', function (done) {
+    async.series([
+      function (callback) {
+        guvnor.once('process:ready', function() {
+          callback()
+        })
+
+        runCli('start', __dirname + '/fixtures/hello-world.js')
+      },
+      function (callback) {
+        guvnor.once('process:ready', function() {
+          callback()
+        })
+
+        runCli('start', __dirname + '/fixtures/jibberjabber.js')
+      }
+    ], function(error) {
+      if(error) {
+        throw error
+      }
+
+      var logsReceived = 0
+
+      console.info = function() {
+        var string = util.format.apply(util, arguments)
+
+        expect(string).to.contain('hello world')
+
+        logsReceived++
+
+        if(logsReceived == 5) {
+          done()
+        }
+      }
+
+      runCli('logs', 'hello-world.js')
+    })
+  })
+
+  it('should stop the daemon', function (done) {
+    console.info = function(string) {
+      expect(string).to.contain('Daemon is not running')
+
+      done()
+    }
+
+    guvnor.once('daemon:exit', function () {
+      runCli('status')
+    })
+
+    runCli('kill')
   })
 })

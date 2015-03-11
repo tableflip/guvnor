@@ -138,6 +138,10 @@ These are events that are to do with the guvnor daemon itself.
 
 Guvnor crashed. Hopefully you'll never see this.
 
+### 'daemon:exit'
+
+The daemon is about to shut down cleanly, usually in response to the `guv kill` command.
+
 ### 'daemon:config:response'
 
 Guvnor is sending configuration to a managed process

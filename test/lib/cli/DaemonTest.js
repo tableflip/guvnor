@@ -1,7 +1,8 @@
 var expect = require('chai').expect,
   sinon = require('sinon'),
   path = require('path'),
-  Daemon = require('../../../lib/cli/Daemon')
+  Daemon = require('../../../lib/cli/Daemon'),
+  EventEmitter = require('events').EventEmitter
 
 describe('Daemon', function () {
   var daemon, guvnor, info
@@ -28,7 +29,8 @@ describe('Daemon', function () {
       disconnect: sinon.stub(),
       on: sinon.stub(),
       findProcessInfoByPid: sinon.stub(),
-      connectToProcess: sinon.stub()
+      connectToProcess: sinon.stub(),
+      listProcesses: sinon.stub()
     }
 
     daemon._connectOrStart.callsArgWith(0, undefined, guvnor)
@@ -127,16 +129,25 @@ describe('Daemon', function () {
   })
 
   it('should relay all logs', function () {
+    var processes = [{
+      on: sinon.stub()
+    }, {
+      on: sinon.stub()
+    }]
+
+    guvnor.listProcesses.callsArgWith(0, undefined, processes)
+
     daemon.logs(undefined, {})
 
     // should be listening for all logs
-    expect(guvnor.on.callCount).to.equal(9)
+    expect(processes[0].on.callCount).to.equal(8)
+    expect(processes[1].on.callCount).to.equal(8)
 
     console.info = sinon.stub()
     expect(console.info.callCount).to.equal(0)
 
-    expect(guvnor.on.getCall(1).args[0]).to.equal('process:log:error')
-    guvnor.on.getCall(1).args[1]({}, {
+    expect(processes[0].on.getCall(1).args[0]).to.equal('process:log:info')
+    processes[0].on.getCall(1).args[1]({
       message: 'foo',
       date: 'date'
     })
@@ -146,31 +157,30 @@ describe('Daemon', function () {
 
   it('should relay logs for one pid', function () {
     var pid = 5
-    daemon.logs(pid, {})
-
-    // should be listening for all logs
-    expect(guvnor.on.callCount).to.equal(9)
-
-    console.info = sinon.stub()
-    expect(console.info.callCount).to.equal(0)
-
-    expect(guvnor.on.getCall(1).args[0]).to.equal('process:log:error')
-
-    // send two messages - one for our pid and one for a different one
-    guvnor.on.getCall(1).args[1]({
+    var processes = [{
+      on: sinon.stub(),
       pid: pid
     }, {
-        message: 'foo',
-        date: 'date'
-      })
-    guvnor.on.getCall(1).args[1]({
+      on: sinon.stub(),
       pid: pid + 1
-    }, {
-        message: 'foo',
-        date: 'date'
-      })
+    }]
 
-    expect(console.info.callCount).to.equal(1)
+    guvnor.listProcesses.callsArgWith(0, undefined, processes)
+
+    daemon.logs(pid, {})
+
+    // should only be watching the first process for log events
+    expect(processes[0].on.callCount).to.equal(8)
+    expect(processes[1].on.callCount).to.equal(0)
+
+    expect(processes[0].on.getCall(0).args[0]).to.equal('process:log:error')
+    expect(processes[0].on.getCall(1).args[0]).to.equal('process:log:info')
+    expect(processes[0].on.getCall(2).args[0]).to.equal('process:log:warn')
+    expect(processes[0].on.getCall(3).args[0]).to.equal('process:log:debug')
+    expect(processes[0].on.getCall(4).args[0]).to.equal('worker:log:error')
+    expect(processes[0].on.getCall(5).args[0]).to.equal('worker:log:info')
+    expect(processes[0].on.getCall(6).args[0]).to.equal('worker:log:warn')
+    expect(processes[0].on.getCall(7).args[0]).to.equal('worker:log:debug')
   })
 
   it('should dump processes', function () {
