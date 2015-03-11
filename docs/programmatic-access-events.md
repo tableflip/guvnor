@@ -154,6 +154,26 @@ The daemon has loaded process information from `/etc/guvnor/processes.json` if a
 
 Guvnor is sending configuration to a managed process
 
+## App events
+
+App events related to installed apps.  An app is a node.js program installed from a git repository containing a `package.json` file at it's root.
+
+### 'app:installed' appInfo
+
+An app was installed. The passed `appInfo` object contains the name, url, etc of the new app.
+
+### 'app:removed' appInfo
+
+An app was removed and all files deleted from the filesystem.  The passed `appInfo` object contains the name, url, etc of the removed app.
+
+### 'app:refs:updated' appInfo, refs
+
+New app refs were pulled from the upstream repository.  The passed `appInfo` object represents the app and `refs` is the list of available ref names.  A ref is a git branch or tag.
+
+### 'app:refs:switched' appInfo, oldRef, newRef
+
+The app represented by `appInfo` was switched from `oldRef` to `newRef`.  A ref is a git branch or tag.
+
 ## Log events
 
 There are four types of log event: `info`, `warn`, `error` and `debug`.  Log events are emitted by processes, cluster managers, cluster workers and the guvnor daemon itself.

@@ -271,10 +271,10 @@ daemon.startProcessAsUser
 To stop a process, first connect to the daemon, then use the daemon to connect to the process and kill it.
 
 ```javascript
-// id is processInfo.id
-daemon.connectToProcess(id, function(error, proc) {
-  proc.kill()
-  proc.disconnect()
+// id is processInfo.id. Alternatively use findProcessInfoByName or findProcessInfoByPid
+daemon.findProcessInfoById(id, function(error, managedProcess) {
+  managedProcess.kill()
+  managedProcess.disconnect()
 })
 ```
 
@@ -283,8 +283,8 @@ daemon.connectToProcess(id, function(error, proc) {
 Causes the global process object to emit an event in the managed process.
 
 ```javascript
-// id is processInfo.id
-daemon.connectToProcess(id, function(error, managedProcess) {
+// id is processInfo.id. Alternatively use findProcessInfoByName or findProcessInfoByPid
+daemon.findProcessInfoById(id, function(error, managedProcess) {
   managedProcess.send('custom:event', 'arg1', 'arg2')
   managedProcess.disconnect()
 })
@@ -301,11 +301,11 @@ process.on('custom:event', function(arg1, arg2) {
 Functions can be sent too (but note these are executed in the context of the sender, not the receiving process).
 
 ```javascript
-// id is processInfo.id
-daemon.connectToProcess(id, function(error, managedProcess) {
+// id is processInfo.id. Alternatively use findProcessInfoByName or findProcessInfoByPid
+daemon.findProcessInfoById(id, function(error, managedProcess) {
   managedProcess.send('other:event', function(message) {
     console.info('remote process said', message)
-  managedProcess.disconnect()
+    managedProcess.disconnect()
   })
 })
 ```
@@ -316,4 +316,38 @@ In the managed process:
 process.on('other:event', function(callback) {
   callback('hello world')
 })
+```
+
+### Send a process a signal
+
+```javascript
+// id is processInfo.id. Alternatively use findProcessInfoByName or findProcessInfoByPid
+daemon.findProcessInfoById(id, function(error, managedProcess) {
+  managedProcess.signal('SIGHUP', managedProcess.disconnect.bind(managedProcess))
+})
+```
+
+In the managed process:
+
+```javascript
+process.on('SIGHUP', function() {
+  // do something
+});
+```
+
+### Write to stdin for a process
+
+```javascript
+// id is processInfo.id. Alternatively use findProcessInfoByName or findProcessInfoByPid
+daemon.findProcessInfoById(id, function(error, managedProcess) {
+  managedProcess.write('hello', managedProcess.disconnect.bind(managedProcess))
+})
+```
+
+In the managed process:
+
+```javascript
+process.stdin.on('data', function(buffer) {
+  // do something with buffer
+});
 ```

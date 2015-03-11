@@ -6,7 +6,8 @@ var expect = require('chai').expect,
   util = require('util'),
   async = require('async'),
   fs = require('fs'),
-  ini = require('ini')
+  ini = require('ini'),
+  exec = require('./fixtures/exec')
 
 var user = posix.getpwnam(process.getuid())
 var group = posix.getgrnam(process.getgid())
@@ -634,5 +635,375 @@ describe('Guvnor CLI', function () {
     expect(fs.existsSync(config.guvnor.confdir + '/rpc.key')).to.be.false
 
     runCli('genssl')
+  })
+
+  it('should deploy an application', function (done) {
+    var appName = 'foo'
+    var repo = tmpdir + '/' + shortid.generate() + '/' + appName
+
+    async.series([
+      exec.bind(null, 'mkdir', ['-p', repo]),
+      exec.bind(null, 'git', ['init'], repo),
+      exec.bind(null, 'git', ['config', 'user.email', 'foo@bar.com'], repo),
+      exec.bind(null, 'git', ['config', 'user.name', 'foo'], repo),
+      function(callback) {
+        fs.writeFile(repo + '/package.json', JSON.stringify({
+          name: appName
+        }), callback)
+      },
+      exec.bind(null, 'touch', ['index.js'], repo),
+      exec.bind(null, 'git', ['add', '-A'], repo),
+      exec.bind(null, 'git', ['commit', '-m', 'initial commit'], repo)
+    ], function (error) {
+      if (error) {
+        throw error
+      }
+
+      guvnor.on('app:installed', function(appInfo) {
+        expect(appInfo.name).to.equal(appName)
+        expect(fs.existsSync(appInfo.url)).to.be.true
+        expect(appInfo.user).to.equal(user.name)
+
+        done()
+      })
+
+      runCli('install', repo)
+    })
+  })
+
+  it('should deploy an application and override name', function (done) {
+    var appName = 'foo'
+    var repo = tmpdir + '/' + shortid.generate() + '/' + appName
+
+    async.series([
+      exec.bind(null, 'mkdir', ['-p', repo]),
+      exec.bind(null, 'git', ['init'], repo),
+      exec.bind(null, 'git', ['config', 'user.email', 'foo@bar.com'], repo),
+      exec.bind(null, 'git', ['config', 'user.name', 'foo'], repo),
+      function(callback) {
+        fs.writeFile(repo + '/package.json', JSON.stringify({
+          name: 'not' + appName
+        }), callback)
+      },
+      exec.bind(null, 'touch', ['index.js'], repo),
+      exec.bind(null, 'git', ['add', '-A'], repo),
+      exec.bind(null, 'git', ['commit', '-m', 'initial commit'], repo)
+    ], function (error) {
+      if (error) {
+        throw error
+      }
+
+      guvnor.on('app:installed', function(appInfo) {
+        expect(appInfo.name).to.equal(appName)
+        expect(fs.existsSync(appInfo.url)).to.be.true
+        expect(appInfo.user).to.equal(user.name)
+
+        done()
+      })
+
+      runCli('install', repo, appName)
+    })
+  })
+
+  it('should list deployed applications', function (done) {
+    var deployApp = function (callback) {
+      var repo = tmpdir + '/' + shortid.generate()
+
+      async.series([
+        exec.bind(null, 'mkdir', [repo]),
+        exec.bind(null, 'git', ['init'], repo),
+        exec.bind(null, 'git', ['config', 'user.email', 'foo@bar.com'], repo),
+        exec.bind(null, 'git', ['config', 'user.name', 'foo'], repo),
+        exec.bind(null, 'touch', ['file'], repo),
+        exec.bind(null, 'git', ['add', '-A'], repo),
+        exec.bind(null, 'git', ['commit', '-m', 'initial commit'], repo)
+      ], function (error) {
+        if (error) {
+          throw error
+        }
+
+        var appName = shortid.generate()
+
+        guvnor.deployApplication(appName, repo, user.name, console.info, console.error, callback)
+      })
+    }
+
+    var tasks = [deployApp, deployApp, deployApp, deployApp, deployApp]
+
+    async.parallel(tasks, function (error) {
+      expect(error).to.not.exist
+
+      var output = ''
+      var lines = 0
+
+      console.info = function() {
+        output += util.format.apply(util, arguments) + '\n'
+
+        lines++
+
+        if (lines === 6) {
+          guvnor.listApplications(function (error, apps) {
+            expect(error).to.not.exist
+
+            apps.forEach(function (app) {
+              expect(output).to.contain(app.name)
+              expect(output).to.contain(app.user)
+              expect(output).to.contain(app.url)
+            })
+
+            done()
+          })
+        }
+      }
+
+      runCli('lsapps')
+    })
+  })
+
+  it('should remove deployed applications', function (done) {
+    var repo = tmpdir + '/' + shortid.generate()
+
+    async.series([
+      exec.bind(null, 'mkdir', [repo]),
+      exec.bind(null, 'git', ['init'], repo),
+      exec.bind(null, 'git', ['config', 'user.email', 'foo@bar.com'], repo),
+      exec.bind(null, 'git', ['config', 'user.name', 'foo'], repo),
+      exec.bind(null, 'touch', ['file'], repo),
+      exec.bind(null, 'git', ['add', '-A'], repo),
+      exec.bind(null, 'git', ['commit', '-m', 'initial commit'], repo)
+    ], function (error) {
+      if (error) {
+        throw error
+      }
+
+      var appName = shortid.generate()
+
+      guvnor.deployApplication(appName, repo, user.name, console.info, console.error, function (error, appInfo) {
+        expect(error).to.not.exist
+        expect(fs.existsSync(config.guvnor.appdir + '/' + appInfo.id)).to.be.true
+
+        guvnor.listApplications(function (error, apps) {
+          expect(error).to.not.exist
+          expect(apps.length).to.equal(1)
+
+          guvnor.on('app:removed', function (appInfo) {
+            expect(fs.existsSync(config.guvnor.appdir + '/' + appInfo.id)).to.be.false
+
+            guvnor.listApplications(function (error, apps) {
+              expect(error).to.not.exist
+              expect(apps.length).to.equal(0)
+
+              done()
+            })
+          })
+
+          runCli('rmapp', appInfo.name)
+        })
+      })
+    })
+  })
+
+  it('should switch an application ref', function (done) {
+    var repo = tmpdir + '/' + shortid.generate()
+
+    async.series([
+      exec.bind(null, 'mkdir', [repo]),
+      exec.bind(null, 'git', ['init'], repo),
+      exec.bind(null, 'git', ['config', 'user.email', 'foo@bar.com'], repo),
+      exec.bind(null, 'git', ['config', 'user.name', 'foo'], repo),
+      exec.bind(null, 'touch', ['v1'], repo),
+      exec.bind(null, 'git', ['add', '-A'], repo),
+      exec.bind(null, 'git', ['commit', '-m', 'v1'], repo),
+      exec.bind(null, 'git', ['tag', 'v1'], repo),
+      exec.bind(null, 'touch', ['v2'], repo),
+      exec.bind(null, 'git', ['add', '-A'], repo),
+      exec.bind(null, 'git', ['commit', '-m', 'v2'], repo),
+      exec.bind(null, 'git', ['tag', 'v2'], repo),
+      exec.bind(null, 'touch', ['v3'], repo),
+      exec.bind(null, 'git', ['add', '-A'], repo),
+      exec.bind(null, 'git', ['commit', '-m', 'v3'], repo),
+      exec.bind(null, 'git', ['tag', 'v3'], repo)
+    ], function (error) {
+      if (error) {
+        throw error
+      }
+
+      var appName = shortid.generate()
+
+      guvnor.deployApplication(appName, repo, user.name, console.info, console.error, function (error, appInfo) {
+        expect(error).to.not.exist
+
+        // should be at latest version
+        expect(fs.existsSync(config.guvnor.appdir + '/' + appInfo.id + '/v1')).to.be.true
+        expect(fs.existsSync(config.guvnor.appdir + '/' + appInfo.id + '/v2')).to.be.true
+        expect(fs.existsSync(config.guvnor.appdir + '/' + appInfo.id + '/v3')).to.be.true
+
+        guvnor.on('app:refs:switched', function (error, switchedAppInfo, previousRef, newRef) {
+          expect(error).not.to.exist
+          expect(switchedAppInfo.id).to.equal(appInfo.id)
+          expect(previousRef).to.equal('master')
+          expect(newRef).to.equal('tags/v2')
+
+          done()
+        })
+
+        runCli('setref', appInfo.name, 'tags/v2')
+      })
+    })
+  })
+
+  it('should list available application refs', function (done) {
+    var repo = tmpdir + '/' + shortid.generate()
+
+    async.series([
+      exec.bind(null, 'mkdir', [repo]),
+      exec.bind(null, 'git', ['init'], repo),
+      exec.bind(null, 'git', ['config', 'user.email', 'foo@bar.com'], repo),
+      exec.bind(null, 'git', ['config', 'user.name', 'foo'], repo),
+      exec.bind(null, 'touch', ['v1'], repo),
+      exec.bind(null, 'git', ['add', '-A'], repo),
+      exec.bind(null, 'git', ['commit', '-m', 'v1'], repo),
+      exec.bind(null, 'git', ['tag', 'v1'], repo),
+      exec.bind(null, 'touch', ['v2'], repo),
+      exec.bind(null, 'git', ['add', '-A'], repo),
+      exec.bind(null, 'git', ['commit', '-m', 'v2'], repo),
+      exec.bind(null, 'git', ['tag', 'v2'], repo),
+      exec.bind(null, 'touch', ['v3'], repo),
+      exec.bind(null, 'git', ['add', '-A'], repo),
+      exec.bind(null, 'git', ['commit', '-m', 'v3'], repo),
+      exec.bind(null, 'git', ['tag', 'v3'], repo)
+    ], function (error) {
+      if (error) {
+        throw error
+      }
+
+      var appName = shortid.generate()
+
+      guvnor.deployApplication(appName, repo, user.name, console.info, console.error, function (error, appInfo) {
+        expect(error).to.not.exist
+        expect(appInfo.id).to.be.ok
+
+        var output = ''
+        var lines = 0
+
+        console.info = function() {
+          output += util.format.apply(util, arguments) + '\n'
+
+          lines++
+
+          if (lines === 7) {
+            expect(output).to.contain('refs/heads/master')
+            expect(output).to.contain('refs/remotes/origin/HEAD')
+            expect(output).to.contain('refs/remotes/origin/master')
+            expect(output).to.contain('refs/tags/v1')
+            expect(output).to.contain('refs/tags/v2')
+            expect(output).to.contain('refs/tags/v3')
+
+            done()
+          }
+        }
+
+        runCli('lsrefs', appInfo.name, 'tags/v2')
+      })
+    })
+  })
+
+  it('should update application refs', function (done) {
+    var repo = tmpdir + '/' + shortid.generate()
+
+    async.series([
+      exec.bind(null, 'mkdir', [repo]),
+      exec.bind(null, 'git', ['init'], repo),
+      exec.bind(null, 'git', ['config', 'user.email', 'foo@bar.com'], repo),
+      exec.bind(null, 'git', ['config', 'user.name', 'foo'], repo),
+      exec.bind(null, 'touch', ['v1'], repo),
+      exec.bind(null, 'git', ['add', '-A'], repo),
+      exec.bind(null, 'git', ['commit', '-m', 'v1'], repo),
+      exec.bind(null, 'git', ['tag', 'v1'], repo)
+    ], function (error) {
+      if (error)
+        throw error
+
+      var appName = shortid.generate()
+
+      guvnor.deployApplication(appName, repo, user.name, console.info, console.error, function (error, appInfo) {
+        expect(error).to.not.exist
+        expect(appInfo.id).to.be.ok
+
+        guvnor.listApplicationRefs(appName, function (error, refs) {
+          expect(error).to.not.exist
+
+          expect(refs.length).to.equal(4)
+
+          async.series([
+            exec.bind(null, 'touch', ['v2'], repo),
+            exec.bind(null, 'git', ['add', '-A'], repo),
+            exec.bind(null, 'git', ['commit', '-m', 'v2'], repo),
+            exec.bind(null, 'git', ['tag', 'v2'], repo),
+            exec.bind(null, 'touch', ['v3'], repo),
+            exec.bind(null, 'git', ['add', '-A'], repo),
+            exec.bind(null, 'git', ['commit', '-m', 'v3'], repo),
+            exec.bind(null, 'git', ['tag', 'v3'], repo)
+          ], function (error) {
+            if (error)
+              throw error
+
+            guvnor.listApplicationRefs(appName, function (error, refs) {
+              expect(error).to.not.exist
+
+              expect(refs.length).to.equal(4)
+
+              guvnor.on('app:refs:updated', function (error, updatedRefAppInfo, refs) {
+                expect(error).not.to.exist
+                expect(updatedRefAppInfo.id).to.equal(appInfo.id)
+                expect(refs.length).to.equal(6)
+
+                done()
+              })
+
+              runCli('updaterefs', appInfo.name)
+            })
+          })
+        })
+      })
+    })
+  })
+
+  it('should start an app', function (done) {
+    var appName = 'foo'
+    var repo = tmpdir + '/' + shortid.generate() + '/' + appName
+
+    async.series([
+      exec.bind(null, 'mkdir', ['-p', repo]),
+      exec.bind(null, 'git', ['init'], repo),
+      exec.bind(null, 'git', ['config', 'user.email', 'foo@bar.com'], repo),
+      exec.bind(null, 'git', ['config', 'user.name', 'foo'], repo),
+      function(callback) {
+        fs.writeFile(repo + '/package.json', JSON.stringify({
+          name: appName
+        }), callback)
+      },
+      function(callback) {
+        fs.writeFile(repo + '/index.js', 'setInterval(function () { console.log("hello world") }, 1000)', callback)
+      },
+      exec.bind(null, 'git', ['add', '-A'], repo),
+      exec.bind(null, 'git', ['commit', '-m', 'initial commit'], repo)
+    ], function (error) {
+      if (error) {
+        throw error
+      }
+
+      guvnor.deployApplication(appName, repo, user.name, console.info, console.error, function (error, appInfo) {
+        expect(error).to.not.exist
+
+        guvnor.on('process:ready', function(managedProcess) {
+          expect(managedProcess.name).to.equal(appInfo.name)
+
+          done()
+        })
+
+        runCli('start', appInfo.name)
+      })
+    })
   })
 })

@@ -400,7 +400,7 @@ describe('Guvnor', function () {
 
     guvnor.switchApplicationRef({}, name, ref, onOut, onErr, callback)
 
-    expect(guvnor._appService.switchRef.calledWith(name, ref, onOut, onErr, callback)).to.be.true
+    expect(guvnor._appService.switchRef.calledWith(name, ref, onOut, onErr)).to.be.true
   })
 
   it('should delegate to app service for listing application refs', function () {
