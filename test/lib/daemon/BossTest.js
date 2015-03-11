@@ -419,7 +419,7 @@ describe('Guvnor', function () {
       }
     }
 
-    guvnor._config.confdir = 'conf'
+    guvnor._config.guvnor.confdir = 'conf'
     guvnor._pem.createCertificate.callsArgWith(1, undefined, {
       serviceKey: 'key',
       certificate: 'cert'

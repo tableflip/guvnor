@@ -5,7 +5,8 @@ var expect = require('chai').expect,
   path = require('path'),
   util = require('util'),
   async = require('async'),
-  fs = require('fs')
+  fs = require('fs'),
+  ini = require('ini')
 
 var user = posix.getpwnam(process.getuid())
 var group = posix.getgrnam(process.getgid())
@@ -587,15 +588,51 @@ describe('Guvnor CLI', function () {
       lines++
 
       if (lines === 6) {
-        console.log(lines)
+        var contents
+
+        try {
+          contents = fs.readFileSync(config.guvnor.confdir + '/users.json')
+        } catch (e) {
+          return done(e)
+        }
+
+        var users = JSON.parse(contents)
 
         expect(output).to.contain('[' + user.name)
-        expect(output).to.contain('secret = ')
+        expect(output).to.contain('secret = ' + users[0].secret)
 
         done()
       }
     }
 
     runCli('reset', user.name)
+  })
+
+  it('should generate ssl certificates', function (done) {
+    guvnor.on('daemon:genssl', function() {
+      expect(fs.existsSync(config.guvnor.confdir + '/rpc.cert')).to.be.true
+      expect(fs.existsSync(config.guvnor.confdir + '/rpc.key')).to.be.true
+
+      // should have updated config file
+      var contents
+
+      try {
+        contents = fs.readFileSync(config.guvnor.confdir + '/guvnorrc', 'utf8')
+      } catch (e) {
+        return done(e)
+      }
+
+      var rc = ini.parse(contents)
+
+      expect(rc.remote.key).to.equal(config.guvnor.confdir + '/rpc.key')
+      expect(rc.remote.certificate).to.equal(config.guvnor.confdir + '/rpc.cert')
+
+      done()
+    })
+
+    expect(fs.existsSync(config.guvnor.confdir + '/rpc.cert')).to.be.false
+    expect(fs.existsSync(config.guvnor.confdir + '/rpc.key')).to.be.false
+
+    runCli('genssl')
   })
 })
