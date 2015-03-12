@@ -30,6 +30,8 @@ describe('LocalDaemonStarter', function () {
   })
 
   it('should start the daemon', function (done) {
+    localDaemonStarter._config.daemonise = true
+    localDaemonStarter._config.daemonize = true
     localDaemonStarter._config.guvnor.user = 'user'
     localDaemonStarter._config.guvnor.group = 'group'
 

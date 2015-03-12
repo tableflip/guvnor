@@ -79,13 +79,13 @@ describe('Guvnor', function () {
       guvnor.on('daemon:log:*', function (type, event) {
         console.info(type, event.message)
       })
-      guvnor.on('process:log:*', function (type, processInfo, event) {
+      guvnor.on('process:log:*', function (type, managedProcess, event) {
         console.info(type, event)
       })
-      guvnor.on('cluster:log:*', function (type, processInfo, event) {
+      guvnor.on('cluster:log:*', function (type, managedProcess, event) {
         console.info(type, event)
       })
-      guvnor.on('worker:log:*', function (type, clusterInfo, processInfo, event) {
+      guvnor.on('worker:log:*', function (type, clusterInfo, managedProcess, event) {
         console.info(type, event)
       })
       guvnor.on('process:uncaughtexception:*', function (type, error) {
@@ -103,7 +103,7 @@ describe('Guvnor', function () {
     guvnor.callbacks = {}
     guvnor.kill(guvnor.disconnect.bind(guvnor, done))
   })
-
+/*
   it('should have npm available', function (done) {
     child_process.exec('which npm', function (error, stdout, stderr) {
       console.info('which npm')
@@ -127,14 +127,14 @@ describe('Guvnor', function () {
   })
 
   it('should start a process', function (done) {
-    guvnor.startProcess(__dirname + '/fixtures/hello-world.js', {}, function (error, processInfo) {
+    guvnor.startProcess(__dirname + '/fixtures/hello-world.js', {}, function (error, managedProcess) {
       expect(error).to.not.exist
-      expect(processInfo.id).to.be.ok
+      expect(managedProcess.id).to.be.ok
 
-      console.info('process id', processInfo.id)
+      console.info('process id', managedProcess.id)
 
-      processInfo.once('process:ready', function () {
-        expect(processInfo.socket).to.include(processInfo.pid)
+      managedProcess.once('process:ready', function () {
+        expect(managedProcess.socket).to.include(managedProcess.pid)
 
         done()
       })
@@ -142,12 +142,12 @@ describe('Guvnor', function () {
   })
 
   it('should start a coffeescript process', function (done) {
-    guvnor.startProcess(__dirname + '/fixtures/hello-world.coffee', {}, function (error, processInfo) {
+    guvnor.startProcess(__dirname + '/fixtures/hello-world.coffee', {}, function (error, managedProcess) {
       expect(error).to.not.exist
-      expect(processInfo.id).to.be.ok
+      expect(managedProcess.id).to.be.ok
 
       guvnor.once('process:ready', function (readyProcessInfo) {
-        if (readyProcessInfo.id != processInfo.id) {
+        if (readyProcessInfo.id != managedProcess.id) {
           return
         }
 
@@ -183,22 +183,22 @@ describe('Guvnor', function () {
   it('should start a process in debug mode', function (done) {
     guvnor.startProcess(__dirname + '/fixtures/hello-world.js', {
       debug: true
-    }, function (error, processInfo) {
+    }, function (error, managedProcess) {
       expect(error).to.not.exist
-      expect(processInfo.id).to.be.ok
-      expect(processInfo.status).to.equal('paused')
-      expect(processInfo.debugPort).to.be.a('number')
+      expect(managedProcess.id).to.be.ok
+      expect(managedProcess.status).to.equal('paused')
+      expect(managedProcess.debugPort).to.be.a('number')
 
       var continued = false
 
-      processInfo.on('process:ready', function () {
-        expect(processInfo.socket).to.include(processInfo.pid)
+      managedProcess.on('process:ready', function () {
+        expect(managedProcess.socket).to.include(managedProcess.pid)
         expect(continued).to.be.true
 
         done()
       })
 
-      continueProcess(processInfo.debugPort, function (error) {
+      continueProcess(managedProcess.debugPort, function (error) {
         expect(error).to.not.exist
 
         continued = true
@@ -207,12 +207,12 @@ describe('Guvnor', function () {
   })
 
   it('should stop a process', function (done) {
-    guvnor.startProcess(__dirname + '/fixtures/hello-world.js', {}, function (error, processInfo) {
+    guvnor.startProcess(__dirname + '/fixtures/hello-world.js', {}, function (error, managedProcess) {
       expect(error).to.not.exist
-      expect(processInfo.id).to.be.ok
+      expect(managedProcess.id).to.be.ok
 
-      processInfo.once('process:exit', function (error, code, signal) {
-        expect(processInfo.status).to.equal('stopped')
+      managedProcess.once('process:exit', function (error, code, signal) {
+        expect(managedProcess.status).to.equal('stopped')
         expect(error).to.not.exist
         expect(code).to.equal(0)
         expect(signal).to.not.exist
@@ -222,33 +222,33 @@ describe('Guvnor', function () {
         guvnor.listProcesses(function (error, processes) {
           expect(error).to.not.exist
           expect(processes.length).to.equal(1)
-          expect(processes[0].id).to.equal(processInfo.id)
+          expect(processes[0].id).to.equal(managedProcess.id)
           expect(processes[0].status).to.equal('stopped')
 
           done()
         })
       })
 
-      processInfo.once('process:ready', function () {
-        expect(processInfo.socket).to.be.ok
+      managedProcess.once('process:ready', function () {
+        expect(managedProcess.socket).to.be.ok
 
-        processInfo.kill()
+        managedProcess.kill()
       })
     })
   })
 
   it('should restart a process', function (done) {
-    guvnor.startProcess(__dirname + '/fixtures/hello-world.js', {}, function (error, processInfo) {
+    guvnor.startProcess(__dirname + '/fixtures/hello-world.js', {}, function (error, managedProcess) {
       expect(error).to.not.exist
-      expect(processInfo.id).to.be.ok
+      expect(managedProcess.id).to.be.ok
 
       var notifiedOfRestarting = false
 
-      processInfo.once('process:restarting', function () {
+      managedProcess.once('process:restarting', function () {
         notifiedOfRestarting = true
       })
 
-      processInfo.once('process:restarted', function () {
+      managedProcess.once('process:restarted', function () {
         guvnor.listProcesses(function (error, processes) {
           console.info(error, processes)
           expect(error).to.not.exist
@@ -260,10 +260,10 @@ describe('Guvnor', function () {
         })
       })
 
-      processInfo.once('process:ready', function () {
-        expect(processInfo.socket).to.be.ok
+      managedProcess.once('process:ready', function () {
+        expect(managedProcess.socket).to.be.ok
 
-        processInfo.restart()
+        managedProcess.restart()
       })
     })
   })
@@ -273,9 +273,9 @@ describe('Guvnor', function () {
       expect(error).to.not.exist
       expect(processes.length).to.equal(0)
 
-      guvnor.startProcess(__dirname + '/fixtures/hello-world.js', {}, function (error, processInfo) {
+      guvnor.startProcess(__dirname + '/fixtures/hello-world.js', {}, function (error, managedProcess) {
         expect(error).to.not.exist
-        expect(processInfo.id).to.be.ok
+        expect(managedProcess.id).to.be.ok
 
         guvnor.once('process:ready', function () {
           guvnor.listProcesses(function (error, processes) {
@@ -290,35 +290,35 @@ describe('Guvnor', function () {
   })
 
   it('should restart a failing process', function (done) {
-    guvnor.startProcess(__dirname + '/fixtures/crash-on-message.js', {}, function (error, processInfo) {
+    guvnor.startProcess(__dirname + '/fixtures/crash-on-message.js', {}, function (error, managedProcess) {
       expect(error).to.not.exist
-      expect(processInfo.id).to.be.ok
+      expect(managedProcess.id).to.be.ok
 
-      processInfo.once('process:restarted', function (failedPid) {
-        expect(processInfo.pid).to.not.equal(failedPid)
+      managedProcess.once('process:restarted', function (failedPid) {
+        expect(managedProcess.pid).to.not.equal(failedPid)
 
         done()
       })
 
-      processInfo.once('process:ready', function () {
-        expect(processInfo.socket).to.be.ok
+      managedProcess.once('process:ready', function () {
+        expect(managedProcess.socket).to.be.ok
 
-        processInfo.send('custom:euthanise')
+        managedProcess.send('custom:euthanise')
       })
     })
   })
 
   it('should abort a constantly failing process', function (done) {
-    guvnor.startProcess(__dirname + '/fixtures/first-tick-crash.js', {}, function (error, processInfo) {
+    guvnor.startProcess(__dirname + '/fixtures/first-tick-crash.js', {}, function (error, managedProcess) {
       expect(error).to.not.exist
 
-      processInfo.once('process:aborted', function () {
+      managedProcess.once('process:aborted', function () {
 
         // should have status of 'aborted'
         guvnor.listProcesses(function (error, processes) {
           expect(error).to.not.exist
           expect(processes.length).to.equal(1)
-          expect(processes[0].id).to.equal(processInfo.id)
+          expect(processes[0].id).to.equal(managedProcess.id)
           expect(processes[0].status).to.equal('aborted')
 
           done()
@@ -328,14 +328,14 @@ describe('Guvnor', function () {
   })
 
   it('should invoke a remote callback', function (done) {
-    guvnor.startProcess(__dirname + '/fixtures/remote-executor.js', {}, function (error, processInfo) {
+    guvnor.startProcess(__dirname + '/fixtures/remote-executor.js', {}, function (error, managedProcess) {
       expect(error).to.not.exist
-      expect(processInfo.id).to.be.ok
+      expect(managedProcess.id).to.be.ok
 
-      processInfo.once('process:ready', function () {
-        expect(processInfo.socket).to.be.ok
+      managedProcess.once('process:ready', function () {
+        expect(managedProcess.socket).to.be.ok
 
-        processInfo.send('custom:hello', function (message) {
+        managedProcess.send('custom:hello', function (message) {
           expect(message).to.equal('hello world')
 
           done()
@@ -350,40 +350,40 @@ describe('Guvnor', function () {
         PORT: 0
       },
       instances: 2
-    }, function (error, processInfo) {
+    }, function (error, managedProcess) {
       expect(error).to.not.exist
-      expect(processInfo.id).to.be.ok
+      expect(managedProcess.id).to.be.ok
 
       var workersForked = 0
       var workersStarting = 0
       var workersStarted = 0
       var workersReady = 0
 
-      processInfo.on('worker:forked', function (workerProcessInfo) {
+      managedProcess.on('worker:forked', function (workerProcessInfo) {
         expect(workerProcessInfo).to.be.ok
 
         workersForked++
       })
 
-      processInfo.on('worker:starting', function (workerProcessInfo) {
+      managedProcess.on('worker:starting', function (workerProcessInfo) {
         expect(workerProcessInfo).to.be.ok
 
         workersStarting++
       })
 
-      processInfo.on('worker:started', function (workerProcessInfo) {
+      managedProcess.on('worker:started', function (workerProcessInfo) {
         expect(workerProcessInfo).to.be.ok
 
         workersStarted++
       })
 
-      processInfo.on('worker:ready', function (workerProcessInfo) {
+      managedProcess.on('worker:ready', function (workerProcessInfo) {
         expect(workerProcessInfo).to.be.ok
 
         workersReady++
       })
 
-      processInfo.once('cluster:online', function () {
+      managedProcess.once('cluster:online', function () {
         expect(workersForked).to.equal(2)
         expect(workersStarting).to.equal(2)
         expect(workersStarted).to.equal(2)
@@ -400,13 +400,13 @@ describe('Guvnor', function () {
         PORT: 0
       },
       instances: 2
-    }, function (error, processInfo) {
+    }, function (error, managedProcess) {
       expect(error).to.not.exist
-      expect(processInfo.id).to.be.ok
+      expect(managedProcess.id).to.be.ok
 
-      var debugPort = processInfo.debugPort
+      var debugPort = managedProcess.debugPort
 
-      processInfo.once('cluster:online', function () {
+      managedProcess.once('cluster:online', function () {
         guvnor.listProcesses(function (error, processes) {
           expect(error).to.not.exist
           expect(processes.length).to.equal(1)
@@ -434,14 +434,14 @@ describe('Guvnor', function () {
         PORT: 0
       },
       instances: instances
-    }, function (error, processInfo) {
+    }, function (error, managedProcess) {
       expect(error).to.not.exist
-      expect(processInfo.id).to.be.ok
+      expect(managedProcess.id).to.be.ok
 
-      processInfo.once('cluster:online', function () {
+      managedProcess.once('cluster:online', function () {
         instances--
 
-        processInfo.setClusterWorkers(instances, function (error) {
+        managedProcess.setClusterWorkers(instances, function (error) {
           expect(error).to.not.exist
 
           guvnor.listProcesses(function (error, processes) {
@@ -449,9 +449,9 @@ describe('Guvnor', function () {
             expect(processes.length).to.equal(1)
             expect(processes[0].workers.length).to.equal(instances)
 
-            guvnor.findProcessInfoById(processInfo.id, function (error, processInfo) {
+            guvnor.findProcessInfoById(managedProcess.id, function (error, managedProcess) {
               expect(error).to.not.exist
-              expect(processInfo.instances).to.equal(instances)
+              expect(managedProcess.instances).to.equal(instances)
 
               done()
             })
@@ -470,18 +470,18 @@ describe('Guvnor', function () {
       },
       instances: instances,
       debug: true
-    }, function (error, processInfo) {
+    }, function (error, managedProcess) {
       expect(error).to.not.exist
-      expect(processInfo.id).to.be.ok
+      expect(managedProcess.id).to.be.ok
 
-      processInfo.once('cluster:online', function () {
+      managedProcess.once('cluster:online', function () {
         instances++
 
-        processInfo.setClusterWorkers(instances, function (error) {
+        managedProcess.setClusterWorkers(instances, function (error) {
           expect(error).to.not.exist
 
           guvnor.once('cluster:online', function (clusterProcessInfo) {
-            if (clusterProcessInfo.id != processInfo.id) {
+            if (clusterProcessInfo.id != managedProcess.id) {
               return
             }
 
@@ -490,9 +490,9 @@ describe('Guvnor', function () {
               expect(processes.length).to.equal(1)
               expect(processes[0].workers.length).to.equal(instances)
 
-              guvnor.findProcessInfoById(processInfo.id, function (error, processInfo) {
+              guvnor.findProcessInfoById(managedProcess.id, function (error, managedProcess) {
                 expect(error).to.not.exist
-                expect(processInfo.instances).to.equal(instances)
+                expect(managedProcess.instances).to.equal(instances)
 
                 done()
               })
@@ -504,12 +504,12 @@ describe('Guvnor', function () {
   })
 
   it('should dump process info', function (done) {
-    guvnor.startProcess(__dirname + '/fixtures/hello-world.js', {}, function (error, processInfo) {
+    guvnor.startProcess(__dirname + '/fixtures/hello-world.js', {}, function (error, managedProcess) {
       expect(error).to.not.exist
-      expect(processInfo.id).to.be.ok
+      expect(managedProcess.id).to.be.ok
 
-      processInfo.once('process:ready', function () {
-        expect(processInfo.socket).to.include(processInfo.pid)
+      managedProcess.once('process:ready', function () {
+        expect(managedProcess.socket).to.include(managedProcess.pid)
 
         guvnor.dumpProcesses(function (error) {
           expect(error).to.not.exist
@@ -543,26 +543,26 @@ describe('Guvnor', function () {
   })
 
   it('should make a process do a heap dump', function (done) {
-    guvnor.startProcess(__dirname + '/fixtures/hello-world.js', {}, function (error, processInfo) {
+    guvnor.startProcess(__dirname + '/fixtures/hello-world.js', {}, function (error, managedProcess) {
       expect(error).to.not.exist
-      expect(processInfo.id).to.be.ok
+      expect(managedProcess.id).to.be.ok
 
-      processInfo.on('process:ready', function () {
-        expect(processInfo.socket).to.be.ok
+      managedProcess.on('process:ready', function () {
+        expect(managedProcess.socket).to.be.ok
 
         async.parallel([function (callback) {
-          processInfo.on('process:heapdump:start', callback)
+          managedProcess.on('process:heapdump:start', callback)
         }, function (callback) {
-          processInfo.on('process:heapdump:complete', callback)
+          managedProcess.on('process:heapdump:complete', callback)
         }, function (callback) {
-          processInfo.dumpHeap(function (error, path) {
+          managedProcess.dumpHeap(function (error, path) {
             expect(error).to.not.exist
             expect(fs.existsSync(path)).to.be.true
 
             // tidy up dump file
             fs.unlinkSync(path)
 
-            processInfo.kill()
+            managedProcess.kill()
 
             callback()
           })
@@ -573,22 +573,22 @@ describe('Guvnor', function () {
   })
 
   it('should force a process to garbage collect', function (done) {
-    guvnor.startProcess(__dirname + '/fixtures/hello-world.js', {}, function (error, processInfo) {
+    guvnor.startProcess(__dirname + '/fixtures/hello-world.js', {}, function (error, managedProcess) {
       expect(error).to.not.exist
-      expect(processInfo.id).to.be.ok
+      expect(managedProcess.id).to.be.ok
 
-      processInfo.on('process:ready', function () {
-        expect(processInfo.socket, 'socket was missing').to.be.ok
+      managedProcess.on('process:ready', function () {
+        expect(managedProcess.socket, 'socket was missing').to.be.ok
 
         async.parallel([function (callback) {
-          processInfo.on('process:gc:start', callback)
+          managedProcess.on('process:gc:start', callback)
         }, function (callback) {
-          processInfo.on('process:gc:complete', callback)
+          managedProcess.on('process:gc:complete', callback)
         }, function (callback) {
-          processInfo.forceGc(function (error) {
+          managedProcess.forceGc(function (error) {
             expect(error, 'could not perform gc').to.not.exist
 
-            processInfo.kill()
+            managedProcess.kill()
 
             callback()
           })
@@ -886,22 +886,22 @@ describe('Guvnor', function () {
       })
     })
   })
-
+*/
   it('should write to stdin for a process', function (done) {
     var message = 'hello world'
 
-    guvnor.on('stdin:received', function (processInfo, answer) {
-      expect(answer).to.equal(message)
-
-      done()
-    })
-
-    guvnor.startProcess(__dirname + '/fixtures/stdin.js', {}, function (error, processInfo) {
+    guvnor.startProcess(__dirname + '/fixtures/stdin.js', {}, function (error, managedProcess) {
       expect(error).to.not.exist
-      expect(processInfo.id).to.be.ok
+      expect(managedProcess.id).to.be.ok
 
-      processInfo.on('process:ready', function () {
-        processInfo.write(message)
+      managedProcess.on('stdin:received', function (answer) {
+        expect(answer).to.equal(message)
+
+        done()
+      })
+
+      managedProcess.on('process:ready', function () {
+        managedProcess.write(message)
       })
     })
   })

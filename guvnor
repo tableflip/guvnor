@@ -1,3 +1,8 @@
+; By default start guv in the background - if you change this to false, the daemon
+; will exit at the same time as the process that spawned it.
+daemonise = true
+daemonize = true
+
 [guvnor]
   ; The user the daemon will run as - this user should have sufficient
   ; privileges to spawn new processes and then drop their privileges to

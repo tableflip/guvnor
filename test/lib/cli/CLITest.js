@@ -29,7 +29,8 @@ describe('CLI', function () {
     cli._commander = {
       version: sinon.stub(),
       command: sinon.stub(),
-      parse: sinon.stub()
+      parse: sinon.stub(),
+      allowUnknownOption: sinon.stub()
     }
     cli._os = {
       platform: sinon.stub()
@@ -86,6 +87,8 @@ describe('CLI', function () {
       updateRefs: sinon.stub(),
       setRef: sinon.stub()
     }
+
+    cli._commander.version.returns(cli._commander)
   })
 
   it('should set up commander', function () {
@@ -97,7 +100,7 @@ describe('CLI', function () {
 
     cli._commander.command.returns(command)
     cli._commander.parse.returns({
-      rawArgs: [null, null, null]
+      rawArgs: ['node', 'command', 'subcommand']
     })
 
     cli._setUpCommander()
@@ -112,7 +115,7 @@ describe('CLI', function () {
 
     cli._commander.command.returns(command)
     cli._commander.parse.returns({
-      rawArgs: [null, null]
+      rawArgs: ['node', 'command', '--option']
     })
 
     cli._processes.list = done
