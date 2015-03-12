@@ -887,7 +887,7 @@ describe('Guvnor', function () {
     })
   })
 
-  it('should write to a processes stdin', function (done) {
+  it('should write to stdin for a process', function (done) {
     var message = 'hello world'
 
     guvnor.on('stdin:received', function (processInfo, answer) {
