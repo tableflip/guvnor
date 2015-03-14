@@ -2,6 +2,23 @@
 
 Revision history for guvnor
 
+## [3.2.2](releases/tag/v3.2.2)
+
+ * Handles started process status in guv-web
+ * Adds sample Dockerfile
+
+## [3.2.1](releases/tag/v3.2.1)
+
+ * Fixes bug where guv-web would not start up properly
+
+## [3.2.0](releases/tag/v3.2.0)
+
+ * Adds --demonise argument to control whether or not the process that starts guv will exit to allow running inside containers like Docker
+
+## [3.1.0](releases/tag/v3.1.0)
+
+ * Refactors local programatic interface to add RPC methods to managed process objects
+
 ## [3.0.3](releases/tag/v3.0.3)
 
  * Reinstate missing dependency

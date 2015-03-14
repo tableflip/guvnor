@@ -120,10 +120,36 @@ $ sudo rm /etc/init.d/guvnor
 
 ## Docker
 
+See the sample [Dockerfile](docker/Dockerfile) for how to run guvnor with Docker.
+
+In the Dockerfile there are two variables - `GUVNOR_ROOT_SECRET` and `GUVNOR_USER_SECRET` - you should change these to a long random string unique to your install before building the container.
+
+Once you'd done that, build the container and run it with the commands below.  The `-p` option forwards a port used by guv-web to connect to the instance of guvnor in the container, so forward the port as appropriate to your setup.
+
 ```
 $ sudo docker build -t guvnor .
-$ sudo docker run -p 57484:57484 guvnor -d
+$ sudo docker run -p 57484:57483 -d guvnor
 ```
+
+To connect guv-web to your docker container, add something like the below to your `guvnor-web-hosts` file:
+
+```
+[docker]
+  host = localhost
+  port = 57484
+  user = root
+  secret = GUVNOR_ROOT_SECRET
+```
+
+...and to your `guvnor-web-users` file:
+
+```
+[alex.docker]
+  user = guvnor
+  secret = GUVNOR_USER_SECRET
+```
+
+Replace `GUVNOR_ROOT_SECRET` and `GUVNOR_USER_SECRET` with whatever you defined in the Dockerfile.
 
 ## apt-get
 
