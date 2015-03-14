@@ -1,6 +1,7 @@
 var expect = require('chai').expect,
   sinon = require('sinon'),
-  Process = require('../../../lib/common/ManagedProcess')
+  Process = require('../../../lib/common/ManagedProcess'),
+  EventEmitter = require('events').EventEmitter
 
 describe('ManagedProcess', function () {
   var proc, socket
@@ -59,6 +60,49 @@ describe('ManagedProcess', function () {
     })
   })
 
+  it('should not connect when already connected', function (done) {
+    proc._dnode = sinon.stub()
+
+    proc._connected = true
+
+    proc.connect(function (error) {
+      expect(error).to.not.exist
+
+      expect(proc._dnode.called).to.be.false
+
+      done()
+    })
+  })
+
+  it('should error if no socket is specified', function (done) {
+    proc._connected = false
+    proc.socket = null
+
+    proc.connect(function (error) {
+      expect(error).to.be.ok
+      expect(error.message).to.contain('socket')
+
+      done()
+    })
+  })
+
+  it('should not connect when already connecting', function (done) {
+    proc._dnode = sinon.stub()
+
+    proc._connected = false
+    proc._connecting = true
+
+    proc.connect(function (error) {
+      expect(error).to.not.exist
+
+      expect(proc._dnode.called).to.be.false
+
+      done()
+    })
+
+    proc.emit('_connected')
+  })
+
   it('should defer dnode connection until method is invoked', function (done) {
     var dnode = {
       on: sinon.stub(),
@@ -87,6 +131,13 @@ describe('ManagedProcess', function () {
     readyCallback({
       kill: sinon.stub().callsArg(0)
     })
+  })
+
+  it('should throw an exception via stub callback if none is passed and rpc method errors', function () {
+    proc._connected = true
+    proc._rpc.kill = sinon.stub().callsArgWith(0, new Error('Urk!'))
+
+    expect(proc.kill).to.throw(Error)
   })
 
   it('should pass dnode errors to a callback', function (done) {
@@ -124,6 +175,20 @@ describe('ManagedProcess', function () {
     proc.disconnect()
 
     expect(remote.end.calledOnce).to.be.true
+  })
+
+  it('should not disconnect if already disconnected', function (done) {
+    proc.disconnect(done)
+  })
+
+  it('should register callback to be called when remote has disconnected', function (done) {
+    var remote = new EventEmitter()
+    remote.end = sinon.stub()
+    proc._remote = remote
+
+    proc.disconnect(done)
+
+    remote.emit('end')
   })
 
   it('should add a worker', function () {
@@ -181,6 +246,8 @@ describe('ManagedProcess', function () {
     expect(proc.name).to.equal(info.name)
     expect(proc.setClusterWorkers).not.to.exist
     expect(proc.workers).not.to.exist
+    expect(proc.addWorker).not.to.be.a('function')
+    expect(proc.removeWorker).not.to.be.a('function')
   })
 
   it('should keep cluster properties for cluster manager', function () {
