@@ -21,7 +21,10 @@ describe('Guvnor', function () {
       listProcesses: sinon.stub(),
       findByPid: sinon.stub(),
       findById: sinon.stub(),
-      on: sinon.stub()
+      findByName: sinon.stub(),
+      on: sinon.stub(),
+      killAll: sinon.stub(),
+      removeProcess: sinon.stub()
     }
     guvnor._cpuStats = sinon.stub()
     guvnor._config = {
@@ -36,7 +39,9 @@ describe('Guvnor', function () {
       cpus: sinon.stub(),
       hostname: sinon.stub()
     }
-    guvnor._nodeInspectorWrapper = {}
+    guvnor._nodeInspectorWrapper = {
+      stopNodeInspector: sinon.stub()
+    }
     guvnor._fs = {
       writeFile: sinon.stub(),
       readFile: sinon.stub()
@@ -69,7 +74,8 @@ describe('Guvnor', function () {
       list: sinon.stub(),
       switchRef: sinon.stub(),
       listRefs: sinon.stub(),
-      findByName: sinon.stub()
+      findByName: sinon.stub(),
+      updateRefs: sinon.stub()
     }
     guvnor._etc_passwd = {
       getGroups: sinon.stub()
@@ -165,7 +171,7 @@ describe('Guvnor', function () {
     guvnor._os.totalmem.returns(5)
     guvnor._os.cpus.returns([{}, {}])
     guvnor._etc_passwd.getGroups.callsArgWith(0, undefined, [{ groupname: 'foo' }, { groupname: '_bar' }])
-    guvnor._posix.getgrnam.withArgs('foo').returns({ members: ['baz'] })
+    guvnor._posix.getgrnam.withArgs('foo').returns({ members: ['baz', '_quux'] })
     guvnor._posix.getgrnam.withArgs('_bar').returns({ members: ['qux'] })
 
     guvnor.getServerStatus({}, function (error, status) {
@@ -183,6 +189,7 @@ describe('Guvnor', function () {
       expect(status.users).to.be.an('array')
       expect(status.users).to.contain('baz')
       expect(status.users).to.not.contain('qux')
+      expect(status.users).to.not.contain('_quux')
 
       expect(status.cpus[0].load).to.equal(6)
       expect(status.cpus[1].load).to.equal(7)
@@ -234,6 +241,17 @@ describe('Guvnor', function () {
     guvnor._processService.findByPid.withArgs('foo').returns('bar')
 
     guvnor.findProcessInfoByPid({}, 'foo', function (error, process) {
+      expect(error).to.not.exist
+      expect(process).to.equal('bar')
+
+      done()
+    })
+  })
+
+  it('should find a process by name', function (done) {
+    guvnor._processService.findByName.withArgs('foo').returns('bar')
+
+    guvnor.findProcessInfoByName({}, 'foo', function (error, process) {
       expect(error).to.not.exist
       expect(process).to.equal('bar')
 
@@ -403,6 +421,63 @@ describe('Guvnor', function () {
     expect(guvnor._appService.switchRef.calledWith(name, ref, onOut, onErr)).to.be.true
   })
 
+  it('should emit an event when switching application refs', function (done) {
+    var name = 'name'
+    var ref = 'ref'
+    var onOut = 'onOut'
+    var onErr = 'onErr'
+    var callback = sinon.stub()
+    var appInfo = 'info'
+    var previousRef = 'previousRef'
+    var newRef = 'newRef'
+
+    guvnor._appService.switchRef.withArgs(name, ref, onOut, onErr).callsArgWith(4, undefined, appInfo, previousRef, newRef)
+
+    guvnor.once('app:refs:switched', function(error, app, prev, current) {
+      expect(error).to.not.exist
+      expect(appInfo).to.equal(app)
+      expect(previousRef).to.equal(prev)
+      expect(newRef).to.equal(current)
+      expect(callback.calledWith(undefined, app, prev, current)).to.be.true
+
+      done()
+    })
+    guvnor.switchApplicationRef({}, name, ref, onOut, onErr, callback)
+  })
+
+  it('should delegate to app service for updating application refs', function () {
+    var name = 'name'
+    var ref = 'ref'
+    var onOut = 'onOut'
+    var onErr = 'onErr'
+    var callback = 'callback'
+
+    guvnor.updateApplicationRefs({}, name, onOut, onErr, callback)
+
+    expect(guvnor._appService.updateRefs.calledWith(name, onOut, onErr)).to.be.true
+  })
+
+  it('should emit an event when updating application refs', function (done) {
+    var name = 'name'
+    var onOut = 'onOut'
+    var onErr = 'onErr'
+    var callback = sinon.stub()
+    var appInfo = 'info'
+    var refs = 'refs'
+
+    guvnor._appService.updateRefs.withArgs(name, onOut, onErr).callsArgWith(3, undefined, appInfo, refs)
+
+    guvnor.once('app:refs:updated', function(error, app, r) {
+      expect(error).to.not.exist
+      expect(appInfo).to.equal(app)
+      expect(refs).to.equal(r)
+      expect(callback.calledWith(undefined, app, r)).to.be.true
+
+      done()
+    })
+    guvnor.updateApplicationRefs({}, name, onOut, onErr, callback)
+  })
+
   it('should delegate to app service for listing application refs', function () {
     var name = 'name'
     var callback = 'callback'
@@ -426,14 +501,175 @@ describe('Guvnor', function () {
     })
     guvnor._fs.writeFile.withArgs('conf/rpc.key', 'key').callsArg(3)
     guvnor._fs.writeFile.withArgs('conf/rpc.cert', 'cert').callsArg(3)
-    guvnor._fs.readFile.withArgs('conf/guvnorrc', 'utf-8').callsArgWith(2, undefined, 'ini')
+    guvnor._fs.readFile.withArgs('conf/guvnor', 'utf-8').callsArgWith(2, undefined, 'ini')
     guvnor._ini.parse.withArgs('ini').returns(config)
     guvnor._ini.stringify.withArgs(config).returns('ini-updated')
-    guvnor._fs.writeFile.withArgs('conf/guvnorrc', 'ini-updated').callsArg(3)
+    guvnor._fs.writeFile.withArgs('conf/guvnor', 'ini-updated').callsArg(3)
 
     guvnor.generateRemoteRpcCertificates({}, 10, function (error, path) {
       expect(error).to.not.exist
-      expect(path).to.equal('conf/guvnorrc')
+      expect(path).to.equal('conf/guvnor')
+
+      done()
+    })
+  })
+
+  it('should not write files if generating ssl keys fails', function (done) {
+    guvnor._pem.createCertificate.callsArgWith(1, new Error('urk!'))
+
+    guvnor.generateRemoteRpcCertificates({}, 10, function (error) {
+      expect(error).to.be.ok
+      expect(guvnor._fs.writeFile.called).to.be.false
+
+      done()
+    })
+  })
+
+  it('should not read config if writing key/cert files fails', function (done) {
+    guvnor._config.guvnor.confdir = 'conf'
+    guvnor._pem.createCertificate.callsArgWith(1, undefined, {
+      serviceKey: 'key',
+      certificate: 'cert'
+    })
+    guvnor._fs.writeFile.withArgs('conf/rpc.key', 'key').callsArg(3)
+    guvnor._fs.writeFile.withArgs('conf/rpc.cert', 'cert').callsArgWith(3, new Error('urk!'))
+
+    guvnor.generateRemoteRpcCertificates({}, 10, function (error) {
+      expect(error).to.be.ok
+      expect(guvnor._fs.readFile.called).to.be.false
+
+      done()
+    })
+  })
+
+  it('should not write config if reading config fails', function (done) {
+    guvnor._config.guvnor.confdir = 'conf'
+    guvnor._pem.createCertificate.callsArgWith(1, undefined, {
+      serviceKey: 'key',
+      certificate: 'cert'
+    })
+    guvnor._fs.writeFile.withArgs('conf/rpc.key', 'key').callsArg(3)
+    guvnor._fs.writeFile.withArgs('conf/rpc.cert', 'cert').callsArg(3)
+    guvnor._fs.readFile.withArgs('conf/guvnor', 'utf-8').callsArgWith(2, new Error('urk!'), 'ini')
+
+    guvnor.generateRemoteRpcCertificates({}, 10, function (error) {
+      expect(error).to.be.ok
+      expect(guvnor._fs.writeFile.calledWith('conf/guvnor')).to.be.false
+
+      done()
+    })
+  })
+
+  it('should kill the daemon', function (done) {
+    guvnor._config.guvnor.autoresume = false
+    guvnor._kill = sinon.stub().callsArg(0)
+
+    guvnor.kill({}, function() {
+      expect(guvnor._nodeInspectorWrapper.stopNodeInspector.called).to.be.true
+      expect(guvnor._processService.killAll.called).to.be.true
+
+      done()
+    })
+  })
+
+  it('should dump processes and then kill the daemon', function (done) {
+    guvnor._config.guvnor.autoresume = true
+    guvnor._processInfoStore.save.callsArg(0)
+    guvnor._kill = sinon.stub().callsArg(0)
+
+    guvnor.kill({}, function() {
+      expect(guvnor._nodeInspectorWrapper.stopNodeInspector.called).to.be.true
+      expect(guvnor._processService.killAll.called).to.be.true
+
+      done()
+    })
+  })
+
+  it('should delegate to process service for removing processes', function (done) {
+    var id = 'foo'
+    guvnor._processService.removeProcess.callsArg(1)
+
+    guvnor.removeProcess({}, id, function() {
+      expect(guvnor._processService.removeProcess.calledWith(id)).to.be.true
+
+      done()
+    })
+  })
+
+  it('should override script, app and name with app details', function (done) {
+    var script = 'foo'
+    var appInfo = {
+      path: 'bar',
+      id: 'baz',
+      name: 'qux'
+    }
+
+    guvnor._appService.findByName.withArgs(script).returns(appInfo)
+
+    guvnor._processService.startProcess.callsArg(2)
+
+    guvnor.startProcess({}, script, {}, function() {
+      expect(guvnor._processService.startProcess.getCall(0).args[1].script).to.equal(appInfo.path)
+      expect(guvnor._processService.startProcess.getCall(0).args[1].app).to.equal(appInfo.id)
+      expect(guvnor._processService.startProcess.getCall(0).args[1].name).to.equal(appInfo.name)
+
+      done()
+    })
+  })
+
+  it('should start process as different user', function (done) {
+    var script = 'foo'
+    var options = 'opts'
+
+    guvnor._processService.startProcess.callsArg(2)
+
+    guvnor.startProcessAsUser({}, script, options, function() {
+      expect(guvnor._processService.startProcess.getCall(0).args[0]).to.equal(script)
+      expect(guvnor._processService.startProcess.getCall(0).args[1]).to.equal(options)
+
+      done()
+    })
+  })
+
+  it('should autoresume processes', function (done) {
+    var processes = ['foo']
+    guvnor._config.guvnor.autoresume = true
+
+    guvnor._processInfoStore.all.returns(processes)
+    guvnor._processService.startProcess.callsArg(1)
+
+    guvnor.afterPropertiesSet(function() {
+      expect(guvnor._processService.startProcess.getCall(0).args[0]).to.equal(processes[0])
+
+      done()
+    })
+  })
+
+  it('should survive autoresumed processes failing to resume', function (done) {
+    var processes = ['foo', 'bar']
+    guvnor._config.guvnor.autoresume = true
+
+    guvnor._processInfoStore.all.returns(processes)
+    guvnor._processService.startProcess.withArgs('foo').callsArgWith(1, new Error('urk'))
+    guvnor._processService.startProcess.withArgs('bar').callsArg(1)
+
+    guvnor.afterPropertiesSet(function() {
+      expect(guvnor._processService.startProcess.getCall(0).args[0]).to.equal(processes[0])
+      expect(guvnor._processService.startProcess.getCall(1).args[0]).to.equal(processes[1])
+
+      done()
+    })
+  })
+
+  it('should not autoresume processes', function (done) {
+    var processes = ['foo']
+    guvnor._config.guvnor.autoresume = false
+
+    guvnor._processInfoStore.all.returns(processes)
+    guvnor._processService.startProcess.callsArg(1)
+
+    guvnor.afterPropertiesSet(function() {
+      expect(guvnor._processService.startProcess.called).to.be.false
 
       done()
     })

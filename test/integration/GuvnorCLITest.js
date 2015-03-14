@@ -618,7 +618,7 @@ describe('Guvnor CLI', function () {
       var contents
 
       try {
-        contents = fs.readFileSync(config.guvnor.confdir + '/guvnorrc', 'utf8')
+        contents = fs.readFileSync(config.guvnor.confdir + '/guvnor', 'utf8')
       } catch (e) {
         return done(e)
       }

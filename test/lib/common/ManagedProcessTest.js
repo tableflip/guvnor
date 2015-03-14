@@ -120,4 +120,76 @@ describe('ManagedProcess', function () {
 
     expect(remote.end.calledOnce).to.be.true
   })
+
+  it('should add a worker', function () {
+    var worker = {
+      id: 'foo'
+    }
+
+    proc.workers.push({
+      id: 'bar'
+    })
+
+    proc.addWorker(worker)
+
+    expect(proc.workers).to.contain(worker)
+  })
+
+  it('should not add a worker twice', function () {
+    var worker = {
+      id: 'foo'
+    }
+
+    proc.workers.push({
+      id: 'bar'
+    })
+
+    proc.addWorker(worker)
+    proc.addWorker(worker)
+
+    expect(proc.workers.length).to.equal(2)
+    expect(proc.workers).to.contain(worker)
+  })
+
+  it('should remove a worker', function () {
+    var worker = {
+      id: 'foo'
+    }
+
+    proc.workers.push(worker)
+    proc.workers.push({
+      id: 'bar'
+    })
+
+    proc.removeWorker(worker)
+
+    expect(proc.workers).to.not.contain(worker)
+  })
+
+  it('should update process info', function () {
+    var info = {
+      name: 'foo'
+    }
+
+    proc.update(info)
+
+    expect(proc.name).to.equal(info.name)
+    expect(proc.setClusterWorkers).not.to.exist
+    expect(proc.workers).not.to.exist
+  })
+
+  it('should keep cluster properties for cluster manager', function () {
+    var info = {
+      name: 'foo',
+      cluster: true
+    }
+
+    proc.update(info)
+
+    expect(proc.name).to.equal(info.name)
+    expect(proc.setClusterWorkers).to.be.a('function')
+    expect(proc.workers).to.be.an('array')
+    expect(proc.addWorker).to.be.a('function')
+    expect(proc.removeWorker).to.be.a('function')
+  })
 })
