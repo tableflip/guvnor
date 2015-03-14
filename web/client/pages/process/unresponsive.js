@@ -10,15 +10,15 @@ module.exports = ProcessPage.extend({
       type: 'booleanClass',
       no: 'fa-refresh',
       selector: '[data-hook=restartbutton] i'
-      }, {
+    }, {
       type: 'booleanClass',
       name: 'fa-circle-o-notch',
       selector: '[data-hook=restartbutton] i'
-      }, {
+    }, {
       type: 'booleanClass',
       name: 'fa-spin',
       selector: '[data-hook=restartbutton] i'
-      }, {
+    }, {
       type: 'booleanAttribute',
       name: 'disabled',
       selector: '[data-hook=restartbutton]'
@@ -27,15 +27,15 @@ module.exports = ProcessPage.extend({
       type: 'booleanClass',
       no: 'fa-stop',
       selector: '[data-hook=stopbutton] i'
-      }, {
+    }, {
       type: 'booleanClass',
       name: 'fa-circle-o-notch',
       selector: '[data-hook=stopbutton] i'
-      }, {
+    }, {
       type: 'booleanClass',
       name: 'fa-spin',
       selector: '[data-hook=stopbutton] i'
-      }, {
+    }, {
       type: 'booleanAttribute',
       name: 'disabled',
       selector: '[data-hook=stopbutton]'
@@ -51,9 +51,9 @@ module.exports = ProcessPage.extend({
 
     window.open('http://' +
       this.model.collection.parent.host +
-    ':' +
+      ':' +
       this.model.collection.parent.debuggerPort +
-    '/debug?port=' +
+      '/debug?port=' +
       this.model.debugPort
     )
   },
@@ -66,22 +66,22 @@ module.exports = ProcessPage.extend({
       host: this.model.collection.parent.name,
       process: this.model.id
     }, function (error) {
-        this.model.isRestarting = false
+      this.model.isRestarting = false
 
-        if (error) {
-          notify({
-            header: 'Restart error',
-            message: ['%s on %s failed to restart - %s', this.model.name, this.model.collection.parent.name, error.message],
-            type: 'danger'
-          })
-        } else {
-          notify({
-            header: 'Restart complete',
-            message: ['%s on %s restarted', this.model.name, this.model.collection.parent.name],
-            type: 'success'
-          })
-        }
-      }.bind(this))
+      if (error) {
+        notify({
+          header: 'Restart error',
+          message: ['%s on %s failed to restart - %s', this.model.name, this.model.collection.parent.name, error.message],
+          type: 'danger'
+        })
+      } else {
+        notify({
+          header: 'Restart complete',
+          message: ['%s on %s restarted', this.model.name, this.model.collection.parent.name],
+          type: 'success'
+        })
+      }
+    }.bind(this))
   },
   stopProcess: function (event) {
     event.target.blur()
@@ -92,21 +92,21 @@ module.exports = ProcessPage.extend({
       host: this.model.collection.parent.name,
       process: this.model.id
     }, function (error) {
-        this.model.isStopping = false
+      this.model.isStopping = false
 
-        if (error) {
-          notify({
-            header: 'Stop error',
-            message: ['%s on %s has failed to stop - %s', this.model.name, this.model.collection.parent.name, error.message || error.code],
-            type: 'danger'
-          })
-        } else {
-          notify({
-            header: 'Process stopped',
-            message: ['%s on %s stopped', this.model.name, this.model.collection.parent.name],
-            type: 'success'
-          })
-        }
-      }.bind(this))
+      if (error) {
+        notify({
+          header: 'Stop error',
+          message: ['%s on %s has failed to stop - %s', this.model.name, this.model.collection.parent.name, error.message || error.code],
+          type: 'danger'
+        })
+      } else {
+        notify({
+          header: 'Process stopped',
+          message: ['%s on %s stopped', this.model.name, this.model.collection.parent.name],
+          type: 'success'
+        })
+      }
+    }.bind(this))
   }
 })

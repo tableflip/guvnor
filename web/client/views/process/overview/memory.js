@@ -121,13 +121,13 @@ module.exports = View.extend({
       series: [{
         name: 'Heap used',
         data: this.model.heapUsed
-        }, {
+      }, {
         name: 'Heap size',
         data: this.model.heapTotal
-        }, {
+      }, {
         name: 'Resident set size',
         data: this.model.residentSize
-        }
+      }
       ]
     })
 

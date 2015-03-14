@@ -15,10 +15,10 @@ module.exports = ProcessPage.extend({
       container: '[data-hook=logs]',
       prepareView: function (el) {
         return new CollectionView({
-            el: el,
-            collection: this.model.logs,
-            view: LogListView
-          })
+          el: el,
+          collection: this.model.logs,
+          view: LogListView
+        })
       }
     }
   },
@@ -61,7 +61,7 @@ module.exports = ProcessPage.extend({
       type: 'booleanClass',
       name: 'showTimes',
       selector: 'ul.logs'
-      }, {
+    }, {
       type: 'booleanClass',
       name: 'active',
       selector: '.logs-time'

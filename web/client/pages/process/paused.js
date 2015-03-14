@@ -11,9 +11,9 @@ module.exports = ProcessPage.extend({
 
     window.open('http://' +
       this.model.collection.parent.host +
-    ':' +
+      ':' +
       this.model.collection.parent.debuggerPort +
-    '/debug?port=' +
+      '/debug?port=' +
       this.model.debugPort
     )
   }

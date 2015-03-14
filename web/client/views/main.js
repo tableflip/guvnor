@@ -25,10 +25,10 @@ module.exports = View.extend({
       container: '[data-hook=host-list]',
       prepareView: function (el) {
         return new CollectionView({
-            el: el,
-            collection: window.app.hosts,
-            view: HostListView
-          })
+          el: el,
+          collection: window.app.hosts,
+          view: HostListView
+        })
       }
     },
     modal: {

@@ -24,6 +24,8 @@ module.exports = View.extend({
   setMessage: function (message) {
     this.model.message = message
   },
-  onYes: function () {},
-  onNo: function () {}
+  onYes: function () {
+  },
+  onNo: function () {
+  }
 })

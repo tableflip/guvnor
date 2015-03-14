@@ -13,15 +13,17 @@ module.exports = View.extend({
       container: 'form',
       prepareView: function (el) {
         return new InstallForm({
-            model: new App(),
-            el: el,
-            submitCallback: function (data) {
-              this.onSubmit(data)
-            }.bind(this)
-          })
+          model: new App(),
+          el: el,
+          submitCallback: function (data) {
+            this.onSubmit(data)
+          }.bind(this)
+        })
       }
     }
   },
-  onCancel: function () {},
-  onSubmit: function (data) {}
+  onCancel: function () {
+  },
+  onSubmit: function (data) {
+  }
 })

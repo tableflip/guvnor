@@ -46,7 +46,7 @@ module.exports = {
       })
 
       // we have what we need, we can now start our router and show the appropriate page
-      window.app.router.history.start({ pushState: true, root: '/' })
+      window.app.router.history.start({pushState: true, root: '/'})
     })
   },
 
@@ -57,7 +57,7 @@ module.exports = {
   // for example: "costello/settings".
   navigate: function (page) {
     var url = (page.charAt(0) === '/') ? page.slice(1) : page
-    this.router.history.navigate(url, { trigger: true })
+    this.router.history.navigate(url, {trigger: true})
   }
 }
 

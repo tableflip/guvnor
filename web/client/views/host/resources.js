@@ -18,13 +18,13 @@ module.exports = View.extend({
     var cpuSeries = [{
       name: 'user',
       data: []
-      }, {
+    }, {
       name: 'sys',
       data: []
-      }, {
+    }, {
       name: 'nice',
       data: []
-      }, {
+    }, {
       name: 'irq',
       data: []
     }]
@@ -157,12 +157,12 @@ module.exports = View.extend({
           to: 60,
           color: '#55BF3B', // green
           zIndex: 5
-          }, {
+        }, {
           from: 60,
           to: 80,
           color: '#DDDF0D', // yellow
           zIndex: 5
-          }, {
+        }, {
           from: 80,
           to: 100,
           color: '#DF5353', // red
@@ -205,13 +205,13 @@ module.exports = View.extend({
         var data = [{
           name: 'user',
           data: []
-          }, {
+        }, {
           name: 'sys',
           data: []
-          }, {
+        }, {
           name: 'nice',
           data: []
-          }, {
+        }, {
           name: 'irq',
           data: []
         }]

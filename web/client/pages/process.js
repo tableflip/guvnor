@@ -29,7 +29,8 @@ module.exports = PageView.extend({
       }
     },
     'model.collection.parent.status': {
-      type: function (el, value) {}
+      type: function (el, value) {
+      }
     }
   }
 })

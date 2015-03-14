@@ -11,15 +11,15 @@ module.exports = View.extend({
       type: 'booleanClass',
       no: 'fa-play',
       selector: '[data-hook=startbutton] i'
-      }, {
+    }, {
       type: 'booleanClass',
       name: 'fa-circle-o-notch',
       selector: '[data-hook=startbutton] i'
-      }, {
+    }, {
       type: 'booleanClass',
       name: 'fa-spin',
       selector: '[data-hook=startbutton] i'
-      }, {
+    }, {
       type: 'booleanAttribute',
       name: 'disabled',
       selector: '[data-hook=startbutton]'
@@ -28,15 +28,15 @@ module.exports = View.extend({
       type: 'booleanClass',
       no: 'fa-remove',
       selector: '[data-hook=removebutton] i'
-      }, {
+    }, {
       type: 'booleanClass',
       name: 'fa-circle-o-notch',
       selector: '[data-hook=removebutton] i'
-      }, {
+    }, {
       type: 'booleanClass',
       name: 'fa-spin',
       selector: '[data-hook=removebutton] i'
-      }, {
+    }, {
       type: 'booleanAttribute',
       name: 'disabled',
       selector: '[data-hook=removebutton]'
@@ -64,21 +64,21 @@ module.exports = View.extend({
         name: this.model.name,
         options: data
       }, function (error, processInfo) {
-          this.model.isStarting = false
+        this.model.isStarting = false
 
-          if (error) {
-            notify({
-              header: 'Process start failed',
-              message: ['%s failed to start on %s - %s', this.model.name || this.model.url, this.model.collection.parent.name, error.message],
-              type: 'danger'
-            })
+        if (error) {
+          notify({
+            header: 'Process start failed',
+            message: ['%s failed to start on %s - %s', this.model.name || this.model.url, this.model.collection.parent.name, error.message],
+            type: 'danger'
+          })
 
-            return
-          }
+          return
+        }
 
-          this.model.collection.parent.processes.addOrUpdate(processInfo)
-          window.app.navigate('/host/' + this.model.collection.parent.name + '/process/' + processInfo.id)
-        }.bind(this))
+        this.model.collection.parent.processes.addOrUpdate(processInfo)
+        window.app.navigate('/host/' + this.model.collection.parent.name + '/process/' + processInfo.id)
+      }.bind(this))
     }.bind(this)
 
     window.app.modal.reset()
@@ -105,7 +105,8 @@ module.exports = View.extend({
       window.app.socket.emit('process:remove', {
         host: this.model.collection.parent.name,
         process: this.model.id
-      }, function () {})
+      }, function () {
+      })
     }.bind(this))
     window.app.modal.show()
   }

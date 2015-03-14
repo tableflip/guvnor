@@ -20,10 +20,10 @@ module.exports = View.extend({
       container: '[data-hook=install-log]',
       prepareView: function (el) {
         return new CollectionView({
-            el: el,
-            collection: this.model.logs,
-            view: LineView
-          })
+          el: el,
+          collection: this.model.logs,
+          view: LineView
+        })
       }
     }
   }

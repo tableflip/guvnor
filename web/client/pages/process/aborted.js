@@ -9,9 +9,9 @@ module.exports = ProcessPage.extend({
       container: '[data-hook=startOrRemove]',
       prepareView: function (el) {
         return new StartOrRemoveView({
-            model: this.model,
-            el: el
-          })
+          model: this.model,
+          el: el
+        })
       }
     }
   }

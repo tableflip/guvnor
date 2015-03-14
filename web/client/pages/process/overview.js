@@ -15,36 +15,36 @@ module.exports = ProcessPage.extend({
       container: '[data-hook=details]',
       prepareView: function (el) {
         return new DetailsView({
-            model: this.model,
-            el: el
-          })
+          model: this.model,
+          el: el
+        })
       }
     },
     memory: {
       container: '[data-hook=memory]',
       prepareView: function (el) {
         return new MemoryGraphView({
-            model: this.model,
-            el: el
-          })
+          model: this.model,
+          el: el
+        })
       }
     },
     cpu: {
       container: '[data-hook=cpu]',
       prepareView: function (el) {
         return new CpuGraphView({
-            model: this.model,
-            el: el
-          })
+          model: this.model,
+          el: el
+        })
       }
     },
     latency: {
       container: '[data-hook=latency]',
       prepareView: function (el) {
         return new LatencyGraphView({
-            model: this.model,
-            el: el
-          })
+          model: this.model,
+          el: el
+        })
       }
     }
   }

@@ -13,19 +13,21 @@ module.exports = View.extend({
       container: '[data-hook=start-form]',
       prepareView: function (el) {
         return new StartForm({
-            model: this.model,
-            el: el,
-            submitCallback: function (data) {
-              data.execArgv = splitargs(data.execArgv)
-              data.argv = splitargs(data.argv)
-              data.instances = parseInt(data.instances, 10)
+          model: this.model,
+          el: el,
+          submitCallback: function (data) {
+            data.execArgv = splitargs(data.execArgv)
+            data.argv = splitargs(data.argv)
+            data.instances = parseInt(data.instances, 10)
 
-              this.onSubmit(data)
-            }.bind(this)
-          })
+            this.onSubmit(data)
+          }.bind(this)
+        })
       }
     }
   },
-  onCancel: function () {},
-  onSubmit: function (data) {}
+  onCancel: function () {
+  },
+  onSubmit: function (data) {
+  }
 })

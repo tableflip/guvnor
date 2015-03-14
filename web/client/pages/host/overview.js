@@ -10,18 +10,18 @@ module.exports = HostPage.extend({
       container: '[data-hook=system]',
       prepareView: function (el) {
         return new SystemDataView({
-            model: this.model,
-            el: el
-          })
+          model: this.model,
+          el: el
+        })
       }
     },
     resources: {
       container: '[data-hook=resources]',
       prepareView: function (el) {
         return new ResourceDataView({
-            model: this.model,
-            el: el
-          })
+          model: this.model,
+          el: el
+        })
       }
     }
   }
