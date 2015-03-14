@@ -1,6 +1,6 @@
 var ProcessPage = require('../process')
 var templates = require('../../templates')
-var CollectionRenderer = require('ampersand-collection-view')
+var CollectionView = require('ampersand-collection-view')
 var LogListView = require('../../views/process/loglist/entry')
 
 module.exports = ProcessPage.extend({
@@ -14,7 +14,7 @@ module.exports = ProcessPage.extend({
     logs: {
       container: '[data-hook=logs]',
       prepareView: function (el) {
-        return new CollectionRenderer({
+        return new CollectionView({
             el: el,
             collection: this.model.logs,
             view: LogListView

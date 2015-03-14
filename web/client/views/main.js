@@ -1,7 +1,7 @@
 // This view also handles all the 'document' level events such as keyboard shortcuts.
 var View = require('ampersand-view')
 var ViewSwitcher = require('ampersand-view-switcher')
-var CollectionRenderer = require('ampersand-collection-view')
+var CollectionView = require('ampersand-collection-view')
 var _ = require('underscore')
 var domify = require('domify')
 var dom = require('ampersand-dom')
@@ -24,7 +24,7 @@ module.exports = View.extend({
     hosts: {
       container: '[data-hook=host-list]',
       prepareView: function (el) {
-        return new CollectionRenderer({
+        return new CollectionView({
             el: el,
             collection: window.app.hosts,
             view: HostListView

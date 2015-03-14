@@ -10,20 +10,6 @@ module.exports = PageView.extend({
     })
   },
   bindings: {
-    'model.name': '[data-hook=host-name]',
-    'model.status': {
-      type: function (el, value) {
-        // if the status of a process changes while we are watching it, redirect the
-        // user to a page with an appropriate message
-        if (window.location.href.substring(window.location.href.length - value.length) === value) {
-          return
-        }
-
-        // dirty looking setTimeout because the first time this code gets run, we
-        // are inside the router.trigger callback for the default page and probably
-        // haven't finished displaying it yet..
-        setTimeout(window.app.navigate.bind(window.app, '/host/' + this.model.name + '/' + value), 1)
-      }
-    }
+    'model.name': '[data-hook=host-name]'
   }
 })

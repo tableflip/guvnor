@@ -1,7 +1,8 @@
 var HostPage = require('../host')
 var templates = require('../../templates')
-var CollectionRenderer = require('ampersand-collection-view')
+var CollectionView = require('ampersand-collection-view')
 var AppView = require('../../views/apps/app')
+var NoAppsView = require('../../views/apps/empty')
 var Installation = require('../../models/installation')
 var InstallView = require('../../views/apps/install')
 var InstallingView = require('../../views/apps/installing')
@@ -9,34 +10,17 @@ var notify = require('../../helpers/notification')
 
 module.exports = HostPage.extend({
   template: templates.pages.host.apps,
-  initialize: function () {
-    HostPage.prototype.initialize.call(this)
-
-    this.listenTo(this.model.apps, 'add remove', function () {
-      if (this.model.apps.length <= 1) {
-        // if length == 1 then the list used to be empty so call render to remove
-        // the 'nothing to show' message and show the list instead
-        this.render()
-      }
-    })
-  },
   subviews: {
     apps: {
       container: '[data-hook=apps]',
       prepareView: function (el) {
-        return new CollectionRenderer({
-            el: el,
-            collection: this.model.apps,
-            view: AppView
-          })
+        return new CollectionView({
+          el: el,
+          collection: this.model.apps,
+          view: AppView,
+          emptyView: NoAppsView
+        })
       }
-    }
-  },
-  bindings: {
-    'model.apps.length': {
-      type: 'toggle',
-      no: '[data-hook=no-apps]',
-      yes: '[data-hook=apps-list]'
     }
   },
   events: {
@@ -84,24 +68,24 @@ module.exports = HostPage.extend({
         name: data.name,
         url: data.url
       }, function (error) {
-          window.app.socket.removeAllListeners('ws:appinstall:info')
-          window.app.socket.removeAllListeners('ws:appinstall:error')
-          window.app.modal.dismiss()
+        window.app.socket.removeAllListeners('ws:appinstall:info')
+        window.app.socket.removeAllListeners('ws:appinstall:error')
+        window.app.modal.dismiss()
 
-          if (error) {
-            notify({
-              header: 'Install error',
-              message: ['%s on %s has failed to install - %s', installation.name || installation.url, host.name, error.message],
-              type: 'danger'
-            })
-          } else {
-            notify({
-              header: 'App installed',
-              message: ['%s was installed on %s', installation.name || installation.url, host.name],
-              type: 'success'
-            })
-          }
-        })
+        if (error) {
+          notify({
+            header: 'Install error',
+            message: ['%s on %s has failed to install - %s', installation.name || installation.url, host.name, error.message],
+            type: 'danger'
+          })
+        } else {
+          notify({
+            header: 'App installed',
+            message: ['%s was installed on %s', installation.name || installation.url, host.name],
+            type: 'success'
+          })
+        }
+      })
     }
 
     window.app.modal.reset()

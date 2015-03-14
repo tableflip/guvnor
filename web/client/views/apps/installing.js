@@ -1,6 +1,6 @@
 var View = require('ampersand-view')
 var templates = require('../../templates')
-var CollectionRenderer = require('ampersand-collection-view')
+var CollectionView = require('ampersand-collection-view')
 var LineView = require('./line')
 
 module.exports = View.extend({
@@ -19,7 +19,7 @@ module.exports = View.extend({
     lines: {
       container: '[data-hook=install-log]',
       prepareView: function (el) {
-        return new CollectionRenderer({
+        return new CollectionView({
             el: el,
             collection: this.model.logs,
             view: LineView
