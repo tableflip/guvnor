@@ -80,10 +80,39 @@ describe('FileSystem', function () {
     try {
       fileSystem.afterPropertiesSet()
     } catch (e) {
-      if (e.message != 'urk!')
+      if (e.message != 'urk!') {
         throw e
+      }
     }
 
     expect(fileSystem._fs.chownSync.callCount).to.equal(0)
+  })
+
+  it('should return run dir', function () {
+    var dir = 'foo'
+    fileSystem._config.guvnor.rundir = dir
+
+    expect(dir).to.equal(fileSystem.getRunDir())
+  })
+
+  it('should return log dir', function () {
+    var dir = 'foo'
+    fileSystem._config.guvnor.logdir = dir
+
+    expect(dir).to.equal(fileSystem.getLogDir())
+  })
+
+  it('should return conf dir', function () {
+    var dir = 'foo'
+    fileSystem._config.guvnor.confdir = dir
+
+    expect(dir).to.equal(fileSystem.getConfDir())
+  })
+
+  it('should return app dir', function () {
+    var dir = 'foo'
+    fileSystem._config.guvnor.appdir = dir
+
+    expect(dir).to.equal(fileSystem.getAppDir())
   })
 })
