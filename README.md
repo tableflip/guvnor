@@ -118,6 +118,13 @@ $ sudo update-rc.d guvnor remove
 $ sudo rm /etc/init.d/guvnor
 ```
 
+## Docker
+
+```
+$ sudo docker build -t guvnor .
+$ sudo docker run -p 57484:57484 guvnor -d
+```
+
 ## apt-get
 
 If you installed node via `apt-get install nodejs`, you should create a symlink to the `nodejs` binary:
