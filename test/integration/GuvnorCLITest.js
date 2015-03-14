@@ -39,7 +39,7 @@ var logger = {
   debug: console.log
 }
 
-function runCli () {
+function runCli() {
   process.env.GUVNOR_ALLOW_UKNOWN_OPTION = true
 
   process.argv = process.argv.slice(0, 2).concat(Array.prototype.slice.call(arguments)).concat([
@@ -58,19 +58,19 @@ function runCli () {
     '--debug.cluster=' + config.debug.cluster
   ])
 
-   var paths = [
-     path.resolve(__dirname + '/../../lib'),
-     path.resolve(__dirname + '/../../node_modules/commander/index.js')
-   ]
-   paths.forEach(function(path) {
-     for (var key in require.cache) {
-       if (key.indexOf(path) != -1) {
-         delete require.cache[key]
-       }
-     }
-   })
+  var paths = [
+    path.resolve(__dirname + '/../../lib'),
+    path.resolve(__dirname + '/../../node_modules/commander/index.js')
+  ]
+  paths.forEach(function (path) {
+    for (var key in require.cache) {
+      if (key.indexOf(path) != -1) {
+        delete require.cache[key]
+      }
+    }
+  })
 
-   require('../../lib/cli')()
+  require('../../lib/cli')()
 }
 
 var remote = require('../../lib/local').connectOrStart,
@@ -151,7 +151,7 @@ describe('Guvnor CLI', function () {
   })
 
   it('should print message when no processes are running', function (done) {
-    console.info = function(string) {
+    console.info = function (string) {
       expect(string).to.contain('No running processes')
 
       done()
@@ -163,7 +163,7 @@ describe('Guvnor CLI', function () {
   it('should list processes', function (done) {
     var seenHeader = false
 
-    console.info = function(string) {
+    console.info = function (string) {
       if (!seenHeader) {
         // first line is a header
         expect(string).to.contain('User')
@@ -238,7 +238,7 @@ describe('Guvnor CLI', function () {
     guvnor.once('process:exit', function (processInfo) {
       expect(processInfo.name).to.equal('hello-world.js')
 
-      guvnor.listProcesses(function(error, processes) {
+      guvnor.listProcesses(function (error, processes) {
         expect(error).to.not.exist
         expect(processes[0].status).to.equal('stopped')
 
@@ -247,7 +247,7 @@ describe('Guvnor CLI', function () {
     })
 
     guvnor.startProcess(__dirname + '/fixtures/hello-world.js', {}, function (error, processInfo) {
-      processInfo.once('process:ready', function() {
+      processInfo.once('process:ready', function () {
         runCli('stop', processInfo.name)
       })
     })
@@ -255,8 +255,8 @@ describe('Guvnor CLI', function () {
 
   it('should stop and remove a running process', function (done) {
     guvnor.once('process:exit', function () {
-      setTimeout(function() {
-        guvnor.listProcesses(function(error, processes) {
+      setTimeout(function () {
+        guvnor.listProcesses(function (error, processes) {
           expect(error).to.not.exist
           expect(processes).to.be.empty
 
@@ -266,7 +266,7 @@ describe('Guvnor CLI', function () {
     })
 
     guvnor.startProcess(__dirname + '/fixtures/hello-world.js', {}, function (error, processInfo) {
-      processInfo.once('process:ready', function() {
+      processInfo.once('process:ready', function () {
         runCli('remove', processInfo.name)
       })
     })
@@ -366,7 +366,7 @@ describe('Guvnor CLI', function () {
 
   it('should make a process dump heap', function (done) {
     guvnor.once('process:ready', function () {
-      console.info = function(string) {
+      console.info = function (string) {
         expect(string).to.contain('Written heap dump to')
 
         done()
@@ -417,7 +417,7 @@ describe('Guvnor CLI', function () {
   })
 
   it('should show logs', function (done) {
-    console.info = function() {
+    console.info = function () {
       var string = util.format.apply(util, arguments)
 
       expect(string).to.contain('hello world')
@@ -435,34 +435,34 @@ describe('Guvnor CLI', function () {
   it('should only show logs for one process', function (done) {
     async.series([
       function (callback) {
-        guvnor.once('process:ready', function() {
+        guvnor.once('process:ready', function () {
           callback()
         })
 
         runCli('start', __dirname + '/fixtures/hello-world.js')
       },
       function (callback) {
-        guvnor.once('process:ready', function() {
+        guvnor.once('process:ready', function () {
           callback()
         })
 
         runCli('start', __dirname + '/fixtures/jibberjabber.js')
       }
-    ], function(error) {
-      if(error) {
+    ], function (error) {
+      if (error) {
         throw error
       }
 
       var logsReceived = 0
 
-      console.info = function() {
+      console.info = function () {
         var string = util.format.apply(util, arguments)
 
         expect(string).to.contain('hello world')
 
         logsReceived++
 
-        if(logsReceived == 5) {
+        if (logsReceived == 5) {
           done()
         }
       }
@@ -472,7 +472,7 @@ describe('Guvnor CLI', function () {
   })
 
   it('should stop the daemon', function (done) {
-    console.info = function(string) {
+    console.info = function (string) {
       expect(string).to.contain('Daemon is not running')
 
       done()
@@ -536,7 +536,7 @@ describe('Guvnor CLI', function () {
   })
 
   it('should report daemon status', function (done) {
-    console.info = function(string) {
+    console.info = function (string) {
       expect(string).to.contain('Daemon is running')
 
       done()
@@ -549,12 +549,12 @@ describe('Guvnor CLI', function () {
     var output = ''
     var lines = 0
 
-    console.info = function() {
+    console.info = function () {
       output += util.format.apply(util, arguments) + '\n'
 
       lines++
 
-      if(lines === 9) {
+      if (lines === 9) {
         expect(output).to.contain('host =')
         expect(output).to.contain('port =')
         expect(output).to.contain('user =')
@@ -568,7 +568,7 @@ describe('Guvnor CLI', function () {
   })
 
   it('should list users for the web monitor', function (done) {
-    console.info = function() {
+    console.info = function () {
       var output = util.format.apply(util, arguments) + '\n'
 
       expect(output).to.contain(user.name)
@@ -583,7 +583,7 @@ describe('Guvnor CLI', function () {
     var output = ''
     var lines = 0
 
-    console.info = function() {
+    console.info = function () {
       output += util.format.apply(util, arguments) + '\n'
 
       lines++
@@ -610,7 +610,7 @@ describe('Guvnor CLI', function () {
   })
 
   it('should generate ssl certificates', function (done) {
-    guvnor.on('daemon:genssl', function() {
+    guvnor.on('daemon:genssl', function () {
       expect(fs.existsSync(config.guvnor.confdir + '/rpc.cert')).to.be.true
       expect(fs.existsSync(config.guvnor.confdir + '/rpc.key')).to.be.true
 
@@ -646,7 +646,7 @@ describe('Guvnor CLI', function () {
       exec.bind(null, 'git', ['init'], repo),
       exec.bind(null, 'git', ['config', 'user.email', 'foo@bar.com'], repo),
       exec.bind(null, 'git', ['config', 'user.name', 'foo'], repo),
-      function(callback) {
+      function (callback) {
         fs.writeFile(repo + '/package.json', JSON.stringify({
           name: appName
         }), callback)
@@ -659,7 +659,7 @@ describe('Guvnor CLI', function () {
         throw error
       }
 
-      guvnor.on('app:installed', function(appInfo) {
+      guvnor.on('app:installed', function (appInfo) {
         expect(appInfo.name).to.equal(appName)
         expect(fs.existsSync(appInfo.url)).to.be.true
         expect(appInfo.user).to.equal(user.name)
@@ -680,7 +680,7 @@ describe('Guvnor CLI', function () {
       exec.bind(null, 'git', ['init'], repo),
       exec.bind(null, 'git', ['config', 'user.email', 'foo@bar.com'], repo),
       exec.bind(null, 'git', ['config', 'user.name', 'foo'], repo),
-      function(callback) {
+      function (callback) {
         fs.writeFile(repo + '/package.json', JSON.stringify({
           name: 'not' + appName
         }), callback)
@@ -693,7 +693,7 @@ describe('Guvnor CLI', function () {
         throw error
       }
 
-      guvnor.on('app:installed', function(appInfo) {
+      guvnor.on('app:installed', function (appInfo) {
         expect(appInfo.name).to.equal(appName)
         expect(fs.existsSync(appInfo.url)).to.be.true
         expect(appInfo.user).to.equal(user.name)
@@ -736,7 +736,7 @@ describe('Guvnor CLI', function () {
       var output = ''
       var lines = 0
 
-      console.info = function() {
+      console.info = function () {
         output += util.format.apply(util, arguments) + '\n'
 
         lines++
@@ -886,7 +886,7 @@ describe('Guvnor CLI', function () {
         var output = ''
         var lines = 0
 
-        console.info = function() {
+        console.info = function () {
           output += util.format.apply(util, arguments) + '\n'
 
           lines++
@@ -978,12 +978,12 @@ describe('Guvnor CLI', function () {
       exec.bind(null, 'git', ['init'], repo),
       exec.bind(null, 'git', ['config', 'user.email', 'foo@bar.com'], repo),
       exec.bind(null, 'git', ['config', 'user.name', 'foo'], repo),
-      function(callback) {
+      function (callback) {
         fs.writeFile(repo + '/package.json', JSON.stringify({
           name: appName
         }), callback)
       },
-      function(callback) {
+      function (callback) {
         fs.writeFile(repo + '/index.js', 'setInterval(function () { console.log("hello world") }, 1000)', callback)
       },
       exec.bind(null, 'git', ['add', '-A'], repo),
@@ -996,7 +996,7 @@ describe('Guvnor CLI', function () {
       guvnor.deployApplication(appName, repo, user.name, console.info, console.error, function (error, appInfo) {
         expect(error).to.not.exist
 
-        guvnor.on('process:ready', function(managedProcess) {
+        guvnor.on('process:ready', function (managedProcess) {
           expect(managedProcess.name).to.equal(appInfo.name)
 
           done()

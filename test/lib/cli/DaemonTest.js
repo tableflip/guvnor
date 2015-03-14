@@ -12,9 +12,7 @@ describe('Daemon', function () {
 
     daemon = new Daemon()
     daemon._config = {
-      guvnor: {
-
-      }
+      guvnor: {}
     }
     daemon._logger = {
       info: sinon.stub(),

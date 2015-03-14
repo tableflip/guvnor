@@ -11,7 +11,7 @@ var text = [
   'Rainbo'
 ]
 
-function rand (arr) {
+function rand(arr) {
   return arr[Math.floor(Math.random() * arr.length)]
 }
 

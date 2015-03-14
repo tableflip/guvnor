@@ -118,38 +118,38 @@ describe('GuvnorRemote', function () {
             port: port,
             rpcTimeout: config.guvnor.rpctimeout
           }, function (error, b) {
-              if (error)
-                throw error
+            if (error)
+              throw error
 
-              remoteGuvnor = b
+            remoteGuvnor = b
 
-              // log all received events
-              remoteGuvnor.on('*', function (type) {
-                if (type.substring(0, 'guvnor:log'.length) == 'guvnor:log' ||
-                  type.substring(0, 'process:uncaughtexception'.length) == 'process:uncaughtexception' ||
-                  type.substring(0, 'guvnor:fatality'.length) == 'guvnor:fatality' ||
-                  type.substring(0, 'process:log'.length) == 'process:log') {
-                  // already handled
-                  return
-                }
+            // log all received events
+            remoteGuvnor.on('*', function (type) {
+              if (type.substring(0, 'guvnor:log'.length) == 'guvnor:log' ||
+                type.substring(0, 'process:uncaughtexception'.length) == 'process:uncaughtexception' ||
+                type.substring(0, 'guvnor:fatality'.length) == 'guvnor:fatality' ||
+                type.substring(0, 'process:log'.length) == 'process:log') {
+                // already handled
+                return
+              }
 
-                console.info('REMOTE', type)
-              })
-              remoteGuvnor.on('guvnor:log:*', function (type, event) {
-                console.info('REMOTE', type, event.message)
-              })
-              remoteGuvnor.on('process:log:*', function (type, processId, event) {
-                console.info('REMOTE', type, event)
-              })
-              remoteGuvnor.on('process:uncaughtexception:*', function (type, error) {
-                console.log('REMOTE', error.stack)
-              })
-              remoteGuvnor.on('guvnor:fatality', function (error) {
-                console.log('REMOTE', error.stack)
-              })
-
-              done()
+              console.info('REMOTE', type)
             })
+            remoteGuvnor.on('guvnor:log:*', function (type, event) {
+              console.info('REMOTE', type, event.message)
+            })
+            remoteGuvnor.on('process:log:*', function (type, processId, event) {
+              console.info('REMOTE', type, event)
+            })
+            remoteGuvnor.on('process:uncaughtexception:*', function (type, error) {
+              console.log('REMOTE', error.stack)
+            })
+            remoteGuvnor.on('guvnor:fatality', function (error) {
+              console.log('REMOTE', error.stack)
+            })
+
+            done()
+          })
         })
       })
     })
@@ -280,18 +280,18 @@ describe('GuvnorRemote', function () {
       exec.bind(null, 'git', ['add', '-A'], repo),
       exec.bind(null, 'git', ['commit', '-m', 'initial commit'], repo)
     ], function (error) {
-        if (error)
-          throw error
+      if (error)
+        throw error
 
-        var appName = shortid.generate()
+      var appName = shortid.generate()
 
-        remoteGuvnor.deployApplication(appName, repo, console.info, console.error, function (error, appInfo) {
-          expect(error).to.not.exist
-          expect(fs.existsSync(config.guvnor.appdir + '/' + appInfo.id)).to.be.true
+      remoteGuvnor.deployApplication(appName, repo, console.info, console.error, function (error, appInfo) {
+        expect(error).to.not.exist
+        expect(fs.existsSync(config.guvnor.appdir + '/' + appInfo.id)).to.be.true
 
-          done()
-        })
+        done()
       })
+    })
   })
 
   it('should list deployed applications', function (done) {
@@ -307,13 +307,13 @@ describe('GuvnorRemote', function () {
         exec.bind(null, 'git', ['add', '-A'], repo),
         exec.bind(null, 'git', ['commit', '-m', 'initial commit'], repo)
       ], function (error) {
-          if (error)
-            throw error
+        if (error)
+          throw error
 
-          var appName = shortid.generate()
+        var appName = shortid.generate()
 
-          localGuvnor.deployApplication(appName, repo, user.name, console.info, console.error, callback)
-        })
+        localGuvnor.deployApplication(appName, repo, user.name, console.info, console.error, callback)
+      })
     }
 
     var tasks = [deployApp, deployApp, deployApp, deployApp, deployApp]
@@ -354,33 +354,33 @@ describe('GuvnorRemote', function () {
       exec.bind(null, 'git', ['add', '-A'], repo),
       exec.bind(null, 'git', ['commit', '-m', 'initial commit'], repo)
     ], function (error) {
-        if (error)
-          throw error
+      if (error)
+        throw error
 
-        var appName = shortid.generate()
+      var appName = shortid.generate()
 
-        remoteGuvnor.deployApplication(appName, repo, console.info, console.error, function (error, appInfo) {
+      remoteGuvnor.deployApplication(appName, repo, console.info, console.error, function (error, appInfo) {
+        expect(error).to.not.exist
+        expect(fs.existsSync(config.guvnor.appdir + '/' + appInfo.id)).to.be.true
+
+        remoteGuvnor.listApplications(function (error, apps) {
           expect(error).to.not.exist
-          expect(fs.existsSync(config.guvnor.appdir + '/' + appInfo.id)).to.be.true
+          expect(apps.length).to.equal(1)
 
-          remoteGuvnor.listApplications(function (error, apps) {
+          remoteGuvnor.removeApplication(appName, function (error) {
             expect(error).to.not.exist
-            expect(apps.length).to.equal(1)
+            expect(fs.existsSync(config.guvnor.appdir + '/' + appInfo.id)).to.be.false
 
-            remoteGuvnor.removeApplication(appName, function (error) {
+            remoteGuvnor.listApplications(function (error, apps) {
               expect(error).to.not.exist
-              expect(fs.existsSync(config.guvnor.appdir + '/' + appInfo.id)).to.be.false
+              expect(apps.length).to.equal(0)
 
-              remoteGuvnor.listApplications(function (error, apps) {
-                expect(error).to.not.exist
-                expect(apps.length).to.equal(0)
-
-                done()
-              })
+              done()
             })
           })
         })
       })
+    })
   })
 
   it('should switch an application ref', function (done) {
@@ -404,40 +404,40 @@ describe('GuvnorRemote', function () {
       exec.bind(null, 'git', ['commit', '-m', 'v3'], repo),
       exec.bind(null, 'git', ['tag', 'v3'], repo)
     ], function (error) {
-        if (error)
-          throw error
+      if (error)
+        throw error
 
-        var appName = shortid.generate()
+      var appName = shortid.generate()
 
-        remoteGuvnor.deployApplication(appName, repo, console.info, console.error, function (error, appInfo) {
+      remoteGuvnor.deployApplication(appName, repo, console.info, console.error, function (error, appInfo) {
+        expect(error).to.not.exist
+
+        // should be at latest version
+        expect(fs.existsSync(config.guvnor.appdir + '/' + appInfo.id + '/v1')).to.be.true
+        expect(fs.existsSync(config.guvnor.appdir + '/' + appInfo.id + '/v2')).to.be.true
+        expect(fs.existsSync(config.guvnor.appdir + '/' + appInfo.id + '/v3')).to.be.true
+
+        remoteGuvnor.switchApplicationRef(appName, 'tags/v2', console.info, console.error, function (error) {
           expect(error).to.not.exist
 
-          // should be at latest version
+          // now at v2
           expect(fs.existsSync(config.guvnor.appdir + '/' + appInfo.id + '/v1')).to.be.true
           expect(fs.existsSync(config.guvnor.appdir + '/' + appInfo.id + '/v2')).to.be.true
-          expect(fs.existsSync(config.guvnor.appdir + '/' + appInfo.id + '/v3')).to.be.true
+          expect(fs.existsSync(config.guvnor.appdir + '/' + appInfo.id + '/v3')).to.be.false
 
-          remoteGuvnor.switchApplicationRef(appName, 'tags/v2', console.info, console.error, function (error) {
+          remoteGuvnor.switchApplicationRef(appName, 'tags/v1', console.info, console.error, function (error) {
             expect(error).to.not.exist
 
-            // now at v2
+            // now at v1
             expect(fs.existsSync(config.guvnor.appdir + '/' + appInfo.id + '/v1')).to.be.true
-            expect(fs.existsSync(config.guvnor.appdir + '/' + appInfo.id + '/v2')).to.be.true
+            expect(fs.existsSync(config.guvnor.appdir + '/' + appInfo.id + '/v2')).to.be.false
             expect(fs.existsSync(config.guvnor.appdir + '/' + appInfo.id + '/v3')).to.be.false
 
-            remoteGuvnor.switchApplicationRef(appName, 'tags/v1', console.info, console.error, function (error) {
-              expect(error).to.not.exist
-
-              // now at v1
-              expect(fs.existsSync(config.guvnor.appdir + '/' + appInfo.id + '/v1')).to.be.true
-              expect(fs.existsSync(config.guvnor.appdir + '/' + appInfo.id + '/v2')).to.be.false
-              expect(fs.existsSync(config.guvnor.appdir + '/' + appInfo.id + '/v3')).to.be.false
-
-              done()
-            })
+            done()
           })
         })
       })
+    })
   })
 
   it('should list available application refs', function (done) {
@@ -461,31 +461,31 @@ describe('GuvnorRemote', function () {
       exec.bind(null, 'git', ['commit', '-m', 'v3'], repo),
       exec.bind(null, 'git', ['tag', 'v3'], repo)
     ], function (error) {
-        if (error)
-          throw error
+      if (error)
+        throw error
 
-        var appName = shortid.generate()
+      var appName = shortid.generate()
 
-        remoteGuvnor.deployApplication(appName, repo, console.info, console.error, function (error, appInfo) {
+      remoteGuvnor.deployApplication(appName, repo, console.info, console.error, function (error, appInfo) {
+        expect(error).to.not.exist
+        expect(appInfo).to.be.ok
+
+        remoteGuvnor.listApplicationRefs(appName, function (error, refs) {
           expect(error).to.not.exist
-          expect(appInfo).to.be.ok
 
-          remoteGuvnor.listApplicationRefs(appName, function (error, refs) {
-            expect(error).to.not.exist
+          expect(refs.length).to.equal(6)
 
-            expect(refs.length).to.equal(6)
+          expect(refs[0].name).to.equal('refs/heads/master')
+          expect(refs[1].name).to.equal('refs/remotes/origin/HEAD')
+          expect(refs[2].name).to.equal('refs/remotes/origin/master')
+          expect(refs[3].name).to.equal('refs/tags/v1')
+          expect(refs[4].name).to.equal('refs/tags/v2')
+          expect(refs[5].name).to.equal('refs/tags/v3')
 
-            expect(refs[0].name).to.equal('refs/heads/master')
-            expect(refs[1].name).to.equal('refs/remotes/origin/HEAD')
-            expect(refs[2].name).to.equal('refs/remotes/origin/master')
-            expect(refs[3].name).to.equal('refs/tags/v1')
-            expect(refs[4].name).to.equal('refs/tags/v2')
-            expect(refs[5].name).to.equal('refs/tags/v3')
-
-            done()
-          })
+          done()
         })
       })
+    })
   })
 
   it('should update application refs', function (done) {
@@ -501,52 +501,52 @@ describe('GuvnorRemote', function () {
       exec.bind(null, 'git', ['commit', '-m', 'v1'], repo),
       exec.bind(null, 'git', ['tag', 'v1'], repo)
     ], function (error) {
-        if (error)
-          throw error
+      if (error)
+        throw error
 
-        var appName = shortid.generate()
+      var appName = shortid.generate()
 
-        remoteGuvnor.deployApplication(appName, repo, console.info, console.error, function (error, appInfo) {
+      remoteGuvnor.deployApplication(appName, repo, console.info, console.error, function (error, appInfo) {
+        expect(error).to.not.exist
+
+        remoteGuvnor.listApplicationRefs(appName, function (error, refs) {
           expect(error).to.not.exist
 
-          remoteGuvnor.listApplicationRefs(appName, function (error, refs) {
-            expect(error).to.not.exist
+          expect(refs.length).to.equal(4)
 
-            expect(refs.length).to.equal(4)
+          async.series([
+            exec.bind(null, 'touch', ['v2'], repo),
+            exec.bind(null, 'git', ['add', '-A'], repo),
+            exec.bind(null, 'git', ['commit', '-m', 'v2'], repo),
+            exec.bind(null, 'git', ['tag', 'v2'], repo),
+            exec.bind(null, 'touch', ['v3'], repo),
+            exec.bind(null, 'git', ['add', '-A'], repo),
+            exec.bind(null, 'git', ['commit', '-m', 'v3'], repo),
+            exec.bind(null, 'git', ['tag', 'v3'], repo)
+          ], function (error) {
+            if (error)
+              throw error
 
-            async.series([
-              exec.bind(null, 'touch', ['v2'], repo),
-              exec.bind(null, 'git', ['add', '-A'], repo),
-              exec.bind(null, 'git', ['commit', '-m', 'v2'], repo),
-              exec.bind(null, 'git', ['tag', 'v2'], repo),
-              exec.bind(null, 'touch', ['v3'], repo),
-              exec.bind(null, 'git', ['add', '-A'], repo),
-              exec.bind(null, 'git', ['commit', '-m', 'v3'], repo),
-              exec.bind(null, 'git', ['tag', 'v3'], repo)
-            ], function (error) {
-                if (error)
-                  throw error
+            remoteGuvnor.listApplicationRefs(appName, function (error, refs) {
+              expect(error).to.not.exist
+
+              expect(refs.length).to.equal(4)
+
+              remoteGuvnor.updateApplicationRefs(appName, console.info, console.error, function (error) {
+                expect(error).to.not.exist
 
                 remoteGuvnor.listApplicationRefs(appName, function (error, refs) {
                   expect(error).to.not.exist
 
-                  expect(refs.length).to.equal(4)
+                  expect(refs.length).to.equal(6)
 
-                  remoteGuvnor.updateApplicationRefs(appName, console.info, console.error, function (error) {
-                    expect(error).to.not.exist
-
-                    remoteGuvnor.listApplicationRefs(appName, function (error, refs) {
-                      expect(error).to.not.exist
-
-                      expect(refs.length).to.equal(6)
-
-                      done()
-                    })
-                  })
+                  done()
                 })
               })
+            })
           })
         })
       })
+    })
   })
 })

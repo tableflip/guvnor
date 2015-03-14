@@ -28,9 +28,7 @@ describe('Guvnor', function () {
     }
     guvnor._cpuStats = sinon.stub()
     guvnor._config = {
-      guvnor: {
-
-      }
+      guvnor: {}
     }
     guvnor._os = {
       uptime: sinon.stub(),
@@ -170,9 +168,9 @@ describe('Guvnor', function () {
     guvnor._os.freemem.returns(5)
     guvnor._os.totalmem.returns(5)
     guvnor._os.cpus.returns([{}, {}])
-    guvnor._etc_passwd.getGroups.callsArgWith(0, undefined, [{ groupname: 'foo' }, { groupname: '_bar' }])
-    guvnor._posix.getgrnam.withArgs('foo').returns({ members: ['baz', '_quux'] })
-    guvnor._posix.getgrnam.withArgs('_bar').returns({ members: ['qux'] })
+    guvnor._etc_passwd.getGroups.callsArgWith(0, undefined, [{groupname: 'foo'}, {groupname: '_bar'}])
+    guvnor._posix.getgrnam.withArgs('foo').returns({members: ['baz', '_quux']})
+    guvnor._posix.getgrnam.withArgs('_bar').returns({members: ['qux']})
 
     guvnor.getServerStatus({}, function (error, status) {
       expect(error).to.not.exist
@@ -273,7 +271,7 @@ describe('Guvnor', function () {
   it('should restore processes', function (done) {
     var store = new EventEmitter()
     store.all = sinon.stub()
-    store.all.returns([{ script: 'foo' }, { script: 'bar' }])
+    store.all.returns([{script: 'foo'}, {script: 'bar'}])
 
     guvnor._processInfoStoreFactory.create.withArgs(['processInfoFactory', 'processes.json'], sinon.match.func).callsArgWith(1, undefined, store)
 
@@ -433,7 +431,7 @@ describe('Guvnor', function () {
 
     guvnor._appService.switchRef.withArgs(name, ref, onOut, onErr).callsArgWith(4, undefined, appInfo, previousRef, newRef)
 
-    guvnor.once('app:refs:switched', function(error, app, prev, current) {
+    guvnor.once('app:refs:switched', function (error, app, prev, current) {
       expect(error).to.not.exist
       expect(appInfo).to.equal(app)
       expect(previousRef).to.equal(prev)
@@ -467,7 +465,7 @@ describe('Guvnor', function () {
 
     guvnor._appService.updateRefs.withArgs(name, onOut, onErr).callsArgWith(3, undefined, appInfo, refs)
 
-    guvnor.once('app:refs:updated', function(error, app, r) {
+    guvnor.once('app:refs:updated', function (error, app, r) {
       expect(error).to.not.exist
       expect(appInfo).to.equal(app)
       expect(refs).to.equal(r)
@@ -564,7 +562,7 @@ describe('Guvnor', function () {
     guvnor._config.guvnor.autoresume = false
     guvnor._kill = sinon.stub().callsArg(0)
 
-    guvnor.kill({}, function() {
+    guvnor.kill({}, function () {
       expect(guvnor._nodeInspectorWrapper.stopNodeInspector.called).to.be.true
       expect(guvnor._processService.killAll.called).to.be.true
 
@@ -577,7 +575,7 @@ describe('Guvnor', function () {
     guvnor._processInfoStore.save.callsArg(0)
     guvnor._kill = sinon.stub().callsArg(0)
 
-    guvnor.kill({}, function() {
+    guvnor.kill({}, function () {
       expect(guvnor._nodeInspectorWrapper.stopNodeInspector.called).to.be.true
       expect(guvnor._processService.killAll.called).to.be.true
 
@@ -589,7 +587,7 @@ describe('Guvnor', function () {
     var id = 'foo'
     guvnor._processService.removeProcess.callsArg(1)
 
-    guvnor.removeProcess({}, id, function() {
+    guvnor.removeProcess({}, id, function () {
       expect(guvnor._processService.removeProcess.calledWith(id)).to.be.true
 
       done()
@@ -608,7 +606,7 @@ describe('Guvnor', function () {
 
     guvnor._processService.startProcess.callsArg(2)
 
-    guvnor.startProcess({}, script, {}, function() {
+    guvnor.startProcess({}, script, {}, function () {
       expect(guvnor._processService.startProcess.getCall(0).args[1].script).to.equal(appInfo.path)
       expect(guvnor._processService.startProcess.getCall(0).args[1].app).to.equal(appInfo.id)
       expect(guvnor._processService.startProcess.getCall(0).args[1].name).to.equal(appInfo.name)
@@ -623,7 +621,7 @@ describe('Guvnor', function () {
 
     guvnor._processService.startProcess.callsArg(2)
 
-    guvnor.startProcessAsUser({}, script, options, function() {
+    guvnor.startProcessAsUser({}, script, options, function () {
       expect(guvnor._processService.startProcess.getCall(0).args[0]).to.equal(script)
       expect(guvnor._processService.startProcess.getCall(0).args[1]).to.equal(options)
 
@@ -638,7 +636,7 @@ describe('Guvnor', function () {
     guvnor._processInfoStore.all.returns(processes)
     guvnor._processService.startProcess.callsArg(1)
 
-    guvnor.afterPropertiesSet(function() {
+    guvnor.afterPropertiesSet(function () {
       expect(guvnor._processService.startProcess.getCall(0).args[0]).to.equal(processes[0])
 
       done()
@@ -653,7 +651,7 @@ describe('Guvnor', function () {
     guvnor._processService.startProcess.withArgs('foo').callsArgWith(1, new Error('urk'))
     guvnor._processService.startProcess.withArgs('bar').callsArg(1)
 
-    guvnor.afterPropertiesSet(function() {
+    guvnor.afterPropertiesSet(function () {
       expect(guvnor._processService.startProcess.getCall(0).args[0]).to.equal(processes[0])
       expect(guvnor._processService.startProcess.getCall(1).args[0]).to.equal(processes[1])
 
@@ -668,7 +666,7 @@ describe('Guvnor', function () {
     guvnor._processInfoStore.all.returns(processes)
     guvnor._processService.startProcess.callsArg(1)
 
-    guvnor.afterPropertiesSet(function() {
+    guvnor.afterPropertiesSet(function () {
       expect(guvnor._processService.startProcess.called).to.be.false
 
       done()

@@ -93,7 +93,7 @@ describe('ProcessData', function () {
         pid: 1,
         heapTotal: 5,
         latency: 1
-        }, {
+      }, {
         id: 'bar',
         pid: 1,
         heapTotal: 6,

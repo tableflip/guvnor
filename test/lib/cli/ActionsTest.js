@@ -12,9 +12,7 @@ describe('Actions', function () {
 
     actions = new Actions()
     actions._config = {
-      guvnor: {
-
-      }
+      guvnor: {}
     }
     actions._logger = {
       info: sinon.stub(),

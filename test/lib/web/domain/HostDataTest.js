@@ -76,8 +76,8 @@ describe('HostData', function () {
     data.processes.push({
       id: 'bar',
       workers: [
-        { id: 'qux' },
-        { id: 'baz' }
+        {id: 'qux'},
+        {id: 'baz'}
       ]
     })
 
@@ -227,14 +227,14 @@ describe('HostData', function () {
   it('should handle new processes', function (done) {
     var processes = [{
       id: 'foo'
-      }, {
+    }, {
       id: 'bar'
     }]
 
     var createdProcesses = [{
       id: 'foo',
       update: sinon.stub()
-      }, {
+    }, {
       id: 'bar',
       update: sinon.stub()
     }]
@@ -254,14 +254,14 @@ describe('HostData', function () {
   it('should handle updated processes', function (done) {
     var processes = [{
       id: 'foo'
-      }, {
+    }, {
       id: 'bar'
     }]
 
     var createdProcesses = [{
       id: 'foo',
       update: sinon.stub()
-      }, {
+    }, {
       id: 'bar',
       update: sinon.stub()
     }]
@@ -466,9 +466,9 @@ describe('HostData', function () {
     newDaemon.on.getCall(0).args[1]('process:log:error', {
       id: 'foo'
     }, {
-        date: 'bar',
-        message: 'baz'
-      })
+      date: 'bar',
+      message: 'baz'
+    })
 
     expect(proc.log.calledWith('error', 'bar', 'baz')).to.be.true
   })
@@ -503,11 +503,11 @@ describe('HostData', function () {
     newDaemon.on.getCall(3).args[1]({
       id: 'foo'
     }, {
-        date: 'bar',
-        message: 'baz',
-        code: 'qux',
-        stack: 'quux'
-      })
+      date: 'bar',
+      message: 'baz',
+      code: 'qux',
+      stack: 'quux'
+    })
 
     expect(proc.exception.calledWith('bar', 'baz', 'qux', 'quux')).to.be.true
   })

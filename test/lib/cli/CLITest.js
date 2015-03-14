@@ -23,9 +23,7 @@ describe('CLI', function () {
       getpwnam: sinon.stub(),
       getgrnam: sinon.stub()
     }
-    cli._user = {
-
-    }
+    cli._user = {}
     cli._commander = {
       version: sinon.stub(),
       command: sinon.stub(),
@@ -264,10 +262,10 @@ describe('CLI', function () {
   it('should create a group on Mac OS X', function (done) {
     var dscl = 'foo'
     var groups = 'tomcat                                    257\n' +
-    'tty                                       4\n' +
-    'utmp                                      45\n' +
-    'wheel                                     0\n' +
-    'meh                                     500\n'
+      'tty                                       4\n' +
+      'utmp                                      45\n' +
+      'wheel                                     0\n' +
+      'meh                                     500\n'
 
     cli._config.guvnor.group = 'bar'
 
@@ -294,9 +292,9 @@ describe('CLI', function () {
   it('should complain if creating a group fails on Mac OS', function (done) {
     var dscl = 'foo'
     var groups = 'tomcat                                    257\n' +
-    'tty                                       4\n' +
-    'utmp                                      45\n' +
-    'wheel                                     0\n'
+      'tty                                       4\n' +
+      'utmp                                      45\n' +
+      'wheel                                     0\n'
 
     cli._config.guvnor.group = 'bar'
 

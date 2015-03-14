@@ -22,7 +22,8 @@ describe('ConsoleDebugLogger', function () {
     var stubs = {
       winston: {
         transports: {
-          Console: function () {}
+          Console: function () {
+          }
         }
       }
     }
@@ -44,7 +45,8 @@ describe('ConsoleDebugLogger', function () {
     var stubs = {
       winston: {
         transports: {
-          Console: function () {}
+          Console: function () {
+          }
         }
       }
     }

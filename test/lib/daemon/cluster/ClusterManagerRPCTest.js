@@ -51,7 +51,7 @@ describe('ClusterManagerRPC', function () {
       remote: {
         reportStatus: sinon.stub()
       }
-      }, {
+    }, {
       remote: {
         reportStatus: sinon.stub()
       }
@@ -105,7 +105,7 @@ describe('ClusterManagerRPC', function () {
       remote: {
         reportStatus: sinon.stub()
       }
-      }, {
+    }, {
       remote: {
         reportStatus: sinon.stub()
       }

@@ -8,10 +8,14 @@ describe('LocalDaemon', function () {
   beforeEach(function () {
     localDaemon = new LocalDaemon()
     localDaemon._logger = {
-      info: function () {},
-      warn: function () {},
-      error: function () {},
-      debug: function () {}
+      info: function () {
+      },
+      warn: function () {
+      },
+      error: function () {
+      },
+      debug: function () {
+      }
     }
     localDaemon._semver = {
       satisfies: sinon.stub()
@@ -50,12 +54,14 @@ describe('LocalDaemon', function () {
     localDaemon._semver.satisfies.returns(true)
     localDaemon._localDaemonUserConnection.connect = sinon.stub()
     localDaemon._localDaemonUserConnection.connect.callsArgWith(1, undefined, {
-      userMethod: function () {}
+      userMethod: function () {
+      }
     })
 
     localDaemon._localDaemonAdminConnection.connect = sinon.stub()
     localDaemon._localDaemonAdminConnection.connect.callsArgWith(1, undefined, {
-      adminMethod: function () {}
+      adminMethod: function () {
+      }
     })
 
     localDaemon.connectOrStart(function (error, remote) {
@@ -75,7 +81,8 @@ describe('LocalDaemon', function () {
     localDaemon._semver.satisfies.returns(true)
     localDaemon._localDaemonUserConnection.connect = sinon.stub()
     localDaemon._localDaemonUserConnection.connect.callsArgWith(1, undefined, {
-      userMethod: function () {}
+      userMethod: function () {
+      }
     })
 
     var error = new Error('Nope!')
@@ -83,7 +90,8 @@ describe('LocalDaemon', function () {
 
     localDaemon._localDaemonAdminConnection.connect = sinon.stub()
     localDaemon._localDaemonAdminConnection.connect.callsArgWith(1, error, {
-      adminMethod: function () {}
+      adminMethod: function () {
+      }
     })
 
     localDaemon.connect(function (error, remote) {
@@ -111,12 +119,14 @@ describe('LocalDaemon', function () {
     localDaemon._localDaemonUserConnection.connect = sinon.stub()
     localDaemon._localDaemonUserConnection.connect.onFirstCall().callsArgWith(1, notRunningError)
     localDaemon._localDaemonUserConnection.connect.onSecondCall().callsArgWith(1, undefined, {
-      userMethod: function () {}
+      userMethod: function () {
+      }
     })
 
     localDaemon._localDaemonAdminConnection.connect = sinon.stub()
     localDaemon._localDaemonAdminConnection.connect.callsArgWith(1, undefined, {
-      adminMethod: function () {}
+      adminMethod: function () {
+      }
     })
 
     localDaemon.connectOrStart(function (error, remote) {
@@ -282,12 +292,14 @@ describe('LocalDaemon', function () {
 
     localDaemon._localDaemonUserConnection.connect = sinon.stub()
     localDaemon._localDaemonUserConnection.connect.callsArgWith(1, undefined, {
-      userMethod: function () {}
+      userMethod: function () {
+      }
     })
 
     localDaemon._localDaemonAdminConnection.connect = sinon.stub()
     localDaemon._localDaemonAdminConnection.connect.callsArgWith(1, undefined, {
-      adminMethod: function () {}
+      adminMethod: function () {
+      }
     })
 
     localDaemon.connectOrStart(function (error, remote) {

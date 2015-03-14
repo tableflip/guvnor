@@ -33,9 +33,7 @@ describe('UserRPC', function () {
       on: sinon.stub()
     }
     rpc._config = {
-      guvnor: {
-
-      }
+      guvnor: {}
     }
     rpc._fileSystem = {
       getRunDir: sinon.stub()

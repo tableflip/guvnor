@@ -1,4 +1,3 @@
-
 console.info('hello')
 
 process.on('custom:event:sent', function () {

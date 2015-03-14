@@ -103,7 +103,7 @@ describe('Guvnor', function () {
     guvnor.callbacks = {}
     guvnor.kill(guvnor.disconnect.bind(guvnor, done))
   })
-/*
+
   it('should have npm available', function (done) {
     child_process.exec('which npm', function (error, stdout, stderr) {
       console.info('which npm')
@@ -886,7 +886,7 @@ describe('Guvnor', function () {
       })
     })
   })
-*/
+
   it('should write to stdin for a process', function (done) {
     var message = 'hello world'
 

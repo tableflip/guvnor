@@ -28,9 +28,7 @@ describe('ProcessRPC', function () {
       writeSnapshot: sinon.stub()
     }
     processRpc._config = {
-      guvnor: {
-
-      }
+      guvnor: {}
     }
 
     server = {

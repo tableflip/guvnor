@@ -14,12 +14,8 @@ describe('LocalDaemonStarter', function () {
       debug: sinon.stub()
     }
     localDaemonStarter._config = {
-      guvnor: {
-
-      },
-      debug: {
-
-      }
+      guvnor: {},
+      debug: {}
     }
     localDaemonStarter._freeport = sinon.stub()
     localDaemonStarter._posix = {

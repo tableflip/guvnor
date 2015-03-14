@@ -10,19 +10,21 @@ describe('LocalDaemonConnection', function () {
 
     localDaemonConnection = new LocalDaemonConnection(socket)
     localDaemonConnection._logger = {
-      info: function () {},
-      warn: function () {},
-      error: function () {},
-      debug: function () {}
+      info: function () {
+      },
+      warn: function () {
+      },
+      error: function () {
+      },
+      debug: function () {
+      }
     }
     localDaemonConnection._fs = {
       unlink: sinon.stub()
     }
     localDaemonConnection._dnode = sinon.stub()
     localDaemonConnection._config = {
-      guvnor: {
-
-      }
+      guvnor: {}
     }
   })
 

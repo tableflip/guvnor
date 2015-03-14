@@ -15,10 +15,14 @@ describe('ManagedProcess', function () {
       }
     }
     proc._logger = {
-      info: function () {},
-      warn: function () {},
-      error: function () {},
-      debug: function () {}
+      info: function () {
+      },
+      warn: function () {
+      },
+      error: function () {
+      },
+      debug: function () {
+      }
     }
     proc._dnode = {
       connect: sinon.stub()
@@ -50,7 +54,8 @@ describe('ManagedProcess', function () {
     var readyCallback = dnode.on.getCall(1).args[1]
 
     readyCallback({
-      foo: function () {}
+      foo: function () {
+      }
     })
   })
 

@@ -14,9 +14,7 @@ describe('Apps', function () {
 
     apps = new Apps()
     apps._config = {
-      guvnor: {
-
-      }
+      guvnor: {}
     }
     apps._logger = {
       info: sinon.stub(),
@@ -24,9 +22,7 @@ describe('Apps', function () {
       error: sinon.stub(),
       debug: sinon.stub()
     }
-    apps._user = {
-
-    }
+    apps._user = {}
     apps._connectOrStart = sinon.stub()
     apps._processes = {
       start: sinon.stub()

@@ -13,9 +13,7 @@ describe('Processes', function () {
 
     processes = new Processes()
     processes._config = {
-      guvnor: {
-
-      }
+      guvnor: {}
     }
     processes._logger = {
       info: sinon.stub(),

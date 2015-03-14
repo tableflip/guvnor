@@ -1,7 +1,7 @@
 var expect = require('chai').expect
 sinon = require('sinon'),
-path = require('path'),
-ExceptionHandler = require('../../../../lib/daemon/common/ExceptionHandler')
+  path = require('path'),
+  ExceptionHandler = require('../../../../lib/daemon/common/ExceptionHandler')
 
 var loggerStub = {
   info: sinon.stub(),

@@ -14,7 +14,8 @@ var CallbackHandler = {
       wrap: {
         value: function (callback) {
           var callbackId = lastId++
-          callbacks[callbackId] = callback || function () {}
+          callbacks[callbackId] = callback || function () {
+          }
           return callbackId
         }
       },
@@ -48,7 +49,7 @@ var Net = require('net'),
 /**
  * @param {Number} port
  */
-function Debugger (port) {
+function Debugger(port) {
   this._port = port
   this._connected = false
   this._connection = null
@@ -61,7 +62,7 @@ inherits(Debugger, EventEmitter)
 
 Object.defineProperties(Debugger.prototype, {
   /** @type {boolean} */
-  isRunning: { writable: true, value: true },
+  isRunning: {writable: true, value: true},
 
   /** @type {boolean} */
   connected: {

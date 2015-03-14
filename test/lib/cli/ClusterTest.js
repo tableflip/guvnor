@@ -9,9 +9,7 @@ describe('Cluster', function () {
   beforeEach(function () {
     cluster = new Cluster()
     cluster._config = {
-      guvnor: {
-
-      }
+      guvnor: {}
     }
     cluster._logger = {
       info: sinon.stub(),

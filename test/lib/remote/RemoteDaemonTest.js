@@ -10,10 +10,14 @@ describe('RemoteDaemon', function () {
 
     remoteDaemon = new RemoteDaemon()
     remoteDaemon._logger = {
-      info: function () {},
-      warn: function () {},
-      error: function () {},
-      debug: function () {}
+      info: function () {
+      },
+      warn: function () {
+      },
+      error: function () {
+      },
+      debug: function () {
+      }
     }
     remoteDaemon._dnode = sinon.stub()
     remoteDaemon._crypto = {}
@@ -254,7 +258,7 @@ describe('RemoteDaemon', function () {
     }, 'one', 'two', 'three')
   })
 
-  function testErrorHandler (code, friendlyCode, done) {
+  function testErrorHandler(code, friendlyCode, done) {
     var error = new Error('nope!')
     error.code = code
 

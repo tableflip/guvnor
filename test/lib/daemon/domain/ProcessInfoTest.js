@@ -5,7 +5,7 @@ var expect = require('chai').expect,
   semver = require('semver')
 
 describe('ProcessInfo', function () {
-  var fileSystemStub = { findOrCreateLogFileDirectory: sinon.stub() }
+  var fileSystemStub = {findOrCreateLogFileDirectory: sinon.stub()}
 
   it('should serialize and deserialize', function () {
     var processInfo = new ProcessInfo({
@@ -27,8 +27,8 @@ describe('ProcessInfo', function () {
     processInfo._fileSystem = {
       getLogDir: sinon.stub()
     }
-    processInfo._posix.getpwnam.returns({ name: 'foo' })
-    processInfo._posix.getgrnam.returns({ name: 'bar' })
+    processInfo._posix.getpwnam.returns({name: 'foo'})
+    processInfo._posix.getgrnam.returns({name: 'bar'})
 
     var otherProcessInfo = new ProcessInfo(JSON.parse(JSON.stringify(processInfo)))
     otherProcessInfo._posix = {
@@ -46,8 +46,8 @@ describe('ProcessInfo', function () {
     otherProcessInfo._fileSystem = {
       getLogDir: sinon.stub()
     }
-    otherProcessInfo._posix.getpwnam.returns({ name: 'foo' })
-    otherProcessInfo._posix.getgrnam.returns({ name: 'bar' })
+    otherProcessInfo._posix.getpwnam.returns({name: 'foo'})
+    otherProcessInfo._posix.getgrnam.returns({name: 'bar'})
 
     for (var key in processInfo) {
       if (key == 'id' || key.substring(0, 1) == '_') {
@@ -91,8 +91,8 @@ describe('ProcessInfo', function () {
     processInfo._fileSystem = {
       getLogDir: sinon.stub()
     }
-    processInfo._posix.getpwnam.returns({ name: 'foo' })
-    processInfo._posix.getgrnam.returns({ name: 'bar' })
+    processInfo._posix.getpwnam.returns({name: 'foo'})
+    processInfo._posix.getgrnam.returns({name: 'bar'})
     processInfo._fs.statSync.withArgs('/foo/bar/baz.js').returns({
       isDirectory: function () {
         return false
@@ -145,8 +145,8 @@ describe('ProcessInfo', function () {
     processInfo._fileSystem = {
       getLogDir: sinon.stub()
     }
-    processInfo._posix.getpwnam.returns({ name: 'foo' })
-    processInfo._posix.getgrnam.returns({ name: 'bar' })
+    processInfo._posix.getpwnam.returns({name: 'foo'})
+    processInfo._posix.getgrnam.returns({name: 'bar'})
     processInfo._fs.statSync.withArgs('test.js').returns({
       isDirectory: function () {
         return false
@@ -190,8 +190,8 @@ describe('ProcessInfo', function () {
     processInfo._fileSystem = {
       getLogDir: sinon.stub()
     }
-    processInfo._posix.getpwnam.returns({ name: 'foo' })
-    processInfo._posix.getgrnam.returns({ name: 'bar' })
+    processInfo._posix.getpwnam.returns({name: 'foo'})
+    processInfo._posix.getgrnam.returns({name: 'bar'})
     processInfo._fs.statSync.withArgs('test.js').returns({
       isDirectory: function () {
         return false
@@ -234,8 +234,8 @@ describe('ProcessInfo', function () {
     processInfo._fileSystem = {
       getLogDir: sinon.stub()
     }
-    processInfo._posix.getpwnam.returns({ name: 'foo' })
-    processInfo._posix.getgrnam.returns({ name: 'bar' })
+    processInfo._posix.getpwnam.returns({name: 'foo'})
+    processInfo._posix.getgrnam.returns({name: 'bar'})
     processInfo._fs.statSync.withArgs('test.js').returns({
       isDirectory: function () {
         return false
@@ -285,8 +285,8 @@ describe('ProcessInfo', function () {
     processInfo._fileSystem = {
       getLogDir: sinon.stub()
     }
-    processInfo._posix.getpwnam.returns({ name: 'foo' })
-    processInfo._posix.getgrnam.returns({ name: 'bar' })
+    processInfo._posix.getpwnam.returns({name: 'foo'})
+    processInfo._posix.getgrnam.returns({name: 'bar'})
     processInfo._fs.statSync.withArgs('test.js').returns({
       isDirectory: function () {
         return false
@@ -334,8 +334,8 @@ describe('ProcessInfo', function () {
     processInfo._fileSystem = {
       getLogDir: sinon.stub()
     }
-    processInfo._posix.getpwnam.withArgs('foo').returns({ name: 'foo' })
-    processInfo._posix.getgrnam.returns({ name: 'bar' })
+    processInfo._posix.getpwnam.withArgs('foo').returns({name: 'foo'})
+    processInfo._posix.getgrnam.returns({name: 'bar'})
     processInfo._fs.statSync.withArgs('test.js').returns({
       isDirectory: function () {
         return false

@@ -494,7 +494,8 @@ describe('RemoteRPC', function () {
       hash: hash
     }
 
-    remoteRpc._checkSignature(function (one, two, three) {}, signature, 'one', 'two', 'three', function (error) {
+    remoteRpc._checkSignature(function (one, two, three) {
+    }, signature, 'one', 'two', 'three', function (error) {
       expect(error.code).to.equal('INVALIDSIGNATURE')
 
       done()
@@ -515,7 +516,8 @@ describe('RemoteRPC', function () {
 
     remoteRpc._remoteUserService.findUser.withArgs(principal, sinon.match.func).callsArg(1)
 
-    remoteRpc._checkSignature(function (one, two, three) {}, signature, 'one', 'two', 'three', function (error) {
+    remoteRpc._checkSignature(function (one, two, three) {
+    }, signature, 'one', 'two', 'three', function (error) {
       expect(error.code).to.equal('INVALIDSIGNATURE')
 
       done()
@@ -536,7 +538,8 @@ describe('RemoteRPC', function () {
 
     remoteRpc._remoteUserService.findUser.withArgs(principal, sinon.match.func).callsArgWith(1, new Error('urk!'))
 
-    remoteRpc._checkSignature(function (one, two, three) {}, signature, 'one', 'two', 'three', function (error) {
+    remoteRpc._checkSignature(function (one, two, three) {
+    }, signature, 'one', 'two', 'three', function (error) {
       expect(error.code).to.equal('INVALIDSIGNATURE')
 
       done()
@@ -563,7 +566,8 @@ describe('RemoteRPC', function () {
     remoteRpc._remoteUserService.findUser.withArgs(principal, sinon.match.func).callsArgWith(1, undefined, user)
     remoteRpc._crypto.verify.withArgs(signature, user.secret).returns(false)
 
-    remoteRpc._checkSignature(function (details, one, two, three) {}, signature, 'one', 'two', 'three', function (error) {
+    remoteRpc._checkSignature(function (details, one, two, three) {
+    }, signature, 'one', 'two', 'three', function (error) {
       expect(error.code).to.equal('INVALIDSIGNATURE')
 
       done()

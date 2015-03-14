@@ -20,9 +20,7 @@ describe('RPCEndpoint', function () {
       error: sinon.stub(),
       debug: sinon.stub()
     }
-    rpc._guvnor = {
-
-    }
+    rpc._guvnor = {}
     rpc._config = {
       guvnor: {
         group: 'group'
@@ -42,9 +40,7 @@ describe('RPCEndpoint', function () {
     }
     rpc._dnode = sinon.stub()
     rpc._config = {
-      guvnor: {
-
-      }
+      guvnor: {}
     }
     rpc._fileSystem = {
       getRunDir: sinon.stub()
@@ -278,13 +274,13 @@ describe('RPCEndpoint', function () {
     async.parallel([
       api.foo.bind(api, uid), api.bar.bind(api, uid)
     ], function (error) {
-        expect(error).to.not.exist
+      expect(error).to.not.exist
 
-        expect(rpc.foo.calledOnce).to.be.true
-        expect(rpc.bar.calledOnce).to.be.true
+      expect(rpc.foo.calledOnce).to.be.true
+      expect(rpc.bar.calledOnce).to.be.true
 
-        done()
-      })
+      done()
+    })
   })
 
   it('should survive a server api method throwing an exception', function (done) {

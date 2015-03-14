@@ -18,10 +18,14 @@ describe('NodeInspectorWrapper', function () {
       }
     }
     wrapper._logger = {
-      info: function () {},
-      warn: function () {},
-      error: function () {},
-      debug: function () {}
+      info: function () {
+      },
+      warn: function () {
+      },
+      error: function () {
+      },
+      debug: function () {
+      }
     }
 
     wrapper.afterPropertiesSet(function () {
@@ -47,10 +51,14 @@ describe('NodeInspectorWrapper', function () {
       }
     }
     wrapper._logger = {
-      info: function () {},
-      warn: function () {},
-      error: function () {},
-      debug: function () {}
+      info: function () {
+      },
+      warn: function () {
+      },
+      error: function () {
+      },
+      debug: function () {
+      }
     }
     var child = {
       on: sinon.stub(),
@@ -88,10 +96,14 @@ describe('NodeInspectorWrapper', function () {
       }
     }
     wrapper._logger = {
-      info: function () {},
-      warn: function () {},
-      error: function () {},
-      debug: function () {}
+      info: function () {
+      },
+      warn: function () {
+      },
+      error: function () {
+      },
+      debug: function () {
+      }
     }
     var child = {
       on: sinon.stub(),
@@ -132,10 +144,14 @@ describe('NodeInspectorWrapper', function () {
       }
     }
     wrapper._logger = {
-      info: function () {},
-      warn: function () {},
-      error: function () {},
-      debug: function () {}
+      info: function () {
+      },
+      warn: function () {
+      },
+      error: function () {
+      },
+      debug: function () {
+      }
     }
     var child = {
       on: sinon.stub(),
@@ -177,10 +193,14 @@ describe('NodeInspectorWrapper', function () {
       }
     }
     wrapper._logger = {
-      info: function () {},
-      warn: function () {},
-      error: function () {},
-      debug: function () {}
+      info: function () {
+      },
+      warn: function () {
+      },
+      error: function () {
+      },
+      debug: function () {
+      }
     }
     var child = {
       on: sinon.stub(),

@@ -9,9 +9,7 @@ describe('AdminRPC', function () {
   it('should expose admin methods', function () {
     var rpc = new AdminRPC()
     rpc._config = {
-      guvnor: {
-
-      }
+      guvnor: {}
     }
     rpc._processFactory = {
       connect: sinon.stub()

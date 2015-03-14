@@ -89,7 +89,7 @@ describe('HostList', function () {
   })
 
   it('should ignore duplicated mdns guvnor', function () {
-    list._config.hosts = { 'foo': {} }
+    list._config.hosts = {'foo': {}}
     list._hostData.foo = {}
 
     var browser = {
@@ -116,7 +116,7 @@ describe('HostList', function () {
   })
 
   it('should create host data from mdns advert', function () {
-    list._config.hosts = { 'foo': {} }
+    list._config.hosts = {'foo': {}}
 
     var browser = {
       on: sinon.stub(),
@@ -150,7 +150,7 @@ describe('HostList', function () {
   })
 
   it('should ignore host data when creating host data fails', function () {
-    list._config.hosts = { 'foo': {} }
+    list._config.hosts = {'foo': {}}
 
     var browser = {
       on: sinon.stub(),

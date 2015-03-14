@@ -24,10 +24,14 @@ describe('FileSystem', function () {
       }
     }
     fileSystem._logger = {
-      info: function () {},
-      warn: function () {},
-      error: function () {},
-      debug: function () {}
+      info: function () {
+      },
+      warn: function () {
+      },
+      error: function () {
+      },
+      debug: function () {
+      }
     }
     fileSystem._posix = posix
     fileSystem._fs = fs

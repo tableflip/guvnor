@@ -11,9 +11,7 @@ describe('Remote', function () {
 
     remote = new Remote()
     remote._config = {
-      guvnor: {
-
-      }
+      guvnor: {}
     }
     remote._logger = {
       info: sinon.stub(),
@@ -88,9 +86,9 @@ describe('Remote', function () {
   it('should list remote users', function () {
     var users = [{
       name: 'foo'
-      }, {
+    }, {
       name: 'bar'
-      }, {
+    }, {
       name: 'baz'
     }]
 
