@@ -15,6 +15,7 @@ var ProcessOverviewPage = require('./pages/process/overview')
 var ProcessLogsPage = require('./pages/process/logs')
 var ProcessExceptionsPage = require('./pages/process/exceptions')
 var ProcessStartingPage = require('./pages/process/starting')
+var ProcessStartedPage = require('./pages/process/started')
 var ProcessStoppingPage = require('./pages/process/stopping')
 var ProcessStoppedPage = require('./pages/process/stopped')
 var ProcessAbortedPage = require('./pages/process/aborted')
@@ -50,6 +51,7 @@ module.exports = Router.extend({
     'host/:host/process/:process/stopping': 'processStopping',
     'host/:host/process/:process/aborted': 'processAborted',
     'host/:host/process/:process/starting': 'processStarting',
+    'host/:host/process/:process/started': 'processStarted',
     'host/:host/process/:process/running': 'processRunning',
     'host/:host/process/:process/uninitialised': 'processUninitialised',
     'host/:host/process/:process/unresponsive': 'processUnresponsive',
@@ -135,6 +137,10 @@ module.exports = Router.extend({
 
   processStarting: function (hostName, processId) {
     this._withHostAndProcess(hostName, processId, ProcessStartingPage)
+  },
+
+  processStarted: function (hostName, processId) {
+    this._withHostAndProcess(hostName, processId, ProcessStartedPage)
   },
 
   processUninitialised: function (hostName, processId) {
