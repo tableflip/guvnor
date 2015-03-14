@@ -23,7 +23,7 @@ rpctimeout = 30000
 
 [https]
   ; If you are performing SSL termination somewhere else set this to false to
-  ; stop boss-web from starting an https server, otherwise leave this enabled!
+  ; stop guv-web from starting an https server, otherwise leave this enabled!
   enabled = true
 
   ; Which host to accept connections on

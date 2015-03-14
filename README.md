@@ -165,7 +165,7 @@ Also, the init script is probably stored at `/usr/lib/node_modules/...` instead 
 
 ### Vagrant setup
 
-It's useful to be able to set up and tear down fresh VMs to do testing, so a Vagrant file is available. It's configured to run Debian 7.7 and install the latest versions of Node and Boss.
+It's useful to be able to set up and tear down fresh VMs to do testing, so a Vagrant file is available. It's configured to run Debian Jessie and install the latest versions of Node and Guvnor.
 
 Once Vagrant is installed, cd into the vagrant directory and run:
 
