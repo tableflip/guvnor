@@ -2,31 +2,55 @@ var expect = require('chai').expect,
   sinon = require('sinon'),
   ProcessInfo = require('../../../../lib/daemon/domain/ProcessInfo'),
   posix = require('posix'),
-  semver = require('semver')
+  semver = require('semver'),
+  path = require('path'),
+  os = require('os')
 
 describe('ProcessInfo', function () {
-  var fileSystemStub = {findOrCreateLogFileDirectory: sinon.stub()}
+  var processInfo
 
-  it('should serialize and deserialize', function () {
-    var processInfo = new ProcessInfo({
-      script: '/foo/bar/baz.js',
-      cwd: '/foo/bar'
+  beforeEach(function() {
+    processInfo = new ProcessInfo({
+      script: 'foo.js'
     })
+    processInfo._config = {
+      guvnor: {
+        logdir: 'foo'
+      },
+      debug: {
+        cluster: false
+      }
+    }
+    processInfo._logger = {
+      info: sinon.stub(),
+      warn: sinon.stub(),
+      error: sinon.stub(),
+      debug: sinon.stub(),
+      log: sinon.stub(),
+      remove: sinon.stub(),
+      add: sinon.stub()
+    }
+    processInfo._child_process = {}
     processInfo._posix = {
       getpwnam: sinon.stub(),
       getgrnam: sinon.stub()
     }
     processInfo._fs = {
-      statSync: sinon.stub()
-    }
-    processInfo._config = {
-      guvnor: {
-        logdir: 'foo'
-      }
+      stat: sinon.stub(),
+      chown: sinon.stub(),
+      exists: sinon.stub()
     }
     processInfo._fileSystem = {
       getLogDir: sinon.stub()
     }
+    processInfo._semver = {
+      gt: sinon.stub()
+    }
+  })
+
+  it('should serialize and deserialize', function () {
+    processInfo.script = '/foo/bar/baz.js'
+    processInfo.cwd = '/foo/bar'
     processInfo._posix.getpwnam.returns({name: 'foo'})
     processInfo._posix.getgrnam.returns({name: 'bar'})
 
@@ -36,7 +60,7 @@ describe('ProcessInfo', function () {
       getgrnam: sinon.stub()
     }
     otherProcessInfo._fs = {
-      statSync: sinon.stub()
+      stat: sinon.stub()
     }
     otherProcessInfo._config = {
       guvnor: {
@@ -73,30 +97,17 @@ describe('ProcessInfo', function () {
   })
 
   it('should have default options', function () {
-    var processInfo = new ProcessInfo({
-      script: '/foo/bar/baz.js'
-    })
-    processInfo._posix = {
-      getpwnam: sinon.stub(),
-      getgrnam: sinon.stub()
-    }
-    processInfo._fs = {
-      statSync: sinon.stub()
-    }
-    processInfo._config = {
-      guvnor: {
-        logdir: 'foo'
-      }
-    }
-    processInfo._fileSystem = {
-      getLogDir: sinon.stub()
-    }
+    delete processInfo.name
+
     processInfo._posix.getpwnam.returns({name: 'foo'})
     processInfo._posix.getgrnam.returns({name: 'bar'})
-    processInfo._fs.statSync.withArgs('/foo/bar/baz.js').returns({
+    processInfo._fs.stat.withArgs('/foo/bar/baz.js').returns({
       isDirectory: function () {
         return false
       }
+    })
+    processInfo.setOptions({
+      script: '/foo/bar/baz.js'
     })
 
     expect(processInfo.name).to.equal('baz.js')
@@ -114,193 +125,40 @@ describe('ProcessInfo', function () {
   })
 
   it('should remove the old debug port', function () {
-    var processInfo = new ProcessInfo({
-      script: 'test.js',
-      debug: true,
-      execArgv: ['--debug=5', '--debug-brk=5']
-    })
-    processInfo._logger = {
-      info: sinon.stub(),
-      warn: sinon.stub(),
-      error: sinon.stub(),
-      debug: sinon.stub(),
-      log: sinon.stub()
-    }
-    processInfo._fileSystem = fileSystemStub
-    processInfo._config = {
-      guvnor: {
-        logdir: 'foo'
-      },
-      debug: {
-        cluster: false
-      }
-    }
-    processInfo._posix = {
-      getpwnam: sinon.stub(),
-      getgrnam: sinon.stub()
-    }
-    processInfo._fs = {
-      statSync: sinon.stub()
-    }
-    processInfo._fileSystem = {
-      getLogDir: sinon.stub()
-    }
-    processInfo._posix.getpwnam.returns({name: 'foo'})
-    processInfo._posix.getgrnam.returns({name: 'bar'})
-    processInfo._fs.statSync.withArgs('test.js').returns({
-      isDirectory: function () {
-        return false
-      }
-    })
-
+    processInfo.debug = true
     processInfo.debugPort = 6
+    processInfo.execArgv = ['--debug=5', '--debug-brk=5']
 
     expect(processInfo.getProcessOptions().execArgv.indexOf('--debug=5')).to.equal(-1)
     expect(processInfo.getProcessOptions().execArgv.indexOf('--debug-brk=5')).to.equal(-1)
   })
 
   it('should update the debug port for processes', function () {
-    var processInfo = new ProcessInfo({
-      script: 'test.js',
-      debug: true
-    })
-    processInfo._logger = {
-      info: sinon.stub(),
-      warn: sinon.stub(),
-      error: sinon.stub(),
-      debug: sinon.stub(),
-      log: sinon.stub()
-    }
-    processInfo._fileSystem = fileSystemStub
-    processInfo._config = {
-      guvnor: {
-        logdir: 'foo'
-      },
-      debug: {
-        cluster: false
-      }
-    }
-    processInfo._posix = {
-      getpwnam: sinon.stub(),
-      getgrnam: sinon.stub()
-    }
-    processInfo._fs = {
-      statSync: sinon.stub()
-    }
-    processInfo._fileSystem = {
-      getLogDir: sinon.stub()
-    }
-    processInfo._posix.getpwnam.returns({name: 'foo'})
-    processInfo._posix.getgrnam.returns({name: 'bar'})
-    processInfo._fs.statSync.withArgs('test.js').returns({
-      isDirectory: function () {
-        return false
-      }
-    })
+    processInfo.debug = true
     processInfo.debugPort = 5
 
     expect(processInfo.getProcessOptions().execArgv.indexOf('--debug-brk=5')).to.equal(0)
   })
 
   it('should not debug-brk cluster manager when config says not to', function () {
-    var processInfo = new ProcessInfo({
-      script: 'test.js',
-      debug: true,
-      instances: 5
-    })
-    processInfo._logger = {
-      info: sinon.stub(),
-      warn: sinon.stub(),
-      error: sinon.stub(),
-      debug: sinon.stub(),
-      log: sinon.stub()
-    }
-    processInfo._fileSystem = fileSystemStub
-    processInfo._config = {
-      guvnor: {
-        logdir: 'foo'
-      },
-      debug: {
-        cluster: false
-      }
-    }
-    processInfo._posix = {
-      getpwnam: sinon.stub(),
-      getgrnam: sinon.stub()
-    }
-    processInfo._fs = {
-      statSync: sinon.stub()
-    }
-    processInfo._fileSystem = {
-      getLogDir: sinon.stub()
-    }
-    processInfo._posix.getpwnam.returns({name: 'foo'})
-    processInfo._posix.getgrnam.returns({name: 'bar'})
-    processInfo._fs.statSync.withArgs('test.js').returns({
-      isDirectory: function () {
-        return false
-      }
-    })
+    processInfo._config.debug.cluster = false
+    processInfo.debug = true
+    processInfo.instances = 5
     processInfo.debugPort = 5
+    processInfo.cluster = true
 
-    var portArg = '--debug=5'
-
-    if (semver.gt(process.version, '0.11.0')) {
-      portArg = '--debug-port=5'
-    }
-
-    expect(processInfo.getProcessOptions().execArgv).to.contain(portArg)
+    expect(processInfo.getProcessOptions().execArgv).to.contain('--debug=5')
     expect(processInfo.getProcessOptions().execArgv).to.not.contain('--debug-brk=5')
   })
 
   it('should debug-brk cluster manager when config says to', function () {
-    var processInfo = new ProcessInfo({
-      script: 'test.js',
-      debug: true,
-      instances: 5
-    })
-    processInfo._logger = {
-      info: sinon.stub(),
-      warn: sinon.stub(),
-      error: sinon.stub(),
-      debug: sinon.stub(),
-      log: sinon.stub()
-    }
-    processInfo._fileSystem = fileSystemStub
-    processInfo._config = {
-      guvnor: {
-        logdir: 'foo'
-      },
-      debug: {
-        cluster: true
-      }
-    }
-    processInfo._posix = {
-      getpwnam: sinon.stub(),
-      getgrnam: sinon.stub()
-    }
-    processInfo._fs = {
-      statSync: sinon.stub()
-    }
-    processInfo._fileSystem = {
-      getLogDir: sinon.stub()
-    }
-    processInfo._posix.getpwnam.returns({name: 'foo'})
-    processInfo._posix.getgrnam.returns({name: 'bar'})
-    processInfo._fs.statSync.withArgs('test.js').returns({
-      isDirectory: function () {
-        return false
-      }
-    })
+    processInfo._config.debug.cluster = true
+    processInfo.debug = true
+    processInfo.instances = 5
     processInfo.debugPort = 5
+    processInfo.cluster = true
 
-    var portArg = '--debug=5'
-
-    if (semver.gt(process.version, '0.11.0')) {
-      portArg = '--debug-port=5'
-    }
-
-    expect(processInfo.getProcessOptions().execArgv).to.not.contain(portArg)
+    expect(processInfo.getProcessOptions().execArgv).to.not.contain('--debug=5')
     expect(processInfo.getProcessOptions().execArgv).to.contain('--debug-brk=5')
   })
 
@@ -329,14 +187,14 @@ describe('ProcessInfo', function () {
       getgrnam: sinon.stub()
     }
     processInfo._fs = {
-      statSync: sinon.stub()
+      stat: sinon.stub()
     }
     processInfo._fileSystem = {
       getLogDir: sinon.stub()
     }
     processInfo._posix.getpwnam.withArgs('foo').returns({name: 'foo'})
     processInfo._posix.getgrnam.returns({name: 'bar'})
-    processInfo._fs.statSync.withArgs('test.js').returns({
+    processInfo._fs.stat.withArgs('test.js').returns({
       isDirectory: function () {
         return false
       }
@@ -372,15 +230,355 @@ describe('ProcessInfo', function () {
   })
 
   it('should propagate environmental variables', function () {
-    var processInfo = new ProcessInfo({
-      script: 'test.js'
-    })
-    processInfo.setOptions({
-      env: {
-        FOO: 'bar'
-      }
-    })
+    processInfo.env = {
+      FOO: 'bar'
+    }
 
     expect(processInfo.getProcessOptions().env.FOO).to.equal('bar')
+  })
+
+  it('should return args for process', function () {
+    processInfo.argv = 'argv'
+
+    expect(processInfo.getProcessArgs()).to.equal('argv')
+  })
+
+  it('should remove debug port from existing execArgv', function () {
+    processInfo.execArgv = ['--debug', '--debug=5858', '--debug 5858', '--debug-brk=5858', '--debug-brk 5858', '--debug-port=5858', '--debug-port 5858']
+
+    expect(processInfo.getProcessExecArgs().length).to.equal(1)
+    expect(processInfo.getProcessExecArgs()).to.contain('--expose_gc')
+  })
+
+  it('should use --debug-port if on 0.11 or above', function () {
+    processInfo.execArgv = []
+    processInfo.debugPort = 5
+
+    processInfo._semver.gt.returns(true)
+
+    expect(processInfo.getProcessExecArgs().length).to.equal(2)
+    expect(processInfo.getProcessExecArgs()).to.contain('--expose_gc')
+    expect(processInfo.getProcessExecArgs()).to.contain('--debug-port=5')
+  })
+
+  it('should use --debug if on 0.10 or below', function () {
+    processInfo.execArgv = []
+    processInfo.debugPort = 5
+
+    processInfo._semver.gt.returns(false)
+
+    expect(processInfo.getProcessExecArgs().length).to.equal(2)
+    expect(processInfo.getProcessExecArgs()).to.contain('--expose_gc')
+    expect(processInfo.getProcessExecArgs()).to.contain('--debug=5')
+  })
+
+  it('should find a name from a package.json file', function () {
+    expect(processInfo._findName(path.resolve(__dirname + '/../../../../index.js'))).to.equal('guvnor')
+  })
+
+  it('should set pid from process object', function () {
+    var proc = {
+      pid: 5,
+      on: sinon.stub()
+    }
+
+    expect(processInfo.pid).to.not.exist
+
+    processInfo.process = proc
+
+    expect(processInfo.process).to.equal(proc)
+    expect(processInfo.pid).to.equal(proc.pid)
+  })
+
+  it('should set process from worker object', function () {
+    var worker = {
+      process: {
+        pid: 5,
+        on: sinon.stub()
+      }
+    }
+
+    expect(processInfo.pid).to.not.exist
+
+    processInfo.worker = worker
+
+    expect(processInfo.process).to.equal(worker.process)
+    expect(processInfo.pid).to.equal(worker.process.pid)
+    expect(processInfo.worker).to.equal(worker)
+  })
+
+  it('should remove pid when removing process object', function () {
+    var proc = {
+      pid: 5,
+      on: sinon.stub()
+    }
+
+    expect(processInfo.pid).to.not.exist
+
+    processInfo.process = proc
+
+    expect(processInfo.pid).to.equal(proc.pid)
+
+    processInfo.process = undefined
+
+    expect(processInfo.pid).to.not.exist
+  })
+
+  it('should propagate process message events', function () {
+    var proc = {
+      pid: 5,
+      on: sinon.stub(),
+      emit: sinon.stub()
+    }
+    var event = {
+      event: 'foo',
+      args: ['bar']
+    }
+
+    processInfo.process = proc
+
+    expect(proc.emit.called).to.be.false
+
+    expect(proc.on.getCall(0).args[0]).to.equal('message')
+    proc.on.getCall(0).args[1](event)
+
+    expect(proc.emit.called).to.be.true
+    expect(proc.emit.getCall(0).args).to.deep.equal(['foo', 'bar'])
+  })
+
+  it('should propagate process message events without args array', function () {
+    var proc = {
+      pid: 5,
+      on: sinon.stub(),
+      emit: sinon.stub()
+    }
+    var event = {
+      event: 'foo'
+    }
+
+    processInfo.process = proc
+
+    expect(proc.emit.called).to.be.false
+
+    expect(proc.on.getCall(0).args[0]).to.equal('message')
+    proc.on.getCall(0).args[1](event)
+
+    expect(proc.emit.called).to.be.true
+    expect(proc.emit.getCall(0).args).to.deep.equal(['foo'])
+  })
+
+  it('should ignore process message events without event object', function () {
+    var proc = {
+      pid: 5,
+      on: sinon.stub(),
+      emit: sinon.stub()
+    }
+    var event = 'foo'
+
+    processInfo.process = proc
+
+    expect(proc.on.getCall(0).args[0]).to.equal('message')
+    proc.on.getCall(0).args[1](event)
+
+    expect(proc.emit.called).to.be.false
+  })
+
+  it('should report as running if status is uninitialised, starting, started, running, restarting or stopping', function () {
+    processInfo.status = 'foo'
+    expect(processInfo.running).to.be.false
+
+    processInfo.status = 'uninitialised'
+    expect(processInfo.running).to.be.true
+
+    processInfo.status = 'starting'
+    expect(processInfo.running).to.be.true
+
+    processInfo.status = 'started'
+    expect(processInfo.running).to.be.true
+
+    processInfo.status = 'running'
+    expect(processInfo.running).to.be.true
+
+    processInfo.status = 'restarting'
+    expect(processInfo.running).to.be.true
+
+    processInfo.status = 'stopping'
+    expect(processInfo.running).to.be.true
+
+    processInfo.status = 'stopped'
+    expect(processInfo.running).to.be.false
+  })
+
+  it('should populate user and group via posix from passed parameters', function (done) {
+    var user = 'foo'
+    var group = 'bar'
+
+    var userDetails = {
+      name: user,
+      uid: 5
+    }
+
+    var groupDetails = {
+      name: group,
+      gid: 6
+    }
+
+    processInfo.user = user
+    processInfo.group = group
+
+    processInfo._posix.getpwnam.withArgs(user).returns(userDetails)
+    processInfo._posix.getgrnam.withArgs(group).returns(groupDetails)
+
+    processInfo._checkUserAndGroup(function () {
+      expect(processInfo.user).to.equal(userDetails.name)
+      expect(processInfo.uid).to.equal(userDetails.uid)
+      expect(processInfo.group).to.equal(groupDetails.name)
+      expect(processInfo.gid).to.equal(groupDetails.gid)
+
+      done()
+    })
+  })
+
+  it('should take user and group via posix from process if parameters not passed', function (done) {
+    var user = 'foo'
+    var group = 'bar'
+
+    var userDetails = {
+      name: user,
+      uid: 5
+    }
+
+    var groupDetails = {
+      name: group,
+      gid: 6
+    }
+
+    processInfo.user = undefined
+    processInfo.group = undefined
+
+    processInfo._posix.getpwnam.withArgs(process.getuid()).returns(userDetails)
+    processInfo._posix.getgrnam.withArgs(process.getgid()).returns(groupDetails)
+
+    processInfo._checkUserAndGroup(function () {
+      expect(processInfo.user).to.equal(userDetails.name)
+      expect(processInfo.uid).to.equal(userDetails.uid)
+      expect(processInfo.group).to.equal(groupDetails.name)
+      expect(processInfo.gid).to.equal(groupDetails.gid)
+
+      done()
+    })
+  })
+
+  it('should propagate error if getting user and group via posix fails', function (done) {
+    var error = new Error('Urk!')
+
+    processInfo._posix.getpwnam.throws(error)
+
+    processInfo._checkUserAndGroup(function (er) {
+      expect(er).to.equal(error)
+      expect(er.code).to.equal('INVALID')
+
+      done()
+    })
+  })
+
+  it('should update a logger', function (done) {
+    processInfo.logger.add = function(logger) {
+      logger.emit('open')
+    }
+
+    processInfo._fileSystem.getLogDir.returns(os.tmpdir())
+    processInfo._fs.chown.callsArgAsync(3)
+
+    processInfo._updateLogger(done)
+  })
+
+  it('should check that the script exists', function (done) {
+    processInfo.script = '/foo/bar.js'
+    processInfo._fs.exists.withArgs(processInfo.script).callsArgWith(1, true)
+
+    processInfo._checkScriptExists(function (error) {
+      expect(error).to.not.exist
+
+      done()
+    })
+  })
+
+  it('should pass back error if script does not exist', function (done) {
+    processInfo.script = '/foo/bar.js'
+    processInfo._fs.exists.withArgs(processInfo.script).callsArgWith(1, false)
+
+    processInfo._checkScriptExists(function (error) {
+      expect(error.code).to.equal('INVALID')
+
+      done()
+    })
+  })
+
+  it('should take cwd from script dirname if is not a directory', function (done) {
+    processInfo.script = '/foo/bar.js'
+    processInfo._fs.stat.withArgs(processInfo.script).callsArgWith(1, undefined, {
+      isDirectory: sinon.stub().returns(false)
+    })
+
+    processInfo._takeCwdFromScript(function () {
+      expect(processInfo.cwd).to.equal('/foo')
+
+      done()
+    })
+  })
+
+  it('should set cwd as script if is a directory', function (done) {
+    processInfo.script = '/foo'
+    processInfo._fs.stat.withArgs(processInfo.script).callsArgWith(1, undefined, {
+      isDirectory: sinon.stub().returns(true)
+    })
+
+    processInfo._takeCwdFromScript(function () {
+      expect(processInfo.cwd).to.equal('/foo')
+
+      done()
+    })
+  })
+
+  it('should propagate error if one occurs during cwd stat', function (done) {
+    var error = new Error('Urk!')
+
+    processInfo.script = '/foo'
+    processInfo._fs.stat.withArgs(processInfo.script).callsArgWith(1, error)
+
+    processInfo._takeCwdFromScript(function (er) {
+      expect(er).to.equal(error)
+
+      done()
+    })
+  })
+
+  it('should not overwrite cwd if already set', function (done) {
+    processInfo.cwd = '/bar'
+
+    processInfo._takeCwdFromScript(function () {
+      expect(processInfo.cwd).to.equal('/bar')
+
+      done()
+    })
+  })
+
+  it('should check that cwd exists', function (done) {
+    processInfo.cwd = '/bar'
+    processInfo._fs.exists.withArgs(processInfo.cwd).callsArgWith(1, true)
+
+    processInfo._checkCwdExists(done)
+  })
+
+  it('should pass back error if cwd does not exist', function (done) {
+    processInfo.cwd = '/bar'
+    processInfo._fs.exists.withArgs(processInfo.cwd).callsArgWith(1, false)
+
+    processInfo._checkCwdExists(function (error) {
+      expect(error.code).to.equal('INVALID')
+
+      done()
+    })
   })
 })
