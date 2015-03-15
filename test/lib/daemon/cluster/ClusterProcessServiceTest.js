@@ -3,9 +3,10 @@ var expect = require('chai').expect,
   ClusterProcessService = require('../../../../lib/daemon/cluster/ClusterProcessService')
 
 describe('ClusterProcessService', function () {
+  var service
 
-  it('should start a process', function (done) {
-    var service = new ClusterProcessService()
+  beforeEach(function () {
+    service = new ClusterProcessService()
     service._freeport = sinon.stub()
     service._processInfoStore = {
       create: sinon.stub(),
@@ -27,7 +28,9 @@ describe('ClusterProcessService', function () {
       error: console.info,
       debug: console.info
     }
+  })
 
+  it('should start a process', function (done) {
     var processOptions = {
       execArgv: [],
       env: []
@@ -99,5 +102,33 @@ describe('ClusterProcessService', function () {
 
       done()
     })
+  })
+
+  it('should stop a process', function () {
+    var child = {
+      id: 'foo',
+      remote: {
+        kill: sinon.stub()
+      }
+    }
+    service.stopProcess(child)
+
+    expect(service._processInfoStore.remove.withArgs('id', child.id).called).to.be.true
+    expect(child.remote.kill.called).to.be.true
+  })
+
+  it('should emit fork event when worker forks', function (done) {
+    var worker = {
+      id: 'foo',
+      process: {
+        pid: 5
+      }
+    }
+    service.afterPropertiesSet()
+
+    service.once('worker:forked', done)
+
+    expect(service._cluster.on.getCall(3).args[0]).to.equal('fork')
+    service._cluster.on.getCall(3).args[1](worker)
   })
 })
