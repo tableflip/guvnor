@@ -179,4 +179,212 @@ describe('AppService', function () {
       done()
     })
   })
+
+  it('should propagate error finding app when remove an app', function (done) {
+    var name = 'foo'
+
+    service.remove(name, function (error) {
+      expect(error.message).to.contain('No app exists')
+
+      done()
+    })
+  })
+
+  it('should not remove an app that is running', function (done) {
+    var name = 'foo'
+    var appInfo = {
+      id: 'bar',
+      remove: sinon.stub()
+    }
+
+    appInfo.remove.callsArg(0)
+    service._applicationStore.find.withArgs('name', name).returns(appInfo)
+    service._processService.listProcesses.returns([{
+      app: appInfo.id,
+      running: true
+    }])
+
+    service.remove(name, function (error) {
+      expect(error.message).to.contain('please stop it first')
+
+      done()
+    })
+  })
+
+  it('should propagate error when removing an app directory', function (done) {
+    var name = 'foo'
+    var appInfo = {
+      id: 'bar',
+      remove: sinon.stub()
+    }
+    var error = new Error('Urk!')
+
+    appInfo.remove.callsArgWith(0, error)
+    service._applicationStore.find.withArgs('name', name).returns(appInfo)
+    service._processService.listProcesses.returns([])
+
+    service.remove(name, function (er) {
+      expect(er).to.equal(error)
+
+      done()
+    })
+  })
+
+  it('should switch ref', function (done) {
+    var name = 'foo'
+    var originalRef = 'originalRef'
+    var newRef = 'originalRef'
+    var appInfo = {
+      id: 'bar',
+      currentRef: sinon.stub(),
+      checkout: sinon.stub(),
+      installDependencies: sinon.stub()
+    }
+    var onOut = sinon.stub()
+    var onErr = sinon.stub()
+
+    appInfo.currentRef.callsArgWith(0, undefined, originalRef)
+    appInfo.checkout.callsArg(3)
+    appInfo.installDependencies.callsArg(2)
+
+    service._applicationStore.find.withArgs('name', name).returns(appInfo)
+    service._processService.listProcesses.returns([])
+
+    var eventEmitted = false
+
+    service.once('app:refs:switched', function () {
+      eventEmitted = true
+    })
+
+    service.switchRef(name, newRef, onOut, onErr, function (error) {
+      expect(error).to.not.exist
+      expect(eventEmitted).to.be.true
+
+      done()
+    })
+  })
+
+  it('should not switch ref for running app', function (done) {
+    var name = 'foo'
+    var originalRef = 'originalRef'
+    var newRef = 'originalRef'
+    var appInfo = {
+      id: 'bar'
+    }
+    var onOut = sinon.stub()
+    var onErr = sinon.stub()
+
+    service._applicationStore.find.withArgs('name', name).returns(appInfo)
+    service._processService.listProcesses.returns([{
+      app: appInfo.id,
+      running: true
+    }])
+
+    service.switchRef(name, newRef, onOut, onErr, function (error) {
+      expect(error.message).to.contain('please stop it first')
+
+      done()
+    })
+  })
+
+  it('should propagate error finding app when switching an app ref', function (done) {
+    var name = 'foo'
+    var newRef = 'originalRef'
+    var onOut = sinon.stub()
+    var onErr = sinon.stub()
+
+    service.switchRef(name, newRef, onOut, onErr, function (error) {
+      expect(error.message).to.contain('No app exists')
+
+      done()
+    })
+  })
+
+  it('should list app refs', function (done) {
+    var name = 'foo'
+    var appInfo = {
+      id: 'bar',
+      listRefs: sinon.stub().callsArgWith(0, undefined, 'refs')
+    }
+
+    service._applicationStore.find.withArgs('name', name).returns(appInfo)
+
+    service.listRefs(name, function (error, refs) {
+      expect(error).to.not.exist
+      expect(refs).to.equal('refs')
+
+      done()
+    })
+  })
+
+  it('should propagate error when failing to find app when listing app refs', function (done) {
+    var name = 'foo'
+
+    service.listRefs(name, function (error, refs) {
+      expect(error.message).to.contain('No app exists')
+
+      done()
+    })
+  })
+
+  it('should update refs', function (done) {
+    var name = 'foo'
+    var appInfo = {
+      id: 'bar',
+      updateRefs: sinon.stub()
+    }
+    var onOut = sinon.stub()
+    var onErr = sinon.stub()
+
+    appInfo.updateRefs.callsArgWith(2, undefined, appInfo, 'refs')
+
+    service._applicationStore.find.withArgs('name', name).returns(appInfo)
+    service._processService.listProcesses.returns([])
+
+    var eventEmitted = false
+
+    service.once('app:refs:updated', function () {
+      eventEmitted = true
+    })
+
+    service.updateRefs(name, onOut, onErr, function (error) {
+      expect(error).to.not.exist
+      expect(eventEmitted).to.be.true
+
+      done()
+    })
+  })
+
+  it('should not update refs for running app', function (done) {
+    var name = 'foo'
+    var appInfo = {
+      id: 'bar'
+    }
+    var onOut = sinon.stub()
+    var onErr = sinon.stub()
+
+    service._applicationStore.find.withArgs('name', name).returns(appInfo)
+    service._processService.listProcesses.returns([{
+      app: appInfo.id,
+      running: true
+    }])
+
+    service.updateRefs(name, onOut, onErr, function (error) {
+      expect(error.message).to.contain('please stop it first')
+
+      done()
+    })
+  })
+
+  it('should propagate error finding app when updating app refs', function (done) {
+    var name = 'foo'
+    var onOut = sinon.stub()
+    var onErr = sinon.stub()
+
+    service.updateRefs(name, onOut, onErr, function (error) {
+      expect(error.message).to.contain('No app exists')
+
+      done()
+    })
+  })
 })

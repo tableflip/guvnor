@@ -419,30 +419,6 @@ describe('Guvnor', function () {
     expect(guvnor._appService.switchRef.calledWith(name, ref, onOut, onErr)).to.be.true
   })
 
-  it('should emit an event when switching application refs', function (done) {
-    var name = 'name'
-    var ref = 'ref'
-    var onOut = 'onOut'
-    var onErr = 'onErr'
-    var callback = sinon.stub()
-    var appInfo = 'info'
-    var previousRef = 'previousRef'
-    var newRef = 'newRef'
-
-    guvnor._appService.switchRef.withArgs(name, ref, onOut, onErr).callsArgWith(4, undefined, appInfo, previousRef, newRef)
-
-    guvnor.once('app:refs:switched', function (error, app, prev, current) {
-      expect(error).to.not.exist
-      expect(appInfo).to.equal(app)
-      expect(previousRef).to.equal(prev)
-      expect(newRef).to.equal(current)
-      expect(callback.calledWith(undefined, app, prev, current)).to.be.true
-
-      done()
-    })
-    guvnor.switchApplicationRef({}, name, ref, onOut, onErr, callback)
-  })
-
   it('should delegate to app service for updating application refs', function () {
     var name = 'name'
     var ref = 'ref'
@@ -453,27 +429,6 @@ describe('Guvnor', function () {
     guvnor.updateApplicationRefs({}, name, onOut, onErr, callback)
 
     expect(guvnor._appService.updateRefs.calledWith(name, onOut, onErr)).to.be.true
-  })
-
-  it('should emit an event when updating application refs', function (done) {
-    var name = 'name'
-    var onOut = 'onOut'
-    var onErr = 'onErr'
-    var callback = sinon.stub()
-    var appInfo = 'info'
-    var refs = 'refs'
-
-    guvnor._appService.updateRefs.withArgs(name, onOut, onErr).callsArgWith(3, undefined, appInfo, refs)
-
-    guvnor.once('app:refs:updated', function (error, app, r) {
-      expect(error).to.not.exist
-      expect(appInfo).to.equal(app)
-      expect(refs).to.equal(r)
-      expect(callback.calledWith(undefined, app, r)).to.be.true
-
-      done()
-    })
-    guvnor.updateApplicationRefs({}, name, onOut, onErr, callback)
   })
 
   it('should delegate to app service for listing application refs', function () {
