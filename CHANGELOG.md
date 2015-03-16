@@ -17,6 +17,7 @@ Revision history for guvnor
 
 ## [3.1.0](releases/tag/v3.1.0)
 
+ * Adds write command to send data to stdin of a managed process
  * Refactors local programatic interface to add RPC methods to managed process objects
 
 ## [3.0.3](releases/tag/v3.0.3)

@@ -1,15 +1,10 @@
-var readline = require('readline')
+process.stdin.resume()
 
-var rl = readline.createInterface({
-  input: process.stdin,
-  output: process.stdout
-})
+process.stdin.on('data', function(buffer) {
 
-rl.question('Say something!', function (answer) {
+  // got some input, inform guvnor
   process.send({
     event: 'stdin:received',
-    args: [answer]
+    args: [buffer.toString('utf8').trim()]
   })
-
-  rl.close()
 })
