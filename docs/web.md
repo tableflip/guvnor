@@ -113,4 +113,4 @@ $ guv-web genssl 30
 
 If the number of days is omitted it defaults to one year.
 
-Alternatively if you've bought an SSL certificate, configure guvnor-web according to the comments in the `[https]` section of the [default configuration](./guvnor-web) file.
+Alternatively if you've bought an SSL certificate, configure guvnor-web according to the comments in the `[https]` section of the [default configuration](../guvnor-web) file.
