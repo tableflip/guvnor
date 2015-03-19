@@ -104,7 +104,7 @@ If you create a configuration file, it will be merged with the default configura
 
 ## Starting guvnor on boot
 
-Boss comes with a sysv init script.  To configure it to run on system boot run the following:
+Guvnor comes with a sysv init script.  To configure it to run on system boot run the following:
 
 ```sh
 $ sudo ln -s /usr/local/lib/node_modules/guvnor/scripts/init/sysv/guvnor /etc/init.d/guvnor
