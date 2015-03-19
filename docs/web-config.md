@@ -28,7 +28,7 @@ Changing values in configuration files will override the defaults supplied with 
 
 `guvnor-web` contains various preferences and settings for the web server and user interface.
 
-See the [default configuration file](./guvnor-web) for discussion on the various options.
+See the [default configuration file](../guvnor-web) for discussion on the various options.
 
 The only one that is required for you to change is `${salt}`.  Do this by running:
 
