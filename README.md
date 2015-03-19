@@ -98,7 +98,7 @@ The first time you invoke a guvnor command, the daemon will start in the backgro
 Configure
 ---
 
-A configuration file if run as root can be placed at `/etc/guvnor/guvnorrc`. Take a look at the [default configuration file](guvnorrc) for details.
+A configuration file if run as root can be placed at `/etc/guvnor/guvnor`. Take a look at the [default configuration file](guvnor) for details.
 
 If you create a configuration file, it will be merged with the default configuration, so if you only want to override one property, you need only specify one property in your config file.
 
