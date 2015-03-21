@@ -108,7 +108,7 @@ module.exports = View.extend({
       window.app.socket.emit('app:remove', {
         host: this.model.collection.parent.name,
         name: this.model.name
-      })
+      }, function () {})
     }.bind(this))
   }
 })
