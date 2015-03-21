@@ -16,6 +16,6 @@ describe('snapshot', function () {
     })
 
     // ignore timezone offset..
-    expect(snapshot.dateFormatted).to.contain('1970-01-01 01:00:00')
+    expect(snapshot.dateFormatted).to.contain('1970-01-01')
   })
 })
