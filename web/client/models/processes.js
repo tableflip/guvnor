@@ -30,6 +30,7 @@ module.exports = Collection.extend({
     if (isNew) {
       process.logs.fetch()
       process.exceptions.fetch()
+      process.snapshots.fetch()
     }
 
     if (usage.cpu !== undefined) {
@@ -68,13 +69,15 @@ module.exports = Collection.extend({
     if (usage[prop] !== undefined) {
       var list = process[prop]
 
+      var url = '/hosts/' + process.collection.parent.name + '/processes/' + process.id + '/' + prop
+
       if (list.length === 0) {
         window.$.ajax({
-          url: '/hosts/' + process.collection.parent.name + '/processes/' + process.id + '/' + prop,
+          url: url,
           settings: {
             dataType: 'json'
           }
-        }).success(function (data) {
+        }).success(function (url, data) {
           data.forEach(function (datum) {
             list.push(datum)
           })
@@ -90,7 +93,7 @@ module.exports = Collection.extend({
 
             return 0
           })
-        })
+        }.bind(this, url))
       }
 
       if (list.length === 0 || list[list.length - 1].x < this.parent.time) {

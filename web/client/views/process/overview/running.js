@@ -32,23 +32,6 @@ module.exports = View.extend({
       name: 'disabled',
       selector: '[data-hook=gcbutton]'
     }],
-    'model.isHeapDump': [{
-      type: 'booleanClass',
-      no: 'fa-h-square',
-      selector: '[data-hook=heapdumpbutton] i'
-    }, {
-      type: 'booleanClass',
-      name: 'fa-circle-o-notch',
-      selector: '[data-hook=heapdumpbutton] i'
-    }, {
-      type: 'booleanClass',
-      name: 'fa-spin',
-      selector: '[data-hook=heapdumpbutton] i'
-    }, {
-      type: 'booleanAttribute',
-      name: 'disabled',
-      selector: '[data-hook=heapdumpbutton]'
-    }],
     'model.isRestarting': [{
       type: 'booleanClass',
       no: 'fa-refresh',
@@ -86,7 +69,6 @@ module.exports = View.extend({
   },
   events: {
     'click button.process-gc': 'garbageCollectProcess',
-    'click button.process-heap': 'heapDumpProcess',
     'click button.process-debug': 'debugProcess',
     'click [data-hook=restartbutton]': 'restartProcess',
     'click button.process-stop': 'stopProcess',
@@ -114,32 +96,6 @@ module.exports = View.extend({
         notify({
           header: 'Garbage collection complete',
           message: ['%s on %s has collected garbage', this.model.name, this.model.collection.parent.name],
-          type: 'success'
-        })
-      }
-    }.bind(this))
-  },
-  heapDumpProcess: function (event) {
-    event.target.blur()
-
-    this.model.isHeapDump = true
-
-    window.app.socket.emit('process:heapdump', {
-      host: this.model.collection.parent.name,
-      process: this.model.id
-    }, function (error, path) {
-      this.model.isHeapDump = false
-
-      if (error) {
-        notify({
-          header: 'Heap dump error',
-          message: ['%s on %s has failed to dump heap - %s', this.model.name, this.model.collection.parent.name, error.message],
-          type: 'danger'
-        })
-      } else {
-        notify({
-          header: 'Heap dump complete',
-          message: ['%s on %s has dumped heap to %s', this.model.name, this.model.collection.parent.name, path],
           type: 'success'
         })
       }

@@ -297,7 +297,7 @@ describe('Processes', function () {
     var path = 'path'
     var managedProcess = {
       name: name,
-      dumpHeap: sinon.stub().callsArgWith(0, undefined, path),
+      dumpHeap: sinon.stub().callsArgWith(0, undefined, {path: path}),
       disconnect: sinon.stub().callsArg(0)
     }
 

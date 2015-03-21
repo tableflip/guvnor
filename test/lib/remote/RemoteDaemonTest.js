@@ -24,6 +24,9 @@ describe('RemoteDaemon', function () {
     remoteDaemon._tls = {
       connect: sinon.stub()
     }
+    remoteDaemon._semver = {
+      satisfies: sinon.stub().returns(true)
+    }
   })
 
   afterEach(function () {

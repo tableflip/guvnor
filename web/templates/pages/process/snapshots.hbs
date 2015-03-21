@@ -1,0 +1,26 @@
+<section class="page process">
+  <div class="row">
+    <div class="col-md-12">
+      <h1 data-hook="process-name">{{model.name}}</h1>
+      <div class="panel panel-primary table-panel exceptions">
+        <div class="panel-heading panel-heading-exceptions">
+          <button type="button" class="btn btn-default btn-xs process-heap" data-hook="heapdumpbutton"><i class="fa fa-bar-chart"></i> Take snapshot</button>
+          <h4 class="panel-title">Heap snapshots</h4>
+        </div>
+        <div class="panel-body panel-exceptions">
+          <table class="table table-striped snapshot-list">
+            <thead>
+            <tr>
+              <th class="name">Date</th>
+              <th class="size">Size</th>
+              <th class="path">Path</th>
+              <td class="buttons">&nbsp;</td>
+            </tr>
+            </thead>
+            <tbody data-hook="snapshots"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

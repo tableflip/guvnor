@@ -8925,12 +8925,14 @@ Copyright (c) 2014 Daniel Eden
   color: #f7df1e;
 }
 .host-list .host-name li.processLogs,
-.host-list .host-name li.processExceptions {
+.host-list .host-name li.processExceptions,
+.host-list .host-name li.processSnapshots {
   border-left-width: 30px;
 }
 @media (min-width: 768px) {
   .host-list .host-name li.processLogs,
-  .host-list .host-name li.processExceptions {
+  .host-list .host-name li.processExceptions,
+  .host-list .host-name li.processSnapshots {
     display: none;
   }
 }
@@ -9045,7 +9047,7 @@ Copyright (c) 2014 Daniel Eden
     display: none;
   }
 }
-.panel-heading-logs button {
+.panel-heading button {
   float: right;
   margin-left: 5px;
 }

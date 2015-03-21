@@ -59,6 +59,10 @@ rpctimeout = 30000
   ; The max number of exceptions per process that will be stored
   max = 1000
 
+[snapshots]
+  ; The max number of heap snapshots per process that will be stored
+  max = 1000
+
 [ws]
   ; Incoming log/exception events arrive in real time and are batched before begin sent to
   ; the browser to prevent locking up the UI. This is how frequently they are sent in ms.

@@ -1,7 +1,8 @@
 var expect = require('chai').expect,
   sinon = require('sinon'),
   path = require('path'),
-  ProcessRPC = require('../../../../lib/daemon/process/ProcessRPC')
+  ProcessRPC = require('../../../../lib/daemon/process/ProcessRPC'),
+  EventEmitter = require('events').EventEmitter
 
 describe('ProcessRPC', function () {
 
@@ -23,7 +24,9 @@ describe('ProcessRPC', function () {
     processRpc._fs = {
       chown: sinon.stub(),
       chmod: sinon.stub(),
-      unlink: sinon.stub()
+      unlink: sinon.stub(),
+      stat: sinon.stub(),
+      createReadStream: sinon.stub()
     }
     processRpc._heapdump = {
       writeSnapshot: sinon.stub()
@@ -97,27 +100,39 @@ describe('ProcessRPC', function () {
 
   it('should dump heap', function (done) {
     var name = 'foo'
+    var size = 42390823
     processRpc._heapdump.writeSnapshot.callsArgWith(0, undefined, name)
+    processRpc._fs.stat.callsArgWith(1, undefined, {
+      size: size
+    })
 
-    processRpc.dumpHeap(function (error, fileName) {
+    processRpc.dumpHeap(function (error, snapshot) {
       expect(error).to.not.exist
 
       expect(processRpc._parentProcess.send.calledWith('process:heapdump:start')).to.be.true
       expect(processRpc._parentProcess.send.calledWith('process:heapdump:complete')).to.be.true
-      expect(fileName).to.contain(name)
+      expect(snapshot.path).to.contain(name)
+      expect(snapshot.size).to.equal(size)
 
       done()
     })
   })
 
-  it('should dump heap with no callback', function () {
+  it('should dump heap with no callback', function (done) {
     var name = 'foo'
     processRpc._heapdump.writeSnapshot.callsArgWith(0, undefined, name)
+    processRpc._fs.stat.callsArgWith(1, undefined, {
+      size: 5
+    })
 
     processRpc.dumpHeap()
 
-    expect(processRpc._parentProcess.send.calledWith('process:heapdump:start')).to.be.true
-    expect(processRpc._parentProcess.send.calledWith('process:heapdump:complete')).to.be.true
+    setTimeout(function () {
+      expect(processRpc._parentProcess.send.calledWith('process:heapdump:start')).to.be.true
+      expect(processRpc._parentProcess.send.calledWith('process:heapdump:complete')).to.be.true
+
+      done()
+    }, 100)
   })
 
   it('should inform of dump heap error', function (done) {
@@ -320,5 +335,69 @@ describe('ProcessRPC', function () {
 
       done()
     })
+  })
+
+  it('should fetch a heap snapshot', function () {
+    var snapshot = {
+      id: 'foo',
+      path: 'bar'
+    }
+    processRpc._heapSnapshots[snapshot.id] = snapshot
+
+    var onData = sinon.stub()
+    var onEnd = sinon.stub()
+    var callback = sinon.stub()
+    var stream = new EventEmitter()
+
+    processRpc._fs.createReadStream.withArgs(snapshot.path).returns(stream)
+
+    processRpc.fetchHeapSnapshot(snapshot.id, onData, onEnd, callback)
+
+    expect(callback.calledWith(undefined, snapshot)).to.be.true
+
+    expect(onData.called).to.be.false
+    stream.emit('data', 'buf')
+    expect(onData.calledWith('buf')).to.be.true
+
+    expect(onEnd.called).to.be.false
+    stream.emit('end')
+    expect(onEnd.called).to.be.true
+  })
+
+  it('should pass an error when no snapshot can be found during fetching', function () {
+    var callback = sinon.stub()
+
+    processRpc.fetchHeapSnapshot('foo', null, null, callback)
+
+    expect(callback.getCall(0).args[0].message).to.contain('No snapshot for')
+    expect(callback.getCall(0).args[0].code).to.equal('ENOENT')
+  })
+
+  it('should remove a heap snapshot', function () {
+    var snapshot = {
+      id: 'foo',
+      path: 'bar'
+    }
+    processRpc._heapSnapshots[snapshot.id] = snapshot
+
+    var callback = sinon.stub()
+
+    processRpc._fs.unlink.withArgs(snapshot.path).callsArg(1)
+
+    processRpc.removeHeapSnapshot(snapshot.id, callback)
+
+    expect(callback.called).to.be.true
+    expect(processRpc._parentProcess.send.calledWith('process:heapdump:removed', snapshot)).to.be.true
+  })
+
+  it('should remove a non-existent heap snapshot', function () {
+    var callback = sinon.stub()
+
+    processRpc.removeHeapSnapshot('foo', callback)
+
+    expect(callback.called).to.be.true
+    expect(processRpc._parentProcess.send.calledWith('process:heapdump:removed', {
+      id: 'foo'
+    })).to.be.true
   })
 })

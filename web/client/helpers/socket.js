@@ -297,14 +297,20 @@ socket.on('process:heapdump:start', function (hostName, processInfo) {
     process.isHeapDump = true
   })
 })
-socket.on('process:heapdump:complete', function (hostName, processInfo) {
+socket.on('process:heapdump:complete', function (hostName, processInfo, heapDump) {
   withHostAndProcess(hostName, processInfo.id, function (host, process) {
     process.isHeapDump = false
+    process.snapshots.add(heapDump)
   })
 })
 socket.on('process:heapdump:error', function (hostName, processInfo) {
   withHostAndProcess(hostName, processInfo.id, function (host, process) {
     process.isHeapDump = false
+  })
+})
+socket.on('process:heapdump:removed', function (hostName, processInfo, heapDump) {
+  withHostAndProcess(hostName, processInfo.id, function (host, process) {
+    process.snapshots.remove(heapDump)
   })
 })
 socket.on('process:restarting', function (hostName, processInfo) {

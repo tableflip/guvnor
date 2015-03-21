@@ -1,6 +1,7 @@
-var HostData = require('../../../../lib/web/domain/HostData'),
-  sinon = require('sinon'),
-  expect = require('chai').expect
+var HostData = require('../../../../lib/web/domain/HostData')
+var sinon = require('sinon')
+var expect = require('chai').expect
+var EventEmitter = require('wildemitter')
 
 describe('HostData', function () {
   var data
@@ -437,33 +438,17 @@ describe('HostData', function () {
   })
 
   it('should pass log event to process', function () {
-    var newDaemon = {
-      once: sinon.stub(),
-      getDetails: sinon.stub(),
-      off: sinon.stub(),
-      on: sinon.stub()
-    }
-    var details = {
-      guvnor: '2.4.2'
-    }
-
-    data._config.minVersion = '^2.0.0'
-    data._update = sinon.stub()
-
     var proc = {
       id: 'foo',
       log: sinon.stub()
     }
 
     data.processes.push(proc)
+    data._daemon = new EventEmitter()
 
-    newDaemon.getDetails.callsArgWith(0, undefined, details)
+    data._listenForLogEvents()
 
-    data._connectedToDaemon(undefined, newDaemon)
-
-    expect(newDaemon.on.getCall(0).args[0]).to.equal('process:log:*')
-
-    newDaemon.on.getCall(0).args[1]('process:log:error', {
+    data._daemon.emit('process:log:error', {
       id: 'foo'
     }, {
       date: 'bar',
@@ -473,19 +458,94 @@ describe('HostData', function () {
     expect(proc.log.calledWith('error', 'bar', 'baz')).to.be.true
   })
 
-  it('should pass uncaught exception to process', function () {
-    var newDaemon = {
-      once: sinon.stub(),
-      getDetails: sinon.stub(),
-      off: sinon.stub(),
-      on: sinon.stub()
-    }
-    var details = {
-      guvnor: '2.4.2'
+  it('should survive not finding a process when passing a log event to process', function () {
+    data._daemon = new EventEmitter()
+
+    data._listenForLogEvents()
+
+    data._daemon.emit('process:log:error', {
+      id: 'foo'
+    }, {
+      date: 'bar',
+      message: 'baz'
+    })
+  })
+
+  it('should pass cluster event to process', function () {
+    var proc = {
+      id: 'foo',
+      log: sinon.stub()
     }
 
-    data._config.minVersion = '^2.0.0'
-    data._update = sinon.stub()
+    data.processes.push(proc)
+    data._daemon = new EventEmitter()
+
+    data._listenForLogEvents()
+
+    data._daemon.emit('cluster:log:error', {
+      id: 'foo'
+    }, {
+      date: 'bar',
+      message: 'baz'
+    })
+
+    expect(proc.log.calledWith('error', 'bar', 'baz')).to.be.true
+  })
+
+  it('should survive not finding a process when passing a cluster event to process', function () {
+    data._daemon = new EventEmitter()
+
+    data._listenForLogEvents()
+
+    data._daemon.emit('cluster:log:error', {
+      id: 'foo'
+    }, {
+      date: 'bar',
+      message: 'baz'
+    })
+  })
+
+  it('should pass worker event to process', function () {
+    var proc = {
+      id: 'bar',
+      log: sinon.stub()
+    }
+
+    data.processes.push(proc)
+    data._daemon = new EventEmitter()
+
+    data._listenForLogEvents()
+
+    data._daemon.emit('worker:log:error', {
+      id: 'foo'
+    }, {
+      id: 'bar'
+    }, {
+      date: 'baz',
+      message: 'qux'
+    })
+
+    expect(proc.log.calledWith('error', 'baz', 'qux')).to.be.true
+  })
+
+  it('should survive not finding a process when passing a worker event to process', function () {
+    data._daemon = new EventEmitter()
+
+    data._listenForLogEvents()
+
+    data._daemon.emit('worker:log:error', {
+      id: 'foo'
+    }, {
+      id: 'bar'
+    }, {
+      date: 'baz',
+      message: 'qux'
+    })
+  })
+
+  it('should pass uncaught exception to process', function () {
+    data._daemon = new EventEmitter()
+    data._listenForUncaughtExceptions()
 
     var proc = {
       id: 'foo',
@@ -494,13 +554,7 @@ describe('HostData', function () {
 
     data.processes.push(proc)
 
-    newDaemon.getDetails.callsArgWith(0, undefined, details)
-
-    data._connectedToDaemon(undefined, newDaemon)
-
-    expect(newDaemon.on.getCall(3).args[0]).to.equal('process:uncaughtexception')
-
-    newDaemon.on.getCall(3).args[1]({
+    data._daemon.emit('process:uncaughtexception', {
       id: 'foo'
     }, {
       date: 'bar',
@@ -510,6 +564,57 @@ describe('HostData', function () {
     })
 
     expect(proc.exception.calledWith('bar', 'baz', 'qux', 'quux')).to.be.true
+  })
+
+  it('should survive not finding a process when passing uncaught exception to process', function () {
+    data._daemon = new EventEmitter()
+    data._listenForUncaughtExceptions()
+
+    data._daemon.emit('process:uncaughtexception', {
+      id: 'foo'
+    }, {
+      date: 'bar',
+      message: 'baz',
+      code: 'qux',
+      stack: 'quux'
+    })
+  })
+
+  it('should store exception when process fails', function () {
+    data._daemon = new EventEmitter()
+    data._listenForUncaughtExceptions()
+
+    var proc = {
+      id: 'foo',
+      exception: sinon.stub()
+    }
+
+    data.processes.push(proc)
+
+    data._daemon.emit('process:failed', {
+      id: 'foo'
+    }, {
+      date: 'bar',
+      message: 'baz',
+      code: 'qux',
+      stack: 'quux'
+    })
+
+    expect(proc.exception.calledWith('bar', 'baz', 'qux', 'quux')).to.be.true
+  })
+
+  it('should survive not finding a process when a process fails', function () {
+    data._daemon = new EventEmitter()
+    data._listenForUncaughtExceptions()
+
+    data._daemon.emit('process:failed', {
+      id: 'foo'
+    }, {
+      date: 'bar',
+      message: 'baz',
+      code: 'qux',
+      stack: 'quux'
+    })
   })
 
   it('should broadcast process events', function () {
@@ -537,10 +642,87 @@ describe('HostData', function () {
 
     data._connectedToDaemon(undefined, newDaemon)
 
-    expect(newDaemon.on.getCall(6).args[0]).to.equal('*')
+    expect(newDaemon.on.getCall(8).args[0]).to.equal('*')
 
-    newDaemon.on.getCall(6).args[1]('foo', 'bar')
+    newDaemon.on.getCall(8).args[1]('foo', 'bar')
 
     expect(data._webSocketResponder.broadcast.calledWith('foo', 'test', 'bar')).to.be.true
+  })
+
+  it('should store heap snapshots', function () {
+    var proc = {
+      id: 'foo',
+      snapshot: sinon.stub()
+    }
+    var snapshot = {
+      id: 'bar',
+      date: 'baz',
+      path: 'qux',
+      size: 'quux'
+    }
+
+    data.processes.push(proc)
+    data._daemon = new EventEmitter()
+
+    data._listenForHeapSnapshots()
+
+    data._daemon.emit('process:heapdump:complete', {
+      id: proc.id
+    }, snapshot)
+
+    expect(proc.snapshot.called).to.be.true
+    expect(proc.snapshot.getCall(0).args).to.deep.equal([
+      snapshot.id, snapshot.date, snapshot.path, snapshot.size
+    ])
+  })
+
+  it('should survive not finding a process when adding heap snapshots', function () {
+    var snapshot = {
+      id: 'foo'
+    }
+
+    data._daemon = new EventEmitter()
+
+    data._listenForHeapSnapshots()
+
+    data._daemon.emit('process:heapdump:complete', {
+      id: 'bar'
+    }, snapshot)
+  })
+
+  it('should remove heap snapshots', function () {
+    var proc = {
+      id: 'foo',
+      removeSnapshot: sinon.stub()
+    }
+    var snapshot = {
+      id: 'bar'
+    }
+
+    data.processes.push(proc)
+    data._daemon = new EventEmitter()
+
+    data._listenForHeapSnapshots()
+
+    data._daemon.emit('process:heapdump:removed', {
+      id: proc.id
+    }, snapshot)
+
+    expect(proc.removeSnapshot.called).to.be.true
+    expect(proc.removeSnapshot.getCall(0).args[0]).to.equal(snapshot.id)
+  })
+
+  it('should survive not finding a process when removing heap snapshots', function () {
+    var snapshot = {
+      id: 'foo'
+    }
+
+    data._daemon = new EventEmitter()
+
+    data._listenForHeapSnapshots()
+
+    data._daemon.emit('process:heapdump:removed', {
+      id: 'bar'
+    }, snapshot)
   })
 })

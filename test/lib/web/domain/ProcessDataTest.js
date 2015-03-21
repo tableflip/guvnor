@@ -14,6 +14,9 @@ describe('ProcessData', function () {
     data._config = {
       graph: {
         max: 1000
+      },
+      snapshots: {
+        max: 1000
       }
     }
     data._processDataFactory = {}
@@ -38,6 +41,10 @@ describe('ProcessData', function () {
     expect(data.logs.length).to.equal(1)
     expect(data.logs[0].type).to.equal('foo')
     expect(data.logs[0].message).to.equal('bar')
+  })
+
+  it('should survive invalid log data', function () {
+    data.log()
   })
 
   it('should not overflow log limit', function () {
@@ -168,5 +175,43 @@ describe('ProcessData', function () {
     expect(data.exceptions[99].message).to.equal('foo')
     expect(data.exceptions[99].code).to.equal('bar')
     expect(data.exceptions[99].stack).to.equal('baz')
+  })
+
+  it('should store heap snapshot details', function () {
+    data.snapshot('foo', 'bar', 'baz', 'qux')
+
+    expect(data.snapshots.length).to.equal(1)
+    expect(data.snapshots[0].id).to.equal('foo')
+    expect(data.snapshots[0].date).to.equal('bar')
+    expect(data.snapshots[0].path).to.equal('baz')
+    expect(data.snapshots[0].size).to.equal('qux')
+  })
+
+  it('should remove heap snapshot details', function () {
+    data.snapshot('foo', 'bar', 'baz', 'qux')
+
+    expect(data.snapshots.length).to.equal(1)
+
+    data.removeSnapshot('foo')
+
+    expect(data.snapshots.length).to.be.empty
+  })
+
+  it('should not overflow heap snapshot limit', function () {
+    data.snapshots.length = 100
+    expect(data.snapshots.length).to.equal(100)
+
+    data._config.snapshots.max = 100
+
+    data.snapshot('foo', 'bar', 'baz', 'qux')
+
+    // should not have increased overall length
+    expect(data.snapshots.length).to.equal(100)
+
+    // should have appended exception
+    expect(data.snapshots[99].id).to.equal('foo')
+    expect(data.snapshots[99].date).to.equal('bar')
+    expect(data.snapshots[99].path).to.equal('baz')
+    expect(data.snapshots[99].size).to.equal('qux')
   })
 })

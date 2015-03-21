@@ -555,19 +555,21 @@ describe('Guvnor', function () {
         }, function (callback) {
           managedProcess.on('process:heapdump:complete', callback)
         }, function (callback) {
-          managedProcess.dumpHeap(function (error, path) {
+          managedProcess.dumpHeap(function (error, snapshot) {
             expect(error).to.not.exist
-            expect(fs.existsSync(path)).to.be.true
+            expect(fs.existsSync(snapshot.path)).to.be.true
 
             // tidy up dump file
-            fs.unlinkSync(path)
+            fs.unlinkSync(snapshot.path)
 
             managedProcess.kill()
 
             callback()
           })
         }
-        ], done)
+        ], function() {
+          done()
+        })
       })
     })
   })

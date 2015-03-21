@@ -243,26 +243,22 @@ describe('GuvnorRemote', function () {
       expect(error).to.not.exist
       expect(processInfo.id).to.be.ok
 
-      localGuvnor.on('process:ready', function (processInfo) {
+      processInfo.on('process:ready', function () {
+        expect(processInfo.kill).to.be.a('function')
+        expect(processInfo.restart).to.be.a('function')
+        expect(processInfo.send).to.be.a('function')
+        expect(processInfo.reportStatus).to.be.a('function')
+        expect(processInfo.dumpHeap).to.be.a('function')
+        expect(processInfo.forceGc).to.be.a('function')
 
-        remoteGuvnor.connectToProcess(processInfo.id, function (error, remote) {
+        processInfo.reportStatus(function (error, status) {
           expect(error).to.not.exist
-          expect(remote.kill).to.be.a('function')
-          expect(remote.restart).to.be.a('function')
-          expect(remote.send).to.be.a('function')
-          expect(remote.reportStatus).to.be.a('function')
-          expect(remote.dumpHeap).to.be.a('function')
-          expect(remote.forceGc).to.be.a('function')
+          expect(status.pid).to.be.a('number')
+          expect(status.uid).to.be.a('number')
+          expect(status.gid).to.be.a('number')
+          // etc
 
-          remote.reportStatus(function (error, status) {
-            expect(error).to.not.exist
-            expect(status.pid).to.be.a('number')
-            expect(status.uid).to.be.a('number')
-            expect(status.gid).to.be.a('number')
-            // etc
-
-            done()
-          })
+          done()
         })
       })
     })

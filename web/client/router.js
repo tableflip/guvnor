@@ -14,6 +14,7 @@ var ProcessesPage = require('./pages/host/processes')
 var ProcessOverviewPage = require('./pages/process/overview')
 var ProcessLogsPage = require('./pages/process/logs')
 var ProcessExceptionsPage = require('./pages/process/exceptions')
+var ProcessSnapshotsPage = require('./pages/process/snapshots')
 var ProcessStartingPage = require('./pages/process/starting')
 var ProcessStartedPage = require('./pages/process/started')
 var ProcessStoppingPage = require('./pages/process/stopping')
@@ -47,6 +48,7 @@ module.exports = Router.extend({
     'host/:host/process/:process': 'processRunning',
     'host/:host/process/:process/logs': 'processLogs',
     'host/:host/process/:process/exceptions': 'processExceptions',
+    'host/:host/process/:process/snapshots': 'processSnapshots',
     'host/:host/process/:process/stopped': 'processStopped',
     'host/:host/process/:process/stopping': 'processStopping',
     'host/:host/process/:process/aborted': 'processAborted',
@@ -121,6 +123,10 @@ module.exports = Router.extend({
 
   processExceptions: function (hostName, processId) {
     this._withHostAndProcess(hostName, processId, ProcessExceptionsPage, '/exceptions')
+  },
+
+  processSnapshots: function (hostName, processId) {
+    this._withHostAndProcess(hostName, processId, ProcessSnapshotsPage, '/snapshots')
   },
 
   processStopping: function (hostName, processId) {
