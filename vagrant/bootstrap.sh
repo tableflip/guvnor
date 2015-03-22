@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
-# Update system and install node
+# Update system and install git and a compiler
+apt-get update
 apt-get install -y build-essential git
 
 # Install some nodes and some io.jss for root and vagrant
