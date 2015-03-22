@@ -6,9 +6,11 @@ var expect = require('chai').expect,
   ProcessService = require('../../../../lib/daemon/service/ProcessService')
 
 describe('ProcessService', function () {
-  var processService
+  var processService, clock
 
   beforeEach(function () {
+    clock = sinon.useFakeTimers()
+
     processService = new ProcessService()
     processService._logger = {
       info: sinon.stub(),
@@ -29,13 +31,21 @@ describe('ProcessService', function () {
     processService._child_process = {
       fork: sinon.stub()
     }
-    processService._config = {}
+    processService._config = {
+      guvnor: {
+        resettimeout: 5000
+      }
+    }
     processService._managedProcessFactory = {
       create: sinon.stub()
     }
     processService._appService = {
       findByName: sinon.stub()
     }
+  })
+
+  afterEach(function () {
+    clock.restore()
   })
 
   it('should automatically restart a process on exit with non-zero code', function () {
@@ -325,7 +335,8 @@ describe('ProcessService', function () {
       validate: sinon.stub().callsArg(0),
       getProcessArgs: sinon.stub(),
       getProcessOptions: sinon.stub(),
-      logger: processService._logger
+      logger: processService._logger,
+      restarts: 1
     }
     processService._processes = {
       foo: processInfo
@@ -336,6 +347,12 @@ describe('ProcessService', function () {
 
     processService.on('process:ready', function (info) {
       expect(info).to.equal(processInfo)
+
+      expect(processInfo.restarts).to.equal(1)
+
+      clock.tick(processService._config.guvnor.resettimeout + 1)
+
+      expect(processInfo.restarts).to.equal(0)
 
       done()
     })
@@ -955,5 +972,169 @@ describe('ProcessService', function () {
     var returned = processService.findByName(name)
 
     expect(returned).to.equal(processInfo)
+  })
+
+  it('should not reset the reset count of a process that fails shortly after startup', function (done) {
+    var remote = {
+      connect: sinon.stub()
+    }
+    var childProcess = new EventEmitter()
+    childProcess.pid = 5
+    childProcess.send = sinon.stub()
+    var processInfo = {
+      id: 'foo',
+      process: childProcess,
+      validate: sinon.stub().callsArg(0),
+      getProcessArgs: sinon.stub(),
+      getProcessOptions: sinon.stub(),
+      logger: processService._logger
+    }
+    processService._processes = {
+      foo: processInfo
+    }
+    processService._portService.freePort.callsArgWith(0, undefined, 5)
+    processService._child_process.fork.returns(childProcess)
+    processService._processInfoStore.create.callsArgWith(1, undefined, processInfo)
+
+    processService.on('process:ready', function (info) {
+      expect(info).to.equal(processInfo)
+
+      processInfo.status = 'aborted'
+
+      var previousRestartCount = processInfo.restarts = 3
+
+      clock.tick(processService._config.guvnor.resettimeout + 1)
+
+      expect(processInfo.restarts).to.equal(previousRestartCount)
+
+      done()
+    })
+
+    processService.startProcess(__filename, {}, sinon.stub())
+
+    processService._managedProcessFactory.create.withArgs(['socket']).callsArgWith(1, undefined, remote)
+    remote.connect.callsArgWith(0, undefined, remote)
+
+    childProcess.emit('process:started', 'socket')
+  })
+
+  it('should emit a failed message if creating the managed process object fails', function (done) {
+    var error = new Error('urk!')
+    error.code = 'FAIL'
+
+    var processInfo = {}
+
+    processService.on('process:failed', function (info, er) {
+      expect(info).to.equal(processInfo)
+      expect(processInfo.status).to.equal('failed')
+      expect(er.code).to.equal(error.code)
+      expect(er.stack).to.equal(error.stack)
+
+      done()
+    })
+
+    processService._managedProcessFactory.create.withArgs(['socket']).callsArgWith(1, error)
+
+    processService._handleProcessStarted(processInfo, 'process', 'socket')
+  })
+
+  it('should write to stdin for a process', function () {
+    var processInfo = {
+      process: new EventEmitter()
+    }
+    processInfo.process.stdin = {
+      write: sinon.stub()
+    }
+
+    var prefix = 'process'
+    var string = 'foo'
+
+    processService._setupProcessCallbacks(processInfo, prefix)
+
+    processInfo.process.emit(prefix + ':stdin:write', string)
+
+    expect(processInfo.process.stdin.write.calledWith(string + '\n')).to.be.true
+  })
+
+  it('should send a signal to a process', function () {
+    var processInfo = {
+      process: new EventEmitter()
+    }
+    processInfo.process.kill = sinon.stub()
+
+    var prefix = 'process'
+    var signal = 'foo'
+
+    processService._setupProcessCallbacks(processInfo, prefix)
+
+    processInfo.process.emit(prefix + ':signal', signal)
+
+    expect(processInfo.process.kill.calledWith(signal)).to.be.true
+  })
+
+  it('should survive sending an invalid signal to a process', function () {
+    var processInfo = {
+      process: new EventEmitter()
+    }
+    processInfo.process.kill = sinon.stub().throws(new Error('invalid!'))
+
+    var prefix = 'process'
+    var signal = 'foo'
+
+    processService._setupProcessCallbacks(processInfo, prefix)
+
+    processInfo.process.emit(prefix + ':signal', signal)
+
+    expect(processInfo.process.kill.calledWith(signal)).to.be.true
+  })
+
+  it('should start an existing process', function (done) {
+    var processInfo = new ProcessInfo({
+      script: 'foo'
+    })
+    var callback = sinon.stub()
+
+    processService._startProcess = function (proc, cb) {
+      expect(proc).to.equal(processInfo)
+      expect(cb).to.equal(callback)
+
+      done()
+    }
+
+    processService.startProcess(processInfo, callback)
+  })
+
+  it('should not start a running process', function (done) {
+    var processInfo = new ProcessInfo({
+      script: 'foo'
+    })
+    processInfo.status = 'running'
+
+    processService._processInfoStore.find.withArgs('name', 'foo').returns(processInfo)
+
+    processService.startProcess('foo', {}, function (error) {
+      expect(error.message).to.contain('already running')
+
+      done()
+    })
+  })
+
+  it('should start a stopped process', function (done) {
+    var processInfo = new ProcessInfo({
+      script: 'foo'
+    })
+    processInfo.status = 'stopped'
+    var callback = sinon.stub()
+
+    processService._processInfoStore.find.withArgs('name', 'foo').returns(processInfo)
+
+    processService._startProcess = function (proc, cb) {
+      expect(proc).to.equal(processInfo)
+      expect(cb).to.equal(callback)
+
+      done()
+    }
+
+    processService.startProcess('foo', {}, callback)
   })
 })

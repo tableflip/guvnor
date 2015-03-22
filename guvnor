@@ -42,6 +42,12 @@ daemonize = true
   ; you know what you are doing!
   minnodeversion = 0.10.29
 
+  ; A process can fail to start 5 times before it is aborted. This does not catch
+  ; the case where a process fails shortly after startup - e.g. if a port is in use
+  ; This value is how long to wait after startup before resetting the restart count.
+  ; On slow machines this might need to be increased.
+  restarttimeout = 5000
+
 [remote]
   ; If true, Boss will start an https server on ${remote.host}:${remote.port}
   ; to listen for incoming guvnor-remote connections
