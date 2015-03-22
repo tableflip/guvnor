@@ -73,10 +73,19 @@ daemonize = true
   enabled = true
 
   ; The port to use for the instance of node-inspector
-  port = 0
+  port = 57484
 
   ; The host to listen on for the instance of node-inspector
   host = 0.0.0.0
+
+[ports]
+  ; Every process has a debug port allocated in order to connect node-inspector to it.
+  ; By default these are randomly chosen open ports - if you are running the daemon inside a
+  ; container such as docker, these ports will need to be predictable in order to expose them
+  ; from the host os - in that case, use the the start and end port properties below to create
+  ; a pool of ports to be used.
+  ;start = 57485
+  ;end = 63029
 
 [debug]
   ; Three possible options:

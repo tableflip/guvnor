@@ -17,7 +17,9 @@ describe('ProcessService', function () {
       debug: sinon.stub(),
       log: sinon.stub()
     }
-    processService._freeport = sinon.stub()
+    processService._portService = {
+      freePort: sinon.stub()
+    }
     processService._processInfoStore = {
       create: sinon.stub(),
       find: sinon.stub(),
@@ -52,7 +54,7 @@ describe('ProcessService', function () {
       .onFirstCall().returns(mockProcess0)
       .onSecondCall().returns(mockProcess1)
 
-    processService._freeport.callsArgWith(0, undefined, 5)
+    processService._portService.freePort.callsArgWith(0, undefined, 5)
 
     var processInfo = {
       id: 'foo',
@@ -112,7 +114,7 @@ describe('ProcessService', function () {
       done()
     })
 
-    processService._freeport.callsArgWith(0, new Error('AAIIIIEEEE!'))
+    processService._portService.freePort.callsArgWith(0, new Error('AAIIIIEEEE!'))
 
     processService.startProcess('foo', {}, function () {
     })
@@ -147,7 +149,7 @@ describe('ProcessService', function () {
       done()
     })
 
-    processService._freeport.callsArgWith(0, undefined, 5)
+    processService._portService.freePort.callsArgWith(0, undefined, 5)
 
     processService.startProcess('foo', {
       instances: 2
@@ -254,7 +256,7 @@ describe('ProcessService', function () {
     processService._processes = {
       foo: processInfo
     }
-    processService._freeport.callsArgWith(0, undefined, 5)
+    processService._portService.freePort.callsArgWith(0, undefined, 5)
     processService._child_process.fork.returns(childProcess)
     processService._processInfoStore.create.callsArgWith(1, undefined, processInfo)
 
@@ -297,7 +299,7 @@ describe('ProcessService', function () {
     processService._processes = {
       foo: processInfo
     }
-    processService._freeport.callsArgWith(0, undefined, 5)
+    processService._portService.freePort.callsArgWith(0, undefined, 5)
     processService._child_process.fork.returns(childProcess)
     processService._processInfoStore.create.callsArgWith(1, undefined, processInfo)
 
@@ -328,7 +330,7 @@ describe('ProcessService', function () {
     processService._processes = {
       foo: processInfo
     }
-    processService._freeport.callsArgWith(0, undefined, 5)
+    processService._portService.freePort.callsArgWith(0, undefined, 5)
     processService._child_process.fork.returns(childProcess)
     processService._processInfoStore.create.callsArgWith(1, undefined, processInfo)
 
@@ -394,7 +396,7 @@ describe('ProcessService', function () {
     processService._processes = {
       foo: processInfo
     }
-    processService._freeport.callsArgWith(0, undefined, 5)
+    processService._portService.freePort.callsArgWith(0, undefined, 5)
     processService._child_process.fork.returns(childProcess)
     processService._processInfoStore.create.callsArgWith(1, undefined, processInfo)
 
@@ -431,7 +433,7 @@ describe('ProcessService', function () {
     processService._processes = {
       foo: processInfo
     }
-    processService._freeport.callsArgWith(0, undefined, 5)
+    processService._portService.freePort.callsArgWith(0, undefined, 5)
     processService._child_process.fork.returns(childProcess)
     processService._processInfoStore.create.callsArgWith(1, undefined, processInfo)
 
@@ -518,7 +520,7 @@ describe('ProcessService', function () {
     processService._processes = {
       foo: processInfo
     }
-    processService._freeport.callsArgWith(0, undefined, 5)
+    processService._portService.freePort.callsArgWith(0, undefined, 5)
     processService._child_process.fork.returns(childProcess)
     processService._processInfoStore.create.callsArgWith(1, undefined, processInfo)
     processService.startProcess(__filename, {}, sinon.stub())
@@ -548,7 +550,7 @@ describe('ProcessService', function () {
     processService._processes = {
       foo: processInfo
     }
-    processService._freeport.callsArgWith(0, undefined, 5)
+    processService._portService.freePort.callsArgWith(0, undefined, 5)
     processService._child_process.fork.returns(childProcess)
     processService._processInfoStore.create.callsArgWith(1, undefined, processInfo)
     processService.startProcess(__filename, {}, sinon.stub())
@@ -576,7 +578,7 @@ describe('ProcessService', function () {
     processService._processes = {
       foo: processInfo
     }
-    processService._freeport.callsArgWith(0, undefined, 5)
+    processService._portService.freePort.callsArgWith(0, undefined, 5)
     processService._child_process.fork.returns(childProcess)
     processService._processInfoStore.create.callsArgWith(1, undefined, processInfo)
 
@@ -636,7 +638,7 @@ describe('ProcessService', function () {
     processService._processes = {
       foo: processInfo
     }
-    processService._freeport.callsArgWith(0, undefined, 5)
+    processService._portService.freePort.callsArgWith(0, undefined, 5)
     processService._child_process.fork.returns(childProcess)
     processService._processInfoStore.create.callsArgWith(1, undefined, processInfo)
     processService.startProcess(__filename, {}, sinon.stub())
@@ -662,7 +664,7 @@ describe('ProcessService', function () {
    processService._processes = {
    foo: processInfo
    }
-   processService._freeport.callsArgWithAsync(0, undefined, 5)
+   processService._portService.freePort.callsArgWithAsync(0, undefined, 5)
    processService._child_process.fork.returns(childProcess)
    processService._processInfoStore.create.callsArgWithAsync(1, undefined, processInfo)
    processService._managedProcessFactory.create.withArgs(['socket']).callsArgWithAsync(1, undefined, remote)
@@ -740,7 +742,7 @@ describe('ProcessService', function () {
     processService._processes = {
       foo: processInfo
     }
-    processService._freeport.callsArgWith(0, undefined, 5)
+    processService._portService.freePort.callsArgWith(0, undefined, 5)
     processService._child_process.fork.returns(childProcess)
     processService._processInfoStore.create.callsArgWith(1, undefined, processInfo)
 
@@ -787,7 +789,7 @@ describe('ProcessService', function () {
     processService._processes = {
       foo: processInfo
     }
-    processService._freeport.callsArgWith(0, undefined, 5)
+    processService._portService.freePort.callsArgWith(0, undefined, 5)
     processService._child_process.fork.returns(childProcess)
     processService._processInfoStore.create.callsArgWith(1, undefined, processInfo)
     processService.startProcess(__filename, {}, sinon.stub())
@@ -813,7 +815,7 @@ describe('ProcessService', function () {
     processService._processes = {
       foo: processInfo
     }
-    processService._freeport.callsArgWith(0, undefined, 5)
+    processService._portService.freePort.callsArgWith(0, undefined, 5)
     processService._child_process.fork.returns(childProcess)
     processService._processInfoStore.create.callsArgWith(1, undefined, processInfo)
     processService.startProcess(__filename, {}, sinon.stub())
@@ -846,7 +848,7 @@ describe('ProcessService', function () {
     processService._processes = {
       foo: processInfo
     }
-    processService._freeport.callsArgWith(0, undefined, 5)
+    processService._portService.freePort.callsArgWith(0, undefined, 5)
     processService._child_process.fork.returns(childProcess)
     processService._processInfoStore.create.callsArgWith(1, undefined, processInfo)
     processService.startProcess(__filename, {}, sinon.stub())
