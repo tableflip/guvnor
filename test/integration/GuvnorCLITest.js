@@ -841,7 +841,7 @@ describe('Guvnor CLI', function () {
         guvnor.on('app:refs:switched', function (error, switchedAppInfo, previousRef, newRef) {
           expect(error).not.to.exist
           expect(switchedAppInfo.id).to.equal(appInfo.id)
-          expect(previousRef).to.equal('master')
+          expect(previousRef).to.equal('refs/heads/master')
           expect(newRef).to.equal('tags/v2')
 
           done()

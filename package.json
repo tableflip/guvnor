@@ -83,7 +83,6 @@
     "stylizer": "achingbrain/stylizer",
     "templatizer-hbs": "^0.0",
     "timeoutify": "^0.0",
-    "tv": "^4.0",
     "underscore": "^1.0",
     "usage": "^0.6",
     "uuid": "^2.0",
@@ -159,6 +158,7 @@
       "web/client/templates.js",
       "test/**",
       "lib/web/index.js",
+      "lib/web/GuvnorWeb.js",
       "web/client/views/host/resources.js"
     ]
   },

@@ -9004,9 +9004,8 @@ Copyright (c) 2014 Daniel Eden
 .apps-list .user {
   width: 100px;
 }
-.apps .install-button {
-  float: right;
-  margin-top: -19px;
+.apps-list .ref {
+  width: 100px;
 }
 .install-log {
   list-style: none;
@@ -9046,10 +9045,6 @@ Copyright (c) 2014 Daniel Eden
   .process-list .pid {
     display: none;
   }
-}
-.panel-heading button {
-  float: right;
-  margin-left: 5px;
 }
 .panel-logs {
   padding: 0;
@@ -9208,6 +9203,11 @@ h1 {
 .panel-primary > .panel-heading {
   background-color: #03377c;
   border-color: #03377c;
+}
+.panel-heading button {
+  margin-top: -19px;
+  float: right;
+  margin-left: 5px;
 }
 .panel-body p {
   padding: 0;

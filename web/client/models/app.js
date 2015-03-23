@@ -6,7 +6,11 @@ module.exports = AmpersandModel.extend({
     name: 'string',
     user: 'string',
     url: 'string',
+    ref: 'string',
 
+    refs: ['array', true, function () {
+      return []
+    }],
     execArgv: ['array', true, function () {
       return []
     }],

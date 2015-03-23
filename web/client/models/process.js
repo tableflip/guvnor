@@ -80,7 +80,7 @@ module.exports = AmpersandModel.extend({
           return '?'
         }
 
-        return last.x + ' %'
+        return last.y + ' %'
       }
     },
     memoryFormatted: {
@@ -96,7 +96,7 @@ module.exports = AmpersandModel.extend({
           return '?'
         }
 
-        return prettysize(last.x)
+        return prettysize(last.y)
       }
     },
     uptimeFormatted: {

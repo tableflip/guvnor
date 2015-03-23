@@ -34,6 +34,7 @@ describe('AppInfo', function () {
     }
     var appDir = 'bar'
 
+    appInfo._fs.exists.callsArgWith(1, false)
     appInfo._fileSystem.getAppDir.returns(appDir)
     appInfo._userDetailsFactory.create.withArgs([appInfo.user]).callsArgWith(1, undefined, userDetails)
 
@@ -160,7 +161,12 @@ describe('AppInfo', function () {
     })
 
     expect(appInfo._commandLine.git.callCount).to.equal(1)
-    expect(appInfo._commandLine.git.calledWith(['rev-parse', '--abbrev-ref', 'HEAD'])).to.be.true
+    expect(appInfo._commandLine.git.calledWith(['rev-parse', 'HEAD'])).to.be.true
+
+    appInfo.listRefs = sinon.stub().callsArgWith(0, undefined, [{
+      name: 'foo',
+      commit: currentRef
+    }])
 
     appInfo._commandLine.git.getCall(0).args[3](currentRef + '\n')
     appInfo._commandLine.git.getCall(0).args[6]()
@@ -169,7 +175,7 @@ describe('AppInfo', function () {
   it('should update refs', function (done) {
     appInfo._commandLine.git.withArgs(['reset', '--hard', 'HEAD']).callsArg(6)
     appInfo._commandLine.git.withArgs(['clean', '-d', '-f']).callsArg(6)
-    appInfo._commandLine.git.withArgs(['pull']).callsArg(6)
+    appInfo._commandLine.git.withArgs(['fetch']).callsArg(6)
     appInfo.listRefs = sinon.stub()
     appInfo.listRefs.callsArgWith(0, undefined, 'refs')
 

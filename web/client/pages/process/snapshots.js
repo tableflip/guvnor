@@ -23,7 +23,7 @@ module.exports = ProcessPage.extend({
   bindings: {
     'model.isHeapDump': [{
       type: 'booleanClass',
-      no: 'fa-h-square',
+      no: 'fa-bar-chart',
       selector: '[data-hook=heapdumpbutton] i'
     }, {
       type: 'booleanClass',
@@ -34,10 +34,29 @@ module.exports = ProcessPage.extend({
       name: 'fa-spin',
       selector: '[data-hook=heapdumpbutton] i'
     }, {
-      type: 'booleanAttribute',
-      name: 'disabled',
+      type: function (el) {
+        if (!this.model.isRunning) {
+          el.disabled = true
+
+          return
+        }
+
+        el.disabled = this.model.isHeapDump
+      },
       selector: '[data-hook=heapdumpbutton]'
-    }]
+    }],
+    'model.isRunning': {
+      type: function (el) {
+        if (!this.model.isRunning) {
+          el.disabled = true
+
+          return
+        }
+
+        el.disabled = this.model.isHeapDump
+      },
+      selector: '[data-hook=heapdumpbutton]'
+    }
   },
   events: {
     'click [data-hook=heapdumpbutton]': 'heapDumpProcess'

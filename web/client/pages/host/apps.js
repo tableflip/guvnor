@@ -5,7 +5,7 @@ var AppView = require('../../views/apps/app')
 var NoAppsView = require('../../views/apps/empty')
 var Installation = require('../../models/installation')
 var InstallView = require('../../views/apps/install')
-var InstallingView = require('../../views/apps/installing')
+var ConsoleView = require('../../views/apps/console')
 var notify = require('../../helpers/notification')
 
 module.exports = HostPage.extend({
@@ -44,7 +44,7 @@ module.exports = HostPage.extend({
       window.app.modal.setTitle('Install app')
       window.app.modal.setOkText('Hide')
       window.app.modal.setShowCancel(false)
-      window.app.modal.setContent(new InstallingView({
+      window.app.modal.setContent(new ConsoleView({
         model: installation
       }))
 

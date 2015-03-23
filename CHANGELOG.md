@@ -2,6 +2,13 @@
 
 Revision history for guvnor
 
+## [3.3.0](releases/tag/v3.3.0)
+
+ * Update and switch app refs in guv-web
+ * Download and remove heap snapshots from guv-web
+ * Assign pools of ports to use for debugging processes in order to access them from Docker
+ * Attempt to detect process startup failure and don't endlessly restart slowly failing processes
+
 ## [3.2.2](releases/tag/v3.2.2)
 
  * Handles started process status in guv-web
