@@ -9,7 +9,7 @@ timeout = 10000
 frequency = 1000
 
 ; The minimum version of guvnor we are compatible with
-minVersion = >3.3.0
+minVersion = >3.2.2
 
 ; How long before removing rpc method calls
 rpctimeout = 30000
