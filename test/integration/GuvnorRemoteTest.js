@@ -1,11 +1,13 @@
 var expect = require('chai').expect,
+  sinon = require('sinon'),
   posix = require('posix'),
   shortid = require('shortid'),
   freeport = require('freeport'),
   os = require('os'),
   fs = require('fs'),
   async = require('async'),
-  exec = require('./fixtures/exec')
+  exec = require('./fixtures/exec'),
+  logDaemonMessages = require('./fixtures/log-daemon-messages')
 
 var user = posix.getpwnam(process.getuid())
 var group = posix.getgrnam(process.getgid())
@@ -35,6 +37,15 @@ var logger = {
   warn: console.info,
   error: console.info,
   debug: console.info
+}
+
+if (process.env.npm_package_version) {
+  logger = {
+    info: sinon.stub(),
+    warn: sinon.stub(),
+    error: sinon.stub(),
+    debug: sinon.stub()
+  }
 }
 
 var local = require('../../lib/local').connectOrStart,
@@ -72,30 +83,7 @@ describe('GuvnorRemote', function () {
 
         localGuvnor = b
 
-        // log all received events
-        localGuvnor.on('*', function (type) {
-          if (type.substring(0, 'daemon:log'.length) == 'daemon:log' ||
-            type.substring(0, 'process:uncaughtexception'.length) == 'process:uncaughtexception' ||
-            type.substring(0, 'daemon:fatality'.length) == 'daemon:fatality' ||
-            type.substring(0, 'process:log'.length) == 'process:log') {
-            // already handled
-            return
-          }
-
-          console.info('LOCAL', type)
-        })
-        localGuvnor.on('daemon:log:*', function (type, event) {
-          console.info('LOCAL', type, event.message)
-        })
-        localGuvnor.on('process:log:*', function (type, processId, event) {
-          console.info('LOCAL', type, event)
-        })
-        localGuvnor.on('process:uncaughtexception:*', function (type, error) {
-          console.log('LOCAL', error.stack)
-        })
-        localGuvnor.on('daemon:fatality', function (error) {
-          console.log('LOCAL', error.stack)
-        })
+        logDaemonMessages(localGuvnor)
 
         // find the admin users's secret
         localGuvnor.listRemoteUsers(function (error, users) {
@@ -123,30 +111,7 @@ describe('GuvnorRemote', function () {
 
             remoteGuvnor = b
 
-            // log all received events
-            remoteGuvnor.on('*', function (type) {
-              if (type.substring(0, 'guvnor:log'.length) == 'guvnor:log' ||
-                type.substring(0, 'process:uncaughtexception'.length) == 'process:uncaughtexception' ||
-                type.substring(0, 'guvnor:fatality'.length) == 'guvnor:fatality' ||
-                type.substring(0, 'process:log'.length) == 'process:log') {
-                // already handled
-                return
-              }
-
-              console.info('REMOTE', type)
-            })
-            remoteGuvnor.on('guvnor:log:*', function (type, event) {
-              console.info('REMOTE', type, event.message)
-            })
-            remoteGuvnor.on('process:log:*', function (type, processId, event) {
-              console.info('REMOTE', type, event)
-            })
-            remoteGuvnor.on('process:uncaughtexception:*', function (type, error) {
-              console.log('REMOTE', error.stack)
-            })
-            remoteGuvnor.on('guvnor:fatality', function (error) {
-              console.log('REMOTE', error.stack)
-            })
+            logDaemonMessages(remoteGuvnor)
 
             done()
           })

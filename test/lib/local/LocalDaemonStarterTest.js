@@ -45,7 +45,8 @@ describe('LocalDaemonStarter', function () {
       on: sinon.stub(),
       unref: sinon.stub(),
       send: sinon.stub(),
-      disconnect: sinon.stub()
+      disconnect: sinon.stub(),
+      kill: sinon.stub()
     }
 
     localDaemonStarter._child_process.spawn = sinon.stub()
@@ -178,7 +179,8 @@ describe('LocalDaemonStarter', function () {
       on: sinon.stub(),
       unref: sinon.stub(),
       send: sinon.stub(),
-      disconnect: sinon.stub()
+      disconnect: sinon.stub(),
+      kill: sinon.stub()
     }
 
     localDaemonStarter._child_process.spawn = sinon.stub()
@@ -210,7 +212,8 @@ describe('LocalDaemonStarter', function () {
       on: sinon.stub(),
       unref: sinon.stub(),
       send: sinon.stub(),
-      disconnect: sinon.stub()
+      disconnect: sinon.stub(),
+      kill: sinon.stub()
     }
 
     localDaemonStarter._child_process.spawn = sinon.stub()

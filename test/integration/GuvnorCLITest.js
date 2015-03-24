@@ -1,4 +1,5 @@
 var expect = require('chai').expect,
+  sinon = require('sinon'),
   posix = require('posix'),
   shortid = require('shortid'),
   os = require('os'),
@@ -7,7 +8,8 @@ var expect = require('chai').expect,
   async = require('async'),
   fs = require('fs'),
   ini = require('ini'),
-  exec = require('./fixtures/exec')
+  exec = require('./fixtures/exec'),
+  logDaemonMessages = require('./fixtures/log-daemon-messages')
 
 var user = posix.getpwnam(process.getuid())
 var group = posix.getgrnam(process.getgid())
@@ -37,6 +39,15 @@ var logger = {
   warn: console.log,
   error: console.log,
   debug: console.log
+}
+
+if (process.env.npm_package_version) {
+  logger = {
+    info: sinon.stub(),
+    warn: sinon.stub(),
+    error: sinon.stub(),
+    debug: sinon.stub()
+  }
 }
 
 function runCli() {
@@ -97,8 +108,6 @@ describe('Guvnor CLI', function () {
     config.guvnor.confdir = tmpdir + '/conf'
     config.guvnor.appdir = tmpdir + '/apps'
 
-    console.info('rundir:', config.guvnor.rundir)
-
     remote(function (error, daemon) {
       if (error) {
         throw error
@@ -106,37 +115,7 @@ describe('Guvnor CLI', function () {
 
       guvnor = daemon
 
-      // log all received events
-      guvnor.on('*', function (type) {
-        if (type.substring(0, 'daemon:log'.length) == 'daemon:log' ||
-          type.substring(0, 'process:uncaughtexception'.length) == 'process:uncaughtexception' ||
-          type.substring(0, 'daemon:fatality'.length) == 'daemon:fatality' ||
-          type.substring(0, 'process:log'.length) == 'process:log' ||
-          type.substring(0, 'worker:log'.length) == 'worker:log') {
-          // already handled
-          return
-        }
-
-        console.log(type)
-      })
-      guvnor.on('daemon:log:*', function (type, event) {
-        console.log(type, event.message)
-      })
-      guvnor.on('process:log:*', function (type, processInfo, event) {
-        console.log(type, processInfo.id, event)
-      })
-      guvnor.on('cluster:log:*', function (type, processInfo, event) {
-        console.log(type, processInfo.id, event)
-      })
-      guvnor.on('worker:log:*', function (type, clusterInfo, workerInfo, event) {
-        console.log(type, workerInfo.id, event)
-      })
-      guvnor.on('process:uncaughtexception:*', function (type, error) {
-        console.log(error.stack)
-      })
-      guvnor.on('daemon:fatality', function (error) {
-        console.log(error.stack)
-      })
+      logDaemonMessages(guvnor)
 
       done()
     })

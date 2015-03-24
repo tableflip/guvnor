@@ -642,9 +642,9 @@ describe('HostData', function () {
 
     data._connectedToDaemon(undefined, newDaemon)
 
-    expect(newDaemon.on.getCall(8).args[0]).to.equal('*')
+    expect(newDaemon.on.getCall(9).args[0]).to.equal('*')
 
-    newDaemon.on.getCall(8).args[1]('foo', 'bar')
+    newDaemon.on.getCall(9).args[1]('foo', 'bar')
 
     expect(data._webSocketResponder.broadcast.calledWith('foo', 'test', 'bar')).to.be.true
   })

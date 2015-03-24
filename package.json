@@ -49,6 +49,7 @@
     "cpu-stats": "^1.0",
     "domify": "^1.0",
     "domready": "^1.0",
+    "duplex-maker": "^1.0.0",
     "etc-passwd": "^0.1",
     "event-loop-lag": "^1.0",
     "extend": "^2.0",

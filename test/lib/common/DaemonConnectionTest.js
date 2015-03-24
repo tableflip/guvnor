@@ -22,9 +22,10 @@ describe('DaemonConnection', function () {
     }
   })
 
-  it('should not bork on missing process info', function (done) {
+  it('should bork on missing process info', function (done) {
     connection._findManagedProcess(undefined, function (error, found) {
-      expect(error).to.not.exist
+      expect(error).to.be.ok
+      expect(error.message).to.contain('No process info')
       expect(found).to.not.exist
 
       done()

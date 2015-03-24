@@ -580,8 +580,15 @@ describe('RemoteRPC', function () {
     var processInfo = {}
     var childProcess = new EventEmitter()
     childProcess.kill = sinon.stub()
+    childProcess.stdout = new EventEmitter()
+    childProcess.stdout.end = sinon.stub()
+    childProcess.stdout.pipe = sinon.stub().returnsArg(0)
+    childProcess.stdin = new EventEmitter()
     var userDetails = {}
+    var dnode = new EventEmitter()
+    dnode.pipe = sinon.stub().returnsArg(0)
 
+    remoteRpc._dnode.returns(dnode)
     remoteRpc._guvnor.findProcessInfoById.withArgs(userDetails, id, sinon.match.func).callsArgWith(2, undefined, processInfo)
     remoteRpc._child_process.fork.returns(childProcess)
 
@@ -589,84 +596,23 @@ describe('RemoteRPC', function () {
       expect(error).to.not.exist
 
       // should have exposed methods
-      expect(remote.kill).to.be.a('function')
       expect(remote.restart).to.be.a('function')
-      expect(remote.send).to.be.a('function')
-      expect(remote.reportStatus).to.be.a('function')
-      expect(remote.dumpHeap).to.be.a('function')
-      expect(remote.forceGc).to.be.a('function')
-      expect(remote.setClusterWorkers).to.be.a('function')
+      expect(remote.disconnect).to.be.a('function')
 
       // invoke exposed method
-      remote.restart('foo', 'bar', function () {
-        // give the parent time to kill the child
-        process.nextTick(function () {
-          expect(childProcess.kill.calledOnce).to.be.true
+      remote.disconnect(function () {
+        expect(childProcess.kill.calledOnce).to.be.true
 
-          done()
-        })
+        done()
       })
     }, user)
 
-    // stub out how child process would handle method invocation
-    childProcess.send = function (event) {
-      expect(event.type).to.equal('invoke')
-      expect(event.method).to.equal('restart')
-      expect(event.args).to.be.an('array')
-      expect(event.args[0]).to.equal('foo')
-      expect(event.args[1]).to.equal('bar')
-
-      process.nextTick(childProcess.emit.bind(childProcess, 'message', {
-        event: 'remote:success'
-      }))
-    }
-
     // tell the parent we are ready
-    childProcess.emit('message', {
-      event: 'remote:ready'
-    })
-  })
+    childProcess.emit('message', 'remote:ready')
 
-  it('should connect to a process and handle error invoking method', function (done) {
-    var id = 'id'
-    var user = {}
-    var processInfo = {}
-    var childProcess = new EventEmitter()
-    childProcess.kill = sinon.stub()
-    var userDetails = {}
-
-    remoteRpc._guvnor.findProcessInfoById.withArgs(userDetails, id, sinon.match.func).callsArgWith(2, undefined, processInfo)
-    remoteRpc._child_process.fork.returns(childProcess)
-
-    remoteRpc.connectToProcess(userDetails, id, function (error, remote) {
-      expect(error).to.not.exist
-
-      // invoke exposed method
-      remote.restart('foo', 'bar', function (error) {
-        expect(error.message).to.contain('bail')
-
-        // give the parent time to kill the child
-        process.nextTick(function () {
-          expect(childProcess.kill.calledOnce).to.be.true
-
-          done()
-        })
-      })
-    }, user)
-
-    // stub out how child process would handle method invocation
-    childProcess.send = function (event) {
-      process.nextTick(childProcess.emit.bind(childProcess, 'message', {
-        event: 'remote:error',
-        args: [{
-          message: 'bail'
-        }]
-      }))
-    }
-
-    // tell the parent we are ready
-    childProcess.emit('message', {
-      event: 'remote:ready'
+    // make like dnode has connected to the tunnel
+    dnode.emit('remote', {
+      restart: sinon.stub()
     })
   })
 
@@ -676,8 +622,15 @@ describe('RemoteRPC', function () {
     var processInfo = {}
     var childProcess = new EventEmitter()
     childProcess.kill = sinon.stub()
+    childProcess.stdout = new EventEmitter()
+    childProcess.stdout.end = sinon.stub()
+    childProcess.stdout.pipe = sinon.stub().returnsArg(0)
+    childProcess.stdin = new EventEmitter()
     var userDetails = {}
+    var dnode = new EventEmitter()
+    dnode.pipe = sinon.stub().returnsArg(0)
 
+    remoteRpc._dnode.returns(dnode)
     remoteRpc._guvnor.findProcessInfoById.withArgs(userDetails, id, sinon.match.func).callsArgWith(2, undefined, processInfo)
     remoteRpc._child_process.fork.returns(childProcess)
 
@@ -687,17 +640,7 @@ describe('RemoteRPC', function () {
       done()
     }, user)
 
-    // stub out how child process would handle method invocation
-    childProcess.send = function (event) {
-      process.nextTick(childProcess.emit.bind(childProcess, 'message', {
-        event: 'remote:error',
-        args: [{
-          message: 'bail'
-        }]
-      }))
-    }
-
-    // tell the parent we are ready
+    // simulate the child process emitting an error
     childProcess.emit('error', new Error('oops'))
   })
 
@@ -707,8 +650,15 @@ describe('RemoteRPC', function () {
     var processInfo = {}
     var childProcess = new EventEmitter()
     childProcess.kill = sinon.stub()
+    childProcess.stdout = new EventEmitter()
+    childProcess.stdout.end = sinon.stub()
+    childProcess.stdout.pipe = sinon.stub().returnsArg(0)
+    childProcess.stdin = new EventEmitter()
     var userDetails = {}
+    var dnode = new EventEmitter()
+    dnode.pipe = sinon.stub().returnsArg(0)
 
+    remoteRpc._dnode.returns(dnode)
     remoteRpc._guvnor.findProcessInfoById.withArgs(userDetails, id, sinon.match.func).callsArgWith(2, undefined, processInfo)
     remoteRpc._child_process.fork.returns(childProcess)
 
@@ -718,17 +668,7 @@ describe('RemoteRPC', function () {
       done()
     }, user)
 
-    // stub out how child process would handle method invocation
-    childProcess.send = function (event) {
-      process.nextTick(childProcess.emit.bind(childProcess, 'message', {
-        event: 'remote:error',
-        args: [{
-          message: 'bail'
-        }]
-      }))
-    }
-
-    // tell the parent we are ready
+    // simulate the child process exiting badly
     childProcess.emit('exit', 1)
   })
 

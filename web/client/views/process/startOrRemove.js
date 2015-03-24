@@ -59,7 +59,7 @@ module.exports = View.extend({
       this.model.isStarting = true
       window.app.modal.dismiss()
 
-      window.app.socket.emit('app:start', {
+      window.app.socket.emit('process:start', {
         host: this.model.collection.parent.name,
         name: this.model.name,
         options: data

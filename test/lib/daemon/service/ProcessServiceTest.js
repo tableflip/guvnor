@@ -26,7 +26,7 @@ describe('ProcessService', function () {
       create: sinon.stub(),
       find: sinon.stub(),
       remove: sinon.stub(),
-      all: sinon.stub()
+      all: sinon.stub().returns([])
     }
     processService._child_process = {
       fork: sinon.stub()

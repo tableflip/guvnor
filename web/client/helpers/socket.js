@@ -323,6 +323,13 @@ socket.on('process:restarted', function (hostName, processInfo) {
     process.isRestarting = false
   })
 })
+socket.on('process:exit', function (hostName, processInfo) {
+  updateProcess(processInfo)
+
+  withHostAndProcess(hostName, processInfo.id, function (host, process) {
+    process.snapshots.reset()
+  })
+})
 socket.on('app:installed', function (hostName, appInfo) {
   withHost(hostName, function (host) {
     host.apps.add(appInfo)
@@ -391,7 +398,6 @@ socket.on('cluster:stopping', updateProcess)
 socket.on('cluster:errored', updateProcess)
 socket.on('process:restarting', updateProcess)
 socket.on('cluster:restarting', updateProcess)
-socket.on('process:exit', updateProcess)
 socket.on('cluster:exit', updateProcess)
 
 module.exports = socket

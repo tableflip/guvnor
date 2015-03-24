@@ -1,4 +1,5 @@
 var expect = require('chai').expect,
+  sinon = require('sinon'),
   posix = require('posix'),
   shortid = require('shortid'),
   os = require('os'),
@@ -6,7 +7,8 @@ var expect = require('chai').expect,
   fs = require('fs'),
   async = require('async'),
   exec = require('./fixtures/exec'),
-  child_process = require('child_process')
+  child_process = require('child_process'),
+  logDaemonMessages = require('./fixtures/log-daemon-messages')
 
 var user = posix.getpwnam(process.getuid())
 var group = posix.getgrnam(process.getgid())
@@ -38,6 +40,15 @@ var logger = {
   debug: console.info
 }
 
+if (process.env.npm_package_version) {
+  logger = {
+    info: sinon.stub(),
+    warn: sinon.stub(),
+    error: sinon.stub(),
+    debug: sinon.stub()
+  }
+}
+
 var remote = require('../../lib/local').connectOrStart,
   remote = remote.bind(null, config, logger)
 
@@ -63,37 +74,7 @@ describe('Guvnor', function () {
 
       guvnor = b
 
-      // log all received events
-      guvnor.on('*', function (type) {
-        if (type.substring(0, 'daemon:log'.length) == 'daemon:log' ||
-          type.substring(0, 'process:uncaughtexception'.length) == 'process:uncaughtexception' ||
-          type.substring(0, 'daemon:fatality'.length) == 'daemon:fatality' ||
-          type.substring(0, 'process:log'.length) == 'process:log' ||
-          type.substring(0, 'worker:log'.length) == 'worker:log') {
-          // already handled
-          return
-        }
-
-        console.info(type)
-      })
-      guvnor.on('daemon:log:*', function (type, event) {
-        console.info(type, event.message)
-      })
-      guvnor.on('process:log:*', function (type, managedProcess, event) {
-        console.info(type, event)
-      })
-      guvnor.on('cluster:log:*', function (type, managedProcess, event) {
-        console.info(type, event)
-      })
-      guvnor.on('worker:log:*', function (type, clusterInfo, managedProcess, event) {
-        console.info(type, event)
-      })
-      guvnor.on('process:uncaughtexception:*', function (type, error) {
-        console.log(error.stack)
-      })
-      guvnor.on('daemon:fatality', function (error) {
-        console.log(error.stack)
-      })
+      logDaemonMessages(guvnor)
 
       done()
     })
