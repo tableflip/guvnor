@@ -622,7 +622,7 @@ describe('RemoteRPC', function () {
       restart: sinon.stub()
     })
   })
-  
+
   it('should handle an internal error connecting to a process', function (done) {
     var id = 'id'
     var message = 'message'
@@ -740,7 +740,7 @@ describe('RemoteRPC', function () {
 
     remoteRpc._startMdnsAdvertisment()
   })
-  
+
   it('should start a process', function (done) {
     var user = 'foo'
     var userDetails = {
@@ -751,25 +751,25 @@ describe('RemoteRPC', function () {
       user: user
     }
     var processInfo = 'processInfo'
-    
+
     var guvnor = {
       startProcess: sinon.stub().callsArgWith(3, undefined, processInfo),
       disconnect: sinon.stub()
     }
-    
+
     remoteRpc._fileSystem.getRunDir.returns('run')
-    remoteRpc._connectToRpc = sinon.stub().callsArgWith(2, undefined, guvnor)
-    
+    remoteRpc._connectToRpc = sinon.stub().callsArgWith(3, undefined, guvnor)
+
     remoteRpc._startProcess(userDetails, script, options, function (error, proc) {
       expect(error).to.not.exist
       expect(proc).to.equal(processInfo)
-      
+
       expect(remoteRpc._connectToRpc.calledWith('run/user.socket')).to.be.true
-      
+
       done()
     })
   })
-  
+
   it('should start a process as a different user', function (done) {
     var user = 'foo'
     var userDetails = {
@@ -780,21 +780,21 @@ describe('RemoteRPC', function () {
       user: 'bar'
     }
     var processInfo = 'processInfo'
-    
+
     var guvnor = {
       startProcess: sinon.stub().callsArgWith(3, undefined, processInfo),
       disconnect: sinon.stub()
     }
-    
+
     remoteRpc._fileSystem.getRunDir.returns('run')
-    remoteRpc._connectToRpc = sinon.stub().callsArgWith(2, undefined, guvnor)
-    
+    remoteRpc._connectToRpc = sinon.stub().callsArgWith(3, undefined, guvnor)
+
     remoteRpc._startProcess(userDetails, script, options, function (error, proc) {
       expect(error).to.not.exist
       expect(proc).to.equal(processInfo)
-      
+
       expect(remoteRpc._connectToRpc.calledWith('run/admin.socket')).to.be.true
-      
+
       done()
     })
   })
