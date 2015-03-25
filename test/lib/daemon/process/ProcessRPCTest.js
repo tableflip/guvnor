@@ -348,6 +348,8 @@ describe('ProcessRPC', function () {
     var onEnd = sinon.stub()
     var callback = sinon.stub()
     var stream = new EventEmitter()
+    stream.pause = sinon.stub()
+    stream.resume = sinon.stub()
 
     processRpc._fs.createReadStream.withArgs(snapshot.path).returns(stream)
 
