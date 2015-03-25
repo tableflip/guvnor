@@ -2,6 +2,11 @@
 
 Revision history for guvnor
 
+## [3.4.0](releases/tag/v3.3.0)
+
+ * Adds ref command to return current app ref
+ * Web interface now reflects user group membership when starting an app or process
+
 ## [3.3.0](releases/tag/v3.3.0)
 
  * Update and switch app refs in guv-web
