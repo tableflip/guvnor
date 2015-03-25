@@ -5,6 +5,8 @@ var expect = require('chai').expect,
   fs = require('fs'),
   connectOrStart = require('../../lib/local').connectOrStart
 
+process.setMaxListeners(0)
+
 var user = posix.getpwnam(process.getuid())
 var group = posix.getgrnam(process.getgid())
 

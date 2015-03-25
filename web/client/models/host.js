@@ -3,6 +3,7 @@ var moment = require('moment')
 var prettysize = require('prettysize')
 var Processes = require('./processes')
 var Apps = require('./apps')
+var Users = require('./users')
 var semver = require('semver')
 
 module.exports = AmpersandModel.extend({
@@ -33,12 +34,6 @@ module.exports = AmpersandModel.extend({
     freeMemory: 'number',
     totalMemory: 'number',
     debuggerPort: 'number',
-    users: ['array', true, function () {
-      return []
-    }],
-    groups: ['array', true, function () {
-      return []
-    }],
     cpus: ['array', true, function () {
       return [{
         model: 'string',
@@ -114,6 +109,7 @@ module.exports = AmpersandModel.extend({
   },
   collections: {
     processes: Processes,
-    apps: Apps
+    apps: Apps,
+    users: Users
   }
 })

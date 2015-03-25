@@ -27,7 +27,9 @@ describe('RemoteRPC', function () {
       listApplicationRefs: sinon.stub(),
       updateApplicationRefs: sinon.stub(),
       startProcess: sinon.stub(),
-      removeProcess: sinon.stub()
+      removeProcess: sinon.stub(),
+      currentRef: sinon.stub(),
+      listUsers: sinon.stub()
     }
     remoteRpc._processService = {
       on: sinon.stub()
@@ -78,6 +80,9 @@ describe('RemoteRPC', function () {
     }
     remoteRpc._userDetailsFactory = {
       create: sinon.stub()
+    }
+    remoteRpc._fileSystem = {
+      getRunDir: sinon.stub()
     }
   })
 
@@ -608,11 +613,51 @@ describe('RemoteRPC', function () {
     }, user)
 
     // tell the parent we are ready
-    childProcess.emit('message', 'remote:ready')
+    childProcess.emit('message', {
+      type: 'remote:ready'
+    })
 
     // make like dnode has connected to the tunnel
     dnode.emit('remote', {
       restart: sinon.stub()
+    })
+  })
+  
+  it('should handle an internal error connecting to a process', function (done) {
+    var id = 'id'
+    var message = 'message'
+    var code = 'code'
+    var stack = 'stack'
+    var user = {}
+    var processInfo = {}
+    var childProcess = new EventEmitter()
+    childProcess.kill = sinon.stub()
+    childProcess.stdout = new EventEmitter()
+    childProcess.stdout.end = sinon.stub()
+    childProcess.stdout.pipe = sinon.stub().returnsArg(0)
+    childProcess.stdin = new EventEmitter()
+    var userDetails = {}
+
+    remoteRpc._guvnor.findProcessInfoById.withArgs(userDetails, id, sinon.match.func).callsArgWith(2, undefined, processInfo)
+    remoteRpc._child_process.fork.returns(childProcess)
+
+    remoteRpc.connectToProcess(userDetails, id, function (error) {
+      expect(error).to.be.ok
+      expect(error.message).to.equal(message)
+      expect(error.stack).to.equal(stack)
+      expect(error.code).to.equal(code)
+
+      done()
+    }, user)
+
+    // simulate error
+    childProcess.emit('message', {
+      type: 'remote:error',
+      args: [{
+        message: message,
+        code: code,
+        stack: stack
+      }]
     })
   })
 
@@ -694,5 +739,63 @@ describe('RemoteRPC', function () {
     remoteRpc._mdns.tcp.withArgs('guvnor-rpc').returns(value)
 
     remoteRpc._startMdnsAdvertisment()
+  })
+  
+  it('should start a process', function (done) {
+    var user = 'foo'
+    var userDetails = {
+      name: user
+    }
+    var script = 'script'
+    var options = {
+      user: user
+    }
+    var processInfo = 'processInfo'
+    
+    var guvnor = {
+      startProcess: sinon.stub().callsArgWith(3, undefined, processInfo),
+      disconnect: sinon.stub()
+    }
+    
+    remoteRpc._fileSystem.getRunDir.returns('run')
+    remoteRpc._connectToRpc = sinon.stub().callsArgWith(2, undefined, guvnor)
+    
+    remoteRpc._startProcess(userDetails, script, options, function (error, proc) {
+      expect(error).to.not.exist
+      expect(proc).to.equal(processInfo)
+      
+      expect(remoteRpc._connectToRpc.calledWith('run/user.socket')).to.be.true
+      
+      done()
+    })
+  })
+  
+  it('should start a process as a different user', function (done) {
+    var user = 'foo'
+    var userDetails = {
+      name: user
+    }
+    var script = 'script'
+    var options = {
+      user: 'bar'
+    }
+    var processInfo = 'processInfo'
+    
+    var guvnor = {
+      startProcess: sinon.stub().callsArgWith(3, undefined, processInfo),
+      disconnect: sinon.stub()
+    }
+    
+    remoteRpc._fileSystem.getRunDir.returns('run')
+    remoteRpc._connectToRpc = sinon.stub().callsArgWith(2, undefined, guvnor)
+    
+    remoteRpc._startProcess(userDetails, script, options, function (error, proc) {
+      expect(error).to.not.exist
+      expect(proc).to.equal(processInfo)
+      
+      expect(remoteRpc._connectToRpc.calledWith('run/admin.socket')).to.be.true
+      
+      done()
+    })
   })
 })

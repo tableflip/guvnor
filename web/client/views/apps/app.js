@@ -68,6 +68,8 @@ module.exports = View.extend({
       this.model.isStarting = true
       window.app.modal.dismiss()
 
+      data.user = data.user.name
+
       window.app.socket.emit('app:start', {
         host: this.model.collection.parent.name,
         name: this.model.name,

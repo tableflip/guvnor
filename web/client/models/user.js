@@ -1,8 +1,12 @@
 var AmpersandModel = require('ampersand-model')
 
 module.exports = AmpersandModel.extend({
-  idAttribute: 'name',
+  idAttribute: 'uid',
   props: {
-    name: 'string'
+    name: 'string',
+    group: 'string',
+    groups: ['array', true, function () {
+      return []
+    }]
   }
 })

@@ -181,13 +181,6 @@ describe('Guvnor', function () {
       expect(status.totalMemory).to.be.a('number')
       expect(status.cpus).to.be.an('array')
       expect(status.debuggerPort).to.not.exist
-      expect(status.groups).to.be.an('array')
-      expect(status.groups).to.contain('foo')
-      expect(status.groups).to.not.contain('_bar')
-      expect(status.users).to.be.an('array')
-      expect(status.users).to.contain('baz')
-      expect(status.users).to.not.contain('qux')
-      expect(status.users).to.not.contain('_quux')
 
       expect(status.cpus[0].load).to.equal(6)
       expect(status.cpus[1].load).to.equal(7)

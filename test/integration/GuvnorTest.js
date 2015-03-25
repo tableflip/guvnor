@@ -10,6 +10,8 @@ var expect = require('chai').expect,
   child_process = require('child_process'),
   logDaemonMessages = require('./fixtures/log-daemon-messages')
 
+process.setMaxListeners(0)
+
 var user = posix.getpwnam(process.getuid())
 var group = posix.getgrnam(process.getgid())
 

@@ -340,7 +340,12 @@ socket.on('app:removed', function (hostName, appInfo) {
     host.apps.remove(appInfo.id)
   })
 })
-
+socket.on('app:refs:switched', function (hostName, appInfo, oldRef, newRef) {
+  withHost(hostName, function (host) {
+    var app = host.apps.add(appInfo)
+    app.ref = newRef
+  })
+})
 socket.on('process:aborted', function (hostName, processInfo) {
   withHostAndProcess(hostName, processInfo.id, function (host, process) {
     notify({

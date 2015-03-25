@@ -11,6 +11,8 @@ var expect = require('chai').expect,
   exec = require('./fixtures/exec'),
   logDaemonMessages = require('./fixtures/log-daemon-messages')
 
+process.setMaxListeners(0)
+
 var user = posix.getpwnam(process.getuid())
 var group = posix.getgrnam(process.getgid())
 
@@ -817,11 +819,11 @@ describe('Guvnor CLI', function () {
         expect(fs.existsSync(config.guvnor.appdir + '/' + appInfo.id + '/v2')).to.be.true
         expect(fs.existsSync(config.guvnor.appdir + '/' + appInfo.id + '/v3')).to.be.true
 
-        guvnor.on('app:refs:switched', function (error, switchedAppInfo, previousRef, newRef) {
+        guvnor.on('app:refs:switched', function (switchedAppInfo, previousRef, newRef) {
           expect(error).not.to.exist
           expect(switchedAppInfo.id).to.equal(appInfo.id)
           expect(previousRef).to.equal('refs/heads/master')
-          expect(newRef).to.equal('tags/v2')
+          expect(newRef).to.equal('refs/tags/v2')
 
           done()
         })
@@ -883,6 +885,38 @@ describe('Guvnor CLI', function () {
         }
 
         runCli('lsrefs', appInfo.name, 'tags/v2')
+      })
+    })
+  })
+  
+  it('should report the current application ref', function (done) {
+    var repo = tmpdir + '/' + shortid.generate()
+
+    async.series([
+      exec.bind(null, 'mkdir', [repo]),
+      exec.bind(null, 'git', ['init'], repo),
+      exec.bind(null, 'git', ['config', 'user.email', 'foo@bar.com'], repo),
+      exec.bind(null, 'git', ['config', 'user.name', 'foo'], repo),
+      exec.bind(null, 'touch', ['v1'], repo),
+      exec.bind(null, 'git', ['add', '-A'], repo),
+      exec.bind(null, 'git', ['commit', '-m', 'v1'], repo)
+    ], function (error) {
+      if (error) {
+        throw error
+      }
+
+      var appName = shortid.generate()
+
+      guvnor.deployApplication(appName, repo, user.name, console.info, console.error, function (error, appInfo) {
+        expect(error).to.not.exist
+
+        console.info = function (string) {
+          expect(string).to.contain('refs/heads/master')
+
+          done()
+        }
+
+        runCli('ref', appInfo.name)
       })
     })
   })

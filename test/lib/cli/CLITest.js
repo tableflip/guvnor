@@ -83,7 +83,8 @@ describe('CLI', function () {
       removeApplication: sinon.stub(),
       listRefs: sinon.stub(),
       updateRefs: sinon.stub(),
-      setRef: sinon.stub()
+      setRef: sinon.stub(),
+      currentRef: sinon.stub()
     }
 
     cli._commander.version.returns(cli._commander)

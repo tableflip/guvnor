@@ -19,21 +19,24 @@ module.exports = FormView.extend({
       }
     }
 
+    var host = this.model.collection.parent
+
     var fields = [
       new SelectView({
         label: 'User',
         name: 'user',
         parent: this,
-        options: window.app.host.users,
-        value: this.model.user || window.app.host.users[0],
+        options: host.users,
+        value: this.model.user,
+        textAttribute: 'name',
         template: templates.forms.controls.select()
       }),
       new SelectView({
         label: 'Group',
         name: 'group',
         parent: this,
-        options: window.app.host.groups,
-        value: this.model.group || window.app.host.groups[0],
+        options: [],
+        value: this.model.group,
         template: templates.forms.controls.select()
       }),
       new CheckboxView({
@@ -110,6 +113,37 @@ module.exports = FormView.extend({
       }))
     }
 
+    var userView = fields[0]
+    var groupView = fields[1]
+
+    host.users.fetch({
+      success: this._updateGroup.bind(this, userView, groupView)
+    })
+
+    userView.el.addEventListener('change', this._updateGroup.bind(this, userView, groupView))
+
     return fields
+  },
+  _updateGroup: function (userView, groupView) {
+    var selectedUser = userView.value
+
+    if (!selectedUser) {
+      var host = this.model.collection.parent
+
+      // try the user set on the app info
+      selectedUser = host.users.get(this.model.user)
+
+      if (!selectedUser) {
+        // just take the first user
+        selectedUser = host.users.models[0]
+      }
+
+      userView.setValue(selectedUser)
+    }
+
+    groupView.options = selectedUser.groups.sort()
+    groupView.setValue(selectedUser.group)
+    groupView.renderOptions()
+    groupView.updateSelectedOption()
   }
 })

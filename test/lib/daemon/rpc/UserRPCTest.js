@@ -24,7 +24,9 @@ describe('UserRPC', function () {
       switchApplicationRef: sinon.stub(),
       listApplicationRefs: sinon.stub(),
       updateApplicationRefs: sinon.stub(),
-      removeProcess: sinon.stub()
+      removeProcess: sinon.stub(),
+      listUsers: sinon.stub(),
+      currentRef: sinon.stub()
     }
     rpc._processService = {
       on: sinon.stub()
@@ -70,5 +72,7 @@ describe('UserRPC', function () {
     expect(rpc.switchApplicationRef).to.be.a('function')
     expect(rpc.listApplicationRefs).to.be.a('function')
     expect(rpc.updateApplicationRefs).to.be.a('function')
+    expect(rpc.listUsers).to.be.a('function')
+    expect(rpc.currentRef).to.be.a('function')
   })
 })
