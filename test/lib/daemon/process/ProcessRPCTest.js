@@ -344,21 +344,32 @@ describe('ProcessRPC', function () {
     }
     processRpc._heapSnapshots[snapshot.id] = snapshot
 
+    var onReadable = sinon.stub()
     var onData = sinon.stub()
     var onEnd = sinon.stub()
     var callback = sinon.stub()
     var stream = new EventEmitter()
-    stream.pause = sinon.stub()
-    stream.resume = sinon.stub()
+    stream.read = sinon.stub()
 
     processRpc._fs.createReadStream.withArgs(snapshot.path).returns(stream)
 
-    processRpc.fetchHeapSnapshot(snapshot.id, onData, onEnd, callback)
+    processRpc.fetchHeapSnapshot(snapshot.id, onReadable, onData, onEnd, callback)
 
-    expect(callback.calledWith(undefined, snapshot)).to.be.true
+    expect(callback.calledWith(undefined, snapshot, sinon.match.func)).to.be.true
 
+    expect(onReadable.called).to.be.false
+    stream.emit('readable')
+    expect(onReadable.called).to.be.true
+
+    // when read returns nothing, onData should not be called
     expect(onData.called).to.be.false
-    stream.emit('data', 'buf')
+    callback.getCall(0).args[2]()
+    expect(onData.called).to.be.false
+
+    // when read returns something, onData should be called
+    expect(onData.called).to.be.false
+    stream.read.returns('buf')
+    callback.getCall(0).args[2]()
     expect(onData.calledWith('buf')).to.be.true
 
     expect(onEnd.called).to.be.false
@@ -369,7 +380,7 @@ describe('ProcessRPC', function () {
   it('should pass an error when no snapshot can be found during fetching', function () {
     var callback = sinon.stub()
 
-    processRpc.fetchHeapSnapshot('foo', null, null, callback)
+    processRpc.fetchHeapSnapshot('foo', null, null, null, callback)
 
     expect(callback.getCall(0).args[0].message).to.contain('No snapshot for')
     expect(callback.getCall(0).args[0].code).to.equal('ENOENT')

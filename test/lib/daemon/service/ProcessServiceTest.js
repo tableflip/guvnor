@@ -74,7 +74,10 @@ describe('ProcessService', function () {
       totalRestarts: 0,
       validate: sinon.stub().callsArg(0),
       getProcessArgs: sinon.stub(),
-      getProcessOptions: sinon.stub()
+      getProcessOptions: sinon.stub(),
+      logger: {
+        error: sinon.stub()
+      }
     }
     // processInfo.validate
 
