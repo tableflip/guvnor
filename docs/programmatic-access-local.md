@@ -122,7 +122,7 @@ daemon.startProcess(pathOrName, options, function(error, processInfo) {
 
 ### stopProcess(id, callback(error))
 
-Stop a process.  N.b. This method is for killing processes that have not started up properly - e.g. if it's status never gets beyond 'starting'. Otherwise you should use the [kill](https://github.com/tableflip/guvnor/blob/master/docs/programmatic-access-local.md#killcallbackerror) method on it's RPC service instead.
+Stop a process.  N.b. This method is for killing processes that have not started up properly - e.g. if it's status never gets beyond `starting`. Otherwise you should use the [kill](https://github.com/tableflip/guvnor/blob/master/docs/programmatic-access-local.md#killcallbackerror) method on it's RPC service instead.
 
 ```javascript
 daemon.findProcessInfoByName(name, function(error, processInfo) {
@@ -265,7 +265,7 @@ daemon.removeRemoteUser
 daemon.listRemoteUsers
 ```
 
-### Rotate remote user keyys
+### Rotate remote user keys
 
 ```javascript
 daemon.rotateRemoteUserKeys
