@@ -217,8 +217,7 @@ describe('Guvnor CLI', function () {
     process.stdout.write = function (string) {
       content += string
       lines++
-      //process.stderr.write('line ' + lines + '\n')
-      //process.stderr.write(content + '\n')
+
       if (lines === 3) {
         process.stdout.write = write
 
