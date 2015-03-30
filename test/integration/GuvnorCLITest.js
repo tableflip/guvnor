@@ -9,7 +9,8 @@ var expect = require('chai').expect,
   fs = require('fs'),
   ini = require('ini'),
   exec = require('./fixtures/exec'),
-  logDaemonMessages = require('./fixtures/log-daemon-messages')
+  logDaemonMessages = require('./fixtures/log-daemon-messages'),
+  continueProcess = require('./fixtures/continueProcess')
 
 process.setMaxListeners(0)
 
@@ -94,12 +95,16 @@ var tmpdir
 
 describe('Guvnor CLI', function () {
   // integration tests are slow
-  this.timeout(0)
+  this.timeout(60000)
 
-  var info
+  var info, warn, error, stdout, stderr
 
   beforeEach(function (done) {
     info = console.info
+    warn = console.warn
+    error = console.error
+    stdout = process.stdout.write
+    stderr = process.stderr.write
     process.env.GUVNOR_ALLOW_UKNOWN_OPTION = true
 
     tmpdir = os.tmpdir() + '/' + shortid.generate()
@@ -125,6 +130,10 @@ describe('Guvnor CLI', function () {
 
   afterEach(function (done) {
     console.info = info
+    console.warn = warn
+    console.error = error
+    process.stdout.write = stdout
+    process.stderr.write = stderr
     delete process.env.GUVNOR_ALLOW_UKNOWN_OPTION
 
     guvnor.callbacks = {}
@@ -197,6 +206,37 @@ describe('Guvnor CLI', function () {
     })
 
     runCli('start', __dirname + '/fixtures/hello-world.js', '-n', name)
+  })
+
+  it('should start a process in debug mode', function (done) {
+    var content = ''
+    var lines = 0
+
+    var write = process.stdout.write
+
+    process.stdout.write = function (string) {
+      content += string
+      lines++
+      //process.stderr.write('line ' + lines + '\n')
+      //process.stderr.write(content + '\n')
+      if (lines === 3) {
+        process.stdout.write = write
+
+        expect(content).to.contain('started in debug mode')
+        expect(content).to.contain('paused and listening on port')
+        expect(content).to.contain('Please connect a debugger to this port')
+
+        var port = parseInt(content.match(/listening on port (\d*)/)[1], 10)
+
+        continueProcess(port, function (error) {
+          expect(error).to.not.exist
+
+          done()
+        })
+      }
+    }
+
+    runCli('start', __dirname + '/fixtures/hello-world.js', '-d')
   })
 
   it('should restart a process', function (done) {
@@ -888,7 +928,7 @@ describe('Guvnor CLI', function () {
       })
     })
   })
-  
+
   it('should report the current application ref', function (done) {
     var repo = tmpdir + '/' + shortid.generate()
 
