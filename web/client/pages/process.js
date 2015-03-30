@@ -1,5 +1,9 @@
 var PageView = require('./base')
 
+function endsWith (haystack, needle) {
+  return haystack.substring(haystack.length - needle.length) === needle
+}
+
 module.exports = PageView.extend({
   pageTitle: function () {
     return 'Guvnor - ' + this.model.name + ' - ' + this.model.status
@@ -16,6 +20,10 @@ module.exports = PageView.extend({
     'model.name': '[data-hook=process-name]',
     'model.status': {
       type: function (el, value) {
+        if (value === 'running' && (endsWith(window.location.href, 'logs') || endsWith(window.location.href, 'execeptions') || endsWith(window.location.href, 'snapshots'))) {
+          return
+        }
+
         // if the status of a process changes while we are watching it, redirect the
         // user to a page with an appropriate message
         if (window.location.href.substring(window.location.href.length - value.length) === value) {

@@ -1,16 +1,26 @@
 var ProcessPage = require('../process')
 var templates = require('../../templates')
-var StartOrRemoveView = require('../../views/process/startOrRemove')
+var StartButton = require('../../buttons/start')
+var RemoveButton = require('../../buttons/remove')
 
 module.exports = ProcessPage.extend({
   template: templates.pages.process.stopped,
   subviews: {
-    startOrRemove: {
-      container: '[data-hook=startOrRemove]',
+    startButton: {
+      container: '[data-hook=startbutton]',
       prepareView: function (el) {
-        return new StartOrRemoveView({
-          model: this.model,
-          el: el
+        return new StartButton({
+          el: el,
+          model: this.model
+        })
+      }
+    },
+    removeButton: {
+      container: '[data-hook=removebutton]',
+      prepareView: function (el) {
+        return new RemoveButton({
+          el: el,
+          model: this.model
         })
       }
     }

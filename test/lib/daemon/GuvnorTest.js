@@ -79,7 +79,8 @@ describe('Guvnor', function () {
       getGroups: sinon.stub()
     }
     guvnor._posix = {
-      getgrnam: sinon.stub()
+      getgrnam: sinon.stub(),
+      getpwnam: sinon.stub()
     }
   })
 
@@ -616,6 +617,198 @@ describe('Guvnor', function () {
 
     guvnor.afterPropertiesSet(function () {
       expect(guvnor._processService.startProcess.called).to.be.false
+
+      done()
+    })
+  })
+
+  it('should list users', function (done) {
+    var groups = [{
+      groupname: 'foo'
+    }, {
+      groupname: '_bar'
+    }, {
+      groupname: 'baz'
+    }]
+    var qux = {
+      name: 'qux',
+      uid: 'qux-uid',
+      gid: 'qux-gid'
+    }
+    var garply = {
+      name: 'garply',
+      uid: 'garply-uid',
+      gid: 'garply-gid'
+    }
+    var group = {
+      name: 'group'
+    }
+    guvnor._posix.getgrnam.withArgs(qux.gid).returns(group)
+    guvnor._posix.getgrnam.withArgs(garply.gid).returns(group)
+
+    guvnor._etc_passwd.getGroups.callsArgWith(0, undefined, groups)
+    guvnor._posix.getgrnam.withArgs('foo').returns({
+      members: ['qux', '_quux']
+    })
+    guvnor._posix.getgrnam.withArgs('baz').returns({
+      members: ['qux', 'garply']
+    })
+    guvnor._posix.getpwnam.withArgs('qux').returns(qux)
+    guvnor._posix.getpwnam.withArgs('garply').returns(garply)
+
+    guvnor.listUsers(null, function (error, users) {
+      expect(error).to.not.exist
+
+      expect(users.length).to.equal(2)
+
+      expect(users[0].name).to.equal(qux.name)
+      expect(users[0].group).to.equal(group.name)
+      expect(users[0].groups).to.deep.equal(['foo', 'baz'])
+
+      expect(users[1].name).to.equal(garply.name)
+      expect(users[1].group).to.equal(group.name)
+      expect(users[1].groups).to.deep.equal(['baz'])
+
+      done()
+    })
+  })
+
+  it('should stop a process', function (done) {
+    var user = {
+      name: 'user'
+    }
+    var processInfo = {
+      id: 'id',
+      status: 'starting',
+      user: user.name,
+      process: {
+        emit: sinon.stub(),
+        kill: sinon.stub()
+      }
+    }
+
+    guvnor._processService.findById.withArgs(processInfo.id).returns(processInfo)
+
+    guvnor.stopProcess(user, processInfo.id, function (error) {
+      expect(error).to.not.exist
+      expect(processInfo.process.emit.calledWith('process:stopping')).to.be.true
+      expect(processInfo.process.kill.called).to.be.true
+
+      done()
+    })
+  })
+
+  it('should not stop a running process', function (done) {
+    var user = {
+      name: 'user'
+    }
+    var processInfo = {
+      id: 'id',
+      status: 'running',
+      user: user.name,
+      process: {
+        emit: sinon.stub(),
+        kill: sinon.stub()
+      }
+    }
+
+    guvnor._processService.findById.withArgs(processInfo.id).returns(processInfo)
+
+    guvnor.stopProcess(user, processInfo.id, function (error) {
+      expect(error.message).to.contain('running')
+      expect(processInfo.process.kill.called).to.be.false
+
+      done()
+    })
+  })
+
+  it('should not stop a non-existant process', function (done) {
+    var user = {
+      name: 'user'
+    }
+    guvnor._processService.findById.returns(null)
+
+    guvnor.stopProcess(user, 'foo', function (error) {
+      expect(error.message).to.contain('No process found')
+
+      done()
+    })
+  })
+
+  it('should not stop a process that belongs to a different user', function (done) {
+    var user = {
+      name: 'user',
+      group: 'group',
+      groups: ['groups']
+    }
+    var processInfo = {
+      id: 'id',
+      status: 'starting',
+      user: 'foo',
+      group: 'bar',
+      process: {
+        emit: sinon.stub(),
+        kill: sinon.stub()
+      }
+    }
+
+    guvnor._processService.findById.withArgs(processInfo.id).returns(processInfo)
+
+    guvnor.stopProcess(user, processInfo.id, function (error) {
+      expect(error.code).to.equal('EPERM')
+      expect(processInfo.process.kill.called).to.be.false
+
+      done()
+    })
+  })
+
+  it('should stop a process when called by guvnor user', function (done) {
+    guvnor._config.guvnor.user = 'user'
+
+    var user = {
+      name: guvnor._config.guvnor.user
+    }
+    var processInfo = {
+      id: 'id',
+      status: 'starting',
+      user: 'other',
+      process: {
+        emit: sinon.stub(),
+        kill: sinon.stub()
+      }
+    }
+
+    guvnor._processService.findById.withArgs(processInfo.id).returns(processInfo)
+
+    guvnor.stopProcess(user, processInfo.id, function (error) {
+      expect(error).to.not.exist
+      expect(processInfo.process.emit.calledWith('process:stopping')).to.be.true
+      expect(processInfo.process.kill.called).to.be.true
+
+      done()
+    })
+  })
+
+  it('should not stop an uninitialised process', function (done) {
+    guvnor._config.guvnor.user = 'user'
+
+    var user = {
+      name: guvnor._config.guvnor.user
+    }
+    var processInfo = {
+      id: 'id',
+      status: 'starting',
+      user: 'other',
+      process: {
+        emit: sinon.stub()
+      }
+    }
+
+    guvnor._processService.findById.withArgs(processInfo.id).returns(processInfo)
+
+    guvnor.stopProcess(user, processInfo.id, function (error) {
+      expect(error.message).to.contain('Could not kill')
+      expect(processInfo.process.emit.calledWith('process:stopping')).to.be.false
 
       done()
     })

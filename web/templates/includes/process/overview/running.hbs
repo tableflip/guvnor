@@ -6,20 +6,19 @@
     <div class="alert alert-warning">
       {{model.name}} is running in debug mode, is paused and is waiting for a debugger to attach to port {{model.debugPort}}. Please click the debug button below.
     </div>
-    <button type="button" class="btn btn-default btn-xs process-debug"><i class="fa fa-bug"></i> Debug</button>
   </div>
   <div class="panel-body" data-hook="running-information">
     <p>{{model.name}} has been running for <span data-hook="uptime">{{model.uptimeFormatted}}</span> with <span data-hook="restarts">{{model.restarts}}</span> restart(s).</p>
     <p>The current pid is <span data-hook="pid">{{model.pid}}</span> and it's running as <span data-hook="user">{{model.user}}</span>:<span data-hook="group">{{model.group}}</span>.</p>
 
-    <button type="button" class="btn btn-default btn-xs process-gc" data-hook="gcbutton"><i class="fa fa-trash"></i> Garbage collect</button>
-    <button type="button" class="btn btn-default btn-xs process-debug"><i class="fa fa-bug"></i> Debug</button>
-    <button type="button" class="btn btn-default btn-xs process-restart" data-hook="restartbutton"><i class="fa fa-refresh"></i> Restart</button>
-    <button type="button" class="btn btn-default btn-xs process-stop" data-hook="stopbutton"><i class="fa fa-stop"></i> Stop</button>
+    <div data-hook="gcbutton"></div>
+    <div data-hook="debugbutton"></div>
+    <div data-hook="restartbutton"></div>
+    <div data-hook="stopbutton"></div>
 
     {{#if model.cluster}}
-      <button type="button" class="btn btn-default btn-xs process-addworker" data-hook="addworkerbutton"><i class="fa fa-plus"></i> Add worker</button>
-      <button type="button" class="btn btn-default btn-xs process-removeworker" data-hook="removeworkerbutton"><i class="fa fa-minus"></i> Remove worker</button>
+      <div data-hook="addworkerbutton"></div>
+      <div data-hook="removeworkerbutton"></div>
     {{/if}}
   </div>
 </div>

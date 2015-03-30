@@ -29,7 +29,8 @@ describe('RemoteRPC', function () {
       startProcess: sinon.stub(),
       removeProcess: sinon.stub(),
       currentRef: sinon.stub(),
-      listUsers: sinon.stub()
+      listUsers: sinon.stub(),
+      stopProcess: sinon.stub()
     }
     remoteRpc._processService = {
       on: sinon.stub()

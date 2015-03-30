@@ -25,7 +25,8 @@ describe('UserDetails', function () {
       shell: 'shell'
     }
     userDetails._posix.getpwnam.withArgs(userDetails._id).returns(user)
-    userDetails._child_process.execFile.withArgs('sudo').callsArgWith(3, undefined, path)
+    userDetails._child_process.execFile.withArgs('sudo', ['-u', user.name, 'printenv', 'PATH']).callsArgWith(3, undefined, [path])
+    userDetails._child_process.execFile.withArgs('sudo', ['-u', user.name, 'groups']).callsArgWith(3, undefined, ['foo bar'])
 
     userDetails.afterPropertiesSet(function() {
       expect(userDetails._id).to.not.exist
@@ -35,6 +36,7 @@ describe('UserDetails', function () {
       expect(userDetails.name).to.equal(user.name)
       expect(userDetails.shell).to.equal(user.shell)
       expect(userDetails.path).to.equal(path)
+      expect(userDetails.groups).to.deep.equal(['foo', 'bar'])
 
       done()
     })
