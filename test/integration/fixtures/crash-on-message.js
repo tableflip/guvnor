@@ -1,3 +1,6 @@
 process.on('custom:euthanise', function () {
-  throw new Error('goodbye cruel world')
+
+  process.nextTick(function () {
+    throw new Error('goodbye cruel world')
+  })
 })

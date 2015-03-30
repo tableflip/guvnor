@@ -5,6 +5,7 @@ Revision history for guvnor
 ## [3.5.0](releases/tag/v3.5.0)
 
  * Adds [stopProcess](https://github.com/tableflip/guvnor/blob/master/docs/programmatic-access-local.md#stopprocessid-callbackerror) method to daemon to shut down processes that don't finish starting up
+ * Switch to using individual user password salts in for the web monitor
 
 ## [3.4.0](releases/tag/v3.3.0)
 
