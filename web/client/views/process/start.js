@@ -19,6 +19,7 @@ module.exports = View.extend({
             data.execArgv = splitargs(data.execArgv)
             data.argv = splitargs(data.argv)
             data.instances = parseInt(data.instances, 10)
+            data.user = data.user.name
 
             this.onSubmit(data)
           }.bind(this)

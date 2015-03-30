@@ -35,7 +35,7 @@ module.exports = FormView.extend({
         label: 'Group',
         name: 'group',
         parent: this,
-        options: [],
+        options: [this.model.group],
         value: this.model.group,
         template: templates.forms.controls.select()
       }),
