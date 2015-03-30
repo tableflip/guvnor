@@ -67,7 +67,7 @@ Local.connect(function(error, daemon) {
       throw error
     }
   }
-  
+
   daemon.listProcesses(function(error, processes) {
     // ...
   })
@@ -83,7 +83,7 @@ If this fails for any reason, the callback will receive an error.
 ```javascript
 Local.connectOrStart(function(error, daemon) {
   if(error) throw error
-  
+
   daemon.listProcesses(function(error, processes) {
     // ...
   })
@@ -111,11 +111,24 @@ Start a process. Pass either the path to a script, the name of a stopped process
 ```javascript
 daemon.startProcess(pathOrName, options, function(error, processInfo) {
   // processInfo.id is the process id of the newly started process
-  
+
   daemon.on('process:ready', function(error, readyProcessInfo) {
     if(processInfo.id == readyProcessInfo.id) {
       // process has now started
     }
+  })
+})
+```
+
+### stopProcess(id, callback(error))
+
+Stop a process.  N.b. This method is for killing processes that have not started up properly - e.g. if it's status never gets beyond 'starting'. Otherwise you should use the [kill](https://github.com/tableflip/guvnor/blob/master/docs/programmatic-access-local.md#killcallbackerror) method on it's RPC service instead.
+
+```javascript
+daemon.findProcessInfoByName(name, function(error, processInfo) {
+  daemon.kill(processInfo.id, function(error) {
+    // process has now been killed, if it has not finished starting,
+    // otherwise `error` will be set - instead use processInfo.kill()
   })
 })
 ```
@@ -127,7 +140,7 @@ Remove a stopped process
 ```javascript
 // id is processInfo.id
 daemon.removeProcess(id, function(error) {
-  
+
 })
 ```
 
