@@ -86,9 +86,9 @@ A process experienced an uncaught exception and there were no [handlers](http://
 
 A process exited or errored with the specified error code.  If a signal was used to kill the process, it will be passed as the second argument.  If the exit code is non-zero the process will be automatically restarted.
 
-### 'process:restarted' processInfo, oldPid
+### 'process:restarted' processInfo
 
-A process restarted succesfully.  ProcessInfo associated with the process is passed as is the pid of the old process that failed.
+A process restarted successfully.
 
 ### 'process:aborted' processInfo, error
 

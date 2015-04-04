@@ -242,8 +242,8 @@ describe('Guvnor CLI', function () {
     guvnor.once('process:ready', function (readyProcessInfo) {
       expect(readyProcessInfo.name).to.equal('hello-world.js')
 
-      guvnor.once('process:restarted', function (restartedProcessInfo) {
-        expect(restartedProcessInfo.id).to.equal(readyProcessInfo.id)
+      guvnor.once('process:restarted', function (processInfo) {
+        expect(readyProcessInfo.name).to.equal('hello-world.js')
 
         done()
       })

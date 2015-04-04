@@ -233,7 +233,6 @@ describe('Guvnor', function () {
 
       managedProcess.once('process:restarted', function () {
         guvnor.listProcesses(function (error, processes) {
-          console.info(error, processes)
           expect(error).to.not.exist
           expect(notifiedOfRestarting).to.be.true
           expect(processes.length).to.equal(1)
@@ -277,11 +276,7 @@ describe('Guvnor', function () {
       expect(error).to.not.exist
       expect(managedProcess.id).to.be.ok
 
-      managedProcess.once('process:restarted', function (failedPid) {
-        expect(managedProcess.pid).to.not.equal(failedPid)
-
-        done()
-      })
+      managedProcess.once('process:restarted', done)
 
       managedProcess.once('process:ready', function () {
         expect(managedProcess.socket).to.be.ok
