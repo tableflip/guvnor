@@ -46,7 +46,7 @@ module.exports = {
       })
 
       // we have what we need, we can now start our router and show the appropriate page
-      window.app.router.history.start({pushState: true, root: '/'})
+      window.app.router.history.start()
     })
   },
 
