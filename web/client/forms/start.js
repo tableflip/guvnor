@@ -28,7 +28,9 @@ module.exports = FormView.extend({
         parent: this,
         options: host.users,
         value: this.model.user,
+        eagerValidate: true,
         textAttribute: 'name',
+        required: true,
         template: templates.forms.controls.select()
       }),
       new SelectView({
@@ -37,6 +39,8 @@ module.exports = FormView.extend({
         parent: this,
         options: [this.model.group],
         value: this.model.group,
+        eagerValidate: true,
+        required: true,
         template: templates.forms.controls.select()
       }),
       new CheckboxView({
@@ -52,6 +56,8 @@ module.exports = FormView.extend({
         parent: this,
         options: instances,
         value: '1',
+        eagerValidate: true,
+        required: true,
         template: templates.forms.controls.select()
       }),
       new InputView({
@@ -142,8 +148,7 @@ module.exports = FormView.extend({
     }
 
     groupView.options = selectedUser.groups.sort()
-    groupView.setValue(selectedUser.group)
     groupView.renderOptions()
-    groupView.updateSelectedOption()
+    groupView.setValue(selectedUser.group)
   }
 })
