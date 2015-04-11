@@ -197,6 +197,16 @@ daemon.listApplications
 daemon.listApplicationRefs
 ```
 
+### Current applications ref
+
+Calls the passed callback with the app's current ref name and commit id.
+
+```javascript
+daemon.currentRef(appName, function (error, refName, commitHash) {
+ // ...
+})
+```
+
 ### Switch applications refs
 
 ```javascript

@@ -9,6 +9,9 @@ module.exports = function (command, args, path, callback) {
     path = process.cwd()
   }
 
+  var stdout = ''
+  var stderr = ''
+
   var proc = child_process.spawn(
     command, args, {
       cwd: path,
@@ -21,14 +24,14 @@ module.exports = function (command, args, path, callback) {
     }
   )
   proc.stdout.on('data', function (buff) {
-    console.info(buff.toString('utf8'))
+    stdout += buff.toString('utf8')
   })
   proc.stderr.on('data', function (buff) {
-    console.info(buff.toString('utf8'))
+    stderr += buff.toString('utf8')
   })
   proc.once('close', function (code) {
     proc.removeAllListeners('data')
 
-    callback(code != 0 ? new Error('Process failed') : undefined)
+    callback(code != 0 ? new Error('Process failed') : undefined, stdout, stderr)
   })
 }

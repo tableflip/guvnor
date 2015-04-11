@@ -596,7 +596,7 @@ describe('Guvnor', function () {
 
       var appName = shortid.generate()
 
-      guvnor.deployApplication(appName, repo, user.name, console.info, console.error, function (error, appInfo) {
+      guvnor.deployApplication(appName, repo, user.name, function() {}, function() {}, function (error, appInfo) {
         expect(error).to.not.exist
         expect(fs.existsSync(config.guvnor.appdir + '/' + appInfo.id)).to.be.true
 
@@ -624,7 +624,7 @@ describe('Guvnor', function () {
 
         var appName = shortid.generate()
 
-        guvnor.deployApplication(appName, repo, user.name, console.info, console.error, callback)
+        guvnor.deployApplication(appName, repo, user.name, function() {}, function() {}, callback)
       })
     }
 
@@ -672,7 +672,7 @@ describe('Guvnor', function () {
 
       var appName = shortid.generate()
 
-      guvnor.deployApplication(appName, repo, user.name, console.info, console.error, function (error, appInfo) {
+      guvnor.deployApplication(appName, repo, user.name, function() {}, function() {}, function (error, appInfo) {
         expect(error).to.not.exist
         expect(fs.existsSync(config.guvnor.appdir + '/' + appInfo.id)).to.be.true
 
@@ -717,13 +717,11 @@ describe('Guvnor', function () {
       exec.bind(null, 'git', ['commit', '-m', 'v3'], repo),
       exec.bind(null, 'git', ['tag', 'v3'], repo)
     ], function (error) {
-      if (error) {
-        throw error
-      }
+      expect(error).to.not.exist
 
       var appName = shortid.generate()
 
-      guvnor.deployApplication(appName, repo, user.name, console.info, console.error, function (error, appInfo) {
+      guvnor.deployApplication(appName, repo, user.name, function() {}, function() {}, function (error, appInfo) {
         expect(error).to.not.exist
 
         // should be at latest version
@@ -731,7 +729,7 @@ describe('Guvnor', function () {
         expect(fs.existsSync(config.guvnor.appdir + '/' + appInfo.id + '/v2')).to.be.true
         expect(fs.existsSync(config.guvnor.appdir + '/' + appInfo.id + '/v3')).to.be.true
 
-        guvnor.switchApplicationRef(appName, 'tags/v2', console.info, console.error, function (error) {
+        guvnor.switchApplicationRef(appName, 'tags/v2', function() {}, function() {}, function (error) {
           expect(error).to.not.exist
 
           // now at v2
@@ -739,7 +737,7 @@ describe('Guvnor', function () {
           expect(fs.existsSync(config.guvnor.appdir + '/' + appInfo.id + '/v2')).to.be.true
           expect(fs.existsSync(config.guvnor.appdir + '/' + appInfo.id + '/v3')).to.be.false
 
-          guvnor.switchApplicationRef(appName, 'tags/v1', console.info, console.error, function (error) {
+          guvnor.switchApplicationRef(appName, 'tags/v1', function() {}, function() {}, function (error) {
             expect(error).to.not.exist
 
             // now at v1
@@ -781,7 +779,7 @@ describe('Guvnor', function () {
 
       var appName = shortid.generate()
 
-      guvnor.deployApplication(appName, repo, user.name, console.info, console.error, function (error, appInfo) {
+      guvnor.deployApplication(appName, repo, user.name, function() {}, function() {}, function (error, appInfo) {
         expect(error).to.not.exist
         expect(appInfo.id).to.be.ok
 
@@ -796,6 +794,39 @@ describe('Guvnor', function () {
           expect(refs[3].name).to.equal('refs/tags/v1')
           expect(refs[4].name).to.equal('refs/tags/v2')
           expect(refs[5].name).to.equal('refs/tags/v3')
+
+          done()
+        })
+      })
+    })
+  })
+
+  it('should report the current application ref', function (done) {
+    var repo = tmpdir + '/' + shortid.generate()
+
+    async.series([
+      exec.bind(null, 'mkdir', [repo]),
+      exec.bind(null, 'git', ['init'], repo),
+      exec.bind(null, 'git', ['config', 'user.email', 'foo@bar.com'], repo),
+      exec.bind(null, 'git', ['config', 'user.name', 'foo'], repo),
+      exec.bind(null, 'touch', ['v1'], repo),
+      exec.bind(null, 'git', ['add', '-A'], repo),
+      exec.bind(null, 'git', ['commit', '-m', 'v1'], repo),
+      exec.bind(null, 'git', ['rev-parse', 'HEAD'], repo)
+    ], function (error, results) {
+      expect(error).to.not.exist
+
+      var appName = shortid.generate()
+
+      guvnor.deployApplication(appName, repo, user.name, function() {}, function() {}, function (error, appInfo) {
+        expect(error).to.not.exist
+        expect(appInfo.id).to.be.ok
+
+        guvnor.currentRef(appName, function (error, ref, commit) {
+          expect(error).to.not.exist
+
+          expect(ref).to.equal('refs/heads/master')
+          expect(commit).to.equal(results[results.length - 1][0].trim())
 
           done()
         })
@@ -822,7 +853,7 @@ describe('Guvnor', function () {
 
       var appName = shortid.generate()
 
-      guvnor.deployApplication(appName, repo, user.name, console.info, console.error, function (error, appInfo) {
+      guvnor.deployApplication(appName, repo, user.name, function() {}, function() {}, function (error, appInfo) {
         expect(error).to.not.exist
         expect(appInfo.id).to.be.ok
 
@@ -849,7 +880,7 @@ describe('Guvnor', function () {
 
               expect(refs.length).to.equal(4)
 
-              guvnor.updateApplicationRefs(appName, console.info, console.error, function (error) {
+              guvnor.updateApplicationRefs(appName, function() {}, function() {}, function (error) {
                 expect(error).to.not.exist
 
                 guvnor.listApplicationRefs(appName, function (error, refs) {
