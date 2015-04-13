@@ -28,7 +28,7 @@
     "ampersand-input-view": "^4.0.1",
     "ampersand-model": "^5.0.0",
     "ampersand-rest-collection": "^4.0.0",
-    "ampersand-router": "^2.1.0",
+    "ampersand-router": "^3.0.2",
     "ampersand-select-view": "achingbrain/ampersand-select-view#patch-1",
     "ampersand-view": "^7.0",
     "ampersand-view-switcher": "^2.0",
