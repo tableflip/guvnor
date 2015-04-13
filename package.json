@@ -29,7 +29,7 @@
     "ampersand-model": "^5.0.0",
     "ampersand-rest-collection": "^4.0.0",
     "ampersand-router": "^3.0.2",
-    "ampersand-select-view": "achingbrain/ampersand-select-view#patch-1",
+    "ampersand-select-view": "^3.0.1",
     "ampersand-view": "^7.0",
     "ampersand-view-switcher": "^2.0",
     "andlog": "^1.0",
