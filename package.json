@@ -24,7 +24,7 @@
     "ampersand-collection": "^1.0",
     "ampersand-collection-view": "^1.0",
     "ampersand-dom": "^1.0",
-    "ampersand-form-view": "^2.4.0",
+    "ampersand-form-view": "^3.1.1",
     "ampersand-input-view": "^4.0.1",
     "ampersand-model": "^5.0.0",
     "ampersand-rest-collection": "^4.0.0",
