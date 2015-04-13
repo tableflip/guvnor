@@ -20,7 +20,12 @@ describe('LocalDaemon', function () {
     localDaemon._semver = {
       satisfies: sinon.stub()
     }
-    localDaemon._processFactory = {}
+    localDaemon._processStore = {
+      removeAll: sinon.stub()
+    }
+    localDaemon._appStore = {
+      removeAll: sinon.stub()
+    }
     localDaemon._localDaemonStarter = {}
     localDaemon._localDaemonAdminConnection = {}
     localDaemon._localDaemonUserConnection = {}

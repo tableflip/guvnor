@@ -1,6 +1,6 @@
 var expect = require('chai').expect,
   sinon = require('sinon'),
-  Process = require('../../../lib/common/ManagedProcess'),
+  ManagedProcess = require('../../../lib/common/ManagedProcess'),
   EventEmitter = require('events').EventEmitter
 
 describe('ManagedProcess', function () {
@@ -9,7 +9,9 @@ describe('ManagedProcess', function () {
   beforeEach(function () {
     socket = 'foo'
 
-    proc = new Process(socket)
+    proc = new ManagedProcess({
+      socket: socket
+    })
     proc._config = {
       guvnor: {
         timeout: 5000
@@ -196,6 +198,11 @@ describe('ManagedProcess', function () {
       id: 'foo'
     }
 
+    proc = new ManagedProcess({
+      socket: socket,
+      cluster: true
+    })
+
     proc.workers.push({
       id: 'bar'
     })
@@ -209,6 +216,11 @@ describe('ManagedProcess', function () {
     var worker = {
       id: 'foo'
     }
+
+    proc = new ManagedProcess({
+      socket: socket,
+      cluster: true
+    })
 
     proc.workers.push({
       id: 'bar'
@@ -225,6 +237,11 @@ describe('ManagedProcess', function () {
     var worker = {
       id: 'foo'
     }
+
+    proc = new ManagedProcess({
+      socket: socket,
+      cluster: true
+    })
 
     proc.workers.push(worker)
     proc.workers.push({
@@ -255,6 +272,11 @@ describe('ManagedProcess', function () {
       name: 'foo',
       cluster: true
     }
+
+    proc = new ManagedProcess({
+      socket: socket,
+      cluster: true
+    })
 
     proc.update(info)
 

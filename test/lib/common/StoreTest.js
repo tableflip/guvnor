@@ -1,6 +1,6 @@
 var expect = require('chai').expect,
   sinon = require('sinon'),
-  Store = require('../../../../lib/daemon/domain/Store')
+  Store = require('../../../lib/common/Store')
 
 describe('Store', function () {
   var store

@@ -362,7 +362,7 @@ describe('ProcessService', function () {
 
     processService.startProcess(__filename, {}, sinon.stub())
 
-    processService._managedProcessFactory.create.withArgs(['socket']).callsArgWith(1, undefined, remote)
+    processService._managedProcessFactory.create.callsArgWith(1, undefined, remote)
     remote.connect.callsArgWith(0, undefined, remote)
 
     childProcess.emit('process:started', 'socket')
@@ -392,7 +392,7 @@ describe('ProcessService', function () {
 
     processService.startProcess(__filename, {}, sinon.stub())
 
-    processService._managedProcessFactory.create.withArgs(['socket']).callsArgWithAsync(1, undefined, remote)
+    processService._managedProcessFactory.create.callsArgWithAsync(1, undefined, remote)
     remote.connect.callsArgWithAsync(0, undefined, remote)
 
     processService._setupProcessCallbacks(processInfo, 'cluster')
@@ -429,7 +429,7 @@ describe('ProcessService', function () {
 
     processService.startProcess(__filename, {}, sinon.stub())
 
-    processService._managedProcessFactory.create.withArgs(['socket']).callsArgWith(1, undefined, remote)
+    processService._managedProcessFactory.create.callsArgWith(1, undefined, remote)
     remote.connect.callsArgWith(0, new Error('nope!'))
 
     childProcess.emit('process:started', 'socket')
@@ -486,7 +486,7 @@ describe('ProcessService', function () {
     })
 
     remote.connect.callsArgWithAsync(0, new Error('nope!'))
-    processService._managedProcessFactory.create.withArgs(['socket']).callsArgWithAsync(1, undefined, remote)
+    processService._managedProcessFactory.create.callsArgWithAsync(1, undefined, remote)
 
     processService._setupProcessCallbacks(processInfo, 'cluster')
     processInfo.process.emit('cluster:started', 'socket')
@@ -722,7 +722,7 @@ describe('ProcessService', function () {
       id: 'foo',
       process: new EventEmitter()
     }
-    processService._managedProcessFactory.create.withArgs([socket]).callsArgWithAsync(1, undefined, remote)
+    processService._managedProcessFactory.create.callsArgWithAsync(1, undefined, remote)
     remote.connect.callsArgWithAsync(0, new Error('nope!'))
 
     var receivedStartedEvent = false
@@ -1015,7 +1015,7 @@ describe('ProcessService', function () {
 
     processService.startProcess(__filename, {}, sinon.stub())
 
-    processService._managedProcessFactory.create.withArgs(['socket']).callsArgWith(1, undefined, remote)
+    processService._managedProcessFactory.create.callsArgWith(1, undefined, remote)
     remote.connect.callsArgWith(0, undefined, remote)
 
     childProcess.emit('process:started', 'socket')
@@ -1036,7 +1036,7 @@ describe('ProcessService', function () {
       done()
     })
 
-    processService._managedProcessFactory.create.withArgs(['socket']).callsArgWith(1, error)
+    processService._managedProcessFactory.create.callsArgWith(1, error)
 
     processService._handleProcessStarted(processInfo, 'process', 'socket')
   })

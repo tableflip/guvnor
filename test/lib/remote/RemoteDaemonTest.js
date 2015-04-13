@@ -27,6 +27,12 @@ describe('RemoteDaemon', function () {
     remoteDaemon._semver = {
       satisfies: sinon.stub().returns(true)
     }
+    remoteDaemon._processStore = {
+      removeAll: sinon.stub()
+    }
+    remoteDaemon._appStore = {
+      removeAll: sinon.stub()
+    }
   })
 
   afterEach(function () {

@@ -18,6 +18,8 @@ describe('UserRPC', function () {
       findProcessInfoById: sinon.stub(),
       findProcessInfoByPid: sinon.stub(),
       findProcessInfoByName: sinon.stub(),
+      findAppById: sinon.stub(),
+      findAppByName: sinon.stub(),
       deployApplication: sinon.stub(),
       removeApplication: sinon.stub(),
       listApplications: sinon.stub(),

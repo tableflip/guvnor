@@ -18,6 +18,10 @@ describe('RemoteRPC', function () {
     remoteRpc._guvnor = {
       on: sinon.stub(),
       findProcessInfoById: sinon.stub(),
+      findProcessInfoByName: sinon.stub(),
+      findProcessInfoByPid: sinon.stub(),
+      findAppById: sinon.stub(),
+      findAppByName: sinon.stub(),
       getServerStatus: sinon.stub(),
       listProcesses: sinon.stub(),
       listApplications: sinon.stub(),
