@@ -14,6 +14,8 @@ module.exports = FormView.extend({
           return ref.name
         }),
         parent: this,
+        required: true,
+        eagerValidate: true,
         template: templates.forms.controls.select()
       })
     ]
