@@ -660,11 +660,13 @@ describe('Guvnor', function () {
 
       expect(users[0].name).to.equal(qux.name)
       expect(users[0].group).to.equal(group.name)
-      expect(users[0].groups).to.deep.equal(['foo', 'baz'])
+      expect(users[0].groups).to.deep.equal(['foo', 'baz', 'group'])
 
       expect(users[1].name).to.equal(garply.name)
       expect(users[1].group).to.equal(group.name)
-      expect(users[1].groups).to.deep.equal(['baz'])
+      expect(users[1].groups).to.deep.equal(['baz', 'group'])
+
+      expect(users[0].groups).to.contain(users[0].group)
 
       done()
     })

@@ -9305,6 +9305,9 @@ footer a.tableflip:hover {
     background-image: url("/images/tableflip@2x-colour.png");
   }
 }
+input[type='checkbox'] {
+  width: 25px;
+}
 @-moz-keyframes blinker {
   0% {
     opacity: 1;
