@@ -130,47 +130,4 @@ describe('PersistentStore', function () {
       done()
     })
   })
-
-  it('should call toSimpleObject if it exists', function (done) {
-    var users = [
-      {
-        name: 'foo',
-        secret: 'shush',
-        toSimpleObject: sinon.stub()
-      }
-    ]
-
-    users[0].toSimpleObject.callsArg(0)
-
-    store._store = users
-    store._jsonfile.writeFile.withArgs(file, sinon.match.array).callsArgAsync(3)
-
-    store.save(function (error) {
-      expect(error).to.not.exist
-      expect(users[0].toSimpleObject.called).to.be.true
-
-      done()
-    })
-  })
-
-  it('should propagate error when saving if one occurs', function (done) {
-    var error = new Error('Urk!')
-    var users = [
-      {
-        name: 'foo',
-        secret: 'shush',
-        toSimpleObject: sinon.stub()
-      }
-    ]
-
-    users[0].toSimpleObject.callsArgWithAsync(0, error)
-
-    store._store = users
-
-    store.save(function (er) {
-      expect(er).to.equal(error)
-
-      done()
-    })
-  })
 })

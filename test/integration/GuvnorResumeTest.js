@@ -69,14 +69,13 @@ describe('GuvnorResume', function () {
           expect(readyProcessInfo.socket).to.include(readyProcessInfo.pid)
 
           // should not have created the processes dump file yet
-          expect(fs.existsSync(conf.guvnor.confdir + '/processes.json')).to.be.false
+          expect(fs.existsSync(conf.guvnor.confdir + '/processes.json')).to.equal(false, 'processes.json existed when it shouldn\'t')
 
           guvnor.kill(function () {
             guvnor.disconnect(function () {
-              // now should have created the processes dump file
-              expect(fs.existsSync(conf.guvnor.confdir + '/processes.json')).to.be.true
-
               setTimeout(function () {
+                // now should have created the processes dump file
+                expect(fs.existsSync(conf.guvnor.confdir + '/processes.json')).to.equal(true, 'processes.json not created')
 
                 connectOrStart(conf, logger, function (error, guvnor) {
                   if (error)

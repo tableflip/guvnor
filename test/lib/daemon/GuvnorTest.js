@@ -5,10 +5,15 @@ var expect = require('chai').expect,
   ProcessInfo = require('../../../lib/daemon/domain/ProcessInfo'),
   EventEmitter = require('events').EventEmitter
 
+process.setMaxListeners(0)
+
 describe('Guvnor', function () {
-  var guvnor
+  var guvnor, exit
 
   beforeEach(function () {
+    exit = process.exit
+    process.exit = sinon.stub()
+
     guvnor = new Guvnor()
     guvnor._logger = {
       info: sinon.stub(),
@@ -46,6 +51,7 @@ describe('Guvnor', function () {
     }
     guvnor._processInfoStore = {
       save: sinon.stub(),
+      saveSync: sinon.stub(),
       all: sinon.stub(),
       find: sinon.stub()
     }
@@ -82,6 +88,10 @@ describe('Guvnor', function () {
       getgrnam: sinon.stub(),
       getpwnam: sinon.stub()
     }
+  })
+
+  afterEach(function () {
+    process.exit = exit
   })
 
   it('should return a list of running processes', function (done) {
@@ -507,29 +517,16 @@ describe('Guvnor', function () {
     })
   })
 
-  it('should kill the daemon', function (done) {
+  it('should kill the daemon', function () {
     guvnor._config.guvnor.autoresume = false
     guvnor._kill = sinon.stub().callsArg(0)
 
-    guvnor.kill({}, function () {
-      expect(guvnor._nodeInspectorWrapper.stopNodeInspector.called).to.be.true
-      expect(guvnor._processService.killAll.called).to.be.true
+    var callback = sinon.stub()
 
-      done()
-    })
-  })
+    guvnor.kill({}, callback)
 
-  it('should dump processes and then kill the daemon', function (done) {
-    guvnor._config.guvnor.autoresume = true
-    guvnor._processInfoStore.save.callsArg(0)
-    guvnor._kill = sinon.stub().callsArg(0)
-
-    guvnor.kill({}, function () {
-      expect(guvnor._nodeInspectorWrapper.stopNodeInspector.called).to.be.true
-      expect(guvnor._processService.killAll.called).to.be.true
-
-      done()
-    })
+    expect(callback.called).to.be.true
+    expect(process.exit.called).to.be.true
   })
 
   it('should delegate to process service for removing processes', function (done) {

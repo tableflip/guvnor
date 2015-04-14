@@ -89,7 +89,7 @@
     "uuid": "^2.0",
     "wantsit": "^2.0",
     "wildemitter": "^1.0",
-    "winston": "^0.9.0"
+    "winston": "^1.0.0"
   },
   "optionalDependencies": {
     "execSync": "^1.0",
