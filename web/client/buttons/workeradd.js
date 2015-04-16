@@ -4,6 +4,13 @@ var notify = require('../helpers/notification')
 
 module.exports = View.extend({
   template: templates.buttons.workeradd,
+  bindings: {
+    'model.canAddWorkers': {
+      type: 'booleanAttribute',
+      name: 'disabled',
+      selector: '[data-hook=addworkerbutton]'
+    }
+  },
   events: {
     'click [data-hook=addworkerbutton]': 'addWorkerToCluster'
   },

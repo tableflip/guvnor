@@ -13,8 +13,8 @@ module.exports = FormView.extend({
       // single core machines can't do clusters...
       instances = ['1']
     } else {
-      // clusters can have $CPUs - 1 instances
-      for (var i = 0; i < window.app.host.cpus.length - 1; i++) {
+      // clusters can have as many instances as CPUs
+      for (var i = 0; i < window.app.host.cpus.length; i++) {
         instances.push('' + (i + 1))
       }
     }

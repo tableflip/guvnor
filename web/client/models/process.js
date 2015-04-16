@@ -38,6 +38,8 @@ module.exports = AmpersandModel.extend({
     },
     cluster: ['boolean', false, false],
     clusterManager: ['string', false, null],
+    canAddWorkers: ['boolean', false, false],
+    canRemoveWorkers: ['boolean', false, false],
 
     cpu: ['array', true, function () {
       return []
