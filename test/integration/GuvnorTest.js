@@ -114,12 +114,70 @@ describe('Guvnor', function () {
       expect(error).to.not.exist
       expect(managedProcess.id).to.be.ok
 
-      console.info('process id', managedProcess.id)
-
       managedProcess.once('process:ready', function () {
         expect(managedProcess.socket).to.include(managedProcess.pid)
 
         done()
+      })
+    })
+  })
+
+  it('should start the same process twice with different names', function (done) {
+    guvnor.startProcess(__dirname + '/fixtures/hello-world.js', {
+      name: 'foo'
+    }, function (error, managedProcess) {
+      managedProcess.once('process:ready', function () {
+        guvnor.startProcess(__dirname + '/fixtures/hello-world.js', {
+          name: 'bar'
+        }, function (error, managedProcess) {
+          expect(error).to.not.exist
+
+          done()
+        })
+      })
+    })
+  })
+
+  it('should not start the same process twice', function (done) {
+    guvnor.startProcess(__dirname + '/fixtures/hello-world.js', {}, function (error, managedProcess) {
+      managedProcess.once('process:ready', function () {
+        guvnor.startProcess(__dirname + '/fixtures/hello-world.js', {}, function (error, managedProcess) {
+          expect(error).to.be.ok
+
+          done()
+        })
+      })
+    })
+  })
+
+  it('should not start the same named process twice', function (done) {
+    guvnor.startProcess(__dirname + '/fixtures/hello-world.js', {
+      name: 'foo'
+    }, function (error, managedProcess) {
+      managedProcess.once('process:ready', function () {
+        guvnor.startProcess(__dirname + '/fixtures/hello-world.js', {
+          name: 'foo'
+        }, function (error, managedProcess) {
+          expect(error).to.be.ok
+
+          done()
+        })
+      })
+    })
+  })
+
+  it('should not start processes with the same name', function (done) {
+    guvnor.startProcess(__dirname + '/fixtures/hello-world.js', {
+      name: 'foo'
+    }, function (error, managedProcess) {
+      managedProcess.once('process:ready', function () {
+        guvnor.startProcess(__dirname + '/fixtures/crash-on-message.js', {
+          name: 'foo'
+        }, function (error, managedProcess) {
+          expect(error).to.be.ok
+
+          done()
+        })
       })
     })
   })
