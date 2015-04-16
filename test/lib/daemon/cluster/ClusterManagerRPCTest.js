@@ -12,16 +12,14 @@ describe('ClusterManagerRPC', function () {
     rpc._parentProcess = {
       send: sinon.stub()
     }
+    rpc._os = {
+      cpus: sinon.stub().returns([null, null, null, null])
+    }
 
     rpc._clusterManager.setNumWorkers.callsArg(1)
 
-    rpc.setClusterWorkers(5, function (error) {
+    rpc.setClusterWorkers(2, function (error) {
       expect(error).to.not.exist
-
-      // should have notified parent process of new number of workers
-      expect(rpc._parentProcess.send.callCount).to.equal(1)
-      expect(rpc._parentProcess.send.getCall(0).args[0]).to.equal('cluster:workers')
-      expect(rpc._parentProcess.send.getCall(0).args[1]).to.equal(5)
 
       done()
     })
@@ -39,6 +37,63 @@ describe('ClusterManagerRPC', function () {
     rpc._clusterManager.setNumWorkers.callsArg(1)
 
     rpc.setClusterWorkers('foo', function (error) {
+      expect(error).to.exist
+
+      done()
+    })
+  })
+
+  it('should error when setting number of process workers to zero', function (done) {
+    var rpc = new ClusterManagerRPC()
+    rpc._clusterManager = {
+      setNumWorkers: sinon.stub()
+    }
+    rpc._parentProcess = {
+      send: sinon.stub()
+    }
+
+    rpc._clusterManager.setNumWorkers.callsArg(1)
+
+    rpc.setClusterWorkers(0, function (error) {
+      expect(error).to.exist
+
+      done()
+    })
+  })
+
+  it('should error when setting number of process workers to a negative number', function (done) {
+    var rpc = new ClusterManagerRPC()
+    rpc._clusterManager = {
+      setNumWorkers: sinon.stub()
+    }
+    rpc._parentProcess = {
+      send: sinon.stub()
+    }
+
+    rpc._clusterManager.setNumWorkers.callsArg(1)
+
+    rpc.setClusterWorkers(-1, function (error) {
+      expect(error).to.exist
+
+      done()
+    })
+  })
+
+  it('should error when setting number of process workers to a number greater than the available CPUs', function (done) {
+    var rpc = new ClusterManagerRPC()
+    rpc._clusterManager = {
+      setNumWorkers: sinon.stub()
+    }
+    rpc._parentProcess = {
+      send: sinon.stub()
+    }
+    rpc._os = {
+      cpus: sinon.stub().returns([null, null])
+    }
+
+    rpc._clusterManager.setNumWorkers.callsArg(1)
+
+    rpc.setClusterWorkers(4, function (error) {
       expect(error).to.exist
 
       done()

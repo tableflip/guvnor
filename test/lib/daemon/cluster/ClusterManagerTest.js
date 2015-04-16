@@ -66,12 +66,12 @@ describe('ClusterManager', function () {
 
   it('should not set the number of workers more than cpus.length - 1', function (done) {
     manager._os.cpus.returns([{}, {}])
-    manager._processService.listProcesses.returns([{}])
+    manager._processService.listProcesses.returns([{}, {}])
 
     manager.setNumWorkers(4, function (error) {
       expect(error).to.not.exist
 
-      expect(manager._numWorkers).to.equal(1)
+      expect(manager._numWorkers).to.equal(2)
 
       done()
     })
