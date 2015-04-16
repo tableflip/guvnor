@@ -4,13 +4,6 @@ var notify = require('../helpers/notification')
 
 module.exports = View.extend({
   template: templates.buttons.workerremove,
-  bindings: {
-    'model.canRemoveWorkers': {
-      type: 'booleanAttribute',
-      name: 'disabled',
-      selector: '[data-hook=removeworkerbutton]'
-    }
-  },
   events: {
     'click [data-hook=removeworkerbutton]': 'removeWorkerFromCluster'
   },
