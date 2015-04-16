@@ -723,9 +723,8 @@ describe('RemoteRPC', function () {
   })
 
   it('should start mdns advert', function () {
-    var advert = {
-      start: sinon.stub()
-    }
+    var advert = new EventEmitter()
+    advert.start = sinon.stub()
     var value = true
     remoteRpc._config.remote.advertise = true
     remoteRpc._mdns.createAdvertisement.withArgs(value, remoteRpc.port).returns(advert)
@@ -744,6 +743,19 @@ describe('RemoteRPC', function () {
     remoteRpc._mdns.tcp.withArgs('guvnor-rpc').returns(value)
 
     remoteRpc._startMdnsAdvertisment()
+  })
+
+  it('should survive mdns advert emitting error', function () {
+    var advert = new EventEmitter()
+    advert.start = sinon.stub()
+    var value = true
+    remoteRpc._config.remote.advertise = true
+    remoteRpc._mdns.createAdvertisement.withArgs(value, remoteRpc.port).returns(advert)
+    remoteRpc._mdns.tcp.withArgs('guvnor-rpc').returns(value)
+
+    remoteRpc._startMdnsAdvertisment()
+
+    advert.emit('error', new Error('Urk!'))
   })
 
   it('should start a process', function (done) {
