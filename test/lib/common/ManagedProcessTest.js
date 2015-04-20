@@ -62,6 +62,24 @@ describe('ManagedProcess', function () {
     })
   })
 
+  it('should survive dnode throwing an exception when connecting to the remote process RPC socket', function (done) {
+    var error = new Error('Urk!')
+    var dnode = {
+      on: sinon.stub(),
+      connect: sinon.stub().throws(error)
+    }
+
+    proc._dnode = function () {
+      return dnode
+    }
+
+    proc.connect(function (er, remote) {
+      expect(er).to.equal(error)
+
+      done()
+    })
+  })
+
   it('should not connect when already connected', function (done) {
     proc._dnode = sinon.stub()
 
