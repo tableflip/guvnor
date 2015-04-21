@@ -225,6 +225,12 @@ describe('ProcessService', function () {
       // should have set status
       expect(processInfo.status).to.equal('aborted')
 
+      // should have reset restart count
+      expect(processInfo.restarts).to.equal(0)
+
+      // should have deleted the pid
+      expect(processInfo.pid).to.not.exist
+
       done()
     })
 
