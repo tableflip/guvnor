@@ -8,7 +8,8 @@ describe('UserDetails', function () {
   beforeEach(function() {
     userDetails = new UserDetails('foo')
     userDetails._posix = {
-      getpwnam: sinon.stub()
+      getpwnam: sinon.stub(),
+      getgrnam: sinon.stub()
     }
     userDetails._child_process = {
       execFile: sinon.stub()
@@ -24,12 +25,17 @@ describe('UserDetails', function () {
       name: 'name',
       shell: 'shell'
     }
+    var group = {
+      name: 'groupname'
+    }
     userDetails._posix.getpwnam.withArgs(userDetails._id).returns(user)
+    userDetails._posix.getgrnam.withArgs(user.gid).returns(group)
     userDetails._child_process.execFile.withArgs('sudo', ['-u', user.name, 'printenv', 'PATH']).callsArgWith(3, undefined, [path])
     userDetails._child_process.execFile.withArgs('sudo', ['-u', user.name, 'groups']).callsArgWith(3, undefined, ['foo bar'])
 
     userDetails.afterPropertiesSet(function() {
       expect(userDetails._id).to.not.exist
+      expect(userDetails.group).to.equal(group.name)
       expect(userDetails.gid).to.equal(user.gid)
       expect(userDetails.uid).to.equal(user.uid)
       expect(userDetails.home).to.equal(user.dir)
@@ -51,7 +57,11 @@ describe('UserDetails', function () {
       name: 'name',
       shell: 'shell'
     }
+    var group = {
+      name: 'groupname'
+    }
     userDetails._posix.getpwnam.withArgs(userDetails._id).returns(user)
+    userDetails._posix.getgrnam.withArgs(user.gid).returns(group)
     userDetails._child_process.execFile.withArgs('sudo').callsArgWith(3, error)
 
     userDetails.afterPropertiesSet(function(er) {
