@@ -838,14 +838,11 @@ describe('Guvnor', function () {
       var appName = shortid.generate()
 
       guvnor.deployApplication(appName, repo, user.name, console.info, console.error, function (error, appInfo) {
-console.log(error)
         expect(error).to.not.exist
         expect(appInfo.id).to.be.ok
 
         appInfo.listRefs(function (error, refs) {
-console.log(error)
           expect(error).to.not.exist
-console.log(refs)
           expect(refs.length).to.equal(4)
 
           expect(refs[0].name).to.equal('refs/heads/master')
