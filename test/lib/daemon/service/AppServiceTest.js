@@ -136,8 +136,7 @@ describe('AppService', function () {
     }
     var installError = new Error('urk!')
 
-    appInfo.clone.callsArg(2)
-    appInfo.installDependencies.callsArgWith(2, installError)
+    appInfo.clone.callsArgWith(2, installError)
     appInfo.remove.callsArg(0)
 
     service._applicationStore.create.withArgs([{
