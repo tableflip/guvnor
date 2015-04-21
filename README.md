@@ -118,6 +118,16 @@ $ sudo update-rc.d guvnor remove
 $ sudo rm /etc/init.d/guvnor
 ```
 
+## apt-get
+
+If you installed node via `apt-get install nodejs`, you should create a symlink to the `nodejs` binary:
+
+```sh
+$ sudo ln -s /usr/bin/nodejs /usr/bin/node
+```
+
+Also, the init script is probably stored at `/usr/lib/node_modules/...` instead of `/usr/local/lib/node_modules/...` - please check your filesystem to be sure.
+
 ## Docker
 
 See the sample [Dockerfile](docker/Dockerfile) for how to run guvnor with Docker.
@@ -150,16 +160,6 @@ To connect guv-web to your docker container, add something like the below to you
 ```
 
 Replace `GUVNOR_ROOT_SECRET` and `GUVNOR_USER_SECRET` with whatever you defined in the Dockerfile.
-
-## apt-get
-
-If you installed node via `apt-get install nodejs`, you should create a symlink to the `nodejs` binary:
-
-```sh
-$ sudo ln -s /usr/bin/nodejs /usr/bin/node
-```
-
-Also, the init script is probably stored at `/usr/lib/node_modules/...` instead of `/usr/local/lib/node_modules/...` - please check your filesystem to be sure.
 
 ## Development
 
