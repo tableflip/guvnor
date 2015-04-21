@@ -62,6 +62,7 @@ describe('AppInfo', function () {
     appInfo.name = 'foo'
     appInfo.path = 'bar'
     appInfo._commandLine.git.callsArg(6)
+    appInfo._fs.exists.callsArg(1)
 
     appInfo.clone(sinon.stub(), sinon.stub(), function (error) {
       expect(error).to.not.exist
@@ -173,9 +174,8 @@ describe('AppInfo', function () {
   })
 
   it('should update refs', function (done) {
-    appInfo._commandLine.git.withArgs(['reset', '--hard', 'HEAD']).callsArg(6)
-    appInfo._commandLine.git.withArgs(['clean', '-d', '-f']).callsArg(6)
-    appInfo._commandLine.git.withArgs(['fetch']).callsArg(6)
+    appInfo._commandLine.git.callsArg(6)
+    appInfo._fs.exists.callsArg(1)
     appInfo.listRefs = sinon.stub()
     appInfo.listRefs.callsArgWith(0, undefined, 'refs')
 
