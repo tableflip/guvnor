@@ -436,14 +436,12 @@ describe('GuvnorRemote', function () {
         remoteGuvnor.listApplicationRefs(appName, function (error, refs) {
           expect(error).to.not.exist
 
-          expect(refs.length).to.equal(6)
+          expect(refs.length).to.equal(4)
 
           expect(refs[0].name).to.equal('refs/heads/master')
-          expect(refs[1].name).to.equal('refs/remotes/origin/HEAD')
-          expect(refs[2].name).to.equal('refs/remotes/origin/master')
-          expect(refs[3].name).to.equal('refs/tags/v1')
-          expect(refs[4].name).to.equal('refs/tags/v2')
-          expect(refs[5].name).to.equal('refs/tags/v3')
+          expect(refs[1].name).to.equal('refs/tags/v1')
+          expect(refs[2].name).to.equal('refs/tags/v2')
+          expect(refs[3].name).to.equal('refs/tags/v3')
 
           done()
         })
@@ -475,7 +473,7 @@ describe('GuvnorRemote', function () {
         remoteGuvnor.listApplicationRefs(appName, function (error, refs) {
           expect(error).to.not.exist
 
-          expect(refs.length).to.equal(4)
+          expect(refs.length).to.equal(2)
 
           async.series([
             exec.bind(null, 'touch', ['v2'], repo),
@@ -493,7 +491,7 @@ describe('GuvnorRemote', function () {
             remoteGuvnor.listApplicationRefs(appName, function (error, refs) {
               expect(error).to.not.exist
 
-              expect(refs.length).to.equal(4)
+              expect(refs.length).to.equal(2)
 
               remoteGuvnor.updateApplicationRefs(appName, console.info, console.error, function (error) {
                 expect(error).to.not.exist
@@ -501,7 +499,7 @@ describe('GuvnorRemote', function () {
                 remoteGuvnor.listApplicationRefs(appName, function (error, refs) {
                   expect(error).to.not.exist
 
-                  expect(refs.length).to.equal(6)
+                  expect(refs.length).to.equal(4)
 
                   done()
                 })

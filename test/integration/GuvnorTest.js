@@ -837,21 +837,21 @@ describe('Guvnor', function () {
 
       var appName = shortid.generate()
 
-      guvnor.deployApplication(appName, repo, user.name, function() {}, function() {}, function (error, appInfo) {
+      guvnor.deployApplication(appName, repo, user.name, console.info, console.error, function (error, appInfo) {
+console.log(error)
         expect(error).to.not.exist
         expect(appInfo.id).to.be.ok
 
-        guvnor.listApplicationRefs(appName, function (error, refs) {
+        appInfo.listRefs(function (error, refs) {
+console.log(error)
           expect(error).to.not.exist
-
-          expect(refs.length).to.equal(6)
+console.log(refs)
+          expect(refs.length).to.equal(4)
 
           expect(refs[0].name).to.equal('refs/heads/master')
-          expect(refs[1].name).to.equal('refs/remotes/origin/HEAD')
-          expect(refs[2].name).to.equal('refs/remotes/origin/master')
-          expect(refs[3].name).to.equal('refs/tags/v1')
-          expect(refs[4].name).to.equal('refs/tags/v2')
-          expect(refs[5].name).to.equal('refs/tags/v3')
+          expect(refs[1].name).to.equal('refs/tags/v1')
+          expect(refs[2].name).to.equal('refs/tags/v2')
+          expect(refs[3].name).to.equal('refs/tags/v3')
 
           done()
         })
@@ -918,7 +918,7 @@ describe('Guvnor', function () {
         guvnor.listApplicationRefs(appName, function (error, refs) {
           expect(error).to.not.exist
 
-          expect(refs.length).to.equal(4)
+          expect(refs.length).to.equal(2)
 
           async.series([
             exec.bind(null, 'touch', ['v2'], repo),
@@ -936,7 +936,7 @@ describe('Guvnor', function () {
             guvnor.listApplicationRefs(appName, function (error, refs) {
               expect(error).to.not.exist
 
-              expect(refs.length).to.equal(4)
+              expect(refs.length).to.equal(2)
 
               guvnor.updateApplicationRefs(appName, function() {}, function() {}, function (error) {
                 expect(error).to.not.exist
@@ -944,7 +944,7 @@ describe('Guvnor', function () {
                 guvnor.listApplicationRefs(appName, function (error, refs) {
                   expect(error).to.not.exist
 
-                  expect(refs.length).to.equal(6)
+                  expect(refs.length).to.equal(4)
 
                   done()
                 })

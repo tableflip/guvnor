@@ -911,10 +911,8 @@ describe('Guvnor CLI', function () {
 
           lines++
 
-          if (lines === 7) {
+          if (lines === 5) {
             expect(output).to.contain('refs/heads/master')
-            expect(output).to.contain('refs/remotes/origin/HEAD')
-            expect(output).to.contain('refs/remotes/origin/master')
             expect(output).to.contain('refs/tags/v1')
             expect(output).to.contain('refs/tags/v2')
             expect(output).to.contain('refs/tags/v3')
@@ -985,7 +983,7 @@ describe('Guvnor CLI', function () {
         guvnor.listApplicationRefs(appName, function (error, refs) {
           expect(error).to.not.exist
 
-          expect(refs.length).to.equal(4)
+          expect(refs.length).to.equal(2)
 
           async.series([
             exec.bind(null, 'touch', ['v2'], repo),
@@ -1003,12 +1001,12 @@ describe('Guvnor CLI', function () {
             guvnor.listApplicationRefs(appName, function (error, refs) {
               expect(error).to.not.exist
 
-              expect(refs.length).to.equal(4)
+              expect(refs.length).to.equal(2)
 
               guvnor.on('app:refs:updated', function (error, updatedRefAppInfo, refs) {
                 expect(error).not.to.exist
                 expect(updatedRefAppInfo.id).to.equal(appInfo.id)
-                expect(refs.length).to.equal(6)
+                expect(refs.length).to.equal(4)
 
                 done()
               })
