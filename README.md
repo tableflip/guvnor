@@ -181,6 +181,21 @@ Then when you are done, to shut the machine down exit your SSH session and run:
 $ vagrant destroy
 ```
 
+#### Docker
+
+Install docker on vagrant with
+
+```
+wget -qO- https://get.docker.com/ | sh
+```
+
+Then cd to `/docker` and build & run guvnor
+
+```
+sudo docker build -t guvnor .
+sudo docker run -p 60000-60020:60000-60020 -d guvnor
+```
+
 ## Changelog
 
 See the [changelog](CHANGELOG.md)

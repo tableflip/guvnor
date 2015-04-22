@@ -14,7 +14,7 @@ ENV REMOTE_PORT 60000
 # node-inspector will listen on this port
 ENV INSPECTOR_PORT 60001
 
-# These are the start and end ports of a range that will be used to assign debug 
+# These are the start and end ports of a range that will be used to assign debug
 # ports to running processes
 # You should make this range large enough for your needs - if you change this
 # don't forget to update the EXPOSE directives near the end of this file
@@ -48,7 +48,7 @@ RUN node -e 'console.log(JSON.stringify([{"name": "root", "secret": "GUVNOR_ROOT
   > /etc/guvnor/users.json
 
 # Create config file to expose ports
-RUN node -e 'console.log(JSON.stringify([{"remote": {"port": "REMOTE_PORT", "inspector": {"port": "INSPECTOR_PORT"}}, "ports": {"start": "PROCESS_PORTS_START", "end": "PROCESS_PORTS_END"}}], null, 2))' \
+RUN node -e 'console.log(JSON.stringify({"remote": {"port": "REMOTE_PORT", "inspector": {"port": "INSPECTOR_PORT"}}, "ports": {"start": "PROCESS_PORTS_START", "end": "PROCESS_PORTS_END"}}, null, 2))' \
   | sed s/REMOTE_PORT/$REMOTE_PORT/g \
   | sed s/INSPECTOR_PORT/$INSPECTOR_PORT/g \
   | sed s/PROCESS_PORTS_START/$PROCESS_PORTS_START/g \
