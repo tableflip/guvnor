@@ -861,13 +861,13 @@ describe('Guvnor CLI', function () {
         guvnor.on('app:refs:switched', function (switchedAppInfo, previousRef, newRef) {
           expect(error).not.to.exist
           expect(switchedAppInfo.id).to.equal(appInfo.id)
-          expect(previousRef).to.equal('refs/heads/master')
-          expect(newRef).to.equal('refs/tags/v2')
+          expect(previousRef).to.equal('master')
+          expect(newRef).to.equal('v2')
 
           done()
         })
 
-        runCli('setref', appInfo.name, 'tags/v2')
+        runCli('setref', appInfo.name, 'v2')
       })
     })
   })
@@ -912,16 +912,16 @@ describe('Guvnor CLI', function () {
           lines++
 
           if (lines === 5) {
-            expect(output).to.contain('refs/heads/master')
-            expect(output).to.contain('refs/tags/v1')
-            expect(output).to.contain('refs/tags/v2')
-            expect(output).to.contain('refs/tags/v3')
+            expect(output).to.contain('master')
+            expect(output).to.contain('v1')
+            expect(output).to.contain('v2')
+            expect(output).to.contain('v3')
 
             done()
           }
         }
 
-        runCli('lsrefs', appInfo.name, 'tags/v2')
+        runCli('lsrefs', appInfo.name, 'v2')
       })
     })
   })
@@ -948,7 +948,7 @@ describe('Guvnor CLI', function () {
         expect(error).to.not.exist
 
         console.info = function (string) {
-          expect(string).to.contain('refs/heads/master')
+          expect(string).to.contain('master')
 
           done()
         }

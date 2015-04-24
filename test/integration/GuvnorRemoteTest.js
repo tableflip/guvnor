@@ -438,10 +438,10 @@ describe('GuvnorRemote', function () {
 
           expect(refs.length).to.equal(4)
 
-          expect(refs[0].name).to.equal('refs/heads/master')
-          expect(refs[1].name).to.equal('refs/tags/v1')
-          expect(refs[2].name).to.equal('refs/tags/v2')
-          expect(refs[3].name).to.equal('refs/tags/v3')
+          expect(refs[0].name).to.equal('master')
+          expect(refs[1].name).to.equal('v1')
+          expect(refs[2].name).to.equal('v2')
+          expect(refs[3].name).to.equal('v3')
 
           done()
         })

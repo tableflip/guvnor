@@ -845,10 +845,10 @@ describe('Guvnor', function () {
           expect(error).to.not.exist
           expect(refs.length).to.equal(4)
 
-          expect(refs[0].name).to.equal('refs/heads/master')
-          expect(refs[1].name).to.equal('refs/tags/v1')
-          expect(refs[2].name).to.equal('refs/tags/v2')
-          expect(refs[3].name).to.equal('refs/tags/v3')
+          expect(refs[0].name).to.equal('master')
+          expect(refs[1].name).to.equal('v1')
+          expect(refs[2].name).to.equal('v2')
+          expect(refs[3].name).to.equal('v3')
 
           done()
         })
@@ -880,7 +880,7 @@ describe('Guvnor', function () {
         guvnor.currentRef(appName, function (error, ref, commit) {
           expect(error).to.not.exist
 
-          expect(ref).to.equal('refs/heads/master')
+          expect(ref).to.equal('master')
           expect(commit).to.equal(results[results.length - 1][0].trim())
 
           done()
@@ -927,8 +927,9 @@ describe('Guvnor', function () {
             exec.bind(null, 'git', ['commit', '-m', 'v3'], repo),
             exec.bind(null, 'git', ['tag', 'v3'], repo)
           ], function (error) {
-            if (error)
+            if (error) {
               throw error
+            }
 
             guvnor.listApplicationRefs(appName, function (error, refs) {
               expect(error).to.not.exist
@@ -945,6 +946,71 @@ describe('Guvnor', function () {
 
                   done()
                 })
+              })
+            })
+          })
+        })
+      })
+    })
+  })
+
+  it('should change the HEAD of the repo when updating application refs', function (done) {
+    var repo = tmpdir + '/' + shortid.generate()
+
+    async.series([
+      exec.bind(null, 'mkdir', [repo]),
+      exec.bind(null, 'git', ['init'], repo),
+      exec.bind(null, 'git', ['config', 'user.email', 'foo@bar.com'], repo),
+      exec.bind(null, 'git', ['config', 'user.name', 'foo'], repo),
+      exec.bind(null, 'touch', ['v1'], repo),
+      exec.bind(null, 'git', ['add', '-A'], repo),
+      exec.bind(null, 'git', ['commit', '-m', 'v1'], repo),
+    ], function (error) {
+      if (error) {
+        throw error
+      }
+
+      var appName = shortid.generate()
+
+      guvnor.deployApplication(appName, repo, user.name, function() {}, function() {}, function (error, appInfo) {
+        expect(error).to.not.exist
+        expect(appInfo.id).to.be.ok
+
+        async.series([
+          exec.bind(null, 'touch', ['v2'], repo),
+          exec.bind(null, 'git', ['add', '-A'], repo),
+          exec.bind(null, 'git', ['commit', '-m', 'v2'], repo)
+        ], function (error) {
+          if (error) {
+            throw error
+          }
+
+          async.parallel([
+            exec.bind(null, 'git', ['rev-parse','HEAD'], repo),
+            appInfo.currentRef.bind(appInfo)
+          ], function (error, results) {
+            if (error) {
+              throw error
+            }
+
+            var repoHead = results[0][0].trim()
+            var appHead = results[1][1].trim()
+
+            expect(repoHead).to.not.equal(appHead)
+
+            appInfo.updateRefs(function() {}, function() {}, function (error) {
+              if (error) {
+                throw error
+              }
+
+              appInfo.currentRef(function (error, ref, commit) {
+                if (error) {
+                  throw error
+                }
+
+                expect(repoHead).to.equal(commit)
+
+                done()
               })
             })
           })

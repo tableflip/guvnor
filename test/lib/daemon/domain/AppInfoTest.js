@@ -134,8 +134,8 @@ describe('AppInfo', function () {
   it('should list refs', function (done) {
     appInfo.listRefs(function (error, refs) {
       expect(error).not.to.exist
-      expect(refs[1].name).to.equal('refs/tags/foo')
-      expect(refs[2].name).to.equal('refs/tags/bar')
+      expect(refs[1].name).to.equal('foo')
+      expect(refs[2].name).to.equal('bar')
 
       done()
     })
@@ -152,7 +152,8 @@ describe('AppInfo', function () {
   })
 
   it('should report the current ref', function (done) {
-    var currentRef = 'foo'
+    var currentRef = 'currentRef'
+    var currentCommit = 'currentCommit'
 
     appInfo.currentRef(function (error, ref) {
       expect(error).not.to.exist
@@ -161,28 +162,30 @@ describe('AppInfo', function () {
       done()
     })
 
-    expect(appInfo._commandLine.git.callCount).to.equal(1)
+    expect(appInfo._commandLine.git.callCount).to.equal(2)
     expect(appInfo._commandLine.git.calledWith(['rev-parse', 'HEAD'])).to.be.true
+    expect(appInfo._commandLine.git.calledWith(['show-ref'])).to.be.true
 
     appInfo.listRefs = sinon.stub().callsArgWith(0, undefined, [{
       name: 'foo',
       commit: currentRef
     }])
 
-    appInfo._commandLine.git.getCall(0).args[3](currentRef + '\n')
+    appInfo._commandLine.git.getCall(0).args[3](currentCommit + '\n')
     appInfo._commandLine.git.getCall(0).args[6]()
+    appInfo._commandLine.git.getCall(1).args[3](currentCommit + ' ' + currentRef + '\n')
+    appInfo._commandLine.git.getCall(1).args[6]()
   })
 
   it('should update refs', function (done) {
     appInfo._commandLine.git.callsArg(6)
     appInfo._fs.exists.callsArg(1)
-    appInfo.listRefs = sinon.stub()
-    appInfo.listRefs.callsArgWith(0, undefined, 'refs')
+    appInfo.listRefs = sinon.stub().callsArgWith(0, undefined, ['refs'])
 
     appInfo.updateRefs(sinon.stub(), sinon.stub(), function (error, updatedApp, refs) {
       expect(error).not.to.exist
       expect(updatedApp).to.equal(appInfo)
-      expect(refs).to.equal('refs')
+      expect(refs).to.deep.equal(['refs'])
 
       done()
     })
