@@ -19,8 +19,8 @@ describe('AppInfo', function () {
     appInfo._fileSystem = {
       getAppDir: sinon.stub()
     }
-    appInfo._userDetailsFactory = {
-      create: sinon.stub()
+    appInfo._userDetailsStore = {
+      findOrCreate: sinon.stub()
     }
     appInfo._fs = {
       exists: sinon.stub()
@@ -36,7 +36,7 @@ describe('AppInfo', function () {
 
     appInfo._fs.exists.callsArgWith(1, false)
     appInfo._fileSystem.getAppDir.returns(appDir)
-    appInfo._userDetailsFactory.create.withArgs([appInfo.user]).callsArgWith(1, undefined, userDetails)
+    appInfo._userDetailsStore.findOrCreate.withArgs('name', appInfo.user, [appInfo.user]).callsArgWith(3, undefined, userDetails)
 
     appInfo.afterPropertiesSet(function (error) {
       expect(error).not.to.exist
@@ -49,7 +49,7 @@ describe('AppInfo', function () {
 
   it('should propagate error creating a user details object', function (done) {
     var error = new Error('Urk!')
-    appInfo._userDetailsFactory.create.withArgs([appInfo.user]).callsArgWith(1, error)
+    appInfo._userDetailsStore.findOrCreate.withArgs('name', appInfo.user, [appInfo.user]).callsArgWith(3, error)
 
     appInfo.afterPropertiesSet(function (er) {
       expect(er).to.equal(error)

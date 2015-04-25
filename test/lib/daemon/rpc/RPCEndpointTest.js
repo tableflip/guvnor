@@ -45,8 +45,8 @@ describe('RPCEndpoint', function () {
     rpc._fileSystem = {
       getRunDir: sinon.stub()
     }
-    rpc._userDetailsFactory = {
-      create: sinon.stub()
+    rpc._userDetailsStore = {
+      findOrCreate: sinon.stub()
     }
   })
 
@@ -258,7 +258,7 @@ describe('RPCEndpoint', function () {
   it('should generate a server api', function (done) {
     var uid = 5
     var userDetails = {}
-    rpc._userDetailsFactory.create.withArgs([5]).callsArgWithAsync(1, undefined, userDetails)
+    rpc._userDetailsStore.findOrCreate.withArgs('uid', 5, [5]).callsArgWithAsync(3, undefined, userDetails)
 
     rpc.foo = sinon.stub().callsArgAsync(1)
     rpc.bar = sinon.stub().callsArgAsync(1)
@@ -286,7 +286,7 @@ describe('RPCEndpoint', function () {
   it('should survive a server api method throwing an exception', function (done) {
     var uid = 5
     var userDetails = {}
-    rpc._userDetailsFactory.create.withArgs([5]).callsArgWithAsync(1, undefined, userDetails)
+    rpc._userDetailsStore.findOrCreate.withArgs('uid', 5, [5]).callsArgWithAsync(3, undefined, userDetails)
 
     var error = new Error('urk!')
 

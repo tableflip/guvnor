@@ -83,8 +83,8 @@ describe('RemoteRPC', function () {
       createAdvertisement: sinon.stub(),
       tcp: sinon.stub()
     }
-    remoteRpc._userDetailsFactory = {
-      create: sinon.stub()
+    remoteRpc._userDetailsStore = {
+      findOrCreate: sinon.stub()
     }
     remoteRpc._fileSystem = {
       getRunDir: sinon.stub()
@@ -478,7 +478,7 @@ describe('RemoteRPC', function () {
       nonce: nonce
     }
     var userDetails = {}
-    remoteRpc._userDetailsFactory.create.withArgs([user.name]).callsArgWithAsync(1, undefined, userDetails)
+    remoteRpc._userDetailsStore.findOrCreate.withArgs('name', user.name, [user.name]).callsArgWithAsync(3, undefined, userDetails)
 
     remoteRpc._remoteUserService.findUser.withArgs(principal, sinon.match.func).callsArgWithAsync(1, undefined, user)
     remoteRpc._crypto.verify.withArgs(signature, user.secret).returns(true)
@@ -571,7 +571,7 @@ describe('RemoteRPC', function () {
       nonce: nonce
     }
     var userDetails = {}
-    remoteRpc._userDetailsFactory.create.withArgs([user.name]).callsArgWithAsync(1, undefined, userDetails)
+    remoteRpc._userDetailsStore.findOrCreate.withArgs('name', user.name, [user.name]).callsArgWithAsync(3, undefined, userDetails)
 
     remoteRpc._remoteUserService.findUser.withArgs(principal, sinon.match.func).callsArgWith(1, undefined, user)
     remoteRpc._crypto.verify.withArgs(signature, user.secret).returns(false)
