@@ -36,7 +36,7 @@
     "ansi-html": "^0.0",
     "async": "^0.9",
     "bcrypt": "^0.8",
-    "bootstrap-growl": "^2.0",
+    "bootstrap-growl-legacy": "^2.0",
     "boss-dnode": "^1.0",
     "clientconfig": "^1.0",
     "coercer": "^1.0",
