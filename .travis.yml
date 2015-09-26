@@ -4,6 +4,17 @@ node_js:
   - "0.12"
   - "4.1"
   - "iojs"
+# node_js 4 requires gcc 4.8 
+env:
+  - NODE_ENV=travis CXX="g++-4.8"
+# gcc 4.8 requires ubuntu-toolchain-r-test
+addons:
+  apt:
+    sources:
+    - ubuntu-toolchain-r-test
+    packages:
+    - g++-4.8
+    - gcc-4.8
 after_script: npm run coveralls
 notifications:
   webhooks:
