@@ -1,0 +1,13 @@
+.git
+coverage
+docker
+docs
+img
+node_modules
+vagrant
+.DS_Store
+*.log
+*.iml
+Thumbs.db
+.vagrant
+test

@@ -6,57 +6,71 @@ var expect = require('chai').expect
 var runCli = require('../platform/run-cli')
 var path = require('path')
 var async = require('async')
+var child_process = require('child_process')
+var OutputBuffer = require('output-buffer')
+var loadApi = require('../../lib/local/api')
+var setup = require('./setup')
 
-describe.skip('cli', function () {
+describe('docker-cli', function () {
   this.timeout(600000)
   var stopProcesses
   var stopDaemon
-  var api
+  var rootApi
+  var userApi
+  var startDocker
+  var stopDocker
+  var userCredentials
+  var rootCredentials
+
+  before(function (done) {
+    this.timeout(600000)
+
+    setup(function (error, result) {
+      startDocker = result.beforeEach
+
+      after(result.after)
+
+      done(error)
+    })
+  })
 
   beforeEach(function (done) {
-    async.series([
-      require('../platform/processes'),
-      require('../platform/start-daemon'),
-      require('../../lib/cli/load-api')
-    ], function (error, results) {
-      results = results || []
-      stopProcesses = results[0]
-      stopDaemon = results[1]
-      api = results[2]
+    startDocker(function (error, results) {
+      rootApi = results.rootApi
+      userApi = results.userApi
+      userCredentials = results.userCredentials
+      rootCredentials = results.rootCredentials
+      stopDocker = results.afterEach
+
       done(error)
     })
   })
 
   afterEach(function (done) {
-    api.disconnect()
-
-    async.series([
-      stopDaemon,
-      stopProcesses
-    ], done)
+    stopDocker(done)
   })
 
   it('should show no processes', function (done) {
-    runCli(['list'], 1, done, function (stdout) {
+    runCli(userCredentials, ['list'], 1, done, function (stdout) {
       expect(stdout.trim()).to.equal('')
       done()
     })
   })
 
   it('should show empty list', function (done) {
-    runCli(['list', '-d'], 1, done, function (stdout) {
+    runCli(userCredentials, ['list', '-d'], 1, done, function (stdout) {
       expect(stdout).to.contain('No running processes')
       done()
     })
   })
 
   it('should show empty json list', function (done) {
-    runCli(['list', '--json'], 1, done, function (stdout) {
+    runCli(userCredentials, ['list', '--json'], 1, done, function (stdout) {
       expect(JSON.parse(stdout)).to.be.empty
       done()
     })
   })
-
+/*
   it('should start a process', function (done) {
     var script = path.resolve(path.join(__dirname, '..', 'fixtures', 'hello-world.js'))
 
@@ -348,4 +362,5 @@ describe.skip('cli', function () {
   it('should start an app', function (done) {
     done()
   })
+  */
 })
