@@ -1,0 +1,17 @@
+FROM node:4-wheezy
+
+# Install prerequisites
+RUN apt-get update && \
+  apt-get install -y libavahi-compat-libdnssd-dev nano
+
+# Create guvnor group
+RUN groupadd guvnor
+
+# Create user to run processes as
+RUN useradd -ms /bin/bash -G adm,dialout,cdrom,plugdev,floppy,tape,sudo,video,games,staff,users -g guvnor guvnor
+
+# Install guvnor
+RUN npm install --global --unsafe-perm guvnor
+
+# Start guvnor
+CMD node /usr/lib/node_modules/guvnor/lib/daemon

@@ -163,6 +163,12 @@ Replace `GUVNOR_ROOT_SECRET` and `GUVNOR_USER_SECRET` with whatever you defined 
 
 ## Development
 
+### Integration tests
+
+```
+$ vagrant plugin install vagrant-port
+```
+
 ### Vagrant setup
 
 It's useful to be able to set up and tear down fresh VMs to do testing, so a Vagrant file is available. It's configured to run Debian Jessie and install the latest versions of Node and Guvnor.

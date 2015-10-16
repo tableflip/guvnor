@@ -22,6 +22,10 @@ module.exports = function runCli (credentials, args, lines, done, callback) {
       process.stdout.write = outWrite
 
       try {
+        if (args.indexOf('--json') !== -1) {
+          output = JSON.parse(output)
+        }
+
         callback(output)
       } catch (e) {
         done(e)

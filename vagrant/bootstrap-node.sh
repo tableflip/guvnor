@@ -9,6 +9,6 @@ echo source ~/.nvm/nvm.sh >> ~/.profile
 
 source ~/.profile
 
-nvm install 0.12
+nvm install 4
 
-echo nvm use 0.12 >> ~/.profile
+echo nvm use 4 >> ~/.profile

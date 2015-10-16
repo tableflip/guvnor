@@ -16,19 +16,17 @@ RUN useradd -ms /bin/bash -G adm,dialout,cdrom,plugdev,floppy,tape,sudo,video,ga
 # Set up npm config
 RUN npm config set --global loglevel http
 
-# Copy guvnor
+# Create directories
 RUN mkdir /opt/guvnor
-COPY package.json /opt/guvnor/package.json
+
+# Install app dependencies and set up binaries
+WORKDIR /opt/guvnor
+COPY package.json /opt/guvnor/
 COPY bin /opt/guvnor/bin
+RUN npm install --production
 
-RUN cd /opt/guvnor && \
-  npm install --production
-
-COPY lib /opt/guvnor/lib
-COPY web /opt/guvnor/web
-
-RUN cd /opt/guvnor && \
-  npm link
+# Copy guvnor
+COPY . /opt/guvnor
 
 # Start guvnor
 CMD node /opt/guvnor/lib/daemon

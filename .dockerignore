@@ -10,4 +10,3 @@ vagrant
 *.iml
 Thumbs.db
 .vagrant
-test
