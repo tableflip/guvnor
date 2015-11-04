@@ -5,7 +5,10 @@ var moment = require('moment')
 module.exports = AmpersandModel.extend({
   idAttribute: 'date',
   props: {
-    type: ['info', 'warn', 'error', 'debug'],
+    type: {
+      type: 'string',
+      values: ['info', 'warn', 'error', 'debug']
+    },
     date: 'number',
     message: 'string'
   },
