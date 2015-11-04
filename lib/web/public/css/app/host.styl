@@ -1,33 +1,17 @@
-.resource-data-graph
-  width: 400px
-  height: 160px
-  margin: 0 auto 20px auto
+.host .graph, .host .details
+  height: 200px
+  width: 30%
   display: inline-block
 
-.system-details
-  .engine, .platform, .arch, .release, .guvnor, .uptime
-    width: 80px
+.host h2
+  margin-top: 0
+  font-weight: 700
 
-@media (max-width: 320px)
-  .system-details
-    .engine, .platform, .arch, .release
-      display: none
+.host table
+  width: 90%
 
-  .resource-data-graph
-    width: 260px
+.host th
+  padding-bottom: 5px
 
-@media (min-width: 321px) and (max-width: 512px)
-  .system-details
-    .engine, .platform, .arch, .release
-      display: none
-
-  .resource-data-graph
-    width: 300px
-
-@media (max-width: 640px)
-  .system-details
-    .engine, .arch
-      display: none
-
-.resource-data
-  text-align: center
+.host td
+  text-align: right

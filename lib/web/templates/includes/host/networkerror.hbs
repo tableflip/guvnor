@@ -1,0 +1,14 @@
+<div>
+  <h2><i class="mdi-hardware-computer"></i> {{model.url}}</h2>
+  <div class="alert alert-danger" role="alert">
+    <h4><i class="mdi-alert-error"></i> Could not connect to {{model.url}}</h4>
+    There was a network error connecting to {{model.url}}. This could be because of one or more of the following:
+    <ol>
+      <li>The host is down</li>
+      <li>The host cannot be resolved</li>
+      <li>You have not installed a client certificate for this server</li>
+      <li>You have not chosen an installed client certificate that lets you access it</li>
+    </ol>
+    If you have not selecte a client certificate yet, <a href="{{model.url}}" class="btn btn-primary">Visit the server</a>
+  </div>
+</div>
