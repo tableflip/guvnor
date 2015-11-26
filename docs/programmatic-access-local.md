@@ -70,6 +70,10 @@ Local.connect(function(error, daemon) {
 
   daemon.listProcesses(function(error, processes) {
     // ...
+    
+    daemon.disconnect(function (error) {
+      // ...
+    })
   })
 })
 ```
@@ -80,12 +84,18 @@ Attempts to connect to an already running daemon. If the daemon is not running i
 
 If this fails for any reason, the callback will receive an error.
 
+Since the daemon can only be started as root, code calling this method will need to be run as root.  To connect with a non-privileged user, use `Local.connect` instead.
+
 ```javascript
 Local.connectOrStart(function(error, daemon) {
   if(error) throw error
 
   daemon.listProcesses(function(error, processes) {
     // ...
+    
+    daemon.disconnect(function (error) {
+      // ...
+    })
   })
 })
 ```
