@@ -94,6 +94,16 @@ Local.connectOrStart(function(error, daemon) {
 
 The `daemon` argument passed to `Local.connect` and `Local.connectOrStart` has the following methods:
 
+### disconnect(callback(error))
+
+Disconnect from the local daemon
+
+```javascript
+daemon.disconnect(function(error) {
+  // all sockets should be closed and the process should be able to exit cleanly
+})
+```
+
 ### listProcesses(callback(error, processes))
 
 Get a list of processes.
