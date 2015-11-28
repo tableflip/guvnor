@@ -9248,6 +9248,9 @@ h1 {
 .alert ol {
   margin-top: 6px;
 }
+.alert p {
+  margin: 10px 0;
+}
 .navbar-header small {
   padding-right: 31px;
 }
