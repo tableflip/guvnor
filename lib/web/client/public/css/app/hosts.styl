@@ -1,0 +1,110 @@
+
+.navbar
+  border-color: background
+
+.navbar-brand
+  display: block
+  padding-left: 50px
+  margin-left: 2px
+  background-repeat: no-repeat
+  background-image: url('/images/guvnor.png')
+  background-size: 45px 45px
+  color: #777
+
+.navbar-brand:hover
+  color: #777
+
+.navbar-header small
+  display: inline-block
+  float: right
+  font-size: 100%
+  padding: 15px
+
+.nav > li.host-name
+  padding: 0
+
+#nav-shadow
+  position: absolute
+  top: 0
+  right: 0
+  bottom: 0
+  left: 0
+  background-color: rgba(0, 0, 0, 0.8)
+  z-index: 100
+  display: none
+
+#nav-shadow.shadow
+  display: block
+
+@media (min-width: 768px)
+  #nav-shadow.shadow
+    display: none
+
+#wrapper .navbar li, #wrapper .navbar a
+  width: 100%
+
+#wrapper .navbar a
+  white-space: nowrap
+  overflow: hidden
+  text-overflow: ellipsis
+
+.host-list
+  height: calc(unquote('100% - 50px'))
+
+  .host-name
+    padding: 15px
+    background-color: #181818
+    border-bottom: 10px solid #222
+
+    ul
+      padding: 0
+
+    ul.process.active li
+      background-color: #0A0A0A
+      display: block
+
+    li
+      border-left: 10px solid #333
+      border-bottom: 2px solid #222
+      margin: 0
+      padding: 0
+      list-style: none
+
+    li.processes
+      border-left-width: 20px
+
+    li.processName
+      border-left-width: 20px
+
+    li.processName .nodeIcon
+      color: #7fbf00
+
+    li.processName .iojsIcon
+      color: #f7df1e
+
+    li.processLogs, li.processExceptions, li.processSnapshots
+      border-left-width: 30px
+
+    @media (min-width: 768px)
+      li.processLogs, li.processExceptions, li.processSnapshots
+        display: none
+
+    li.active
+      border-color: highlight
+      background-color: #050505
+
+    li a
+      display: block
+      padding: 10px
+
+    li a:hover
+      background-color: lighten(background, 2)
+
+@media (max-width: 768px)
+  .host-list
+    position: fixed
+    overflow-y: auto
+    top: 50px
+    left: 0
+    right: 0
+    margin: 0

@@ -1,0 +1,18 @@
+<section class="page process">
+  <div class="row">
+    <div class="col-md-12">
+      <h1 data-hook="process-name">{{model.name}}</h1>
+      <div class="panel panel-primary logs">
+        <div class="panel-heading panel-heading-logs">
+          <h4 class="panel-title">Logs</h4>
+          <button type="button" class="btn btn-default btn-xs logs-clear"><i class="fa fa-trash"></i> Clear</button>
+          <button type="button" class="btn btn-default btn-xs logs-time active"><i class="fa fa-calendar"></i> Time</button>
+          <button type="button" class="btn btn-default btn-xs logs-pin active"><i class="fa fa-paperclip"></i> Pin</button>
+        </div>
+        <div class="panel-body panel-logs">
+          <ul class="logs showTimes" data-hook="logs"></ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,61 @@
+.panel-logs
+  padding: 0
+
+ul.logs
+  background: #000
+  color: #FFF
+  font-family: 'Lucida Console', Monaco, monospace
+  height: 600px
+  margin: 0
+  overflow: auto
+  padding: 5px 0
+
+  li
+    font-size: 12px
+    background-color: transparent
+    color: #FFF
+    line-height: 1.4
+    white-space: pre
+    padding: 1px 5px
+    display: none
+
+  li.error
+    background-color: #330100
+
+  li.visible
+    display: block
+
+  li span.date
+    color: #999
+    margin-right: 8px
+
+ul.logs
+  li span.date
+    display: none
+
+ul.logs.showTimes
+  li span.date
+    display: inline-block
+
+ul.logs:after
+  content: "\2588"
+  margin-left: 5px
+  -webkit-animation: blinker 1s linear 0s infinite
+  -moz-animation: blinker 1s linear 0s infinite
+  -ms-animation: blinker 1s linear 0s infinite
+  -animation: blinker 1s linear 0s infinite
+
+.exceptions p
+  padding: 5px 0
+  margin: 0
+
+.process .details button
+  margin-bottom: 5px
+
+.start-form .add-field
+  color: #77b300
+
+.start-form .remove-field
+  color: #cc0000
+  margin-top: 10px
+  display: block
