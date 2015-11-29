@@ -9248,8 +9248,8 @@ h1 {
 .alert ol {
   margin-top: 6px;
 }
-.alert p {
-  margin: 10px 0;
+.alert button {
+  margin-top: 10px;
 }
 .navbar-header small {
   padding-right: 31px;
