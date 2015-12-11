@@ -1,8 +1,8 @@
 <tr>
-  <td class="title" data-hook="name">{{model.name}}<br /><small>{{model.script}}</small></td>
-  <td class="pid" data-hook="pid">{{model.pid}}</td>
+  <td class="title"><i data-hook="icon"></i> <span data-hook="name">{{model.name}}</span></td>
+  <td class="user" data-hook="user">{{model.user}}</td>
+  <td class="group" data-hook="group">{{model.group}}</td>
   <td class="uptime" data-hook="uptime">{{model.uptimeFormatted}}</td>
-  <td class="restarts" data-hook="restarts">{{model.restarts}}</td>
   <td class="memory" data-hook="memory">{{model.memoryFormatted}}</td>
   <td class="cpu" data-hook="cpu">{{model.cpuFormatted}}</td>
 </tr>

@@ -49,6 +49,7 @@
     "clientconfig": "^1.0",
     "coercer": "^1.0",
     "coffee-script": "^1.9.0",
+    "color": "^0.10.1",
     "colors": "^1.0",
     "columbo": "^3.0",
     "component-emitter": "1.1.2",
