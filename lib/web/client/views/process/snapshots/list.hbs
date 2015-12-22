@@ -1,0 +1,19 @@
+<div class="panel panel-primary table-panel snapshots">
+  <div class="panel-heading panel-heading-snapshots">
+    <h4 class="panel-title">{{model.name}} - Heap snapshots</h4>
+    <div data-hook="snapshotbutton"></div>
+  </div>
+  <div class="panel-body panel-exceptions">
+    <table class="table table-striped snapshot-list">
+      <thead>
+      <tr>
+        <th class="name">Date</th>
+        <th class="size">Size</th>
+        <th class="path">Path</th>
+        <td class="buttons">&nbsp;</td>
+      </tr>
+      </thead>
+      <tbody data-hook="snapshots"></tbody>
+    </table>
+  </div>
+</div>
