@@ -80,7 +80,7 @@
     "moment": "^2.0",
     "moonboots_hapi": "^5.0.0",
     "node-inspector": "^0.12.3",
-    "output-buffer": "^1.0",
+    "output-buffer": "^1.2.0",
     "pem": "^1.8.1",
     "plist": "^1.1.0",
     "posix": "^4.0.0",
