@@ -1,12 +1,14 @@
 <div class="panel panel-primary table-panel exceptions">
   <div class="panel-heading panel-heading-exceptions">
-    <h4 class="panel-title">{{model.name}} - Exceptions</h4>
+    <h4 class="panel-title">{{model.name}} - Uncaught exceptions</h4>
+    <button type="button" class="btn btn-danger btn-xs start" data-hook="clearbutton"><i class="fa fa-remove"></i> Clear</button>
   </div>
   <div class="panel-body panel-exceptions">
     <ul class="exceptions" data-hook="exception-list">
       <li class="date">Date</li>
       <li class="code">Code</li>
       <li class="message">Message</li>
+      <li class="buttons">Actions</li>
       <li class="list" data-hook="exceptions"></li>
     </ul>
   </div>

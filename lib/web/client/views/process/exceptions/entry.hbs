@@ -2,5 +2,8 @@
   <li class="date">{{model.dateFormatted}}</li>
   <li class="code">{{model.code}}</li>
   <li class="message">{{model.messageOrStackSummary}}</li>
+  <li class="buttons">
+    <button type="button" class="btn btn-danger btn-xs start" data-hook="removebutton"><i class="fa fa-remove"></i> Remove</button>
+  </li>
   <li class="stack"><pre><code>{{model.stack}}</code></pre></li>
 </ul>
