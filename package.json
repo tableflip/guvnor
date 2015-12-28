@@ -21,7 +21,7 @@
     "coveralls": "cat ./coverage/lcov.info | coveralls"
   },
   "dependencies": {
-    "@achingbrain/ssdp": "0.0.5",
+    "@achingbrain/ssdp": "1.0.0",
     "ampersand-app": "^1.0.4",
     "ampersand-array-input-view": "^4.0.0",
     "ampersand-checkbox-view": "^4.1.0",
