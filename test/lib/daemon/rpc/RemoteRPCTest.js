@@ -111,7 +111,8 @@ describe('RemoteRPC', function () {
     })
 
     var server = {
-      listen: sinon.stub()
+      listen: sinon.stub(),
+      on: sinon.stub()
     }
     server.listen.withArgs(
       remoteRpc._config.remote.port,
@@ -139,7 +140,8 @@ describe('RemoteRPC', function () {
     remoteRpc._fs.readFile.withArgs(remoteRpc._config.remote.certificate, sinon.match.func).callsArgWith(1, undefined, 'cert')
 
     var server = {
-      listen: sinon.stub()
+      listen: sinon.stub(),
+      on: sinon.stub()
     }
     server.listen.withArgs(
       remoteRpc._config.remote.port,
@@ -172,7 +174,8 @@ describe('RemoteRPC', function () {
     })
 
     var server = {
-      listen: sinon.stub()
+      listen: sinon.stub(),
+      on: sinon.stub()
     }
     server.listen.withArgs(
       remoteRpc._config.remote.port,
@@ -204,7 +207,8 @@ describe('RemoteRPC', function () {
 
   it('should store a client connection', function (done) {
     var d = {
-      pipe: sinon.stub()
+      pipe: sinon.stub(),
+      on: sinon.stub()
     }
     d.pipe.returnsArg(0)
     remoteRpc._dnode.returns(d)
@@ -215,7 +219,8 @@ describe('RemoteRPC', function () {
     })
 
     var server = {
-      listen: sinon.stub()
+      listen: sinon.stub(),
+      on: sinon.stub()
     }
     server.listen.withArgs(
       remoteRpc._config.remote.port,
@@ -246,7 +251,8 @@ describe('RemoteRPC', function () {
 
   it('should remove a client connection when the connection ends', function (done) {
     var d = {
-      pipe: sinon.stub()
+      pipe: sinon.stub(),
+      on: sinon.stub()
     }
     d.pipe.returnsArg(0)
     remoteRpc._dnode.returns(d)
@@ -257,7 +263,8 @@ describe('RemoteRPC', function () {
     })
 
     var server = {
-      listen: sinon.stub()
+      listen: sinon.stub(),
+      on: sinon.stub()
     }
     server.listen.withArgs(
       remoteRpc._config.remote.port,
@@ -293,7 +300,9 @@ describe('RemoteRPC', function () {
 
   it('should remove a client connection when the connection errors', function (done) {
     var d = {
-      pipe: sinon.stub()
+      pipe: sinon.stub(),
+      on: sinon.stub(),
+      destroy: sinon.stub()
     }
     d.pipe.returnsArg(0)
     remoteRpc._dnode.returns(d)
@@ -304,7 +313,8 @@ describe('RemoteRPC', function () {
     })
 
     var server = {
-      listen: sinon.stub()
+      listen: sinon.stub(),
+      on: sinon.stub()
     }
     server.listen.withArgs(
       remoteRpc._config.remote.port,
@@ -315,6 +325,7 @@ describe('RemoteRPC', function () {
     var stream = new EventEmitter()
     stream.pipe = sinon.stub()
     stream.pipe.returnsArg(0)
+    stream.destroy = sinon.stub()
 
     remoteRpc._tls.createServer.callsArgWith(1, stream).returns(server)
 
@@ -333,6 +344,8 @@ describe('RemoteRPC', function () {
       connection.emit('error')
 
       expect(remoteRpc._connections[d._id]).to.not.exist
+      expect(d.destroy.called).to.be.true
+      expect(stream.destroy.called).to.be.true
 
       done()
     })
@@ -344,7 +357,9 @@ describe('RemoteRPC', function () {
     stream.pipe.returnsArg(0)
 
     var d = {
-      pipe: sinon.stub()
+      pipe: sinon.stub(),
+      on: sinon.stub(),
+      destroy: sinon.stub()
     }
     d.pipe.returnsArg(0)
     remoteRpc._dnode.returns(d)
@@ -355,7 +370,8 @@ describe('RemoteRPC', function () {
     })
 
     var server = {
-      listen: sinon.stub()
+      listen: sinon.stub(),
+      on: sinon.stub()
     }
     server.listen.withArgs(
       remoteRpc._config.remote.port,
@@ -382,6 +398,61 @@ describe('RemoteRPC', function () {
       stream.emit('error')
 
       expect(remoteRpc._connections[d._id]).to.not.exist
+      expect(d.destroy.called).to.be.true
+
+      done()
+    })
+  })
+
+  it('should remove a client connection when dnode errors', function (done) {
+    var stream = {
+      pipe: sinon.stub().returnsArg(0),
+      on: sinon.stub(),
+      destroy: sinon.stub()
+    }
+
+    var d = new EventEmitter()
+    d.pipe = sinon.stub()
+    d.pipe.returnsArg(0)
+
+    d.pipe.returnsArg(0)
+    remoteRpc._dnode.returns(d)
+
+    remoteRpc._pem.createCertificate.callsArgWith(1, undefined, {
+      serviceKey: 'key',
+      certificate: 'certificate'
+    })
+
+    var server = {
+      listen: sinon.stub(),
+      on: sinon.stub()
+    }
+    server.listen.withArgs(
+      remoteRpc._config.remote.port,
+      remoteRpc._config.remote.host,
+      sinon.match.func
+    ).callsArgWith(2, undefined)
+
+    remoteRpc._tls.createServer.callsArgWith(1, stream).returns(server)
+
+    remoteRpc._dnode.returns(d)
+
+    remoteRpc.afterPropertiesSet(function (error) {
+      expect(error).to.not.exist
+
+      var client = {}
+      var connection = new EventEmitter()
+      connection.id = 'foo'
+      connection.stream = new EventEmitter()
+
+      remoteRpc._dnode.getCall(0).args[0](client, connection)
+
+      expect(remoteRpc._connections[d._id]).to.equal(client)
+
+      d.emit('error')
+
+      expect(remoteRpc._connections[d._id]).to.not.exist
+      expect(stream.destroy.called).to.be.true
 
       done()
     })
@@ -394,7 +465,8 @@ describe('RemoteRPC', function () {
     })
 
     var server = {
-      listen: sinon.stub()
+      listen: sinon.stub(),
+      on: sinon.stub()
     }
     server.listen.withArgs(
       remoteRpc._config.remote.port,
@@ -409,7 +481,8 @@ describe('RemoteRPC', function () {
     remoteRpc._tls.createServer.callsArgWith(1, stream).returns(server)
 
     var d = {
-      pipe: sinon.stub()
+      pipe: sinon.stub(),
+      on: sinon.stub()
     }
     d.pipe.returnsArg(0)
 
