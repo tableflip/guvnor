@@ -1,10 +1,9 @@
 language: node_js
 node_js:
-  - "0.10"
   - "0.12"
-  - "4.1"
-  - "iojs"
-# node_js 4 requires gcc 4.8 
+  - "4"
+  - "5"
+# node_js 4 requires gcc 4.8
 env:
   - NODE_ENV=travis CXX="g++-4.8"
 # gcc 4.8 requires ubuntu-toolchain-r-test
