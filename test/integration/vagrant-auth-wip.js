@@ -1,3 +1,4 @@
+/*
 var describe = require('mocha').describe
 var beforeEach = require('mocha').beforeEach
 var afterEach = require('mocha').afterEach
@@ -50,3 +51,4 @@ describe('vagrant/auth', function () {
     })
   })
 })
+*/

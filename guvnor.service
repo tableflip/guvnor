@@ -1,0 +1,8 @@
+[Unit]
+Description=The Guvnor
+
+[Service]
+ExecStart=/usr/local/node/bin/node /opt/guvnor/lib/daemon
+
+[Install]
+WantedBy=multi-user.target

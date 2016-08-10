@@ -1,0 +1,4 @@
+FROM systemd_rawhide
+RUN dnf -y install httpd; dnf clean all; systemctl enable httpd.service
+EXPOSE 80
+CMD ["/sbin/init"]

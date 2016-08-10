@@ -1,126 +1,112 @@
-return
+'use strict'
 
-var describe = require('mocha').describe
-var beforeEach = require('mocha').beforeEach
-var afterEach = require('mocha').afterEach
-var it = require('mocha').it
-var expect = require('chai').expect
-var runCli = require('../../platform/run-cli')
-var path = require('path')
-var async = require('async')
-var child_process = require('child_process')
-var OutputBuffer = require('output-buffer')
-var loadApi = require('../../../lib/local/api')
-var setup = require('./setup')
+const winston = require('winston')
+winston.level = 'debug'
+winston.cli()
 
-describe.skip('docker/api', function () {
-  this.timeout(600000)
-  var stopProcesses
-  var stopDaemon
-  var rootApi
-  var userApi
-  var startDocker
-  var stopDocker
+const test = require('ava')
+const api = require('./fixtures/api')
+const faker = require('faker')
 
-  before(function (done) {
-    this.timeout(600000)
-
-    setup(function (error, result) {
-      startDocker = result.beforeEach
-
-      after(result.after)
-
-      done(error)
+test.serial('Should return an empty process list', (t) => {
+  return api
+  .then((api) => {
+    return api.process.list()
+    .then((processes) => {
+      t.is(processes.length, 0)
     })
   })
+})
 
-  beforeEach(function (done) {
-    startDocker(function (error, results) {
-      rootApi = results.rootApi
-      userApi = results.userApi
-      stopDocker = results.afterEach
+test.cb('Should start a process', (t) => {
+  const script = '/opt/guvnor/test/fixtures/hello-world.js'
+  const name = `${faker.lorem.word()}_${faker.lorem.word()}`
 
-      done(error)
+  api.then((api) => {
+    api.on('process:started', (host, proc) => {
+      if (proc.name !== name) {
+        return
+      }
+
+      t.is(proc.name, name)
+      t.is(proc.status, 'running')
+      t.is(proc.script, script)
+
+      api.process.list()
+      .then((processes) => {
+        const proc = processes.filter((proc) => {
+          return proc.name === name
+        }).pop()
+
+        t.is(proc.name, name)
+        t.is(proc.status, 'running')
+        t.is(proc.script, script)
+
+        t.end()
+      })
+    })
+
+    api.process.start(script, {
+      name: name
+    })
+    .then((proc) => {
+      t.is(proc.name, name)
+      t.is(proc.status, 'running')
+      t.is(proc.script, script)
     })
   })
+})
 
-  afterEach(function (done) {
-    stopDocker(done)
-  })
+test.cb('Should stop a process', (t) => {
+  const script = '/opt/guvnor/test/fixtures/hello-world.js'
+  const name = `${faker.lorem.word()}_${faker.lorem.word()}`
 
-  it('should show no processes', function (done) {
-    userApi.process.list(function (error, processes) {
-      expect(error).to.not.exist
-      expect(processes).to.be.empty
-      done()
+  api.then((api) => {
+    // start the process
+    api.process.start(script, {
+      name: name
     })
-  })
 
-/*
-  it('should show no processes', function (done) {
-    runCli(['list'], 1, done, function (stdout) {
-      expect(stdout.trim()).to.equal('')
-      done()
+    // when it's started
+    api.on('process:started', (host, proc) => {
+      if (proc.name !== name) {
+        return
+      }
+
+      t.is(proc.name, name)
+      t.is(proc.status, 'running')
+      t.is(proc.script, script)
+
+      // stop the process
+      api.process.stop(name)
     })
-  })
 
-  it('should show empty list', function (done) {
-    runCli(['list', '-d'], 1, done, function (stdout) {
-      expect(stdout).to.contain('No running processes')
-      done()
-    })
-  })
+    // when it's stopped
+    api.on('process:stopped', (host, proc) => {
+      if (proc.name !== name) {
+        return
+      }
 
-  it('should show empty json list', function (done) {
-    runCli(['list', '--json'], 1, done, function (stdout) {
-      expect(JSON.parse(stdout)).to.be.empty
-      done()
-    })
-  })
+      // ensure we are reporting it as stopped
+      api.process.list()
+      .then((processes) => {
+        const proc = processes.filter((proc) => {
+          return proc.name === name
+        }).pop()
 
-  it('should start a process', function (done) {
-    var script = path.resolve(path.join(__dirname, '..', 'fixtures', 'hello-world.js'))
+        t.is(proc.name, name)
+        t.is(proc.status, 'stopped')
+        t.is(proc.script, script)
 
-    runCli(['start', script], 1, done, function (stdout) {
-      expect(stdout).to.contain('Process hello-world.js started')
-
-      runCli(['list', '--json'], 1, done, function (stdout) {
-        var procs = JSON.parse(stdout)
-        expect(procs.length).to.equal(1)
-        expect(procs[0].name).to.equal('hello-world.js')
-
-        done()
+        t.end()
       })
     })
   })
+})
 
-  it('should stop a process', function (done) {
-    var script = path.resolve(path.join(__dirname, '..', 'fixtures', 'hello-world.js'))
 
-    runCli(['start', script], 1, done, function (stdout) {
-      expect(stdout).to.contain('Process hello-world.js started')
+  /*
 
-      runCli(['list', '--json'], 1, done, function (stdout) {
-        var procs = JSON.parse(stdout)
-        expect(procs.length).to.equal(1)
-        expect(procs[0].name).to.equal('hello-world.js')
-//        expect(procs[0].status).to.equal('running')
-
-        runCli(['stop', 'hello-world.js'], 1, done, function (stdout) {
-          expect(stdout).to.contain('Process hello-world.js stopped')
-
-          runCli(['list', '--json'], 1, done, function (stdout) {
-            var procs = JSON.parse(stdout)
-            expect(procs.length).to.equal(1)
-            expect(procs[0].name).to.equal('hello-world.js')
-            expect(procs[0].status).to.equal('stopped')
-
-            done()
-          })
-        })
-      })
-    })
-  })
 
   it('should remove a stopped process', function (done) {
     var script = path.resolve(path.join(__dirname, '..', 'fixtures', 'hello-world.js'))
@@ -369,5 +355,14 @@ describe.skip('docker/api', function () {
   it('should start an app', function (done) {
     done()
   })
-  */
+
+  it('should add a user', function (done) {
+    done()
+  })
+
+  it('should fail to add a non-existant user', function (done) {
+    done()
+  })
+
 })
+  */

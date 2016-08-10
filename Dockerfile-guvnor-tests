@@ -1,0 +1,26 @@
+# This Dockerfile spins up an instance of docker to run integration tests on.
+# N.b. it needs to be run on a host that has Docker & systemd installed.
+# If running on Linux, Docker & systemd are assumed present, on OS X an
+# intermediate VM will be created using Vagrant.
+
+FROM achingbrain/guvnor-base
+
+ADD . /opt/guvnor
+
+ADD guvnor.service /etc/systemd/system/guvnor.service
+
+# Create unit file
+RUN systemctl enable guvnor.service
+
+# Expose http port
+EXPOSE 8000
+
+# Expose https port
+EXPOSE 8001
+
+# Expose guv-web port
+EXPOSE 8080
+
+CMD ["/sbin/init"]
+
+#CMD ["node", "/opt/guvnor/lib/daemon"]

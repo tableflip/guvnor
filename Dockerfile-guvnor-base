@@ -1,0 +1,55 @@
+# This Dockerfile creates a base image for running guvnor integration tests
+# containing all the dependencies necessary to run it, the idea being that
+# we can save time when spinning up vagrant/docker as the deps don't change
+# as frequently as the code during a development cycle.
+#
+# If you do change deps in package.json, this image will need to be recreated
+# and uploaded to docker hub, eg:
+#
+# docker build -f Dockerfile-guvnor-base -t achingbrain/guvnor-base .
+# docker push achingbrain/guvnor-base
+#
+
+FROM ubuntu:16.04
+# You can change the FROM Instruction to your existing images if you like and build it with same tag
+ENV container docker
+ENV LC_ALL C
+ENV DEBIAN_FRONTEND noninteractive
+RUN echo 'APT::Install-Recommends "0"; \n\
+APT::Get::Assume-Yes "true"; \n\
+APT::Get::force-yes "true"; \n\
+APT::Install-Suggests "0";' > /etc/apt/apt.conf.d/01buildconfig
+RUN mkdir -p  /etc/apt/sources.d/
+RUN echo "deb mirror://mirrors.ubuntu.com/mirrors.txt wily main restricted universe multiverse \n\
+deb mirror://mirrors.ubuntu.com/mirrors.txt wily-updates main restricted universe multiverse \n\
+deb mirror://mirrors.ubuntu.com/mirrors.txt wily-backports main restricted universe multiverse \n\
+deb mirror://mirrors.ubuntu.com/mirrors.txt wily-security main restricted universe multiverse" > /etc/apt/sources.d/ubuntu-mirrors.list
+RUN apt-get update && apt-get install systemd curl ca-certificates python build-essential nano && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+RUN cd /lib/systemd/system/sysinit.target.wants/; ls | grep -v systemd-tmpfiles-setup | xargs rm -f $1 \
+  rm -f /lib/systemd/system/multi-user.target.wants/*;\
+  rm -f /etc/systemd/system/*.wants/*;\
+  rm -f /lib/systemd/system/local-fs.target.wants/*; \
+  rm -f /lib/systemd/system/sockets.target.wants/*udev*; \
+  rm -f /lib/systemd/system/sockets.target.wants/*initctl*; \
+  rm -f /lib/systemd/system/basic.target.wants/*;\
+  rm -f /lib/systemd/system/anaconda.target.wants/*; \
+  rm -f /lib/systemd/system/plymouth*; \
+  rm -f /lib/systemd/system/systemd-update-utmp*;
+RUN systemctl set-default multi-user.target
+ENV init /lib/systemd/systemd
+VOLUME [ "/sys/fs/cgroup" ]
+
+# Install node
+RUN curl -o /usr/local/node-v4.4.7-linux-x64.tar.gz https://nodejs.org/dist/v4.4.7/node-v4.4.7-linux-x64.tar.gz
+RUN tar -xzf /usr/local/node-v4.4.7-linux-x64.tar.gz -C /usr/local
+RUN ln -s /usr/local/node-v4.4.7-linux-x64 /usr/local/node
+
+# Add node to the path
+ENV PATH $PATH:/usr/local/node/bin
+
+# Install app dependencies
+ADD package.json package.json
+RUN echo $PATH
+RUN npm install --production --unsafe-perms
+
+ENTRYPOINT ["/lib/systemd/systemd"]

@@ -1,5 +1,4 @@
-return
-
+/*
 var describe = require('mocha').describe
 var beforeEach = require('mocha').beforeEach
 var afterEach = require('mocha').afterEach
@@ -13,22 +12,20 @@ var OutputBuffer = require('output-buffer')
 var loadApi = require('../../../lib/local/api')
 var setup = require('./setup')
 
-describe.skip('docker/cli', function () {
+describe('vagrant/api', function () {
   this.timeout(600000)
   var stopProcesses
   var stopDaemon
   var rootApi
   var userApi
-  var startDocker
-  var stopDocker
-  var userCredentials
-  var rootCredentials
+  var startVagrant
+  var stopVagrant
 
   before(function (done) {
     this.timeout(600000)
 
     setup(function (error, result) {
-      startDocker = result.beforeEach
+      startVagrant = result.beforeEach
 
       after(result.after)
 
@@ -37,58 +34,40 @@ describe.skip('docker/cli', function () {
   })
 
   beforeEach(function (done) {
-    startDocker(function (error, results) {
+    startVagrant(function (error, results) {
       rootApi = results.rootApi
       userApi = results.userApi
-      userCredentials = results.userCredentials
-      rootCredentials = results.rootCredentials
-      stopDocker = results.afterEach
+      stopVagrant = results.afterEach
 
       done(error)
     })
   })
 
   afterEach(function (done) {
-    stopDocker(done)
-  })
-
-  it('should show no processes', function (done) {
-    runCli(userCredentials, ['list'], 1, done, function (stdout) {
-      expect(stdout.trim()).to.equal('')
-      done()
-    })
-  })
-
-  it('should show empty list', function (done) {
-    runCli(userCredentials, ['list', '-d'], 1, done, function (stdout) {
-      expect(stdout).to.contain('No running processes')
-      done()
-    })
-  })
-
-  it('should show empty json list', function (done) {
-    runCli(userCredentials, ['list', '--json'], 1, done, function (list) {
-      expect(list).to.be.empty
-      done()
-    })
+    stopVagrant(done)
   })
 
   it('should start a process', function (done) {
-    var script = '/opt/test/fixtures/hello-world.js'
+    userApi.process.list(function (error, processes) {
+      expect(error).to.not.exist
+      expect(processes).to.be.empty
 
-    runCli(userCredentials, ['start', script], 1, done, function (stdout) {
-      expect(stdout).to.contain('Process hello-world.js started')
+      var script = '/opt/guvnor/test/fixtures/hello-world.js'
 
-      runCli(userCredentials, ['list', '--json'], 1, done, function (procs) {
-        expect(procs.length).to.equal(1)
-        expect(procs[0].name).to.equal('hello-world.js')
+      userApi.process.start(script, {}, function (error, result) {
+        console.info('results:', arguments)
 
-        done()
+        expect(error).to.not.exist
+
+        userApi.process.list(function (error, processes) {
+          expect(error).to.not.exist
+          expect(processes[0].name).to.equal('hello-world.js')
+          done()
+        })
       })
     })
   })
 
-/*
   it('should stop a process', function (done) {
     var script = path.resolve(path.join(__dirname, '..', 'fixtures', 'hello-world.js'))
 
@@ -364,5 +343,13 @@ describe.skip('docker/cli', function () {
   it('should start an app', function (done) {
     done()
   })
-  */
+
+  it('should add a user', function (done) {
+    done()
+  })
+
+  it('should fail to add a non-existant user', function (done) {
+    done()
+  })
 })
+*/
