@@ -16,10 +16,13 @@ const vagrantWrapper = (vagrant, command, options) => {
   })
 }
 
-const dockerWrapper = (command, options) => {
+const dockerWrapper = (docker, command, options) => {
   options = options || {}
 
-  return run(command.shift(), command, options)
+  // remove 'docker' from start of command
+  command.shift()
+
+  return run(docker, command, options)
   .then((stdout) => {
     return stdout.indexOf(VM_NAME) !== -1 && stdout.indexOf('running') !== -1
   })
