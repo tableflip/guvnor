@@ -33,6 +33,10 @@ const run = (cmd, args, options) => {
         return resolve(stdout.trim())
       }
 
+      if (options.ignoreExit) {
+        return
+      }
+
       const error = new Error(`Child process exited with code ${code}`)
       error.code = code
       error.stderr = stderr.trim()

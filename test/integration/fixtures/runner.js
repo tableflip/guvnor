@@ -31,6 +31,9 @@ module.exports = () => {
     console.info(`Working directory ${PROJECT_ROOT}`)
 
     return find('vagrant')
+    .catch((error) => {
+      throw new Error('Could not find vagrant, is it installed and on the $PATH? - ' + error.message)
+    })
     .then((vagrant) => {
       return ensureVagrantIsRunning(vagrant)
       .then(() => vagrantWrapper.bind(null, vagrant))
@@ -38,6 +41,9 @@ module.exports = () => {
   } else if (process.platform === 'linux') {
     console.info('Running on Linux, using Docker directly')
     return find('docker')
+    .catch((error) => {
+      throw new Error('Could not find docker, is it installed and on the $PATH? - ' + error.message)
+    })
     .then((docker) => {
       return dockerWrapper.bind(null, docker)
     })
