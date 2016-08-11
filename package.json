@@ -14,14 +14,12 @@
   },
   "scripts": {
     "lint": "standard",
-    "test": "nyc --reporter=html ava test/unit/lib/cli/process/list.js",
-    "test:coverage": "istanbul cover _mocha -- --recursive test/unit test/integration",
-    "test:integration": "mocha --recursive test/integration",
-    "test:integration:coverage": "istanbul cover _mocha -- --recursive test/integration",
+    "test": "ava test/integration/test.js --verbose",
+    "test:coverage": "nyc --reporter=html ava test/integration/test.js",
     "coveralls": "cat ./coverage/lcov.info | coveralls",
-    "test:docker": "npm run test:docker:build && npm run test:docker:deploy",
-    "test:docker:build": "docker build -f Dockerfile-guvnor-base -t achingbrain/guvnor-base .",
-    "test:docker:deploy": "docker push achingbrain/guvnor-base"
+    "docker": "npm run test:docker:build && npm run test:docker:deploy",
+    "docker:build": "docker build -f Dockerfile-guvnor-base -t achingbrain/guvnor-base .",
+    "docker:deploy": "docker push achingbrain/guvnor-base"
   },
   "dependencies": {
     "@achingbrain/ssdp": "^1.0.1",
