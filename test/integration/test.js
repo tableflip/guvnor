@@ -8,20 +8,6 @@ const test = require('ava')
 const api = require('./fixtures/api')
 const faker = require('faker')
 
-test.after.always('Print daemon logs', (t) => {
-  if (api.printLogs) {
-    console.info('')
-    console.info('---- Start test logs -----')
-    console.info('')
-    return api.printLogs()
-    .then(() => {
-      console.info('')
-      console.info('---- End test logs -----')
-      console.info('')
-    })
-  }
-})
-
 const onProcessEvent = (event, name, api) => {
   return new Promise((resolve, reject) => {
     const listener = (host, proc) => {
@@ -48,13 +34,24 @@ const isProc = (t, name, script, status, proc) => {
   t.is(proc.script, script)
 }
 
-const wait = (ms) => {
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      resolve()
-    }, ms)
-  })
-}
+const wait = (ms) => new Promise((resolve, reject) => {
+  console.info('-----> Using a wait. How do you sleep at night?')
+  setTimeout(() => resolve(), ms)
+})
+
+test.after.always('Print daemon logs', (t) => {
+  if (api.printLogs) {
+    console.info('')
+    console.info('---- Start test logs -----')
+    console.info('')
+    return api.printLogs()
+    .then(() => {
+      console.info('')
+      console.info('---- End test logs -----')
+      console.info('')
+    })
+  }
+})
 
 test.serial('Should return an empty process list', (t) => {
   return api.then((api) => {
@@ -73,6 +70,21 @@ test('Should start a process', (t) => {
     return api.process.start(script, {
       name: name
     })
+    .then(onProcessEvent('process:started', name, api))
+    .then((proc) => isProc(t, name, script, 'running', proc))
+    .then(() => wait(1000))
+    .then(() => api.process.list())
+    .then((procs) => procs.find((proc) => proc.name === name))
+    .then((proc) => isProc(t, name, script, 'running', proc))
+  })
+})
+
+test('Should use the file name to name a process if no name was specified', (t) => {
+  const script = '/opt/guvnor/test/fixtures/hello-world.js'
+  const name = 'hello-world.js'
+
+  return api.then((api) => {
+    return api.process.start(script)
     .then(onProcessEvent('process:started', name, api))
     .then((proc) => isProc(t, name, script, 'running', proc))
     .then(() => wait(1000))
@@ -104,7 +116,7 @@ test('Should stop a process', (t) => {
   })
 })
 
-test('Should remove a stopped a process', (t) => {
+test('Should remove a stopped process', (t) => {
   const script = '/opt/guvnor/test/fixtures/hello-world.js'
   const name = `${faker.lorem.word()}_${faker.lorem.word()}`
 
@@ -128,86 +140,27 @@ test('Should remove a stopped a process', (t) => {
   })
 })
 
+test('Should remove a running process', (t) => {
+  const script = '/opt/guvnor/test/fixtures/hello-world.js'
+  const name = `${faker.lorem.word()}_${faker.lorem.word()}`
 
-  /*
-
-
-  it('should remove a stopped process', function (done) {
-    var script = path.resolve(path.join(__dirname, '..', 'fixtures', 'hello-world.js'))
-
-    runCli(['start', script], 1, done, function (stdout) {
-      expect(stdout).to.contain('Process hello-world.js started')
-
-      runCli(['list', '--json'], 1, done, function (stdout) {
-        var procs = JSON.parse(stdout)
-        expect(procs.length).to.equal(1)
-        expect(procs[0].name).to.equal('hello-world.js')
-
-        runCli(['stop', 'hello-world.js'], 1, done, function (stdout) {
-          expect(stdout).to.contain('Process hello-world.js stopped')
-
-          runCli(['list', '--json'], 1, done, function (stdout) {
-            var procs = JSON.parse(stdout)
-            expect(procs.length).to.equal(1)
-            expect(procs[0].name).to.equal('hello-world.js')
-            expect(procs[0].status).to.equal('stopped')
-
-            runCli(['remove', 'hello-world.js'], 1, done, function (stdout) {
-              expect(stdout).to.contain('Process hello-world.js removed')
-
-              runCli(['list', '--json'], 1, done, function (stdout) {
-                var procs = JSON.parse(stdout)
-                expect(procs).to.be.empty
-
-                done()
-              })
-            })
-          })
-        })
-      })
+  return api.then((api) => {
+    // start the process
+    api.process.start(script, {
+      name: name
     })
+    // when it's started
+    .then(onProcessEvent('process:started', name, api))
+    .then(() => api.process.remove(name))
+    // ensure it has been removed
+    .then(() => api.process.list())
+    .then((procs) => procs.find((proc) => proc.name === name))
+    .then((proc) => t.is(proc, undefined))
   })
+})
 
-  it('should remove a running process', function (done) {
-    var script = path.resolve(path.join(__dirname, '..', 'fixtures', 'hello-world.js'))
 
-    runCli(['start', script], 1, done, function (stdout) {
-      expect(stdout).to.contain('Process hello-world.js started')
-
-      runCli(['list', '--json'], 1, done, function (stdout) {
-        var procs = JSON.parse(stdout)
-        expect(procs.length).to.equal(1)
-        expect(procs[0].name).to.equal('hello-world.js')
-
-        runCli(['remove', 'hello-world.js'], 1, done, function (stdout) {
-          expect(stdout).to.contain('Process hello-world.js removed')
-
-          runCli(['list', '--json'], 1, done, function (stdout) {
-            var procs = JSON.parse(stdout)
-            expect(procs).to.be.empty
-
-            done()
-          })
-        })
-      })
-    })
-  })
-
-  it('should start a process and override the name', function (done) {
-    var script = path.resolve(path.join(__dirname, '..', 'fixtures', 'hello-world.js'))
-
-    runCli(['start', script, '-n', 'foo'], 1, done, function (stdout) {
-      expect(stdout).to.contain('Process foo started')
-
-      runCli(['list', '--json'], 1, done, function (stdout) {
-        var procs = JSON.parse(stdout)
-        expect(procs.length).to.equal(1)
-        expect(procs[0].name).to.equal('foo')
-
-        done()
-      })
-    })
-  })
+/*
 
   it('should start a process in debug mode', function () {
 
