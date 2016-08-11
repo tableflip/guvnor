@@ -4,6 +4,7 @@ const path = require('path')
 const Wreck = require('wreck')
 const runner = require('./runner')
 const retry = require('./retry')
+const test = require('ava')
 const DOCKER_FILE_DIRECTORY = path.resolve(path.join(__dirname, '..', '..', '..'))
 const loadApi = require('../../../lib/local')
 
@@ -107,6 +108,14 @@ module.exports = runner()
   .then(startDaemon.bind(null, runner))
   .then()
   .then((id) => {
+    module.exports.printLogs = () => {
+      return runner([
+        'docker', 'exec', id, 'journalctl', '-u', 'guvnor.service'
+      ], {
+        cwd: DOCKER_FILE_DIRECTORY
+      })
+    }
+
     return attachLogger(runner, id)
     .then(() => {
       return Promise.all([
@@ -115,10 +124,6 @@ module.exports = runner()
         fetchRootKey(runner, id)
       ])
       .then((results) => {
-        runner([
-          'docker', 'attach', id
-        ])
-
         return loadApi({
           ca: results[0],
           cert: results[1],

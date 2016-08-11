@@ -37,7 +37,7 @@ const run = (cmd, args, options) => {
         return
       }
 
-      const error = new Error(`Child process exited with code ${code}`)
+      const error = new Error(`Child process ${cmd} ${args.join(' ')} exited with code ${code}`)
       error.code = code
       error.stderr = stderr.trim()
 

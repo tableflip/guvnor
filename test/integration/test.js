@@ -8,6 +8,20 @@ const test = require('ava')
 const api = require('./fixtures/api')
 const faker = require('faker')
 
+test.after.always('Print daemon logs', (t) => {
+  if (api.printLogs) {
+    console.info('')
+    console.info('---- Start test logs -----')
+    console.info('')
+    return api.printLogs()
+    .then(() => {
+      console.info('')
+      console.info('---- End test logs -----')
+      console.info('')
+    })
+  }
+})
+
 const onProcessEvent = (event, name, api) => {
   return new Promise((resolve, reject) => {
     const listener = (host, proc) => {
@@ -34,6 +48,14 @@ const isProc = (t, name, script, status, proc) => {
   t.is(proc.script, script)
 }
 
+const wait = (ms) => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      resolve()
+    }, ms)
+  })
+}
+
 test.serial('Should return an empty process list', (t) => {
   return api.then((api) => {
     return api.process.list()
@@ -53,6 +75,7 @@ test('Should start a process', (t) => {
     })
     .then(onProcessEvent('process:started', name, api))
     .then((proc) => isProc(t, name, script, 'running', proc))
+    .then(() => wait(1000))
     .then(() => api.process.list())
     .then((procs) => procs.find((proc) => proc.name === name))
     .then((proc) => isProc(t, name, script, 'running', proc))
