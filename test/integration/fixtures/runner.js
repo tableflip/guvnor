@@ -23,9 +23,6 @@ const dockerWrapper = (docker, command, options) => {
   command.shift()
 
   return run(docker, command, options)
-  .then((stdout) => {
-    return stdout.indexOf(VM_NAME) !== -1 && stdout.indexOf('running') !== -1
-  })
 }
 
 module.exports = () => {
