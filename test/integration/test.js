@@ -8,8 +8,10 @@ const test = require('ava')
 const api = require('./fixtures/api')
 const faker = require('faker')
 
+const DEFAULT_TIMEOUT = 30000
+
 const onProcessEvent = (event, name, api) => {
-  return new Promise((resolve, reject) => {
+  const promise = new Promise((resolve, reject) => {
     const listener = (host, proc) => {
       if (proc.name !== name) {
         return
@@ -22,11 +24,13 @@ const onProcessEvent = (event, name, api) => {
 
     api.on(event, listener)
   })
+
+  return () => promise
 }
 
 const isProc = (t, name, script, status, proc) => {
   if (!proc) {
-    throw new Error('proc expected')
+    throw new Error('proc expected, got', proc)
   }
 
   t.is(proc.name, name)
@@ -34,9 +38,29 @@ const isProc = (t, name, script, status, proc) => {
   t.is(proc.script, script)
 }
 
-const wait = (ms) => new Promise((resolve, reject) => {
-  console.info('-----> Using a wait. How do you sleep at night?')
-  setTimeout(() => resolve(), ms)
+const startTimer = (t, timeout) => {
+  timeout = timeout || DEFAULT_TIMEOUT
+
+  return setTimeout(() => {
+    console.error(`Test "${t._test.title.replace('beforeEach for', '').trim()}" has timed out!`)
+    t.fail()
+    throw new Error('Timed out!')
+  }, timeout)
+}
+
+const stopTimer = (ref) => {
+  clearTimeout(ref)
+}
+
+test.beforeEach((t) => {
+  return api.then((api) => {
+    t.context.api = api
+    t.context.startTimer = startTimer(t)
+  })
+})
+
+test.afterEach((t) => {
+  stopTimer(t.context.timer)
 })
 
 test.after.always('Print daemon logs', (t) => {
@@ -54,11 +78,9 @@ test.after.always('Print daemon logs', (t) => {
 })
 
 test.serial('Should return an empty process list', (t) => {
-  return api.then((api) => {
-    return api.process.list()
-    .then((processes) => {
-      t.is(processes.length, 0)
-    })
+  return t.context.api.process.list()
+  .then((processes) => {
+    t.is(processes.length, 0)
   })
 })
 
@@ -66,53 +88,95 @@ test('Should start a process', (t) => {
   const script = '/opt/guvnor/test/fixtures/hello-world.js'
   const name = `${faker.lorem.word()}_${faker.lorem.word()}`
 
-  return api.then((api) => {
-    return api.process.start(script, {
-      name: name
-    })
-    .then(onProcessEvent('process:started', name, api))
-    .then((proc) => isProc(t, name, script, 'running', proc))
-    .then(() => wait(1000))
-    .then(() => api.process.list())
-    .then((procs) => procs.find((proc) => proc.name === name))
-    .then((proc) => isProc(t, name, script, 'running', proc))
+  return t.context.api.process.start(script, {
+    name: name
   })
+  .then(onProcessEvent('process:started', name, t.context.api))
+  .then((proc) => isProc(t, name, script, 'running', proc))
+  .then(() => t.context.api.process.list())
+  .then((procs) => procs.find((proc) => proc.name === name))
+  .then((proc) => isProc(t, name, script, 'running', proc))
 })
 
 test('Should use the file name to name a process if no name was specified', (t) => {
   const script = '/opt/guvnor/test/fixtures/hello-world.js'
   const name = 'hello-world.js'
 
-  return api.then((api) => {
-    return api.process.start(script)
-    .then(onProcessEvent('process:started', name, api))
-    .then((proc) => isProc(t, name, script, 'running', proc))
-    .then(() => wait(1000))
-    .then(() => api.process.list())
-    .then((procs) => procs.find((proc) => proc.name === name))
-    .then((proc) => isProc(t, name, script, 'running', proc))
-  })
+  return t.context.api.process.start(script)
+  .then(onProcessEvent('process:started', name, t.context.api))
+  .then((proc) => isProc(t, name, script, 'running', proc))
+  .then(() => t.context.api.process.list())
+  .then((procs) => procs.find((proc) => proc.name === name))
+  .then((proc) => isProc(t, name, script, 'running', proc))
 })
 
 test('Should stop a process', (t) => {
   const script = '/opt/guvnor/test/fixtures/hello-world.js'
   const name = `${faker.lorem.word()}_${faker.lorem.word()}`
 
-  return api.then((api) => {
-    // start the process
-    return api.process.start(script, {
-      name: name
-    })
-    // when it's started
-    .then(onProcessEvent('process:started', name, api))
-    // stop the process
-    .then(() => api.process.stop(name))
-    // when it's stopped
-    .then(onProcessEvent('process:stopped', name, api))
-    // ensure we are reporting it as stopped
-    .then(() => api.process.list())
-    .then((procs) => procs.find((proc) => proc.name === name))
-    .then((proc) => isProc(t, name, script, 'stopped', proc))
+  // start the process
+  return t.context.api.process.start(script, {
+    name: name
+  })
+  // when it's started
+  .then(onProcessEvent('process:started', name, t.context.api))
+  // stop the process
+  .then(() => t.context.api.process.stop(name))
+  // it should be reported as stopped
+  .then((proc) => isProc(t, name, script, 'stopped', proc))
+  // ensure we are reporting it as stopped
+  .then(() => t.context.api.process.list())
+  .then((procs) => procs.find((proc) => proc.name === name))
+  .then((proc) => isProc(t, name, script, 'stopped', proc))
+})
+
+test.cb('Should emit a process:stopping event when stopping a process', (t) => {
+  const script = '/opt/guvnor/test/fixtures/hello-world.js'
+  const name = `${faker.lorem.word()}_${faker.lorem.word()}`
+
+  onProcessEvent('process:stopping', name, t.context.api)()
+  .then((proc) => isProc(t, name, script, 'stopping', proc))
+  .then(t.end)
+
+  // start the process
+  t.context.api.process.start(script, {
+    name: name
+  })
+  // when it's started
+  .then(onProcessEvent('process:started', name, t.context.api))
+  // stop the process
+  .then(() => t.context.api.process.stop(name))
+})
+
+test.cb('Should emit a process:stopped event when a process stops', (t) => {
+  const script = '/opt/guvnor/test/fixtures/hello-world.js'
+  const name = `${faker.lorem.word()}_${faker.lorem.word()}`
+
+  onProcessEvent('process:stopped', name, t.context.api)()
+  .then((proc) => isProc(t, name, script, 'stopped', proc))
+  .then(t.end)
+
+  // start the process
+  t.context.api.process.start(script, {
+    name: name
+  })
+  // when it's started
+  .then(onProcessEvent('process:started', name, t.context.api))
+  // stop the process
+  .then(() => t.context.api.process.stop(name))
+})
+
+test.cb('Should emit a process:started event when starting a process', (t) => {
+  const script = '/opt/guvnor/test/fixtures/hello-world.js'
+  const name = `${faker.lorem.word()}_${faker.lorem.word()}`
+
+  onProcessEvent('process:started', name, t.context.api)()
+  .then((proc) => isProc(t, name, script, 'running', proc))
+  .then(t.end)
+
+  // start the process
+  t.context.api.process.start(script, {
+    name: name
   })
 })
 
@@ -120,43 +184,37 @@ test('Should remove a stopped process', (t) => {
   const script = '/opt/guvnor/test/fixtures/hello-world.js'
   const name = `${faker.lorem.word()}_${faker.lorem.word()}`
 
-  return api.then((api) => {
-    // start the process
-    api.process.start(script, {
-      name: name
-    })
-    // when it's started
-    .then(onProcessEvent('process:started', name, api))
-    // stop the process
-    .then(() => api.process.stop(name))
-    // when it's stopped
-    .then(onProcessEvent('process:stopped', name, api))
-    // remove the process
-    .then(() => api.process.remove(name))
-    // ensure it has been removed
-    .then(() => api.process.list())
-    .then((procs) => procs.find((proc) => proc.name === name))
-    .then((proc) => t.is(proc, undefined))
+  // start the process
+  t.context.api.process.start(script, {
+    name: name
   })
+  // when it's started
+  .then(onProcessEvent('process:started', name, t.context.api))
+  // stop the process
+  .then(() => t.context.api.process.stop(name))
+  // remove the process
+  .then(() => t.context.api.process.remove(name))
+  // ensure it has been removed
+  .then(() => t.context.api.process.list())
+  .then((procs) => procs.find((proc) => proc.name === name))
+  .then((proc) => t.is(proc, undefined))
 })
 
 test('Should remove a running process', (t) => {
   const script = '/opt/guvnor/test/fixtures/hello-world.js'
   const name = `${faker.lorem.word()}_${faker.lorem.word()}`
 
-  return api.then((api) => {
-    // start the process
-    api.process.start(script, {
-      name: name
-    })
-    // when it's started
-    .then(onProcessEvent('process:started', name, api))
-    .then(() => api.process.remove(name))
-    // ensure it has been removed
-    .then(() => api.process.list())
-    .then((procs) => procs.find((proc) => proc.name === name))
-    .then((proc) => t.is(proc, undefined))
+  // start the process
+  t.context.api.process.start(script, {
+    name: name
   })
+  // when it's started
+  .then(onProcessEvent('process:started', name, t.context.api))
+  .then(() => t.context.api.process.remove(name))
+  // ensure it has been removed
+  .then(() => t.context.api.process.list())
+  .then((procs) => procs.find((proc) => proc.name === name))
+  .then((proc) => t.is(proc, undefined))
 })
 
 
