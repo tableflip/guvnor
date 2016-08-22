@@ -6,13 +6,14 @@
 # If you do change deps in package.json, this image will need to be recreated
 # and uploaded to docker hub, eg:
 #
-# docker build -f Dockerfile-guvnor-base -t achingbrain/guvnor-base .
-# docker push achingbrain/guvnor-base
+# npm run docker
 #
 
 FROM ubuntu:16.04
 # You can change the FROM Instruction to your existing images if you like and build it with same tag
 ENV container docker
+# So we can use an editor
+ENV TERM xterm
 ENV LC_ALL C
 ENV DEBIAN_FRONTEND noninteractive
 RUN echo 'APT::Install-Recommends "0"; \n\
@@ -47,9 +48,14 @@ RUN ln -s /usr/local/node-v4.4.7-linux-x64 /usr/local/node
 # Add node to the path
 ENV PATH $PATH:/usr/local/node/bin
 
+# Create directories
+RUN mkdir /opt/guvnor
+
 # Install app dependencies
-ADD package.json package.json
-RUN echo $PATH
+ADD package.json /opt/guvnor/package.json
+WORKDIR /opt/guvnor
 RUN npm install --production --unsafe-perms
+RUN ls -l /opt/guvnor/node_modules
+RUN cat /opt/guvnor/package.json
 
 ENTRYPOINT ["/lib/systemd/systemd"]

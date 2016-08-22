@@ -98,7 +98,7 @@ test('Should start a process', (t) => {
   .then((proc) => isProc(t, name, script, 'running', proc))
 })
 
-test('Should use the file name to name a process if no name was specified', (t) => {
+test.skip('Should use the file name to name a process if no name was specified', (t) => {
   const script = '/opt/guvnor/test/fixtures/hello-world.js'
   const name = 'hello-world.js'
 
@@ -110,7 +110,7 @@ test('Should use the file name to name a process if no name was specified', (t) 
   .then((proc) => isProc(t, name, script, 'running', proc))
 })
 
-test('Should stop a process', (t) => {
+test.skip('Should stop a process', (t) => {
   const script = '/opt/guvnor/test/fixtures/hello-world.js'
   const name = `${faker.lorem.word()}_${faker.lorem.word()}`
 
@@ -130,7 +130,7 @@ test('Should stop a process', (t) => {
   .then((proc) => isProc(t, name, script, 'stopped', proc))
 })
 
-test.cb('Should emit a process:stopping event when stopping a process', (t) => {
+test.skip.cb('Should emit a process:stopping event when stopping a process', (t) => {
   const script = '/opt/guvnor/test/fixtures/hello-world.js'
   const name = `${faker.lorem.word()}_${faker.lorem.word()}`
 
@@ -148,7 +148,7 @@ test.cb('Should emit a process:stopping event when stopping a process', (t) => {
   .then(() => t.context.api.process.stop(name))
 })
 
-test.cb('Should emit a process:stopped event when a process stops', (t) => {
+test.skip.cb('Should emit a process:stopped event when a process stops', (t) => {
   const script = '/opt/guvnor/test/fixtures/hello-world.js'
   const name = `${faker.lorem.word()}_${faker.lorem.word()}`
 
@@ -166,7 +166,7 @@ test.cb('Should emit a process:stopped event when a process stops', (t) => {
   .then(() => t.context.api.process.stop(name))
 })
 
-test.cb('Should emit a process:started event when starting a process', (t) => {
+test.skip.cb('Should emit a process:started event when starting a process', (t) => {
   const script = '/opt/guvnor/test/fixtures/hello-world.js'
   const name = `${faker.lorem.word()}_${faker.lorem.word()}`
 
@@ -180,7 +180,7 @@ test.cb('Should emit a process:started event when starting a process', (t) => {
   })
 })
 
-test('Should remove a stopped process', (t) => {
+test.skip('Should remove a stopped process', (t) => {
   const script = '/opt/guvnor/test/fixtures/hello-world.js'
   const name = `${faker.lorem.word()}_${faker.lorem.word()}`
 
@@ -200,7 +200,7 @@ test('Should remove a stopped process', (t) => {
   .then((proc) => t.is(proc, undefined))
 })
 
-test('Should remove a running process', (t) => {
+test.skip('Should remove a running process', (t) => {
   const script = '/opt/guvnor/test/fixtures/hello-world.js'
   const name = `${faker.lorem.word()}_${faker.lorem.word()}`
 
@@ -218,186 +218,129 @@ test('Should remove a running process', (t) => {
 })
 
 
-/*
+test.todo('should start a process in debug mode')
 
-  it('should start a process in debug mode', function () {
+test.todo('should restart a process')
 
-  })
+test.todo('should start a process with arguments')
 
-  it('should restart a process', function () {
+test.todo('should start a process with exec arguments')
 
-  })
+test.todo('should start a process as a cluster')
 
-  it('should start a process with arguments', function () {
+test.todo('should increase number of cluster workers')
 
-  })
+test.todo('should decrease number of cluster workers')
 
-  it('should start a process with exec arguments', function (done) {
+test.todo('should send an event to a process')
+
+test.todo('should make a process dump heap')
+
+test.todo('should make a process collect garbage')
+
+test.todo('should send a signal to a process')
+
+test.todo('should write to a processes stdin')
+
+test.todo('should show logs')
+
+test.todo('should only show logs for one process')
+
+test.todo('should stop the daemon')
+
+test.todo('should print config options')
+
+test.todo('should report daemon status')
+
+test.todo('should print config for the web monitor')
+
+test.todo('should list users for the web monitor')
+
+test.todo('should reset users password for the web monitor')
+
+test.todo('should generate ssl certificates')
+
+test.skip('should not show installed apps', function (done) {
+  runCli(['lsapps'], 1, done, function (stdout) {
+    expect(stdout.trim()).to.equal('')
     done()
   })
+})
 
-  it('should start a process as a cluster', function (done) {
+test.skip('should deploy an application', function (done) {
+  runCli(['install', 'https://github.com/achingbrain/http-test.git'], 6, done, function (stdout) {
+    expect(stdout.trim()).to.contain('Installed http-test from https://github.com/achingbrain/http-test.git')
     done()
   })
+})
 
-  it('should increase number of cluster workers', function (done) {
+test.skip('should deploy an application and override name', function (done) {
+  runCli(['install', 'https://github.com/achingbrain/http-test.git', '-n', 'foo'], 6, done, function (stdout) {
+    expect(stdout.trim()).to.contain('Installed foo from https://github.com/achingbrain/http-test.git')
     done()
   })
+})
 
-  it('should decrease number of cluster workers', function (done) {
-    done()
-  })
+test.skip('should list deployed applications', function (done) {
+  runCli(['install', 'https://github.com/achingbrain/http-test.git'], 6, done, function (stdout) {
+    runCli(['lsapps', '--json'], 1, done, function (stdout) {
+      var apps = JSON.parse(stdout)
+      expect(apps.length).to.equal(1)
+      expect(apps[0].name).to.equal('http-test')
 
-  it('should send an event to a process', function (done) {
-    done()
-  })
-
-  it('should make a process dump heap', function (done) {
-    done()
-  })
-
-  it('should make a process collect garbage', function (done) {
-    done()
-  })
-
-  it('should send a signal to a process', function (done) {
-    done()
-  })
-
-  it('should write to a processes stdin', function (done) {
-    done()
-  })
-
-  it('should show logs', function (done) {
-    done()
-  })
-
-  it('should only show logs for one process', function (done) {
-    done()
-  })
-
-  it('should stop the daemon', function (done) {
-    done()
-  })
-
-  it('should print config options', function (done) {
-    done()
-  })
-
-  it('should report daemon status', function (done) {
-    done()
-  })
-
-  it('should print config for the web monitor', function (done) {
-    done()
-  })
-
-  it('should list users for the web monitor', function (done) {
-    done()
-  })
-
-  it('should reset users password for the web monitor', function (done) {
-    done()
-  })
-
-  it('should generate ssl certificates', function (done) {
-    done()
-  })
-
-  it('should not show installed apps', function (done) {
-    runCli(['lsapps'], 1, done, function (stdout) {
-      expect(stdout.trim()).to.equal('')
       done()
     })
   })
+})
 
-  it('should deploy an application', function (done) {
-    runCli(['install', 'https://github.com/achingbrain/http-test.git'], 6, done, function (stdout) {
-      expect(stdout.trim()).to.contain('Installed http-test from https://github.com/achingbrain/http-test.git')
-      done()
-    })
-  })
+test.skip('should remove deployed applications', function (done) {
+  runCli(['install', 'https://github.com/achingbrain/http-test.git'], 6, done, function (stdout) {
+    runCli(['rmapp', 'http-test'], 1, done, function (stdout) {
+      expect(stdout).to.contain('Removed app http-test')
 
-  it('should deploy an application and override name', function (done) {
-    runCli(['install', 'https://github.com/achingbrain/http-test.git', '-n', 'foo'], 6, done, function (stdout) {
-      expect(stdout.trim()).to.contain('Installed foo from https://github.com/achingbrain/http-test.git')
-      done()
-    })
-  })
-
-  it('should list deployed applications', function (done) {
-    runCli(['install', 'https://github.com/achingbrain/http-test.git'], 6, done, function (stdout) {
       runCli(['lsapps', '--json'], 1, done, function (stdout) {
         var apps = JSON.parse(stdout)
-        expect(apps.length).to.equal(1)
-        expect(apps[0].name).to.equal('http-test')
+        expect(apps.length).to.equal(0)
 
         done()
       })
     })
   })
-
-  it('should remove deployed applications', function (done) {
-    runCli(['install', 'https://github.com/achingbrain/http-test.git'], 6, done, function (stdout) {
-      runCli(['rmapp', 'http-test'], 1, done, function (stdout) {
-        expect(stdout).to.contain('Removed app http-test')
-
-        runCli(['lsapps', '--json'], 1, done, function (stdout) {
-          var apps = JSON.parse(stdout)
-          expect(apps.length).to.equal(0)
-
-          done()
-        })
-      })
-    })
-  })
-
-  it('should report the current application ref', function (done) {
-    runCli(['install', 'https://github.com/achingbrain/http-test.git'], 6, done, function (stdout) {
-      runCli(['lsref', 'http-test', '--json'], 1, done, function (stdout) {
-        var ref = JSON.parse(stdout)
-
-        expect(ref.name).to.equal('master')
-        expect(ref.type).to.equal('branch')
-        expect(ref.commit).to.be.ok
-        done()
-      })
-    })
-  })
-
-  it('should list available application refs', function (done) {
-    runCli(['install', 'https://github.com/achingbrain/http-test.git'], 6, done, function (stdout) {
-      runCli(['lsrefs', 'http-test', '--json'], 1, done, function (stdout) {
-        var refs = JSON.parse(stdout)
-
-        expect(refs.length).to.equal(5)
-        expect(refs[0].type).to.equal('branch')
-        expect(refs[0].name).to.equal('a-branch')
-        expect(refs[0].commit).to.be.ok
-        done()
-      })
-    })
-  })
-
-  it('should update application refs', function (done) {
-    done()
-  })
-
-  it('should switch an application ref', function (done) {
-    done()
-  })
-
-  it('should start an app', function (done) {
-    done()
-  })
-
-  it('should add a user', function (done) {
-    done()
-  })
-
-  it('should fail to add a non-existant user', function (done) {
-    done()
-  })
-
 })
-  */
+
+test.skip('should report the current application ref', function (done) {
+  runCli(['install', 'https://github.com/achingbrain/http-test.git'], 6, done, function (stdout) {
+    runCli(['lsref', 'http-test', '--json'], 1, done, function (stdout) {
+      var ref = JSON.parse(stdout)
+
+      expect(ref.name).to.equal('master')
+      expect(ref.type).to.equal('branch')
+      expect(ref.commit).to.be.ok
+      done()
+    })
+  })
+})
+
+test.skip('should list available application refs', function (done) {
+  runCli(['install', 'https://github.com/achingbrain/http-test.git'], 6, done, function (stdout) {
+    runCli(['lsrefs', 'http-test', '--json'], 1, done, function (stdout) {
+      var refs = JSON.parse(stdout)
+
+      expect(refs.length).to.equal(5)
+      expect(refs[0].type).to.equal('branch')
+      expect(refs[0].name).to.equal('a-branch')
+      expect(refs[0].commit).to.be.ok
+      done()
+    })
+  })
+})
+
+test.todo('should update application refs')
+
+test.todo('should switch an application ref')
+
+test.todo('should start an app')
+
+test.todo('should add a user')
+
+test.todo('should fail to add a non-existant user')

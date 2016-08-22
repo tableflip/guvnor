@@ -158,20 +158,6 @@
     "boss",
     "process-boss"
   ],
-  "jshintConfig": {
-    "asi": true,
-    "browser": false,
-    "browserify": true,
-    "curly": false,
-    "expr": true,
-    "indent": 2,
-    "loopfunc": true,
-    "node": true,
-    "trailing": true,
-    "undef": true,
-    "white": true,
-    "mocha": true
-  },
   "standard": {
     "ignore": [
       "web/public/javascript/**",
