@@ -56,6 +56,7 @@
     "component-emitter": "^1.2.1",
     "copy-to": "^2.0",
     "cpu-stats": "^1.0",
+    "dnode-promise": "^3.0.1",
     "domify": "^1.0",
     "domready": "^1.0",
     "duplex-maker": "^1.0.0",
