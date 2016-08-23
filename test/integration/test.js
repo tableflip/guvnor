@@ -79,9 +79,17 @@ test.after.always('Print daemon logs', t => {
 
 test.serial('Should return an empty process list', t => {
   return t.context.api.process.list()
-  .then((processes) => {
+  .then(processes => {
     t.truthy(Array.isArray(processes))
     t.is(processes.length, 0)
+  })
+})
+
+test.serial('Should return an empty app list', t => {
+  return t.context.api.app.list()
+  .then(apps => {
+    t.truthy(Array.isArray(apps))
+    t.is(apps.length, 0)
   })
 })
 
@@ -93,10 +101,10 @@ test('Should start a process', t => {
     name: name
   })
   .then(onProcessEvent('process:started', name, t.context.api))
-  .then((proc) => isProc(t, name, script, 'running', proc))
+  .then(proc => isProc(t, name, script, 'running', proc))
   .then(() => t.context.api.process.list())
-  .then((procs) => procs.find((proc) => proc.name === name))
-  .then((proc) => isProc(t, name, script, 'running', proc))
+  .then(procs => procs.find((proc) => proc.name === name))
+  .then(proc => isProc(t, name, script, 'running', proc))
 })
 
 test('Should use the file name to name a process if no name was specified', t => {
@@ -105,10 +113,10 @@ test('Should use the file name to name a process if no name was specified', t =>
 
   return t.context.api.process.start(script)
   .then(onProcessEvent('process:started', name, t.context.api))
-  .then((proc) => isProc(t, name, script, 'running', proc))
+  .then(proc => isProc(t, name, script, 'running', proc))
   .then(() => t.context.api.process.list())
-  .then((procs) => procs.find((proc) => proc.name === name))
-  .then((proc) => isProc(t, name, script, 'running', proc))
+  .then(procs => procs.find((proc) => proc.name === name))
+  .then(proc => isProc(t, name, script, 'running', proc))
 })
 
 test('Should stop a process', t => {
@@ -124,11 +132,11 @@ test('Should stop a process', t => {
   // stop the process
   .then(() => t.context.api.process.stop(name))
   // it should be reported as stopped
-  .then((proc) => isProc(t, name, script, 'stopped', proc))
+  .then(proc => isProc(t, name, script, 'stopped', proc))
   // ensure we are reporting it as stopped
   .then(() => t.context.api.process.list())
-  .then((procs) => procs.find((proc) => proc.name === name))
-  .then((proc) => isProc(t, name, script, 'stopped', proc))
+  .then(procs => procs.find((proc) => proc.name === name))
+  .then(proc => isProc(t, name, script, 'stopped', proc))
 })
 
 test.cb('Should emit a process:stopping event when stopping a process', t => {
@@ -136,7 +144,7 @@ test.cb('Should emit a process:stopping event when stopping a process', t => {
   const name = `${faker.lorem.word()}_${faker.lorem.word()}`
 
   onProcessEvent('process:stopping', name, t.context.api)()
-  .then((proc) => isProc(t, name, script, 'stopping', proc))
+  .then(proc => isProc(t, name, script, 'stopping', proc))
   .then(t.end)
 
   // start the process
@@ -154,7 +162,7 @@ test.cb('Should emit a process:stopped event when a process stops', t => {
   const name = `${faker.lorem.word()}_${faker.lorem.word()}`
 
   onProcessEvent('process:stopped', name, t.context.api)()
-  .then((proc) => isProc(t, name, script, 'stopped', proc))
+  .then(proc => isProc(t, name, script, 'stopped', proc))
   .then(t.end)
 
   // start the process
@@ -172,7 +180,7 @@ test.cb('Should emit a process:started event when starting a process', t => {
   const name = `${faker.lorem.word()}_${faker.lorem.word()}`
 
   onProcessEvent('process:started', name, t.context.api)()
-  .then((proc) => isProc(t, name, script, 'running', proc))
+  .then(proc => isProc(t, name, script, 'running', proc))
   .then(t.end)
 
   // start the process
@@ -197,8 +205,8 @@ test('Should remove a stopped process', t => {
   .then(() => t.context.api.process.remove(name))
   // ensure it has been removed
   .then(() => t.context.api.process.list())
-  .then((procs) => procs.find((proc) => proc.name === name))
-  .then((proc) => t.is(proc, undefined))
+  .then(procs => procs.find((proc) => proc.name === name))
+  .then(proc => t.is(proc, undefined))
 })
 
 test('Should remove a running process', t => {
@@ -214,8 +222,8 @@ test('Should remove a running process', t => {
   .then(() => t.context.api.process.remove(name))
   // ensure it has been removed
   .then(() => t.context.api.process.list())
-  .then((procs) => procs.find((proc) => proc.name === name))
-  .then((proc) => t.is(proc, undefined))
+  .then(procs => procs.find((proc) => proc.name === name))
+  .then(proc => t.is(proc, undefined))
 })
 
 test.todo('should start a process in debug mode')
@@ -233,8 +241,8 @@ test('should start a process with arguments', t => {
   .then(onProcessEvent('process:started', name, t.context.api))
   // make sure the right args were passed
   .then(() => t.context.api.process.list())
-  .then((procs) => procs.find((proc) => proc.name === name))
-  .then((proc) => {
+  .then(procs => procs.find((proc) => proc.name === name))
+  .then(proc => {
     t.is(proc.argv, ['foo', 'bar', 'baz'])
   })
 })
@@ -252,38 +260,82 @@ test('should start a process with exec arguments', t => {
   .then(onProcessEvent('process:started', name, t.context.api))
   // make sure the right args were passed
   .then(() => t.context.api.process.list())
-  .then((procs) => procs.find((proc) => proc.name === name))
-  .then((proc) => {
+  .then(procs => procs.find((proc) => proc.name === name))
+  .then(proc => {
     t.is(proc.execArgv, ['foo', 'bar', 'baz'])
+  })
+})
+
+test('should report daemon status', t => {
+  return t.context.api.status()
+  .then(status => {
+    t.truthy(status)
   })
 })
 
 test('should increase number of cluster workers', t => {
   const script = '/opt/guvnor/test/fixtures/hello-world.js'
   const name = `${faker.lorem.word()}_${faker.lorem.word()}`
-  let numWorkers = 0
 
-  // start the process
-  t.context.api.process.start(script, {
-    name: name
-  })
-  // when it's started
-  .then(onProcessEvent('process:started', name, t.context.api))
-  .then(() => t.context.api.process.list())
-  .then((procs) => procs.find((proc) => proc.name === name))
-  .then((proc) => {
-    numWorkers = proc.workers.length
-  })
-  .then(() => t.context.api.process.workers(name, numWorkers + 1))
-  // make sure the right args were passed
-  .then(() => t.context.api.process.list())
-  .then((procs) => procs.find((proc) => proc.name === name))
-  .then((proc) => {
-    t.is(proc.workers.length, numWorkers + 1)
+  // check that we can actually run this test..
+  t.context.api.status()
+  .then(status => {
+    if (status.cpus.length < 2) {
+      console.info('!!!!!! There are not enough CPUs available to run process worker tests')
+      return t.pass()
+    }
+
+    return // start the process
+    t.context.api.process.start(script, {
+      name: name,
+      workers: 1
+    })
+    // when it's started
+    .then(onProcessEvent('process:started', name, t.context.api))
+    .then(() => t.context.api.process.list())
+    .then(procs => procs.find((proc) => proc.name === name))
+    .then(proc => t.is(proc.workers.length, 1))
+    .then(() => t.context.api.process.workers(name, 2))
+    // make sure the right args were passed
+    .then(() => t.context.api.process.list())
+    .then(procs => procs.find((proc) => proc.name === name))
+    .then(proc => {
+      t.is(proc.workers.length, 2)
+    })
   })
 })
 
-test.todo('should decrease number of cluster workers')
+test('should decrease number of cluster workers', t => {
+  const script = '/opt/guvnor/test/fixtures/hello-world.js'
+  const name = `${faker.lorem.word()}_${faker.lorem.word()}`
+
+  // check that we can actually run this test..
+  t.context.api.status()
+  .then(status => {
+    if (status.cpus.length < 2) {
+      console.info('!!!!!! There are not enough CPUs available to run process worker tests')
+      return t.pass()
+    }
+
+    return // start the process
+    t.context.api.process.start(script, {
+      name: name,
+      workers: 2
+    })
+    // when it's started
+    .then(onProcessEvent('process:started', name, t.context.api))
+    .then(() => t.context.api.process.list())
+    .then(procs => procs.find((proc) => proc.name === name))
+    .then(proc => t.is(proc.workers.length, 2))
+    .then(() => t.context.api.process.workers(name, 1))
+    // make sure the right args were passed
+    .then(() => t.context.api.process.list())
+    .then(procs => procs.find((proc) => proc.name === name))
+    .then(proc => {
+      t.is(proc.workers.length, 1)
+    })
+  })
+})
 
 test.todo('should send an event to a process')
 
@@ -303,8 +355,6 @@ test.todo('should stop the daemon')
 
 test.todo('should print config options')
 
-test.todo('should report daemon status')
-
 test.todo('should print config for the web monitor')
 
 test.todo('should list users for the web monitor')
@@ -312,13 +362,6 @@ test.todo('should list users for the web monitor')
 test.todo('should reset users password for the web monitor')
 
 test.todo('should generate ssl certificates')
-
-test.skip('should not show installed apps', function (done) {
-  runCli(['lsapps'], 1, done, function (stdout) {
-    expect(stdout.trim()).to.equal('')
-    done()
-  })
-})
 
 test.skip('should deploy an application', function (done) {
   runCli(['install', 'https://github.com/achingbrain/http-test.git'], 6, done, function (stdout) {

@@ -5,6 +5,7 @@ const Wreck = require('wreck')
 const runner = require('./runner')
 const retry = require('./retry')
 const test = require('ava')
+const os = require('os')
 const DOCKER_FILE_DIRECTORY = path.resolve(path.join(__dirname, '..', '..', '..'))
 const loadApi = require('../../../lib/local')
 
@@ -44,9 +45,14 @@ const buildDaemon = (runner) => {
 }
 
 const startDaemon = (runner) => {
+  let cpus = ''
+
+  if (os.cpus().length > 1) {
+    cpus = '--cpuset-cpus="0,1"'
+  }
+
   return runner([
-    //'docker', 'run', '--privileged', '-ti', '-v', '/sys/fs/cgroup:/sys/fs/cgroup:ro',
-    'docker', 'run', '--cpuset-cpus="0,1"', '--privileged', '--cap-add', 'SYS_ADMIN', '-it', '-v', '/run', '-v', '/run/lock', '-v', '/sys/fs/cgroup:/sys/fs/cgroup:ro',
+    'docker', 'run', cpus, '--privileged', '--cap-add', 'SYS_ADMIN', '-it', '-v', '/run', '-v', '/run/lock', '-v', '/sys/fs/cgroup:/sys/fs/cgroup:ro',
     '-p', '8000:8000', '-p', '8001:8001', '-p', '8002:8080', '-d', 'daemon'
   ], {
     cwd: DOCKER_FILE_DIRECTORY
