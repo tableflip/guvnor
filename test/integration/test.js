@@ -12,14 +12,19 @@ const DEFAULT_TIMEOUT = 30000
 
 const onProcessEvent = (event, name, api) => {
   const promise = new Promise((resolve, reject) => {
-    const listener = (host, proc) => {
+    const listener = function (host, proc, arg0, arg1, arg2, etc) {
       if (proc.name !== name) {
         return
       }
 
       api.removeListener(event, listener)
 
-      resolve(proc)
+      resolve({
+        host: host,
+        proc: proc,
+        event: event,
+        args: Array.prototype.slice.call(arguments, 2)
+      })
     }
 
     api.on(event, listener)
@@ -101,7 +106,7 @@ test('Should start a process', t => {
     name: name
   })
   .then(onProcessEvent('process:started', name, t.context.api))
-  .then(proc => isProc(t, name, script, 'running', proc))
+  .then(event => isProc(t, name, script, 'running', event.proc))
   .then(() => t.context.api.process.list())
   .then(procs => procs.find((proc) => proc.name === name))
   .then(proc => isProc(t, name, script, 'running', proc))
@@ -113,7 +118,7 @@ test('Should use the file name to name a process if no name was specified', t =>
 
   return t.context.api.process.start(script)
   .then(onProcessEvent('process:started', name, t.context.api))
-  .then(proc => isProc(t, name, script, 'running', proc))
+  .then(event => isProc(t, name, script, 'running', event.proc))
   .then(() => t.context.api.process.list())
   .then(procs => procs.find((proc) => proc.name === name))
   .then(proc => isProc(t, name, script, 'running', proc))
@@ -144,7 +149,7 @@ test.cb('Should emit a process:stopping event when stopping a process', t => {
   const name = `${faker.lorem.word()}_${faker.lorem.word()}`
 
   onProcessEvent('process:stopping', name, t.context.api)()
-  .then(proc => isProc(t, name, script, 'stopping', proc))
+  .then(event => isProc(t, name, script, 'stopping', event.proc))
   .then(t.end)
 
   // start the process
@@ -162,7 +167,7 @@ test.cb('Should emit a process:stopped event when a process stops', t => {
   const name = `${faker.lorem.word()}_${faker.lorem.word()}`
 
   onProcessEvent('process:stopped', name, t.context.api)()
-  .then(proc => isProc(t, name, script, 'stopped', proc))
+  .then(event => isProc(t, name, script, 'stopped', event.proc))
   .then(t.end)
 
   // start the process
@@ -180,7 +185,7 @@ test.cb('Should emit a process:started event when starting a process', t => {
   const name = `${faker.lorem.word()}_${faker.lorem.word()}`
 
   onProcessEvent('process:started', name, t.context.api)()
-  .then(proc => isProc(t, name, script, 'running', proc))
+  .then(event => isProc(t, name, script, 'running', event.proc))
   .then(t.end)
 
   // start the process
@@ -285,8 +290,8 @@ test('should increase number of cluster workers', t => {
       return t.pass()
     }
 
-    return // start the process
-    t.context.api.process.start(script, {
+    // start the process
+    return t.context.api.process.start(script, {
       name: name,
       workers: 1
     })
@@ -317,8 +322,8 @@ test('should decrease number of cluster workers', t => {
       return t.pass()
     }
 
-    return // start the process
-    t.context.api.process.start(script, {
+    // start the process
+    return t.context.api.process.start(script, {
       name: name,
       workers: 2
     })
@@ -337,7 +342,19 @@ test('should decrease number of cluster workers', t => {
   })
 })
 
-test.todo('should send an event to a process')
+test('should send an event to a process', t => {
+  const script = '/opt/guvnor/test/fixtures/receive-event.js'
+  const name = `${faker.lorem.word()}_${faker.lorem.word()}`
+
+  return t.context.api.process.start(script, {
+    name: name
+  })
+  // when it's started
+  .then(onProcessEvent('process:started', name, t.context.api))
+  .then(() => t.context.api.process.sendEvent(name, 'custom:event:sent', 'arg1', 'arg2', 'arg3'))
+  .then(onProcessEvent('custom:event:received', name, t.context.api))
+  .then(event => t.deepEqual(event.args, ['arg1', 'arg2', 'arg3']))
+})
 
 test.todo('should make a process dump heap')
 
