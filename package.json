@@ -14,7 +14,7 @@
   },
   "scripts": {
     "lint": "standard",
-    "test": "ava test/integration/test.js --verbose --serial --timeout=1m",
+    "test": "ava test/integration/test.js --verbose --timeout=1m",
     "test:coverage": "nyc --reporter=html ava test/integration/test.js",
     "coveralls": "cat ./coverage/lcov.info | coveralls",
     "docker": "npm run docker:build && npm run docker:deploy",
