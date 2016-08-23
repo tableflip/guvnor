@@ -53,22 +53,11 @@ const buildDaemon = (runner) => {
 }
 
 const startDaemon = (runner) => {
-  let command = [
-    'docker', 'run'
-  ]
-
-  if (os.cpus().length > 1) {
-//    command.push('--cpuset-cpus')
-    //command.push('0-1')
-  }
-
-  command = command.concat([
-    '--privileged', '--cap-add', 'SYS_ADMIN', '-it',
+  return runner([
+    'docker', 'run', '--privileged', '--cap-add', 'SYS_ADMIN', '-it',
     '-v', '/run', '-v', '/run/lock', '-v', '/sys/fs/cgroup:/sys/fs/cgroup:ro',
     '-p', '8000:8000', '-p', '8001:8001', '-p', '8002:8080', '-d', 'daemon'
-  ])
-
-  return runner(command, {
+  ], {
     cwd: DOCKER_FILE_DIRECTORY
   })
   .then((id) => {
