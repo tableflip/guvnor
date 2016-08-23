@@ -9,6 +9,14 @@ const os = require('os')
 const DOCKER_FILE_DIRECTORY = path.resolve(path.join(__dirname, '..', '..', '..'))
 const loadApi = require('../../../lib/local')
 
+const printVersion = (runner) => {
+  return runner([
+    'docker', '--version'
+  ], {
+    cwd: DOCKER_FILE_DIRECTORY
+  })
+}
+
 const fetchCACertificate = (runner, id) => {
   return retry(() => runner([
     'docker', 'exec', id, 'cat', '/etc/guvnor/ca.crt'
@@ -48,7 +56,7 @@ const startDaemon = (runner) => {
   let cpus = ''
 
   if (os.cpus().length > 1) {
-    cpus = '--cpuset-cpus="0,1"'
+    cpus = '--cpuset-cpus="0-1"'
   }
 
   return runner([
@@ -108,11 +116,11 @@ const removeContainers = (runner) => {
 
 module.exports = runner()
 .then((runner) => {
-  return stopContainers(runner)
-  .then(removeContainers.bind(null, runner))
-  .then(buildDaemon.bind(null, runner))
-  .then(startDaemon.bind(null, runner))
-  .then()
+  return printVersion(runner)
+  .then(() => stopContainers(runner))
+  .then(() => removeContainers(runner))
+  .then(() => buildDaemon(runner))
+  .then(() => startDaemon(runner))
   .then((id) => {
     module.exports.printLogs = () => {
       return runner([
