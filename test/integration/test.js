@@ -52,18 +52,18 @@ const stopTimer = (ref) => {
   clearTimeout(ref)
 }
 
-test.beforeEach((t) => {
+test.beforeEach(t => {
   return api.then((api) => {
     t.context.api = api
     t.context.startTimer = startTimer(t)
   })
 })
 
-test.afterEach((t) => {
+test.afterEach(t => {
   stopTimer(t.context.timer)
 })
 
-test.after.always('Print daemon logs', (t) => {
+test.after.always('Print daemon logs', t => {
   if (api.printLogs) {
     console.info('')
     console.info('---- Start test logs -----')
@@ -77,7 +77,7 @@ test.after.always('Print daemon logs', (t) => {
   }
 })
 
-test.serial('Should return an empty process list', (t) => {
+test.serial('Should return an empty process list', t => {
   return t.context.api.process.list()
   .then((processes) => {
     t.truthy(Array.isArray(processes))
@@ -85,7 +85,7 @@ test.serial('Should return an empty process list', (t) => {
   })
 })
 
-test('Should start a process', (t) => {
+test('Should start a process', t => {
   const script = '/opt/guvnor/test/fixtures/hello-world.js'
   const name = `${faker.lorem.word()}_${faker.lorem.word()}`
 
@@ -99,7 +99,7 @@ test('Should start a process', (t) => {
   .then((proc) => isProc(t, name, script, 'running', proc))
 })
 
-test('Should use the file name to name a process if no name was specified', (t) => {
+test('Should use the file name to name a process if no name was specified', t => {
   const script = '/opt/guvnor/test/fixtures/hello-world.js'
   const name = 'hello-world.js'
 
@@ -111,7 +111,7 @@ test('Should use the file name to name a process if no name was specified', (t) 
   .then((proc) => isProc(t, name, script, 'running', proc))
 })
 
-test('Should stop a process', (t) => {
+test('Should stop a process', t => {
   const script = '/opt/guvnor/test/fixtures/hello-world.js'
   const name = `${faker.lorem.word()}_${faker.lorem.word()}`
 
@@ -131,7 +131,7 @@ test('Should stop a process', (t) => {
   .then((proc) => isProc(t, name, script, 'stopped', proc))
 })
 
-test.cb('Should emit a process:stopping event when stopping a process', (t) => {
+test.cb('Should emit a process:stopping event when stopping a process', t => {
   const script = '/opt/guvnor/test/fixtures/hello-world.js'
   const name = `${faker.lorem.word()}_${faker.lorem.word()}`
 
@@ -149,7 +149,7 @@ test.cb('Should emit a process:stopping event when stopping a process', (t) => {
   .then(() => t.context.api.process.stop(name))
 })
 
-test.cb('Should emit a process:stopped event when a process stops', (t) => {
+test.cb('Should emit a process:stopped event when a process stops', t => {
   const script = '/opt/guvnor/test/fixtures/hello-world.js'
   const name = `${faker.lorem.word()}_${faker.lorem.word()}`
 
@@ -167,7 +167,7 @@ test.cb('Should emit a process:stopped event when a process stops', (t) => {
   .then(() => t.context.api.process.stop(name))
 })
 
-test.cb('Should emit a process:started event when starting a process', (t) => {
+test.cb('Should emit a process:started event when starting a process', t => {
   const script = '/opt/guvnor/test/fixtures/hello-world.js'
   const name = `${faker.lorem.word()}_${faker.lorem.word()}`
 
@@ -181,7 +181,7 @@ test.cb('Should emit a process:started event when starting a process', (t) => {
   })
 })
 
-test('Should remove a stopped process', (t) => {
+test('Should remove a stopped process', t => {
   const script = '/opt/guvnor/test/fixtures/hello-world.js'
   const name = `${faker.lorem.word()}_${faker.lorem.word()}`
 
@@ -201,7 +201,7 @@ test('Should remove a stopped process', (t) => {
   .then((proc) => t.is(proc, undefined))
 })
 
-test('Should remove a running process', (t) => {
+test('Should remove a running process', t => {
   const script = '/opt/guvnor/test/fixtures/hello-world.js'
   const name = `${faker.lorem.word()}_${faker.lorem.word()}`
 
@@ -220,15 +220,68 @@ test('Should remove a running process', (t) => {
 
 test.todo('should start a process in debug mode')
 
-test.todo('should restart a process')
+test('should start a process with arguments', t => {
+  const script = '/opt/guvnor/test/fixtures/hello-world.js'
+  const name = `${faker.lorem.word()}_${faker.lorem.word()}`
 
-test.todo('should start a process with arguments')
+  // start the process
+  t.context.api.process.start(script, {
+    name: name,
+    argv: ['foo', 'bar', 'baz']
+  })
+  // when it's started
+  .then(onProcessEvent('process:started', name, t.context.api))
+  // make sure the right args were passed
+  .then(() => t.context.api.process.list())
+  .then((procs) => procs.find((proc) => proc.name === name))
+  .then((proc) => {
+    t.is(proc.argv, ['foo', 'bar', 'baz'])
+  })
+})
 
-test.todo('should start a process with exec arguments')
+test('should start a process with exec arguments', t => {
+  const script = '/opt/guvnor/test/fixtures/hello-world.js'
+  const name = `${faker.lorem.word()}_${faker.lorem.word()}`
 
-test.todo('should start a process as a cluster')
+  // start the process
+  t.context.api.process.start(script, {
+    name: name,
+    execArgv: ['foo', 'bar', 'baz']
+  })
+  // when it's started
+  .then(onProcessEvent('process:started', name, t.context.api))
+  // make sure the right args were passed
+  .then(() => t.context.api.process.list())
+  .then((procs) => procs.find((proc) => proc.name === name))
+  .then((proc) => {
+    t.is(proc.execArgv, ['foo', 'bar', 'baz'])
+  })
+})
 
-test.todo('should increase number of cluster workers')
+test('should increase number of cluster workers', t => {
+  const script = '/opt/guvnor/test/fixtures/hello-world.js'
+  const name = `${faker.lorem.word()}_${faker.lorem.word()}`
+  let numWorkers = 0
+
+  // start the process
+  t.context.api.process.start(script, {
+    name: name
+  })
+  // when it's started
+  .then(onProcessEvent('process:started', name, t.context.api))
+  .then(() => t.context.api.process.list())
+  .then((procs) => procs.find((proc) => proc.name === name))
+  .then((proc) => {
+    numWorkers = proc.workers.length
+  })
+  .then(() => t.context.api.process.workers(name, numWorkers + 1))
+  // make sure the right args were passed
+  .then(() => t.context.api.process.list())
+  .then((procs) => procs.find((proc) => proc.name === name))
+  .then((proc) => {
+    t.is(proc.workers.length, numWorkers + 1)
+  })
+})
 
 test.todo('should decrease number of cluster workers')
 

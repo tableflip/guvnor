@@ -46,7 +46,7 @@ const buildDaemon = (runner) => {
 const startDaemon = (runner) => {
   return runner([
     //'docker', 'run', '--privileged', '-ti', '-v', '/sys/fs/cgroup:/sys/fs/cgroup:ro',
-    'docker', 'run', '--privileged', '--cap-add', 'SYS_ADMIN', '-it', '-v', '/run', '-v', '/run/lock', '-v', '/sys/fs/cgroup:/sys/fs/cgroup:ro',
+    'docker', 'run', '--cpuset-cpus="0,1"', '--privileged', '--cap-add', 'SYS_ADMIN', '-it', '-v', '/run', '-v', '/run/lock', '-v', '/sys/fs/cgroup:/sys/fs/cgroup:ro',
     '-p', '8000:8000', '-p', '8001:8001', '-p', '8002:8080', '-d', 'daemon'
   ], {
     cwd: DOCKER_FILE_DIRECTORY

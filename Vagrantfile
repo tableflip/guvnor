@@ -12,6 +12,7 @@ Vagrant.configure("2") do |config|
 
   config.vm.provider :virtualbox do |vb|
     vb.memory = 1024
+    vb.cpus = 2
     vb.check_guest_additions = true
     vb.functional_vboxsf = true
   end
