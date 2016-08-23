@@ -60,12 +60,12 @@ const stopTimer = (ref) => {
 test.beforeEach(t => {
   return api.then((api) => {
     t.context.api = api
-    t.context.startTimer = startTimer(t)
+    //t.context.startTimer = startTimer(t)
   })
 })
 
-test.afterEach(t => {
-  stopTimer(t.context.timer)
+test.afterEach.always(t => {
+  //stopTimer(t.context.timer)
 })
 
 test.after.always('Print daemon logs', t => {
@@ -151,6 +151,7 @@ test.cb('Should emit a process:stopping event when stopping a process', t => {
   onProcessEvent('process:stopping', name, t.context.api)()
   .then(event => isProc(t, name, script, 'stopping', event.proc))
   .then(t.end)
+  .catch(t.end)
 
   // start the process
   t.context.api.process.start(script, {
@@ -169,6 +170,7 @@ test.cb('Should emit a process:stopped event when a process stops', t => {
   onProcessEvent('process:stopped', name, t.context.api)()
   .then(event => isProc(t, name, script, 'stopped', event.proc))
   .then(t.end)
+  .catch(t.end)
 
   // start the process
   t.context.api.process.start(script, {
@@ -187,6 +189,7 @@ test.cb('Should emit a process:started event when starting a process', t => {
   onProcessEvent('process:started', name, t.context.api)()
   .then(event => isProc(t, name, script, 'running', event.proc))
   .then(t.end)
+  .catch(t.end)
 
   // start the process
   t.context.api.process.start(script, {
@@ -356,9 +359,124 @@ test('should send an event to a process', t => {
   .then(event => t.deepEqual(event.args, ['arg1', 'arg2', 'arg3']))
 })
 
-test.todo('should make a process dump heap')
+test.cb('should make a process dump heap', t => {
+  const script = '/opt/guvnor/test/fixtures/hello-world.js'
+  const name = `${faker.lorem.word()}_${faker.lorem.word()}`
 
-test.todo('should make a process collect garbage')
+  // start the process
+  t.context.api.process.start(script, {
+    name: name
+  })
+  // when it's started
+  .then(onProcessEvent('process:started', name, t.context.api))
+  // take a heap snapshot
+  .then(() => t.context.api.process.takeHeapSnapshot(name))
+
+  // we should emit an event when snapshots are taken
+  onProcessEvent('process:snapshot:complete', name, t.context.api)()
+  .then(event => isProc(t, name, script, 'running', event.proc))
+  .then(t.end)
+  .catch(t.end)
+})
+
+test.cb('should list heap dumps for a process', t => {
+  const script = '/opt/guvnor/test/fixtures/hello-world.js'
+  const name = `${faker.lorem.word()}_${faker.lorem.word()}`
+
+  // start the process
+  t.context.api.process.start(script, {
+    name: name,
+    workers: 1
+  })
+  // when it's started
+  .then(onProcessEvent('process:started', name, t.context.api))
+  // make sure there are no snapshots
+  .then(() => t.context.api.process.listHeapSnapshots(name))
+  .then(result => {
+    t.truthy(Array.isArray(result))
+    t.is(result.length, 0)
+  })
+  // take a heap snapshot
+  .then(() => t.context.api.process.takeHeapSnapshot(name))
+
+  // when snapshot has been taken ensure we list it correctly
+  onProcessEvent('process:snapshot:complete', name, t.context.api)()
+  .then(event => isProc(t, name, script, 'running', event.proc))
+  .then(() => t.context.api.process.listHeapSnapshots(name))
+  .then(result => {
+    t.truthy(Array.isArray(result))
+    t.is(result.length, 2)
+  })
+  .then(t.end)
+  .catch(t.end)
+})
+
+test.todo('should download a heap dump')
+
+test.cb('should remove a heap dump', t => {
+  const script = '/opt/guvnor/test/fixtures/hello-world.js'
+  const name = `${faker.lorem.word()}_${faker.lorem.word()}`
+
+  // start the process
+  t.context.api.process.start(script, {
+    name: name,
+    workers: 1
+  })
+  // when it's started
+  .then(onProcessEvent('process:started', name, t.context.api))
+  // make sure there are no snapshots
+  .then(() => t.context.api.process.listHeapSnapshots(name))
+  .then(result => {
+    t.truthy(Array.isArray(result))
+    t.is(result.length, 0)
+  })
+  // take a heap snapshot
+  .then(() => t.context.api.process.takeHeapSnapshot(name))
+
+  // when snapshots have been taken, remove one of them
+  onProcessEvent('process:snapshot:complete', name, t.context.api)()
+  .then(event => {
+    const snapshots = event.args[0]
+
+    t.truthy(Array.isArray(snapshots))
+    t.is(snapshots.length, 2)
+    t.context.api.process.removeHeapSnapshot(name, snapshots[0].id)
+  })
+
+  // when the snapshot has been removed, make sure we report it as removed
+  onProcessEvent('process:snapshot:removed', name, t.context.api)()
+  .then((event) => {
+    const id = event.args[0]
+
+    t.truthy(id) // snapshot id
+
+    return t.context.api.process.listHeapSnapshots(name)
+    .then(result => {
+      t.truthy(Array.isArray(result))
+      t.falsy(result.find(snapshot => snapshot.id === id))
+    })
+  })
+  .then(t.end)
+  .catch(t.end)
+})
+
+test.cb('should make a process collect garbage', t => {
+  const script = '/opt/guvnor/test/fixtures/hello-world.js'
+  const name = `${faker.lorem.word()}_${faker.lorem.word()}`
+
+  onProcessEvent('process:gc:complete', name, t.context.api)()
+  .then(event => isProc(t, name, script, 'running', event.proc))
+  .then(t.end)
+
+  // start the process
+  t.context.api.process.start(script, {
+    name: name
+  })
+  // when it's started
+  .then(onProcessEvent('process:started', name, t.context.api))
+  // take a heap snapshot
+  .then(() => t.context.api.process.gc(name))
+})
 
 test.todo('should send a signal to a process')
 
