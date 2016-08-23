@@ -80,6 +80,7 @@ test.after.always('Print daemon logs', (t) => {
 test.serial('Should return an empty process list', (t) => {
   return t.context.api.process.list()
   .then((processes) => {
+    t.truthy(Array.isArray(processes))
     t.is(processes.length, 0)
   })
 })
@@ -98,7 +99,7 @@ test('Should start a process', (t) => {
   .then((proc) => isProc(t, name, script, 'running', proc))
 })
 
-test.skip('Should use the file name to name a process if no name was specified', (t) => {
+test('Should use the file name to name a process if no name was specified', (t) => {
   const script = '/opt/guvnor/test/fixtures/hello-world.js'
   const name = 'hello-world.js'
 
@@ -110,7 +111,7 @@ test.skip('Should use the file name to name a process if no name was specified',
   .then((proc) => isProc(t, name, script, 'running', proc))
 })
 
-test.skip('Should stop a process', (t) => {
+test('Should stop a process', (t) => {
   const script = '/opt/guvnor/test/fixtures/hello-world.js'
   const name = `${faker.lorem.word()}_${faker.lorem.word()}`
 
@@ -130,7 +131,7 @@ test.skip('Should stop a process', (t) => {
   .then((proc) => isProc(t, name, script, 'stopped', proc))
 })
 
-test.skip.cb('Should emit a process:stopping event when stopping a process', (t) => {
+test.cb('Should emit a process:stopping event when stopping a process', (t) => {
   const script = '/opt/guvnor/test/fixtures/hello-world.js'
   const name = `${faker.lorem.word()}_${faker.lorem.word()}`
 
@@ -148,7 +149,7 @@ test.skip.cb('Should emit a process:stopping event when stopping a process', (t)
   .then(() => t.context.api.process.stop(name))
 })
 
-test.skip.cb('Should emit a process:stopped event when a process stops', (t) => {
+test.cb('Should emit a process:stopped event when a process stops', (t) => {
   const script = '/opt/guvnor/test/fixtures/hello-world.js'
   const name = `${faker.lorem.word()}_${faker.lorem.word()}`
 
@@ -166,7 +167,7 @@ test.skip.cb('Should emit a process:stopped event when a process stops', (t) => 
   .then(() => t.context.api.process.stop(name))
 })
 
-test.skip.cb('Should emit a process:started event when starting a process', (t) => {
+test.cb('Should emit a process:started event when starting a process', (t) => {
   const script = '/opt/guvnor/test/fixtures/hello-world.js'
   const name = `${faker.lorem.word()}_${faker.lorem.word()}`
 
@@ -180,7 +181,7 @@ test.skip.cb('Should emit a process:started event when starting a process', (t) 
   })
 })
 
-test.skip('Should remove a stopped process', (t) => {
+test('Should remove a stopped process', (t) => {
   const script = '/opt/guvnor/test/fixtures/hello-world.js'
   const name = `${faker.lorem.word()}_${faker.lorem.word()}`
 
@@ -200,7 +201,7 @@ test.skip('Should remove a stopped process', (t) => {
   .then((proc) => t.is(proc, undefined))
 })
 
-test.skip('Should remove a running process', (t) => {
+test('Should remove a running process', (t) => {
   const script = '/opt/guvnor/test/fixtures/hello-world.js'
   const name = `${faker.lorem.word()}_${faker.lorem.word()}`
 
@@ -216,7 +217,6 @@ test.skip('Should remove a running process', (t) => {
   .then((procs) => procs.find((proc) => proc.name === name))
   .then((proc) => t.is(proc, undefined))
 })
-
 
 test.todo('should start a process in debug mode')
 
