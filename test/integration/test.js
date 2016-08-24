@@ -60,12 +60,12 @@ const stopTimer = (ref) => {
 test.beforeEach(t => {
   return api.then((api) => {
     t.context.api = api
-    //t.context.startTimer = startTimer(t)
+//    t.context.startTimer = startTimer(t)
   })
 })
 
 test.afterEach.always(t => {
-  //stopTimer(t.context.timer)
+//  stopTimer(t.context.timer)
 })
 
 test.after.always('Print daemon logs', t => {
@@ -96,6 +96,7 @@ test.serial('Should return an empty app list', t => {
     t.truthy(Array.isArray(apps))
     t.is(apps.length, 0)
   })
+
 })
 
 test('Should start a process', t => {
@@ -153,6 +154,7 @@ test.cb('Should emit a process:stopping event when stopping a process', t => {
   .then(t.end)
   .catch(t.end)
 
+
   // start the process
   t.context.api.process.start(script, {
     name: name
@@ -171,6 +173,7 @@ test.cb('Should emit a process:stopped event when a process stops', t => {
   .then(event => isProc(t, name, script, 'stopped', event.proc))
   .then(t.end)
   .catch(t.end)
+
 
   // start the process
   t.context.api.process.start(script, {
@@ -191,6 +194,7 @@ test.cb('Should emit a process:started event when starting a process', t => {
   .then(t.end)
   .catch(t.end)
 
+
   // start the process
   t.context.api.process.start(script, {
     name: name
@@ -202,7 +206,7 @@ test('Should remove a stopped process', t => {
   const name = `${faker.lorem.word()}_${faker.lorem.word()}`
 
   // start the process
-  t.context.api.process.start(script, {
+  return t.context.api.process.start(script, {
     name: name
   })
   // when it's started
@@ -222,7 +226,7 @@ test('Should remove a running process', t => {
   const name = `${faker.lorem.word()}_${faker.lorem.word()}`
 
   // start the process
-  t.context.api.process.start(script, {
+  return t.context.api.process.start(script, {
     name: name
   })
   // when it's started
@@ -239,11 +243,12 @@ test.todo('should start a process in debug mode')
 test('should start a process with arguments', t => {
   const script = '/opt/guvnor/test/fixtures/hello-world.js'
   const name = `${faker.lorem.word()}_${faker.lorem.word()}`
+  const argv = ['foo', 'bar', 'baz']
 
   // start the process
-  t.context.api.process.start(script, {
+  return t.context.api.process.start(script, {
     name: name,
-    argv: ['foo', 'bar', 'baz']
+    argv: argv
   })
   // when it's started
   .then(onProcessEvent('process:started', name, t.context.api))
@@ -251,18 +256,20 @@ test('should start a process with arguments', t => {
   .then(() => t.context.api.process.list())
   .then(procs => procs.find((proc) => proc.name === name))
   .then(proc => {
-    t.is(proc.argv, ['foo', 'bar', 'baz'])
+    // first two args are /path/to/node and /path/to/process-wrapper
+    t.deepEqual(proc.master.argv.slice(2), argv)
   })
 })
 
 test('should start a process with exec arguments', t => {
   const script = '/opt/guvnor/test/fixtures/hello-world.js'
   const name = `${faker.lorem.word()}_${faker.lorem.word()}`
+  const execArgv = ['--log_gc', '--trace_code_flushing', '--trace_stub_failures']
 
   // start the process
-  t.context.api.process.start(script, {
+  return t.context.api.process.start(script, {
     name: name,
-    execArgv: ['foo', 'bar', 'baz']
+    execArgv: execArgv
   })
   // when it's started
   .then(onProcessEvent('process:started', name, t.context.api))
@@ -270,7 +277,27 @@ test('should start a process with exec arguments', t => {
   .then(() => t.context.api.process.list())
   .then(procs => procs.find((proc) => proc.name === name))
   .then(proc => {
-    t.is(proc.execArgv, ['foo', 'bar', 'baz'])
+    t.deepEqual(proc.master.execArgv, execArgv)
+  })
+})
+
+test('should strip invalid exec arguments', t => {
+  const script = '/opt/guvnor/test/fixtures/hello-world.js'
+  const name = `${faker.lorem.word()}_${faker.lorem.word()}`
+  const execArgv = ['--log_gc', '--trace_code_flushing', '--trace_stub_failures']
+
+  // start the process
+  return t.context.api.process.start(script, {
+    name: name,
+    execArgv: execArgv.concat(['not', 'valid', 'arguments'])
+  })
+  // when it's started
+  .then(onProcessEvent('process:started', name, t.context.api))
+  // make sure the right args were passed
+  .then(() => t.context.api.process.list())
+  .then(procs => procs.find((proc) => proc.name === name))
+  .then(proc => {
+    t.deepEqual(proc.master.execArgv, execArgv)
   })
 })
 
@@ -278,6 +305,18 @@ test('should report daemon status', t => {
   return t.context.api.status()
   .then(status => {
     t.truthy(status)
+    t.truthy(status.hostname)
+    t.truthy(status.type)
+    t.truthy(status.platform)
+    t.truthy(status.arch)
+    t.truthy(status.release)
+    t.truthy(status.daemon)
+    t.truthy(status.time)
+    t.truthy(status.uptime)
+    t.truthy(status.freeMemory)
+    t.truthy(status.totalMemory)
+    t.truthy(status.cpus)
+    t.truthy(status.versions)
   })
 })
 
@@ -286,10 +325,10 @@ test('should increase number of cluster workers', t => {
   const name = `${faker.lorem.word()}_${faker.lorem.word()}`
 
   // check that we can actually run this test..
-  t.context.api.status()
+  return t.context.api.status()
   .then(status => {
     if (status.cpus.length < 2) {
-      console.info('!!!!!! There are not enough CPUs available to run process worker tests')
+      console.warn('!!!!!! There are not enough CPUs available to run process worker tests')
       return t.pass()
     }
 
@@ -303,7 +342,12 @@ test('should increase number of cluster workers', t => {
     .then(() => t.context.api.process.list())
     .then(procs => procs.find((proc) => proc.name === name))
     .then(proc => t.is(proc.workers.length, 1))
-    .then(() => t.context.api.process.workers(name, 2))
+    .then(() => {
+      t.context.api.process.workers(name, 2)
+
+      // when the new worker starts
+      return onProcessEvent('process:worker:started', name, t.context.api)()
+    })
     // make sure the right args were passed
     .then(() => t.context.api.process.list())
     .then(procs => procs.find((proc) => proc.name === name))
@@ -318,10 +362,10 @@ test('should decrease number of cluster workers', t => {
   const name = `${faker.lorem.word()}_${faker.lorem.word()}`
 
   // check that we can actually run this test..
-  t.context.api.status()
+  return t.context.api.status()
   .then(status => {
     if (status.cpus.length < 2) {
-      console.info('!!!!!! There are not enough CPUs available to run process worker tests')
+      console.warn('!!!!!! There are not enough CPUs available to run process worker tests')
       return t.pass()
     }
 
@@ -335,7 +379,12 @@ test('should decrease number of cluster workers', t => {
     .then(() => t.context.api.process.list())
     .then(procs => procs.find((proc) => proc.name === name))
     .then(proc => t.is(proc.workers.length, 2))
-    .then(() => t.context.api.process.workers(name, 1))
+    .then(() => {
+      t.context.api.process.workers(name, 1)
+
+      // when the new worker stops
+      return onProcessEvent('process:worker:exit', name, t.context.api)()
+    })
     // make sure the right args were passed
     .then(() => t.context.api.process.list())
     .then(procs => procs.find((proc) => proc.name === name))
@@ -343,20 +392,24 @@ test('should decrease number of cluster workers', t => {
       t.is(proc.workers.length, 1)
     })
   })
+
 })
 
 test('should send an event to a process', t => {
   const script = '/opt/guvnor/test/fixtures/receive-event.js'
   const name = `${faker.lorem.word()}_${faker.lorem.word()}`
+  const args = ['arg1', 'arg2', 'arg3']
 
   return t.context.api.process.start(script, {
-    name: name
+    name: name,
+    workers: 1
   })
   // when it's started
   .then(onProcessEvent('process:started', name, t.context.api))
-  .then(() => t.context.api.process.sendEvent(name, 'custom:event:sent', 'arg1', 'arg2', 'arg3'))
+  .then(() => t.context.api.process.sendEvent(name, 'custom:event:sent', args))
   .then(onProcessEvent('custom:event:received', name, t.context.api))
-  .then(event => t.deepEqual(event.args, ['arg1', 'arg2', 'arg3']))
+  // should have echoed our args back to us
+  .then(event => t.deepEqual(event.args, args))
 })
 
 test('should make a process dump heap', t => {
@@ -365,7 +418,8 @@ test('should make a process dump heap', t => {
 
   // start the process
   return t.context.api.process.start(script, {
-    name: name
+    name: name,
+    workers: 1
   })
   // when it's started
   .then(onProcessEvent('process:started', name, t.context.api))
@@ -403,6 +457,7 @@ test('should list heap dumps for a process', t => {
     t.truthy(Array.isArray(result))
     t.is(result.length, 2)
   })
+
 })
 
 test('should download a heap dump', t => {
@@ -451,6 +506,7 @@ test('should download a heap dump', t => {
       t.truthy(JSON.parse(file))
     })
   })
+
 })
 
 test('should remove a heap dump', t => {
@@ -494,6 +550,7 @@ test('should remove a heap dump', t => {
       t.falsy(result.find(snapshot => snapshot.id === id))
     })
   })
+
 })
 
 test('should make a process collect garbage', t => {
@@ -502,7 +559,8 @@ test('should make a process collect garbage', t => {
 
   // start the process
   return t.context.api.process.start(script, {
-    name: name
+    name: name,
+    workers: 1
   })
   // when it's started
   .then(onProcessEvent('process:started', name, t.context.api))
@@ -512,12 +570,13 @@ test('should make a process collect garbage', t => {
   .then(event => isProc(t, name, script, 'running', event.proc))
 })
 
-test.skip('should send a signal to a process', t => {
-  const script = '/opt/guvnor/test/fixtures/siglisten.js'
+test('should send a signal to a process', t => {
+  const script = '/opt/guvnor/test/fixtures/receive-signal.js'
   const name = `${faker.lorem.word()}_${faker.lorem.word()}`
 
   return t.context.api.process.start(script, {
-    name: name
+    name: name,
+    workers: 1
   })
   // when it's started
   .then(onProcessEvent('process:started', name, t.context.api))
@@ -525,24 +584,40 @@ test.skip('should send a signal to a process', t => {
   .then(() => t.context.api.process.sendSignal(name, 'SIGUSR1'))
   .then(onProcessEvent('signal:received', name, t.context.api))
   .then(event => t.deepEqual(event.args, ['SIGUSR1']))
-  .then(() => t.context.api.process.sendSignal(name, 'SIGTERM'))
-  .then(onProcessEvent('signal:received', name, t.context.api))
-  .then(event => t.deepEqual(event.args, ['SIGTERM']))
-  .then(() => t.context.api.process.sendSignal(name, 'SIGPIPE'))
-  .then(onProcessEvent('signal:received', name, t.context.api))
-  .then(event => t.deepEqual(event.args, ['SIGPIPE']))
-  .then(() => t.context.api.process.sendSignal(name, 'SIGHUP'))
-  .then(onProcessEvent('signal:received', name, t.context.api))
-  .then(event => t.deepEqual(event.args, ['SIGHUP']))
-  .then(() => t.context.api.process.sendSignal(name, 'SIGINT'))
-  .then(onProcessEvent('signal:received', name, t.context.api))
-  .then(event => t.deepEqual(event.args, ['SIGINT']))
-  .then(() => t.context.api.process.sendSignal(name, 'SIGBREAK'))
-  .then(onProcessEvent('signal:received', name, t.context.api))
-  .then(event => t.deepEqual(event.args, ['SIGBREAK']))
-  .then(() => t.context.api.process.sendSignal(name, 'SIGWINCH'))
-  .then(onProcessEvent('signal:received', name, t.context.api))
-  .then(event => t.deepEqual(event.args, ['SIGWINCH']))
+})
+
+test('should send a signal to a process and kill it', t => {
+  const script = '/opt/guvnor/test/fixtures/receive-signal.js'
+  const name = `${faker.lorem.word()}_${faker.lorem.word()}`
+  let workerPid = 0
+
+  return t.context.api.process.start(script, {
+    name: name,
+    workers: 1
+  })
+  // when it's started
+  .then(onProcessEvent('process:started', name, t.context.api))
+  // store the original worker pid
+  .then(() => t.context.api.process.list())
+  .then(procs => procs.find((proc) => proc.name === name))
+  .then(proc => {
+    workerPid = proc.workers[0].pid
+  })
+  // send SIGTERM
+  .then(() => {
+    t.context.api.process.sendSignal(name, 'SIGTERM', true)
+
+    // wait for a new worker to be spawned
+    return onProcessEvent('process:worker:started', name, t.context.api)()
+  })
+  // then list the processes again
+  .then(() => t.context.api.process.list())
+  .then(procs => procs.find((proc) => proc.name === name))
+  .then(proc => {
+    // worker's pid should have changed
+    t.not(workerPid, proc.workers[0].pid)
+  })
+
 })
 
 test.todo('should write to a processes stdin')

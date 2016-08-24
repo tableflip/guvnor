@@ -8,6 +8,7 @@ const test = require('ava')
 const os = require('os')
 const DOCKER_FILE_DIRECTORY = path.resolve(path.join(__dirname, '..', '..', '..'))
 const loadApi = require('../../../lib/local')
+const logger = require('winston')
 
 const printVersion = (runner) => {
   return runner([
@@ -125,20 +126,39 @@ module.exports = runner()
       })
     }
 
+    return Promise.all([
+      fetchCACertificate(runner, id),
+      fetchRootCertificate(runner, id),
+      fetchRootKey(runner, id)
+    ])
+  })
+})
+.then(results => loadApi({
+  ca: results[0],
+  cert: results[1],
+  key: results[2]
+}))
+.then(api => {
+  api.on('*', (event) => {
+    logger.debug(`Incoming event: ${JSON.stringify(event.data)}`)
+  })
+
+  return api
+})
+/*
     return attachLogger(runner, id)
-    .then(() => {
-      return Promise.all([
-        fetchCACertificate(runner, id),
-        fetchRootCertificate(runner, id),
-        fetchRootKey(runner, id)
-      ])
-      .then((results) => {
-        return loadApi({
-          ca: results[0],
-          cert: results[1],
-          key: results[2]
-        })
+    .then(() => Promise.all([
+      fetchCACertificate(runner, id),
+      fetchRootCertificate(runner, id),
+      fetchRootKey(runner, id)
+    ]))
+    .then(results => {
+      return loadApi({
+        ca: results[0],
+        cert: results[1],
+        key: results[2]
       })
     })
   })
 })
+*/

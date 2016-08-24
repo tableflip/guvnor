@@ -1,5 +1,9 @@
+console.info('resuming stdin')
+
 // Start reading from stdin so we don't exit.
 process.stdin.resume()
+
+console.info('registering listeners')
 
 process.on('SIGUSR1', function () {
   console.log('Got SIGUSR1')
@@ -63,3 +67,5 @@ process.on('SIGWINCH', function () {
     args: ['SIGWINCH']
   })
 })
+
+console.info('registered listeners')
