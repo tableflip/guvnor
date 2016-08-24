@@ -512,7 +512,38 @@ test('should make a process collect garbage', t => {
   .then(event => isProc(t, name, script, 'running', event.proc))
 })
 
-test.todo('should send a signal to a process')
+test.skip('should send a signal to a process', t => {
+  const script = '/opt/guvnor/test/fixtures/siglisten.js'
+  const name = `${faker.lorem.word()}_${faker.lorem.word()}`
+
+  return t.context.api.process.start(script, {
+    name: name
+  })
+  // when it's started
+  .then(onProcessEvent('process:started', name, t.context.api))
+  // send some signals
+  .then(() => t.context.api.process.sendSignal(name, 'SIGUSR1'))
+  .then(onProcessEvent('signal:received', name, t.context.api))
+  .then(event => t.deepEqual(event.args, ['SIGUSR1']))
+  .then(() => t.context.api.process.sendSignal(name, 'SIGTERM'))
+  .then(onProcessEvent('signal:received', name, t.context.api))
+  .then(event => t.deepEqual(event.args, ['SIGTERM']))
+  .then(() => t.context.api.process.sendSignal(name, 'SIGPIPE'))
+  .then(onProcessEvent('signal:received', name, t.context.api))
+  .then(event => t.deepEqual(event.args, ['SIGPIPE']))
+  .then(() => t.context.api.process.sendSignal(name, 'SIGHUP'))
+  .then(onProcessEvent('signal:received', name, t.context.api))
+  .then(event => t.deepEqual(event.args, ['SIGHUP']))
+  .then(() => t.context.api.process.sendSignal(name, 'SIGINT'))
+  .then(onProcessEvent('signal:received', name, t.context.api))
+  .then(event => t.deepEqual(event.args, ['SIGINT']))
+  .then(() => t.context.api.process.sendSignal(name, 'SIGBREAK'))
+  .then(onProcessEvent('signal:received', name, t.context.api))
+  .then(event => t.deepEqual(event.args, ['SIGBREAK']))
+  .then(() => t.context.api.process.sendSignal(name, 'SIGWINCH'))
+  .then(onProcessEvent('signal:received', name, t.context.api))
+  .then(event => t.deepEqual(event.args, ['SIGWINCH']))
+})
 
 test.todo('should write to a processes stdin')
 
