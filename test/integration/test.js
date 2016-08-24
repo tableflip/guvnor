@@ -617,14 +617,45 @@ test('should send a signal to a process and kill it', t => {
     // worker's pid should have changed
     t.not(workerPid, proc.workers[0].pid)
   })
-
 })
 
-test.todo('should write to a processes stdin')
+test('should show logs', t => {
+  const script = '/opt/guvnor/test/fixtures/hello-world.js'
+  const name = `${faker.lorem.word()}_${faker.lorem.word()}`
+  let logs = ''
 
-test.todo('should show logs')
+  return t.context.api.process.start(script, {
+    name: name,
+    workers: 1
+  })
+  // when it's started
+  .then(onProcessEvent('process:started', name, t.context.api))
+  .then(() => t.context.api.logs(line => {
+    logs += line + '\n'
+  }))
+  .then(() => {
+    t.truthy(logs.trim())
+  })
+})
 
-test.todo('should only show logs for one process')
+test('should only show logs for one process', t => {
+  const script = '/opt/guvnor/test/fixtures/hello-world.js'
+  const name = `${faker.lorem.word()}_${faker.lorem.word()}`
+  let logs = ''
+
+  return t.context.api.process.start(script, {
+    name: name,
+    workers: 1
+  })
+  // when it's started
+  .then(onProcessEvent('process:started', name, t.context.api))
+  .then(() => t.context.api.process.logs(name, false, line => {
+    logs += line + '\n'
+  }))
+  .then(() => {
+    t.truthy(logs.trim())
+  })
+})
 
 test.todo('should stop the daemon')
 
@@ -638,12 +669,7 @@ test.todo('should reset users password for the web monitor')
 
 test.todo('should generate ssl certificates')
 
-test.skip('should deploy an application', function (done) {
-  runCli(['install', 'https://github.com/achingbrain/http-test.git'], 6, done, function (stdout) {
-    expect(stdout.trim()).to.contain('Installed http-test from https://github.com/achingbrain/http-test.git')
-    done()
-  })
-})
+test.todo('should deploy an application')
 
 test.skip('should deploy an application and override name', function (done) {
   runCli(['install', 'https://github.com/achingbrain/http-test.git', '-n', 'foo'], 6, done, function (stdout) {
