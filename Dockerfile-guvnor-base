@@ -57,5 +57,10 @@ WORKDIR /opt/guvnor
 RUN npm install --production --unsafe-perms
 RUN ls -l /opt/guvnor/node_modules
 RUN cat /opt/guvnor/package.json
+RUN env
+RUN ls -l /usr/local/node/bin
+RUN which git
+RUN which node
+RUN which npm
 
 ENTRYPOINT ["/lib/systemd/systemd"]

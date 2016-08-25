@@ -14,7 +14,7 @@
   },
   "scripts": {
     "lint": "standard",
-    "test": "ava test/integration/test.js --verbose",
+    "test": "ava test/integration/test.js --verbose --serial",
     "test:coverage": "nyc --reporter=html ava test/integration/test.js",
     "coveralls": "cat ./coverage/lcov.info | coveralls",
     "docker": "npm run docker:build && npm run docker:deploy",
@@ -116,7 +116,6 @@
     "wildemitter": "^1.0",
     "winston": "^2.1.0",
     "wreck": "^9.0.0",
-    "wrench": "^1.5.8",
     "yargs": "^4.8.1"
   },
   "devDependencies": {

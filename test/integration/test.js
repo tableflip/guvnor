@@ -679,19 +679,15 @@ test.todo('should reset users password for the web monitor')
 
 test.todo('should generate ssl certificates')
 
-test.skip('should deploy an application', t => {
+test('should deploy an application', t => {
   const url = 'https://github.com/achingbrain/http-test.git'
   const name = `${faker.lorem.word()}_${faker.lorem.word()}`
 
-  return t.context.api.app.install(url, name, (line) => {
-    console.info(line)
-  })
-  .then(() => t.context.api.app.list())
-  .then(apps => apps.find(app => app.name === name))
+  return t.context.api.app.install(url, name, (line) => {})
+  .then(() => t.context.api.app.get(name))
   .then(app => {
-    console.info('app', app)
-    t.truthy(app)
     t.is(app.url, url)
+    t.is(app.name, name)
   })
 })
 
