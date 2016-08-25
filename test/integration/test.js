@@ -96,7 +96,6 @@ test.serial('Should return an empty app list', t => {
     t.truthy(Array.isArray(apps))
     t.is(apps.length, 0)
   })
-
 })
 
 test('Should start a process', t => {
@@ -639,21 +638,32 @@ test('should show logs', t => {
 })
 
 test('should only show logs for one process', t => {
-  const script = '/opt/guvnor/test/fixtures/hello-world.js'
-  const name = `${faker.lorem.word()}_${faker.lorem.word()}`
+  const scriptOne = '/opt/guvnor/test/fixtures/ones.js'
+  const scriptTwo = '/opt/guvnor/test/fixtures/twos.js'
+  const nameOne = `${faker.lorem.word()}_${faker.lorem.word()}`
+  const nameTwo = `${faker.lorem.word()}_${faker.lorem.word()}`
   let logs = ''
 
-  return t.context.api.process.start(script, {
-    name: name,
-    workers: 1
-  })
-  // when it's started
-  .then(onProcessEvent('process:started', name, t.context.api))
-  .then(() => t.context.api.process.logs(name, false, line => {
+  return Promise.all([
+    t.context.api.process.start(scriptOne, {
+      name: nameOne,
+      workers: 1
+    })
+    // when it's started
+    .then(onProcessEvent('process:started', nameOne, t.context.api)),
+    t.context.api.process.start(scriptTwo, {
+      name: nameTwo,
+      workers: 1
+    })
+    // when it's started
+    .then(onProcessEvent('process:started', nameTwo, t.context.api))
+  ])
+  .then(() => t.context.api.process.logs(nameOne, false, line => {
     logs += line + '\n'
   }))
   .then(() => {
     t.truthy(logs.trim())
+    t.is(logs.trim().indexOf('two'), -1)
   })
 })
 
@@ -669,7 +679,21 @@ test.todo('should reset users password for the web monitor')
 
 test.todo('should generate ssl certificates')
 
-test.todo('should deploy an application')
+test.skip('should deploy an application', t => {
+  const url = 'https://github.com/achingbrain/http-test.git'
+  const name = `${faker.lorem.word()}_${faker.lorem.word()}`
+
+  return t.context.api.app.install(url, name, (line) => {
+    console.info(line)
+  })
+  .then(() => t.context.api.app.list())
+  .then(apps => apps.find(app => app.name === name))
+  .then(app => {
+    console.info('app', app)
+    t.truthy(app)
+    t.is(app.url, url)
+  })
+})
 
 test.skip('should deploy an application and override name', function (done) {
   runCli(['install', 'https://github.com/achingbrain/http-test.git', '-n', 'foo'], 6, done, function (stdout) {

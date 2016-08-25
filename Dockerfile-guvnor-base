@@ -25,7 +25,7 @@ RUN echo "deb mirror://mirrors.ubuntu.com/mirrors.txt wily main restricted unive
 deb mirror://mirrors.ubuntu.com/mirrors.txt wily-updates main restricted universe multiverse \n\
 deb mirror://mirrors.ubuntu.com/mirrors.txt wily-backports main restricted universe multiverse \n\
 deb mirror://mirrors.ubuntu.com/mirrors.txt wily-security main restricted universe multiverse" > /etc/apt/sources.d/ubuntu-mirrors.list
-RUN apt-get update && apt-get install systemd curl ca-certificates python build-essential nano && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+RUN apt-get update && apt-get install systemd curl ca-certificates python build-essential git nano && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 RUN cd /lib/systemd/system/sysinit.target.wants/; ls | grep -v systemd-tmpfiles-setup | xargs rm -f $1 \
   rm -f /lib/systemd/system/multi-user.target.wants/*;\
   rm -f /etc/systemd/system/*.wants/*;\
