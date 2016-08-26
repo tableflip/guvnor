@@ -681,6 +681,17 @@ test.todo('should generate ssl certificates')
 
 test('should deploy an application', t => {
   const url = 'https://github.com/achingbrain/http-test.git'
+
+  return t.context.api.app.install(url)
+  .then(() => t.context.api.app.get('http-test'))
+  .then(app => {
+    t.is(app.url, url)
+    t.is(app.name, 'http-test')
+  })
+})
+
+test('should deploy an application and override name', t => {
+  const url = 'https://github.com/achingbrain/http-test.git'
   const name = `${faker.lorem.word()}_${faker.lorem.word()}`
 
   return t.context.api.app.install(url, name, (line) => {})
@@ -691,41 +702,28 @@ test('should deploy an application', t => {
   })
 })
 
-test.skip('should deploy an application and override name', function (done) {
-  runCli(['install', 'https://github.com/achingbrain/http-test.git', '-n', 'foo'], 6, done, function (stdout) {
-    expect(stdout.trim()).to.contain('Installed foo from https://github.com/achingbrain/http-test.git')
-    done()
-  })
+test('should list deployed applications', t => {
+  const url = 'https://github.com/achingbrain/http-test.git'
+  const name = `${faker.lorem.word()}_${faker.lorem.word()}`
+
+  return t.context.api.app.install(url, name, (line) => {})
+  .then(() => t.context.api.app.list())
+  .then(apps => t.truthy(apps.find(app => app.name === name)))
 })
 
-test.skip('should list deployed applications', function (done) {
-  runCli(['install', 'https://github.com/achingbrain/http-test.git'], 6, done, function (stdout) {
-    runCli(['lsapps', '--json'], 1, done, function (stdout) {
-      var apps = JSON.parse(stdout)
-      expect(apps.length).to.equal(1)
-      expect(apps[0].name).to.equal('http-test')
+test('should remove deployed applications', t => {
+  const url = 'https://github.com/achingbrain/http-test.git'
+  const name = `${faker.lorem.word()}_${faker.lorem.word()}`
 
-      done()
-    })
-  })
+  return t.context.api.app.install(url, name, (line) => {})
+  .then(() => t.context.api.app.list())
+  .then(apps => t.truthy(apps.find(app => app.name === name)))
+  .then(() => t.context.api.app.remove(name))
+  .then(() => t.context.api.app.list())
+  .then(apps => t.falsy(apps.find(app => app.name === name)))
 })
 
-test.skip('should remove deployed applications', function (done) {
-  runCli(['install', 'https://github.com/achingbrain/http-test.git'], 6, done, function (stdout) {
-    runCli(['rmapp', 'http-test'], 1, done, function (stdout) {
-      expect(stdout).to.contain('Removed app http-test')
-
-      runCli(['lsapps', '--json'], 1, done, function (stdout) {
-        var apps = JSON.parse(stdout)
-        expect(apps.length).to.equal(0)
-
-        done()
-      })
-    })
-  })
-})
-
-test.skip('should report the current application ref', function (done) {
+test.skip('should report the current application ref', t => {
   runCli(['install', 'https://github.com/achingbrain/http-test.git'], 6, done, function (stdout) {
     runCli(['lsref', 'http-test', '--json'], 1, done, function (stdout) {
       var ref = JSON.parse(stdout)
@@ -738,7 +736,7 @@ test.skip('should report the current application ref', function (done) {
   })
 })
 
-test.skip('should list available application refs', function (done) {
+test.skip('should list available application refs', t => {
   runCli(['install', 'https://github.com/achingbrain/http-test.git'], 6, done, function (stdout) {
     runCli(['lsrefs', 'http-test', '--json'], 1, done, function (stdout) {
       var refs = JSON.parse(stdout)

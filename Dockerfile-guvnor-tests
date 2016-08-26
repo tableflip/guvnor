@@ -22,5 +22,3 @@ EXPOSE 8001
 EXPOSE 8080
 
 CMD ["/sbin/init"]
-
-#CMD ["node", "/opt/guvnor/lib/daemon"]
