@@ -14,7 +14,7 @@
   },
   "scripts": {
     "lint": "standard",
-    "test": "ava test/integration/test.js --verbose",
+    "test": "ava test/integration/test.js --verbose --serial",
     "test:coverage": "nyc --reporter=html ava test/integration/test.js",
     "coveralls": "cat ./coverage/lcov.info | coveralls",
     "docker": "npm run docker:build && npm run docker:deploy",

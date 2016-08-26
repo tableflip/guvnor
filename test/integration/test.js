@@ -33,14 +33,13 @@ const onProcessEvent = (event, name, api) => {
   return () => promise
 }
 
-const isProc = (t, name, script, status, proc) => {
+const isProc = (t, name, status, proc) => {
   if (!proc) {
     throw new Error('proc expected, got', proc)
   }
 
   t.is(proc.name, name)
   t.is(proc.status, status)
-  t.is(proc.script, script)
 }
 
 const startTimer = (t, timeout) => {
@@ -115,10 +114,25 @@ test('Should start a process', t => {
     name: name
   })
   .then(onProcessEvent('process:started', name, t.context.api))
-  .then(event => isProc(t, name, script, 'running', event.proc))
+  .then(event => isProc(t, name, 'running', event.proc))
   .then(() => t.context.api.process.list())
   .then(procs => procs.find((proc) => proc.name === name))
-  .then(proc => isProc(t, name, script, 'running', proc))
+  .then(proc => isProc(t, name, 'running', proc))
+})
+
+test('Should refuse to start a process twice', t => {
+  const script = '/opt/guvnor/test/fixtures/hello-world.js'
+  const name = `${faker.lorem.word()}_${faker.lorem.word()}`
+
+  return t.context.api.process.start(script, {
+    name: name
+  })
+  .then(onProcessEvent('process:started', name, t.context.api))
+  .then(event => isProc(t, name, 'running', event.proc))
+  .then(() => t.context.api.process.start(script, {
+    name: name
+  }))
+  .catch(error => t.is(error.statusCode, 409))
 })
 
 test('Should use the file name to name a process if no name was specified', t => {
@@ -127,10 +141,10 @@ test('Should use the file name to name a process if no name was specified', t =>
 
   return t.context.api.process.start(script)
   .then(onProcessEvent('process:started', name, t.context.api))
-  .then(event => isProc(t, name, script, 'running', event.proc))
+  .then(event => isProc(t, name, 'running', event.proc))
   .then(() => t.context.api.process.list())
   .then(procs => procs.find((proc) => proc.name === name))
-  .then(proc => isProc(t, name, script, 'running', proc))
+  .then(proc => isProc(t, name, 'running', proc))
 })
 
 test('Should stop a process', t => {
@@ -146,11 +160,11 @@ test('Should stop a process', t => {
   // stop the process
   .then(() => t.context.api.process.stop(name))
   // it should be reported as stopped
-  .then(proc => isProc(t, name, script, 'stopped', proc))
+  .then(proc => isProc(t, name, 'stopped', proc))
   // ensure we are reporting it as stopped
   .then(() => t.context.api.process.list())
   .then(procs => procs.find((proc) => proc.name === name))
-  .then(proc => isProc(t, name, script, 'stopped', proc))
+  .then(proc => isProc(t, name, 'stopped', proc))
 })
 
 test.cb('Should emit a process:stopping event when stopping a process', t => {
@@ -158,7 +172,7 @@ test.cb('Should emit a process:stopping event when stopping a process', t => {
   const name = `${faker.lorem.word()}_${faker.lorem.word()}`
 
   onProcessEvent('process:stopping', name, t.context.api)()
-  .then(event => isProc(t, name, script, 'stopping', event.proc))
+  .then(event => isProc(t, name, 'stopping', event.proc))
   .then(t.end)
   .catch(t.end)
 
@@ -178,7 +192,7 @@ test.cb('Should emit a process:stopped event when a process stops', t => {
   const name = `${faker.lorem.word()}_${faker.lorem.word()}`
 
   onProcessEvent('process:stopped', name, t.context.api)()
-  .then(event => isProc(t, name, script, 'stopped', event.proc))
+  .then(event => isProc(t, name, 'stopped', event.proc))
   .then(t.end)
   .catch(t.end)
 
@@ -198,7 +212,7 @@ test.cb('Should emit a process:started event when starting a process', t => {
   const name = `${faker.lorem.word()}_${faker.lorem.word()}`
 
   onProcessEvent('process:started', name, t.context.api)()
-  .then(event => isProc(t, name, script, 'running', event.proc))
+  .then(event => isProc(t, name, 'running', event.proc))
   .then(t.end)
   .catch(t.end)
 
@@ -245,8 +259,6 @@ test('Should remove a running process', t => {
   .then(procs => procs.find((proc) => proc.name === name))
   .then(proc => t.is(proc, undefined))
 })
-
-test.todo('should start a process in debug mode')
 
 test('should start a process with arguments', t => {
   const script = '/opt/guvnor/test/fixtures/hello-world.js'
@@ -440,7 +452,7 @@ test('should make a process dump heap', t => {
   })
   // we should emit an event when snapshots are taken
   .then(onProcessEvent('process:snapshot:complete', name, t.context.api))
-  .then(event => isProc(t, name, script, 'running', event.proc))
+  .then(event => isProc(t, name, 'running', event.proc))
 })
 
 test('should list heap dumps for a process', t => {
@@ -464,7 +476,7 @@ test('should list heap dumps for a process', t => {
   .then(() => t.context.api.process.takeHeapSnapshot(name))
   // when snapshot has been taken ensure we list it correctly
   .then(onProcessEvent('process:snapshot:complete', name, t.context.api))
-  .then(event => isProc(t, name, script, 'running', event.proc))
+  .then(event => isProc(t, name, 'running', event.proc))
   .then(() => t.context.api.process.listHeapSnapshots(name))
   .then(result => {
     t.truthy(Array.isArray(result))
@@ -579,7 +591,7 @@ test('should make a process collect garbage', t => {
   // take a heap snapshot
   .then(() => t.context.api.process.gc(name))
   .then(onProcessEvent('process:gc:complete', name, t.context.api))
-  .then(event => isProc(t, name, script, 'running', event.proc))
+  .then(event => isProc(t, name, 'running', event.proc))
 })
 
 test('should send a signal to a process', t => {
@@ -680,18 +692,6 @@ test('should only show logs for one process', t => {
   })
 })
 
-test.todo('should stop the daemon')
-
-test.todo('should print config options')
-
-test.todo('should print config for the web monitor')
-
-test.todo('should list users for the web monitor')
-
-test.todo('should reset users password for the web monitor')
-
-test.todo('should generate ssl certificates')
-
 test('should deploy an application', t => {
   const url = 'https://github.com/achingbrain/http-test.git'
 
@@ -707,7 +707,7 @@ test('should deploy an application and override name', t => {
   const url = 'https://github.com/achingbrain/http-test.git'
   const name = `${faker.lorem.word()}_${faker.lorem.word()}`
 
-  return t.context.api.app.install(url, name, (line) => {})
+  return t.context.api.app.install(url, name, () => {})
   .then(() => t.context.api.app.get(name))
   .then(app => {
     t.is(app.url, url)
@@ -719,7 +719,7 @@ test('should list deployed applications', t => {
   const url = 'https://github.com/achingbrain/http-test.git'
   const name = `${faker.lorem.word()}_${faker.lorem.word()}`
 
-  return t.context.api.app.install(url, name, (line) => {})
+  return t.context.api.app.install(url, name, () => {})
   .then(() => t.context.api.app.list())
   .then(apps => t.truthy(apps.find(app => app.name === name)))
 })
@@ -728,7 +728,7 @@ test('should remove deployed applications', t => {
   const url = 'https://github.com/achingbrain/http-test.git'
   const name = `${faker.lorem.word()}_${faker.lorem.word()}`
 
-  return t.context.api.app.install(url, name, (line) => {})
+  return t.context.api.app.install(url, name, () => {})
   .then(() => t.context.api.app.list())
   .then(apps => t.truthy(apps.find(app => app.name === name)))
   .then(() => t.context.api.app.remove(name))
@@ -749,7 +749,7 @@ test('should report the current application ref', t => {
   const url = 'https://github.com/achingbrain/http-test.git'
   const name = `${faker.lorem.word()}_${faker.lorem.word()}`
 
-  return t.context.api.app.install(url, name, (line) => {})
+  return t.context.api.app.install(url, name, () => {})
   .then(() => t.context.api.app.ref(name))
   .then(ref => {
     t.is(ref.name, 'master')
@@ -762,7 +762,7 @@ test('should list available application refs', t => {
   const url = 'https://github.com/achingbrain/http-test.git'
   const name = `${faker.lorem.word()}_${faker.lorem.word()}`
 
-  return t.context.api.app.install(url, name, (line) => {})
+  return t.context.api.app.install(url, name, () => {})
   .then(() => t.context.api.app.refs(name))
   .then(refs => {
     t.is(refs.length, 5)
@@ -772,11 +772,94 @@ test('should list available application refs', t => {
   })
 })
 
-test.todo('should update application refs')
+test('should update application refs', t => {
+  const url = 'https://github.com/achingbrain/http-test.git'
+  const name = `${faker.lorem.word()}_${faker.lorem.word()}`
 
-test.todo('should switch an application ref')
+  return t.context.api.app.install(url, name, () => {})
+  .then(() => t.context.api.app.update(name, () => {}))
+  .then(app => t.is(app.name, name))
+})
 
-test.todo('should start an app')
+test('should switch an application ref', t => {
+  const url = 'https://github.com/achingbrain/http-test.git'
+  const name = `${faker.lorem.word()}_${faker.lorem.word()}`
+
+  return t.context.api.app.install(url, name, () => {})
+  .then(() => t.context.api.app.ref(name))
+  .then(ref => {
+    t.is(ref.name, 'master')
+    t.is(ref.type, 'branch')
+    t.truthy(ref.commit)
+  })
+  .then(() => t.context.api.app.setRef(name, 'a-branch'))
+  .then(() => t.context.api.app.ref(name))
+  .then(ref => {
+    t.is(ref.name, 'a-branch')
+    t.is(ref.type, 'branch')
+    t.truthy(ref.commit)
+  })
+})
+
+test('should refuse to switch to an invalid ref', t => {
+  const url = 'https://github.com/achingbrain/http-test.git'
+  const name = `${faker.lorem.word()}_${faker.lorem.word()}`
+
+  return t.context.api.app.install(url, name, () => {})
+  .then(() => t.context.api.app.setRef(name, 'i do not exist'))
+  .catch(error => t.is(error.statusCode, 400))
+})
+
+test('should start an app', t => {
+  const url = 'https://github.com/achingbrain/http-test.git'
+  const name = `${faker.lorem.word()}_${faker.lorem.word()}`
+
+  return t.context.api.app.install(url, name, () => {})
+  .then(() => t.context.api.process.start(name))
+  .then(onProcessEvent('process:started', name, t.context.api))
+  .then(event => isProc(t, name, 'running', event.proc))
+  .then(() => t.context.api.process.list())
+  .then(procs => procs.find((proc) => proc.name === name))
+  .then(proc => isProc(t, name, 'running', proc))
+})
+
+test('should refuse to update a running app', t => {
+  const url = 'https://github.com/achingbrain/http-test.git'
+  const name = `${faker.lorem.word()}_${faker.lorem.word()}`
+
+  return t.context.api.app.install(url, name, () => {})
+  .then(() => t.context.api.process.start(name))
+  .then(onProcessEvent('process:started', name, t.context.api))
+  .then(event => isProc(t, name, 'running', event.proc))
+  .then(() => t.context.api.app.update(name, () => {}))
+  .catch(error => t.is(error.statusCode, 409))
+})
+
+test('should refuse to switch refs for a running app', t => {
+  const url = 'https://github.com/achingbrain/http-test.git'
+  const name = `${faker.lorem.word()}_${faker.lorem.word()}`
+
+  return t.context.api.app.install(url, name, () => {})
+  .then(() => t.context.api.process.start(name))
+  .then(onProcessEvent('process:started', name, t.context.api))
+  .then(event => isProc(t, name, 'running', event.proc))
+  .then(() => t.context.api.app.setRef(name, 'a-branch'))
+  .catch(error => t.is(error.statusCode, 409))
+})
+
+test.todo('should start a process in debug mode')
+
+test.todo('should stop the daemon')
+
+test.todo('should print config options')
+
+test.todo('should print config for the web monitor')
+
+test.todo('should list users for the web monitor')
+
+test.todo('should reset users password for the web monitor')
+
+test.todo('should generate ssl certificates')
 
 test.todo('should add a user')
 
