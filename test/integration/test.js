@@ -727,30 +727,39 @@ test('should remove deployed applications', t => {
   .then(apps => t.falsy(apps.find(app => app.name === name)))
 })
 
-test.skip('should report the current application ref', t => {
-  runCli(['install', 'https://github.com/achingbrain/http-test.git'], 6, done, function (stdout) {
-    runCli(['lsref', 'http-test', '--json'], 1, done, function (stdout) {
-      var ref = JSON.parse(stdout)
+test('should return a 404 for a non-existant app', t => {
+  const name = `${faker.lorem.word()}_${faker.lorem.word()}`
 
-      expect(ref.name).to.equal('master')
-      expect(ref.type).to.equal('branch')
-      expect(ref.commit).to.be.ok
-      done()
-    })
+  return t.context.api.app.get(name)
+  .catch(error => {
+    t.is(error.statusCode, 404)
   })
 })
 
-test.skip('should list available application refs', t => {
-  runCli(['install', 'https://github.com/achingbrain/http-test.git'], 6, done, function (stdout) {
-    runCli(['lsrefs', 'http-test', '--json'], 1, done, function (stdout) {
-      var refs = JSON.parse(stdout)
+test('should report the current application ref', t => {
+  const url = 'https://github.com/achingbrain/http-test.git'
+  const name = `${faker.lorem.word()}_${faker.lorem.word()}`
 
-      expect(refs.length).to.equal(5)
-      expect(refs[0].type).to.equal('branch')
-      expect(refs[0].name).to.equal('a-branch')
-      expect(refs[0].commit).to.be.ok
-      done()
-    })
+  return t.context.api.app.install(url, name, (line) => {})
+  .then(() => t.context.api.app.ref(name))
+  .then(ref => {
+    t.is(ref.name, 'master')
+    t.is(ref.type, 'branch')
+    t.truthy(ref.commit)
+  })
+})
+
+test('should list available application refs', t => {
+  const url = 'https://github.com/achingbrain/http-test.git'
+  const name = `${faker.lorem.word()}_${faker.lorem.word()}`
+
+  return t.context.api.app.install(url, name, (line) => {})
+  .then(() => t.context.api.app.refs(name))
+  .then(refs => {
+    t.is(refs.length, 5)
+    t.is(refs[0].name, 'a-branch')
+    t.is(refs[0].type, 'branch')
+    t.truthy(refs[0].commit)
   })
 })
 
