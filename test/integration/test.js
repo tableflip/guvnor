@@ -411,7 +411,7 @@ test('should send an event to a process', t => {
   .then(event => t.deepEqual(event.args, args))
 })
 
-test.only('should make a process dump heap', t => {
+test('should make a process dump heap', t => {
   const script = '/opt/guvnor/test/fixtures/hello-world.js'
   const name = `${faker.lorem.word()}_${faker.lorem.word()}`
 
