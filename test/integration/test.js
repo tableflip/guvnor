@@ -98,6 +98,15 @@ test.serial('Should return an empty app list', t => {
   })
 })
 
+test('should return a 404 for a non-existant process', t => {
+  const name = `${faker.lorem.word()}_${faker.lorem.word()}`
+
+  return t.context.api.process.get(name)
+  .catch(error => {
+    t.is(error.statusCode, 404)
+  })
+})
+
 test('Should start a process', t => {
   const script = '/opt/guvnor/test/fixtures/hello-world.js'
   const name = `${faker.lorem.word()}_${faker.lorem.word()}`
