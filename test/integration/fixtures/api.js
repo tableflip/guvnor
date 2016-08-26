@@ -9,6 +9,7 @@ const os = require('os')
 const DOCKER_FILE_DIRECTORY = path.resolve(path.join(__dirname, '..', '..', '..'))
 const loadApi = require('../../../lib/local')
 const logger = require('winston')
+const fs = require('fs-promise')
 
 const printVersion = (runner) => {
   return runner([
@@ -126,6 +127,66 @@ module.exports = runner()
       })
     }
 
+    module.exports.fetchCoverage = () => {
+      return
+
+      const nycTmpDir = path.resolve(path.join(__dirname, '../../../.nyc_output'))
+      const libDir = path.resolve(path.join(__dirname, '../../../lib'))
+
+      // make the nyc temp dir if it doesn't exist already
+      return fs.ensureDir(nycTmpDir)
+      // stop the daemon so it writes coverage info out
+      .then(() => runner([
+        'docker', 'exec', id, 'systemctl', 'stop', 'guvnor.service'
+      ], {
+        cwd: DOCKER_FILE_DIRECTORY
+      }))
+      // find the new coverage file
+      .then(() => runner([
+        'docker', 'exec', id, 'ls', '/.nyc_output'
+      ], {
+        cwd: DOCKER_FILE_DIRECTORY
+      }))
+      .then(coverageFile => {
+        coverageFile = coverageFile.trim()
+
+        console.info(`Fetching coverage file`)
+
+        // cat it
+        return runner([
+          'docker', 'exec', id, 'cat', `/.nyc_output/${coverageFile}`
+        ], {
+          cwd: DOCKER_FILE_DIRECTORY,
+          hideOutput: true
+        })
+        .then(coverageFileContents => {
+          console.info(`Reading coverage`)
+
+          // rewrite coverage with correct file paths
+          const coverage = JSON.parse(coverageFileContents)
+
+          console.info(`Replacing coverage keys`)
+
+          Object.keys(coverage).forEach(key => {
+            const file = coverage[key]
+            delete coverage[key]
+            key = key.replace('/opt/guvnor/instrumented/', '')
+            file.path = file.path.replace('/opt/guvnor/instrumented', libDir)
+            coverage[key] = file
+          })
+
+          const modifiedCoverageFile = path.join(nycTmpDir, coverageFile)
+
+          console.info(`Writing coverage out to ${modifiedCoverageFile}`)
+
+          // put the coverage file in the local directory
+          return fs.writeFile(modifiedCoverageFile, JSON.stringify(coverage, null, 2), {
+            encoding: 'utf8'
+          })
+        })
+      })
+    }
+
     return Promise.all([
       fetchCACertificate(runner, id),
       fetchRootCertificate(runner, id),
@@ -142,23 +203,7 @@ module.exports = runner()
   api.on('*', (event) => {
     logger.debug(`Incoming event: ${JSON.stringify(event.data)}`)
   })
+  api.on('error', console.error)
 
   return api
 })
-/*
-    return attachLogger(runner, id)
-    .then(() => Promise.all([
-      fetchCACertificate(runner, id),
-      fetchRootCertificate(runner, id),
-      fetchRootKey(runner, id)
-    ]))
-    .then(results => {
-      return loadApi({
-        ca: results[0],
-        cert: results[1],
-        key: results[2]
-      })
-    })
-  })
-})
-*/

@@ -15,7 +15,7 @@
   "scripts": {
     "lint": "standard",
     "test": "ava test/integration/test.js --verbose --serial",
-    "test:coverage": "nyc --reporter=html ava test/integration/test.js",
+    "test:coverage": "npm test && nyc report --reporter=html --reporter=lcov",
     "coveralls": "cat ./coverage/lcov.info | coveralls",
     "docker": "npm run docker:build && npm run docker:deploy",
     "docker:build": "docker build -f Dockerfile-guvnor-base -t achingbrain/guvnor-base .",

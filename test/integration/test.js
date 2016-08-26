@@ -81,6 +81,12 @@ test.after.always('Print daemon logs', t => {
   }
 })
 
+test.after.always('Print daemon logs', t => {
+  if (api.fetchCoverage) {
+    return api.fetchCoverage()
+  }
+})
+
 test.serial('Should return an empty process list', t => {
   return t.context.api.process.list()
   .then(processes => {
@@ -850,14 +856,6 @@ test('should refuse to switch refs for a running app', t => {
 test.todo('should start a process in debug mode')
 
 test.todo('should stop the daemon')
-
-test.todo('should print config options')
-
-test.todo('should print config for the web monitor')
-
-test.todo('should list users for the web monitor')
-
-test.todo('should reset users password for the web monitor')
 
 test.todo('should generate ssl certificates')
 

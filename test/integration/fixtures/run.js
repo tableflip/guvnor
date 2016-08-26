@@ -15,12 +15,18 @@ const run = (cmd, args, options) => {
     proc.stdout.on('data', (data) => {
       const str = data.toString('utf8')
       stdout += str
-      console.info(`${str.trim()}`)
+
+      if (!options.hideOutput) {
+        console.info(`${str.trim()}`)
+      }
     });
     proc.stderr.on('data', (data) => {
       const str = data.toString('utf8')
       stderr += str
-      console.error(`${str.trim()}`);
+
+      if (!options.hideOutput) {
+        console.error(`${str.trim()}`);
+      }
     });
 
     if (options.ignoreExit) {

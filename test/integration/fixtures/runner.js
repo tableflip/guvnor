@@ -12,7 +12,8 @@ const vagrantWrapper = (vagrant, command, options) => {
 
   return run(vagrant, ['ssh', '-c', command.join(' ')], {
     cwd: PROJECT_ROOT,
-    ignoreExit: options.ignoreExit
+    ignoreExit: options.ignoreExit,
+    hideOutput: options.hideOutput
   })
 }
 

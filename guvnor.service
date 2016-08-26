@@ -2,7 +2,7 @@
 Description=The Guvnor
 
 [Service]
-ExecStart=/usr/local/node/bin/node /opt/guvnor/lib/daemon
+ExecStart=/opt/guvnor/node_modules/.bin/nyc /usr/local/node/bin/node /opt/guvnor/instrumented/daemon
 Environment="PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/local/node/bin"
 
 [Install]
