@@ -549,7 +549,6 @@ test('should remove a heap dump', t => {
       t.falsy(result.find(snapshot => snapshot.id === id))
     })
   })
-
 })
 
 test('should make a process collect garbage', t => {
