@@ -128,13 +128,17 @@ module.exports = runner()
     }
 
     module.exports.fetchCoverage = () => {
-      return
+      if (!process.env.COVERAGE) { // set in package.json
+        return
+      }
 
-      const nycTmpDir = path.resolve(path.join(__dirname, '../../../.nyc_output'))
-      const libDir = path.resolve(path.join(__dirname, '../../../lib'))
+      const projectDir = path.resolve(path.join(__dirname, '../../../'))
+      const nycTmpDir = path.join(projectDir, '.nyc_output')
+      const libDir = path.join(projectDir, 'lib')
 
       // make the nyc temp dir if it doesn't exist already
-      return fs.ensureDir(nycTmpDir)
+      return fs.remove(nycTmpDir)
+      .then(() => fs.ensureDir(nycTmpDir))
       // stop the daemon so it writes coverage info out
       .then(() => runner([
         'docker', 'exec', id, 'systemctl', 'stop', 'guvnor.service'
@@ -143,47 +147,53 @@ module.exports = runner()
       }))
       // find the new coverage file
       .then(() => runner([
-        'docker', 'exec', id, 'ls', '/.nyc_output'
+        'docker', 'exec', id, 'ls', '/opt/guvnor/.nyc_output'
       ], {
         cwd: DOCKER_FILE_DIRECTORY
       }))
-      .then(coverageFile => {
-        coverageFile = coverageFile.trim()
+      .then(coverageFiles => {
+        const files = coverageFiles.trim().split('\n').map(coverageFile => {
+            coverageFile = coverageFile.trim()
 
-        console.info(`Fetching coverage file`)
+            return () => {
+              console.info(`Fetching coverage file ${coverageFile}`)
 
-        // cat it
-        return runner([
-          'docker', 'exec', id, 'cat', `/.nyc_output/${coverageFile}`
-        ], {
-          cwd: DOCKER_FILE_DIRECTORY,
-          hideOutput: true
-        })
-        .then(coverageFileContents => {
-          console.info(`Reading coverage`)
+              // cat it
+              return runner([
+                'docker', 'exec', id, 'cat', `/opt/guvnor/.nyc_output/${coverageFile}`
+              ], {
+                cwd: DOCKER_FILE_DIRECTORY,
+                hideOutput: true
+              })
+              .then(coverageFileContents => {
+                console.info(`Reading coverage`)
 
-          // rewrite coverage with correct file paths
-          const coverage = JSON.parse(coverageFileContents)
+                // rewrite coverage with correct file paths
+                const coverage = JSON.parse(coverageFileContents)
 
-          console.info(`Replacing coverage keys`)
+                console.info(`Replacing coverage keys`)
 
-          Object.keys(coverage).forEach(key => {
-            const file = coverage[key]
-            delete coverage[key]
-            key = key.replace('/opt/guvnor/instrumented/', '')
-            file.path = file.path.replace('/opt/guvnor/instrumented', libDir)
-            coverage[key] = file
+                Object.keys(coverage).forEach(key => {
+                  const file = coverage[key]
+                  delete coverage[key]
+                  key = key.replace('/opt/guvnor', projectDir)
+                  file.path = file.path.replace('/opt/guvnor', projectDir)
+                  coverage[key] = file
+                })
+
+                const modifiedCoverageFile = path.join(nycTmpDir, coverageFile)
+
+                console.info(`Writing coverage out to ${modifiedCoverageFile}`)
+
+                // put the coverage file in the local directory
+                return fs.writeFile(modifiedCoverageFile, JSON.stringify(coverage, null, 2), {
+                  encoding: 'utf8'
+                })
+              })
+            }
           })
 
-          const modifiedCoverageFile = path.join(nycTmpDir, coverageFile)
-
-          console.info(`Writing coverage out to ${modifiedCoverageFile}`)
-
-          // put the coverage file in the local directory
-          return fs.writeFile(modifiedCoverageFile, JSON.stringify(coverage, null, 2), {
-            encoding: 'utf8'
-          })
-        })
+        return files.reduce((pacc, fn) => pacc.then(fn), Promise.resolve())
       })
     }
 

@@ -11,7 +11,7 @@ Vagrant.configure("2") do |config|
   config.vm.box = "williamyeh/debian-jessie64-docker"
 
   config.vm.provider :virtualbox do |vb|
-    vb.memory = 1024
+    vb.memory = 2048
     vb.cpus = 2
     vb.check_guest_additions = true
     vb.functional_vboxsf = true
