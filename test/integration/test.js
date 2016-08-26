@@ -411,7 +411,7 @@ test('should send an event to a process', t => {
   .then(event => t.deepEqual(event.args, args))
 })
 
-test('should make a process dump heap', t => {
+test.only('should make a process dump heap', t => {
   const script = '/opt/guvnor/test/fixtures/hello-world.js'
   const name = `${faker.lorem.word()}_${faker.lorem.word()}`
 
@@ -424,6 +424,11 @@ test('should make a process dump heap', t => {
   .then(onProcessEvent('process:started', name, t.context.api))
   // take a heap snapshot
   .then(() => t.context.api.process.takeHeapSnapshot(name))
+  .then(snapshots => {
+    t.is(snapshots.length, 2)
+    t.truthy(snapshots[0].id)
+    t.truthy(snapshots[1].id)
+  })
   // we should emit an event when snapshots are taken
   .then(onProcessEvent('process:snapshot:complete', name, t.context.api))
   .then(event => isProc(t, name, script, 'running', event.proc))
