@@ -7,6 +7,7 @@ winston.cli()
 const test = require('ava')
 const api = require('./fixtures/api')
 const faker = require('faker')
+const loadApi = require('../../lib/local')
 
 const DEFAULT_TIMEOUT = 30000
 
@@ -721,6 +722,15 @@ test('should deploy an application and override name', t => {
   })
 })
 
+test('should not deploy an application with the same name twice', t => {
+  const url = 'https://github.com/achingbrain/http-test.git'
+  const name = `${faker.lorem.word()}_${faker.lorem.word()}`
+
+  return t.context.api.app.install(url, name, () => {})
+  .then(() => t.context.api.app.install(url, name, () => {}))
+  .catch(error => t.is(error.statusCode, 409))
+})
+
 test('should list deployed applications', t => {
   const url = 'https://github.com/achingbrain/http-test.git'
   const name = `${faker.lorem.word()}_${faker.lorem.word()}`
@@ -853,12 +863,52 @@ test('should refuse to switch refs for a running app', t => {
   .catch(error => t.is(error.statusCode, 409))
 })
 
+test('should add a user', t => {
+  return t.context.api.user.add('guvnor-user-1')
+  .then(certs => loadApi(certs))
+  .then(api => api.process.list())
+  .then(processes => t.truthy(Array.isArray(processes)))
+})
+
+test('should not add a user twice', t => {
+  return t.context.api.user.add('guvnor-user-2')
+  .then(() => t.context.api.user.add('guvnor-user-2'))
+  .catch(error => t.is(error.statusCode, 409))
+})
+
+test('should list users', t => {
+  return t.context.api.user.list()
+  .then(users => {
+    t.truthy(users.length > 0)
+    t.truthy(users.find(user => user.name === 'root'))
+  })
+})
+
+test('should fail to add a non-existant user', t => {
+  return t.context.api.user.add('dave')
+  .catch(error => t.is(error.statusCode, 404))
+})
+
+test('should remove a user', t => {
+  let api = null
+
+  return t.context.api.user.add('guvnor-user-3')
+  .then(certs => loadApi(certs))
+  .then(result => {
+    api = result
+
+    return api.process.list()
+  })
+  .then(processes => t.truthy(Array.isArray(processes)))
+  .then(() => t.context.api.user.remove('guvnor-user-3'))
+  .then(() => api.process.list())
+  .catch(error => t.is(error.statusCode, 401))
+  .then(() => t.context.api.user.add('guvnor-user-3'))
+  .then(certs => loadApi(certs))
+  .then(api => api.process.list())
+  .then(processes => t.truthy(Array.isArray(processes)))
+})
+
 test.todo('should start a process in debug mode')
 
 test.todo('should stop the daemon')
-
-test.todo('should generate ssl certificates')
-
-test.todo('should add a user')
-
-test.todo('should fail to add a non-existant user')

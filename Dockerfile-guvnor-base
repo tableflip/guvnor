@@ -48,6 +48,11 @@ RUN ln -s /usr/local/node-v4.4.7-linux-x64 /usr/local/node
 # Add node to the path
 ENV PATH $PATH:/usr/local/node/bin
 
+# Add users used in tests
+RUN useradd -m -d /home/guvnor-user-1 -g users -G staff,plugdev,games -s /bin/bash -p guvnor-user-1 guvnor-user-1
+RUN useradd -m -d /home/guvnor-user-2 -g users -G staff,plugdev,games -s /bin/bash -p guvnor-user-2 guvnor-user-2
+RUN useradd -m -d /home/guvnor-user-3 -g users -G staff,plugdev,games -s /bin/bash -p guvnor-user-3 guvnor-user-3
+
 # Create directories
 RUN mkdir /opt/guvnor
 
@@ -55,6 +60,7 @@ RUN mkdir /opt/guvnor
 ADD package.json /opt/guvnor/package.json
 WORKDIR /opt/guvnor
 RUN npm install --production --unsafe-perms
+RUN npm install nyc
 RUN ls -l /opt/guvnor/node_modules
 RUN cat /opt/guvnor/package.json
 RUN env

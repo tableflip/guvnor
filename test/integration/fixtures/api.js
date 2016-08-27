@@ -206,7 +206,7 @@ module.exports = runner()
 })
 .then(results => loadApi({
   ca: results[0],
-  cert: results[1],
+  certificate: results[1],
   key: results[2]
 }))
 .then(api => {

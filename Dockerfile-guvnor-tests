@@ -9,9 +9,6 @@ ADD . /opt/guvnor
 
 ADD guvnor.service /etc/systemd/system/guvnor.service
 
-# Install nyc for coverage
-RUN cd /opt/guvnor && npm install nyc
-
 # Create unit file
 RUN systemctl enable guvnor.service
 
