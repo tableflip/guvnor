@@ -1,11 +1,8 @@
 'use strict'
 
-const winston = require('winston')
-winston.level = 'debug'
-winston.cli()
-
 const test = require('ava')
 const api = require('./fixtures/api')
+const daemon = require('./fixtures/daemon')
 const faker = require('faker')
 const loadApi = require('../../lib/local')
 
@@ -43,66 +40,27 @@ const isProc = (t, name, status, proc) => {
   t.is(proc.status, status)
 }
 
-const startTimer = (t, timeout) => {
-  timeout = timeout || DEFAULT_TIMEOUT
-
-  return setTimeout(() => {
-    console.error(`Test "${t._test.title.replace('beforeEach for', '').trim()}" has timed out!`)
-    t.fail()
-    throw new Error('Timed out!')
-  }, timeout)
-}
-
-const stopTimer = (ref) => {
-  clearTimeout(ref)
-}
-
 test.beforeEach(t => {
-  return api.then((api) => {
+  return api.then(api => {
     t.context.api = api
-//    t.context.startTimer = startTimer(t)
   })
 })
 
-test.afterEach.always(t => {
-//  stopTimer(t.context.timer)
-})
-
-test.after.always('Print daemon logs', t => {
-  if (api.printLogs) {
-    console.info('')
-    console.info('---- Start test logs -----')
-    console.info('')
-    return api.printLogs()
-    .then(() => {
-      console.info('')
-      console.info('---- End test logs -----')
-      console.info('')
-    })
-  }
-})
-
-test.after.always('Print daemon logs', t => {
-  if (api.fetchCoverage) {
-    return api.fetchCoverage()
-  }
-})
-
-test('Should return a process list', t => {
+test('API should return a process list', t => {
   return t.context.api.process.list()
   .then(processes => {
     t.truthy(Array.isArray(processes))
   })
 })
 
-test('Should return an app list', t => {
+test('API should return an app list', t => {
   return t.context.api.app.list()
   .then(apps => {
     t.truthy(Array.isArray(apps))
   })
 })
 
-test('should return a 404 for a non-existant process', t => {
+test('API should return a 404 for a non-existant process', t => {
   const name = `${faker.lorem.word()}_${faker.lorem.word()}`
 
   return t.context.api.process.get(name)
@@ -111,7 +69,7 @@ test('should return a 404 for a non-existant process', t => {
   })
 })
 
-test('Should start a process', t => {
+test('API should start a process', t => {
   const script = '/opt/guvnor/test/fixtures/hello-world.js'
   const name = `${faker.lorem.word()}_${faker.lorem.word()}`
 
@@ -125,7 +83,7 @@ test('Should start a process', t => {
   .then(proc => isProc(t, name, 'running', proc))
 })
 
-test('Should refuse to start a process twice', t => {
+test('API should refuse to start a process twice', t => {
   const script = '/opt/guvnor/test/fixtures/hello-world.js'
   const name = `${faker.lorem.word()}_${faker.lorem.word()}`
 
@@ -140,7 +98,7 @@ test('Should refuse to start a process twice', t => {
   .catch(error => t.is(error.statusCode, 409))
 })
 
-test('Should use the file name to name a process if no name was specified', t => {
+test('API should use the file name to name a process if no name was specified', t => {
   const script = '/opt/guvnor/test/fixtures/hello-world.js'
   const name = 'hello-world.js'
 
@@ -152,7 +110,7 @@ test('Should use the file name to name a process if no name was specified', t =>
   .then(proc => isProc(t, name, 'running', proc))
 })
 
-test('Should stop a process', t => {
+test('API should stop a process', t => {
   const script = '/opt/guvnor/test/fixtures/hello-world.js'
   const name = `${faker.lorem.word()}_${faker.lorem.word()}`
 
@@ -228,7 +186,7 @@ test.cb('Should emit a process:started event when starting a process', t => {
   })
 })
 
-test('Should remove a stopped process', t => {
+test('API should remove a stopped process', t => {
   const script = '/opt/guvnor/test/fixtures/hello-world.js'
   const name = `${faker.lorem.word()}_${faker.lorem.word()}`
 
@@ -248,7 +206,7 @@ test('Should remove a stopped process', t => {
   .then(proc => t.is(proc, undefined))
 })
 
-test('Should remove a running process', t => {
+test('API should remove a running process', t => {
   const script = '/opt/guvnor/test/fixtures/hello-world.js'
   const name = `${faker.lorem.word()}_${faker.lorem.word()}`
 
@@ -265,7 +223,7 @@ test('Should remove a running process', t => {
   .then(proc => t.is(proc, undefined))
 })
 
-test('should start a process with arguments', t => {
+test('API should start a process with arguments', t => {
   const script = '/opt/guvnor/test/fixtures/hello-world.js'
   const name = `${faker.lorem.word()}_${faker.lorem.word()}`
   const argv = ['foo', 'bar', 'baz']
@@ -286,7 +244,7 @@ test('should start a process with arguments', t => {
   })
 })
 
-test('should start a process with exec arguments', t => {
+test('API should start a process with exec arguments', t => {
   const script = '/opt/guvnor/test/fixtures/hello-world.js'
   const name = `${faker.lorem.word()}_${faker.lorem.word()}`
   const execArgv = ['--log_gc', '--trace_code_flushing', '--trace_stub_failures']
@@ -306,7 +264,7 @@ test('should start a process with exec arguments', t => {
   })
 })
 
-test('should strip invalid exec arguments', t => {
+test('API should strip invalid exec arguments', t => {
   const script = '/opt/guvnor/test/fixtures/hello-world.js'
   const name = `${faker.lorem.word()}_${faker.lorem.word()}`
   const execArgv = ['--log_gc', '--trace_code_flushing', '--trace_stub_failures']
@@ -326,7 +284,7 @@ test('should strip invalid exec arguments', t => {
   })
 })
 
-test('should report daemon status', t => {
+test('API should report daemon status', t => {
   return t.context.api.status()
   .then(status => {
     t.truthy(status)
@@ -345,7 +303,7 @@ test('should report daemon status', t => {
   })
 })
 
-test('should increase number of cluster workers', t => {
+test('API should increase number of cluster workers', t => {
   const script = '/opt/guvnor/test/fixtures/hello-world.js'
   const name = `${faker.lorem.word()}_${faker.lorem.word()}`
 
@@ -382,7 +340,7 @@ test('should increase number of cluster workers', t => {
   })
 })
 
-test('should decrease number of cluster workers', t => {
+test('API should decrease number of cluster workers', t => {
   const script = '/opt/guvnor/test/fixtures/hello-world.js'
   const name = `${faker.lorem.word()}_${faker.lorem.word()}`
 
@@ -420,7 +378,7 @@ test('should decrease number of cluster workers', t => {
 
 })
 
-test('should send an event to a process', t => {
+test('API should send an event to a process', t => {
   const script = '/opt/guvnor/test/fixtures/receive-event.js'
   const name = `${faker.lorem.word()}_${faker.lorem.word()}`
   const args = ['arg1', 'arg2', 'arg3']
@@ -437,7 +395,7 @@ test('should send an event to a process', t => {
   .then(event => t.deepEqual(event.args, args))
 })
 
-test('should make a process dump heap', t => {
+test('API should make a process dump heap', t => {
   const script = '/opt/guvnor/test/fixtures/hello-world.js'
   const name = `${faker.lorem.word()}_${faker.lorem.word()}`
 
@@ -460,7 +418,7 @@ test('should make a process dump heap', t => {
   .then(event => isProc(t, name, 'running', event.proc))
 })
 
-test('should list heap dumps for a process', t => {
+test('API should list heap dumps for a process', t => {
   const script = '/opt/guvnor/test/fixtures/hello-world.js'
   const name = `${faker.lorem.word()}_${faker.lorem.word()}`
 
@@ -490,7 +448,7 @@ test('should list heap dumps for a process', t => {
 
 })
 
-test('should download a heap dump', t => {
+test('API should download a heap dump', t => {
   const script = '/opt/guvnor/test/fixtures/hello-world.js'
   const name = `${faker.lorem.word()}_${faker.lorem.word()}`
 
@@ -539,7 +497,7 @@ test('should download a heap dump', t => {
 
 })
 
-test('should remove a heap dump', t => {
+test('API should remove a heap dump', t => {
   const script = '/opt/guvnor/test/fixtures/hello-world.js'
   const name = `${faker.lorem.word()}_${faker.lorem.word()}`
 
@@ -582,7 +540,7 @@ test('should remove a heap dump', t => {
   })
 })
 
-test('should make a process collect garbage', t => {
+test('API should make a process collect garbage', t => {
   const script = '/opt/guvnor/test/fixtures/hello-world.js'
   const name = `${faker.lorem.word()}_${faker.lorem.word()}`
 
@@ -599,7 +557,7 @@ test('should make a process collect garbage', t => {
   .then(event => isProc(t, name, 'running', event.proc))
 })
 
-test('should send a signal to a process', t => {
+test('API should send a signal to a process', t => {
   const script = '/opt/guvnor/test/fixtures/receive-signal.js'
   const name = `${faker.lorem.word()}_${faker.lorem.word()}`
 
@@ -615,7 +573,7 @@ test('should send a signal to a process', t => {
   .then(event => t.deepEqual(event.args, ['SIGUSR1']))
 })
 
-test('should send a signal to a process and kill it', t => {
+test('API should send a signal to a process and kill it', t => {
   const script = '/opt/guvnor/test/fixtures/receive-signal.js'
   const name = `${faker.lorem.word()}_${faker.lorem.word()}`
   let workerPid = 0
@@ -648,7 +606,7 @@ test('should send a signal to a process and kill it', t => {
   })
 })
 
-test('should show logs', t => {
+test('API should show logs', t => {
   const script = '/opt/guvnor/test/fixtures/hello-world.js'
   const name = `${faker.lorem.word()}_${faker.lorem.word()}`
   let logs = ''
@@ -667,7 +625,7 @@ test('should show logs', t => {
   })
 })
 
-test('should only show logs for one process', t => {
+test('API should only show logs for one process', t => {
   const scriptOne = '/opt/guvnor/test/fixtures/ones.js'
   const scriptTwo = '/opt/guvnor/test/fixtures/twos.js'
   const nameOne = `${faker.lorem.word()}_${faker.lorem.word()}`
@@ -697,7 +655,7 @@ test('should only show logs for one process', t => {
   })
 })
 
-test('should deploy an application', t => {
+test('API should deploy an application', t => {
   const url = 'https://github.com/achingbrain/http-test.git'
 
   return t.context.api.app.install(url)
@@ -708,7 +666,7 @@ test('should deploy an application', t => {
   })
 })
 
-test('should deploy an application and override name', t => {
+test('API should deploy an application and override name', t => {
   const url = 'https://github.com/achingbrain/http-test.git'
   const name = `${faker.lorem.word()}_${faker.lorem.word()}`
 
@@ -720,7 +678,7 @@ test('should deploy an application and override name', t => {
   })
 })
 
-test('should not deploy an application with the same name twice', t => {
+test('API should not deploy an application with the same name twice', t => {
   const url = 'https://github.com/achingbrain/http-test.git'
   const name = `${faker.lorem.word()}_${faker.lorem.word()}`
 
@@ -729,7 +687,7 @@ test('should not deploy an application with the same name twice', t => {
   .catch(error => t.is(error.statusCode, 409))
 })
 
-test('should list deployed applications', t => {
+test('API should list deployed applications', t => {
   const url = 'https://github.com/achingbrain/http-test.git'
   const name = `${faker.lorem.word()}_${faker.lorem.word()}`
 
@@ -738,7 +696,7 @@ test('should list deployed applications', t => {
   .then(apps => t.truthy(apps.find(app => app.name === name)))
 })
 
-test('should remove deployed applications', t => {
+test('API should remove deployed applications', t => {
   const url = 'https://github.com/achingbrain/http-test.git'
   const name = `${faker.lorem.word()}_${faker.lorem.word()}`
 
@@ -750,7 +708,7 @@ test('should remove deployed applications', t => {
   .then(apps => t.falsy(apps.find(app => app.name === name)))
 })
 
-test('should return a 404 for a non-existant app', t => {
+test('API should return a 404 for a non-existant app', t => {
   const name = `${faker.lorem.word()}_${faker.lorem.word()}`
 
   return t.context.api.app.get(name)
@@ -759,7 +717,7 @@ test('should return a 404 for a non-existant app', t => {
   })
 })
 
-test('should report the current application ref', t => {
+test('API should report the current application ref', t => {
   const url = 'https://github.com/achingbrain/http-test.git'
   const name = `${faker.lorem.word()}_${faker.lorem.word()}`
 
@@ -772,7 +730,7 @@ test('should report the current application ref', t => {
   })
 })
 
-test('should list available application refs', t => {
+test('API should list available application refs', t => {
   const url = 'https://github.com/achingbrain/http-test.git'
   const name = `${faker.lorem.word()}_${faker.lorem.word()}`
 
@@ -786,7 +744,7 @@ test('should list available application refs', t => {
   })
 })
 
-test('should update application refs', t => {
+test('API should update application refs', t => {
   const url = 'https://github.com/achingbrain/http-test.git'
   const name = `${faker.lorem.word()}_${faker.lorem.word()}`
 
@@ -795,7 +753,7 @@ test('should update application refs', t => {
   .then(app => t.is(app.name, name))
 })
 
-test('should switch an application ref', t => {
+test('API should switch an application ref', t => {
   const url = 'https://github.com/achingbrain/http-test.git'
   const name = `${faker.lorem.word()}_${faker.lorem.word()}`
 
@@ -815,7 +773,7 @@ test('should switch an application ref', t => {
   })
 })
 
-test('should refuse to switch to an invalid ref', t => {
+test('API should refuse to switch to an invalid ref', t => {
   const url = 'https://github.com/achingbrain/http-test.git'
   const name = `${faker.lorem.word()}_${faker.lorem.word()}`
 
@@ -824,7 +782,7 @@ test('should refuse to switch to an invalid ref', t => {
   .catch(error => t.is(error.statusCode, 400))
 })
 
-test('should start an app', t => {
+test('API should start an app', t => {
   const url = 'https://github.com/achingbrain/http-test.git'
   const name = `${faker.lorem.word()}_${faker.lorem.word()}`
 
@@ -837,7 +795,7 @@ test('should start an app', t => {
   .then(proc => isProc(t, name, 'running', proc))
 })
 
-test('should refuse to update a running app', t => {
+test('API should refuse to update a running app', t => {
   const url = 'https://github.com/achingbrain/http-test.git'
   const name = `${faker.lorem.word()}_${faker.lorem.word()}`
 
@@ -849,7 +807,7 @@ test('should refuse to update a running app', t => {
   .catch(error => t.is(error.statusCode, 409))
 })
 
-test('should refuse to switch refs for a running app', t => {
+test('API should refuse to switch refs for a running app', t => {
   const url = 'https://github.com/achingbrain/http-test.git'
   const name = `${faker.lorem.word()}_${faker.lorem.word()}`
 
@@ -861,20 +819,20 @@ test('should refuse to switch refs for a running app', t => {
   .catch(error => t.is(error.statusCode, 409))
 })
 
-test('should add a user', t => {
+test('API should add a user', t => {
   return t.context.api.user.add('guvnor-user-1')
   .then(certs => loadApi(certs))
   .then(api => api.process.list())
   .then(processes => t.truthy(Array.isArray(processes)))
 })
 
-test('should not add a user twice', t => {
+test('API should not add a user twice', t => {
   return t.context.api.user.add('guvnor-user-2')
   .then(() => t.context.api.user.add('guvnor-user-2'))
   .catch(error => t.is(error.statusCode, 409))
 })
 
-test('should list users', t => {
+test('API should list users', t => {
   return t.context.api.user.list()
   .then(users => {
     t.truthy(users.length > 0)
@@ -882,12 +840,12 @@ test('should list users', t => {
   })
 })
 
-test('should fail to add a non-existant user', t => {
+test('API should fail to add a non-existant user', t => {
   return t.context.api.user.add('dave')
   .catch(error => t.is(error.statusCode, 404))
 })
 
-test('should remove a user', t => {
+test('API should remove a user', t => {
   let api = null
 
   return t.context.api.user.add('guvnor-user-3')
@@ -907,6 +865,6 @@ test('should remove a user', t => {
   .then(processes => t.truthy(Array.isArray(processes)))
 })
 
-test.todo('should start a process in debug mode')
+test.todo('API should start a process in debug mode')
 
-test.todo('should stop the daemon')
+test.todo('API should stop the daemon')

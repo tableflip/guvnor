@@ -66,6 +66,20 @@ const startDaemon = (runner) => {
   })
 }
 
+const takeHeapSnapshot = (runner, id) => {
+  return runner([
+    'docker', 'exec', id, 'pidof', 'node'
+  ], {
+    cwd: DOCKER_FILE_DIRECTORY
+  })
+  .then(result => result.trim().split(' ').reduce((last, current) => current > last ? current : last, 0))
+  .then(pid => runner([
+    'docker', 'exec', id, 'kill', '-s', 'USR2', pid
+  ], {
+    cwd: DOCKER_FILE_DIRECTORY
+  }))
+}
+
 const listContainers = (runner) => {
   console.info('Listing docker containers')
   return runner([
@@ -196,17 +210,22 @@ module.exports = runner()
       })
     }
 
+    module.exports.takeHeapSnapshot = () => {
+      return takeHeapSnapshot(runner, id)
+    }
+
     return Promise.all([
       fetchCACertificate(runner, id),
       fetchRootCertificate(runner, id),
       fetchRootKey(runner, id)
     ])
+    .then(results => takeHeapSnapshot(runner, id).then(() => results))
+    .then(results => {
+      return {
+        ca: results[0],
+        certificate: results[1],
+        key: results[2]
+      }
+    })
   })
-})
-.then(results => {
-  return {
-    ca: results[0],
-    certificate: results[1],
-    key: results[2]
-  }
 })

@@ -2,19 +2,20 @@
 
 const logger = require('winston')
 const daemon = require('./daemon')
-const cli = require('../../lib/cli')
+const cli = require('../../../lib/cli')
 
-module.exports = (args, lines) => {
-  return daemon
-  .then(credentials => {
+module.exports = daemon
+.then(credentials => {
+  process.env.GUVNOR_USER_CERT = credentials.cert
+  process.env.GUVNOR_USER_KEY = credentials.key
+  process.env.GUVNOR_CA = credentials.ca
+})
+.then(() => {
+  return (args, lines) => {
     return new Promise((resolve, reject) => {
-      process.env.GUVNOR_USER_CERT = credentials.cert
-      process.env.GUVNOR_USER_KEY = credentials.key
-      process.env.GUVNOR_CA = credentials.ca
-
       args.unshift('/path/to/guvnor')
       args.unshift('/path/to/node')
-
+/*
       let output = ''
       let seen = 0
       const outWrite = process.stdout.write
@@ -40,6 +41,7 @@ module.exports = (args, lines) => {
       }
 
       cli(args)
+*/
     })
-  })
-}
+  }
+})
