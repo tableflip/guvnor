@@ -88,19 +88,17 @@ test.after.always('Print daemon logs', t => {
   }
 })
 
-test.serial('Should return an empty process list', t => {
+test('Should return a process list', t => {
   return t.context.api.process.list()
   .then(processes => {
     t.truthy(Array.isArray(processes))
-    t.is(processes.length, 0)
   })
 })
 
-test.serial('Should return an empty app list', t => {
+test('Should return an app list', t => {
   return t.context.api.app.list()
   .then(apps => {
     t.truthy(Array.isArray(apps))
-    t.is(apps.length, 0)
   })
 })
 
