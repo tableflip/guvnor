@@ -5,43 +5,12 @@ const api = require('./fixtures/api')
 const daemon = require('./fixtures/daemon')
 const faker = require('faker')
 const loadApi = require('../../lib/local')
+const utils = require('./fixtures/utils')
 const winston = require('winston')
 winston.level = 'debug'
 winston.cli()
 
 const DEFAULT_TIMEOUT = 30000
-
-const onProcessEvent = (event, name, api) => {
-  const promise = new Promise((resolve, reject) => {
-    const listener = function (host, proc, arg0, arg1, arg2, etc) {
-      if (proc.name !== name) {
-        return
-      }
-
-      api.removeListener(event, listener)
-
-      resolve({
-        host: host,
-        proc: proc,
-        event: event,
-        args: Array.prototype.slice.call(arguments, 2)
-      })
-    }
-
-    api.on(event, listener)
-  })
-
-  return () => promise
-}
-
-const isProc = (t, name, status, proc) => {
-  if (!proc) {
-    throw new Error('proc expected, got', proc)
-  }
-
-  t.is(proc.name, name)
-  t.is(proc.status, status)
-}
 
 test.beforeEach(t => {
   return api.then(api => {
@@ -79,11 +48,11 @@ test('API should start a process', t => {
   return t.context.api.process.start(script, {
     name: name
   })
-  .then(onProcessEvent('process:started', name, t.context.api))
-  .then(event => isProc(t, name, 'running', event.proc))
+  .then(utils.onProcessEvent('process:started', name, t.context.api))
+  .then(event => utils.isProc(t, name, 'running', event.proc))
   .then(() => t.context.api.process.list())
   .then(procs => procs.find((proc) => proc.name === name))
-  .then(proc => isProc(t, name, 'running', proc))
+  .then(proc => utils.isProc(t, name, 'running', proc))
 })
 
 test('API should refuse to start a process twice', t => {
@@ -93,8 +62,8 @@ test('API should refuse to start a process twice', t => {
   return t.context.api.process.start(script, {
     name: name
   })
-  .then(onProcessEvent('process:started', name, t.context.api))
-  .then(event => isProc(t, name, 'running', event.proc))
+  .then(utils.onProcessEvent('process:started', name, t.context.api))
+  .then(event => utils.isProc(t, name, 'running', event.proc))
   .then(() => t.context.api.process.start(script, {
     name: name
   }))
@@ -106,11 +75,11 @@ test('API should use the file name to name a process if no name was specified', 
   const name = 'hello-world.js'
 
   return t.context.api.process.start(script)
-  .then(onProcessEvent('process:started', name, t.context.api))
-  .then(event => isProc(t, name, 'running', event.proc))
+  .then(utils.onProcessEvent('process:started', name, t.context.api))
+  .then(event => utils.isProc(t, name, 'running', event.proc))
   .then(() => t.context.api.process.list())
   .then(procs => procs.find((proc) => proc.name === name))
-  .then(proc => isProc(t, name, 'running', proc))
+  .then(proc => utils.isProc(t, name, 'running', proc))
 })
 
 test('API should stop a process', t => {
@@ -122,23 +91,23 @@ test('API should stop a process', t => {
     name: name
   })
   // when it's started
-  .then(onProcessEvent('process:started', name, t.context.api))
+  .then(utils.onProcessEvent('process:started', name, t.context.api))
   // stop the process
   .then(() => t.context.api.process.stop(name))
   // it should be reported as stopped
-  .then(proc => isProc(t, name, 'stopped', proc))
+  .then(proc => utils.isProc(t, name, 'stopped', proc))
   // ensure we are reporting it as stopped
   .then(() => t.context.api.process.list())
   .then(procs => procs.find((proc) => proc.name === name))
-  .then(proc => isProc(t, name, 'stopped', proc))
+  .then(proc => utils.isProc(t, name, 'stopped', proc))
 })
 
 test.cb('Should emit a process:stopping event when stopping a process', t => {
   const script = '/opt/guvnor/test/fixtures/hello-world.js'
   const name = `${faker.lorem.word()}_${faker.lorem.word()}`
 
-  onProcessEvent('process:stopping', name, t.context.api)()
-  .then(event => isProc(t, name, 'stopping', event.proc))
+  utils.onProcessEvent('process:stopping', name, t.context.api)()
+  .then(event => utils.isProc(t, name, 'stopping', event.proc))
   .then(t.end)
   .catch(t.end)
 
@@ -148,7 +117,7 @@ test.cb('Should emit a process:stopping event when stopping a process', t => {
     name: name
   })
   // when it's started
-  .then(onProcessEvent('process:started', name, t.context.api))
+  .then(utils.onProcessEvent('process:started', name, t.context.api))
   // stop the process
   .then(() => t.context.api.process.stop(name))
 })
@@ -157,8 +126,8 @@ test.cb('Should emit a process:stopped event when a process stops', t => {
   const script = '/opt/guvnor/test/fixtures/hello-world.js'
   const name = `${faker.lorem.word()}_${faker.lorem.word()}`
 
-  onProcessEvent('process:stopped', name, t.context.api)()
-  .then(event => isProc(t, name, 'stopped', event.proc))
+  utils.onProcessEvent('process:stopped', name, t.context.api)()
+  .then(event => utils.isProc(t, name, 'stopped', event.proc))
   .then(t.end)
   .catch(t.end)
 
@@ -168,7 +137,7 @@ test.cb('Should emit a process:stopped event when a process stops', t => {
     name: name
   })
   // when it's started
-  .then(onProcessEvent('process:started', name, t.context.api))
+  .then(utils.onProcessEvent('process:started', name, t.context.api))
   // stop the process
   .then(() => t.context.api.process.stop(name))
 })
@@ -177,8 +146,8 @@ test.cb('Should emit a process:started event when starting a process', t => {
   const script = '/opt/guvnor/test/fixtures/hello-world.js'
   const name = `${faker.lorem.word()}_${faker.lorem.word()}`
 
-  onProcessEvent('process:started', name, t.context.api)()
-  .then(event => isProc(t, name, 'running', event.proc))
+  utils.onProcessEvent('process:started', name, t.context.api)()
+  .then(event => utils.isProc(t, name, 'running', event.proc))
   .then(t.end)
   .catch(t.end)
 
@@ -198,7 +167,7 @@ test('API should remove a stopped process', t => {
     name: name
   })
   // when it's started
-  .then(onProcessEvent('process:started', name, t.context.api))
+  .then(utils.onProcessEvent('process:started', name, t.context.api))
   // stop the process
   .then(() => t.context.api.process.stop(name))
   // remove the process
@@ -218,7 +187,7 @@ test('API should remove a running process', t => {
     name: name
   })
   // when it's started
-  .then(onProcessEvent('process:started', name, t.context.api))
+  .then(utils.onProcessEvent('process:started', name, t.context.api))
   .then(() => t.context.api.process.remove(name))
   // ensure it has been removed
   .then(() => t.context.api.process.list())
@@ -237,7 +206,7 @@ test('API should start a process with arguments', t => {
     argv: argv
   })
   // when it's started
-  .then(onProcessEvent('process:started', name, t.context.api))
+  .then(utils.onProcessEvent('process:started', name, t.context.api))
   // make sure the right args were passed
   .then(() => t.context.api.process.list())
   .then(procs => procs.find((proc) => proc.name === name))
@@ -258,7 +227,7 @@ test('API should start a process with exec arguments', t => {
     execArgv: execArgv
   })
   // when it's started
-  .then(onProcessEvent('process:started', name, t.context.api))
+  .then(utils.onProcessEvent('process:started', name, t.context.api))
   // make sure the right args were passed
   .then(() => t.context.api.process.list())
   .then(procs => procs.find((proc) => proc.name === name))
@@ -278,7 +247,7 @@ test('API should strip invalid exec arguments', t => {
     execArgv: execArgv.concat(['not', 'valid', 'arguments'])
   })
   // when it's started
-  .then(onProcessEvent('process:started', name, t.context.api))
+  .then(utils.onProcessEvent('process:started', name, t.context.api))
   // make sure the right args were passed
   .then(() => t.context.api.process.list())
   .then(procs => procs.find((proc) => proc.name === name))
@@ -324,7 +293,7 @@ test('API should increase number of cluster workers', t => {
       workers: 1
     })
     // when it's started
-    .then(onProcessEvent('process:started', name, t.context.api))
+    .then(utils.onProcessEvent('process:started', name, t.context.api))
     .then(() => t.context.api.process.list())
     .then(procs => procs.find((proc) => proc.name === name))
     .then(proc => t.is(proc.workers.length, 1))
@@ -332,7 +301,7 @@ test('API should increase number of cluster workers', t => {
       t.context.api.process.workers(name, 2)
 
       // when the new worker starts
-      return onProcessEvent('process:worker:started', name, t.context.api)()
+      return utils.onProcessEvent('process:worker:started', name, t.context.api)()
     })
     // make sure the right args were passed
     .then(() => t.context.api.process.list())
@@ -361,7 +330,7 @@ test('API should decrease number of cluster workers', t => {
       workers: 2
     })
     // when it's started
-    .then(onProcessEvent('process:started', name, t.context.api))
+    .then(utils.onProcessEvent('process:started', name, t.context.api))
     .then(() => t.context.api.process.list())
     .then(procs => procs.find((proc) => proc.name === name))
     .then(proc => t.is(proc.workers.length, 2))
@@ -369,7 +338,7 @@ test('API should decrease number of cluster workers', t => {
       t.context.api.process.workers(name, 1)
 
       // when the new worker stops
-      return onProcessEvent('process:worker:exit', name, t.context.api)()
+      return utils.onProcessEvent('process:worker:exit', name, t.context.api)()
     })
     // make sure the right args were passed
     .then(() => t.context.api.process.list())
@@ -391,9 +360,9 @@ test('API should send an event to a process', t => {
     workers: 1
   })
   // when it's started
-  .then(onProcessEvent('process:started', name, t.context.api))
+  .then(utils.onProcessEvent('process:started', name, t.context.api))
   .then(() => t.context.api.process.sendEvent(name, 'custom:event:sent', args))
-  .then(onProcessEvent('custom:event:received', name, t.context.api))
+  .then(utils.onProcessEvent('custom:event:received', name, t.context.api))
   // should have echoed our args back to us
   .then(event => t.deepEqual(event.args, args))
 })
@@ -408,7 +377,7 @@ test('API should make a process dump heap', t => {
     workers: 1
   })
   // when it's started
-  .then(onProcessEvent('process:started', name, t.context.api))
+  .then(utils.onProcessEvent('process:started', name, t.context.api))
   // take a heap snapshot
   .then(() => t.context.api.process.takeHeapSnapshot(name))
   .then(snapshots => {
@@ -417,8 +386,8 @@ test('API should make a process dump heap', t => {
     t.truthy(snapshots[1].id)
   })
   // we should emit an event when snapshots are taken
-  .then(onProcessEvent('process:snapshot:complete', name, t.context.api))
-  .then(event => isProc(t, name, 'running', event.proc))
+  .then(utils.onProcessEvent('process:snapshot:complete', name, t.context.api))
+  .then(event => utils.isProc(t, name, 'running', event.proc))
 })
 
 test('API should list heap dumps for a process', t => {
@@ -431,7 +400,7 @@ test('API should list heap dumps for a process', t => {
     workers: 1
   })
   // when it's started
-  .then(onProcessEvent('process:started', name, t.context.api))
+  .then(utils.onProcessEvent('process:started', name, t.context.api))
   // make sure there are no snapshots
   .then(() => t.context.api.process.listHeapSnapshots(name))
   .then(result => {
@@ -441,8 +410,8 @@ test('API should list heap dumps for a process', t => {
   // take a heap snapshot
   .then(() => t.context.api.process.takeHeapSnapshot(name))
   // when snapshot has been taken ensure we list it correctly
-  .then(onProcessEvent('process:snapshot:complete', name, t.context.api))
-  .then(event => isProc(t, name, 'running', event.proc))
+  .then(utils.onProcessEvent('process:snapshot:complete', name, t.context.api))
+  .then(event => utils.isProc(t, name, 'running', event.proc))
   .then(() => t.context.api.process.listHeapSnapshots(name))
   .then(result => {
     t.truthy(Array.isArray(result))
@@ -461,7 +430,7 @@ test('API should download a heap dump', t => {
     workers: 1
   })
   // when it's started
-  .then(onProcessEvent('process:started', name, t.context.api))
+  .then(utils.onProcessEvent('process:started', name, t.context.api))
   // make sure there are no snapshots
   .then(() => t.context.api.process.listHeapSnapshots(name))
   .then(result => {
@@ -470,7 +439,7 @@ test('API should download a heap dump', t => {
   })
   // take a heap snapshot
   .then(() => t.context.api.process.takeHeapSnapshot(name))
-  .then(onProcessEvent('process:snapshot:complete', name, t.context.api))
+  .then(utils.onProcessEvent('process:snapshot:complete', name, t.context.api))
   .then(event => {
     const snapshots = event.args[0]
     const snapshot = snapshots[0]
@@ -510,7 +479,7 @@ test('API should remove a heap dump', t => {
     workers: 1
   })
   // when it's started
-  .then(onProcessEvent('process:started', name, t.context.api))
+  .then(utils.onProcessEvent('process:started', name, t.context.api))
   // make sure there are no snapshots
   .then(() => t.context.api.process.listHeapSnapshots(name))
   .then(result => {
@@ -520,7 +489,7 @@ test('API should remove a heap dump', t => {
   // take a heap snapshot
   .then(() => t.context.api.process.takeHeapSnapshot(name))
   // when snapshots have been taken, remove one of them
-  .then(onProcessEvent('process:snapshot:complete', name, t.context.api))
+  .then(utils.onProcessEvent('process:snapshot:complete', name, t.context.api))
   .then(event => {
     const snapshots = event.args[0]
 
@@ -529,7 +498,7 @@ test('API should remove a heap dump', t => {
     t.context.api.process.removeHeapSnapshot(name, snapshots[0].id)
   })
   // when the snapshot has been removed, make sure we report it as removed
-  .then(onProcessEvent('process:snapshot:removed', name, t.context.api))
+  .then(utils.onProcessEvent('process:snapshot:removed', name, t.context.api))
   .then((event) => {
     const id = event.args[0]
 
@@ -553,11 +522,11 @@ test('API should make a process collect garbage', t => {
     workers: 1
   })
   // when it's started
-  .then(onProcessEvent('process:started', name, t.context.api))
+  .then(utils.onProcessEvent('process:started', name, t.context.api))
   // take a heap snapshot
   .then(() => t.context.api.process.gc(name))
-  .then(onProcessEvent('process:gc:complete', name, t.context.api))
-  .then(event => isProc(t, name, 'running', event.proc))
+  .then(utils.onProcessEvent('process:gc:complete', name, t.context.api))
+  .then(event => utils.isProc(t, name, 'running', event.proc))
 })
 
 test('API should send a signal to a process', t => {
@@ -569,10 +538,10 @@ test('API should send a signal to a process', t => {
     workers: 1
   })
   // when it's started
-  .then(onProcessEvent('process:started', name, t.context.api))
+  .then(utils.onProcessEvent('process:started', name, t.context.api))
   // send some signals
   .then(() => t.context.api.process.sendSignal(name, 'SIGUSR1'))
-  .then(onProcessEvent('signal:received', name, t.context.api))
+  .then(utils.onProcessEvent('signal:received', name, t.context.api))
   .then(event => t.deepEqual(event.args, ['SIGUSR1']))
 })
 
@@ -586,7 +555,7 @@ test('API should send a signal to a process and kill it', t => {
     workers: 1
   })
   // when it's started
-  .then(onProcessEvent('process:started', name, t.context.api))
+  .then(utils.onProcessEvent('process:started', name, t.context.api))
   // store the original worker pid
   .then(() => t.context.api.process.list())
   .then(procs => procs.find((proc) => proc.name === name))
@@ -598,7 +567,7 @@ test('API should send a signal to a process and kill it', t => {
     t.context.api.process.sendSignal(name, 'SIGTERM', true)
 
     // wait for a new worker to be spawned
-    return onProcessEvent('process:worker:started', name, t.context.api)()
+    return utils.onProcessEvent('process:worker:started', name, t.context.api)()
   })
   // then list the processes again
   .then(() => t.context.api.process.list())
@@ -619,7 +588,7 @@ test('API should show logs', t => {
     workers: 1
   })
   // when it's started
-  .then(onProcessEvent('process:started', name, t.context.api))
+  .then(utils.onProcessEvent('process:started', name, t.context.api))
   .then(() => t.context.api.logs(line => {
     logs += line + '\n'
   }))
@@ -641,13 +610,13 @@ test('API should only show logs for one process', t => {
       workers: 1
     })
     // when it's started
-    .then(onProcessEvent('process:started', nameOne, t.context.api)),
+    .then(utils.onProcessEvent('process:started', nameOne, t.context.api)),
     t.context.api.process.start(scriptTwo, {
       name: nameTwo,
       workers: 1
     })
     // when it's started
-    .then(onProcessEvent('process:started', nameTwo, t.context.api))
+    .then(utils.onProcessEvent('process:started', nameTwo, t.context.api))
   ])
   .then(() => t.context.api.process.logs(nameOne, false, line => {
     logs += line + '\n'
@@ -791,11 +760,11 @@ test('API should start an app', t => {
 
   return t.context.api.app.install(url, name, () => {})
   .then(() => t.context.api.process.start(name))
-  .then(onProcessEvent('process:started', name, t.context.api))
-  .then(event => isProc(t, name, 'running', event.proc))
+  .then(utils.onProcessEvent('process:started', name, t.context.api))
+  .then(event => utils.isProc(t, name, 'running', event.proc))
   .then(() => t.context.api.process.list())
   .then(procs => procs.find((proc) => proc.name === name))
-  .then(proc => isProc(t, name, 'running', proc))
+  .then(proc => utils.isProc(t, name, 'running', proc))
 })
 
 test('API should refuse to update a running app', t => {
@@ -804,8 +773,8 @@ test('API should refuse to update a running app', t => {
 
   return t.context.api.app.install(url, name, () => {})
   .then(() => t.context.api.process.start(name))
-  .then(onProcessEvent('process:started', name, t.context.api))
-  .then(event => isProc(t, name, 'running', event.proc))
+  .then(utils.onProcessEvent('process:started', name, t.context.api))
+  .then(event => utils.isProc(t, name, 'running', event.proc))
   .then(() => t.context.api.app.update(name, () => {}))
   .catch(error => t.is(error.statusCode, 409))
 })
@@ -816,8 +785,8 @@ test('API should refuse to switch refs for a running app', t => {
 
   return t.context.api.app.install(url, name, () => {})
   .then(() => t.context.api.process.start(name))
-  .then(onProcessEvent('process:started', name, t.context.api))
-  .then(event => isProc(t, name, 'running', event.proc))
+  .then(utils.onProcessEvent('process:started', name, t.context.api))
+  .then(event => utils.isProc(t, name, 'running', event.proc))
   .then(() => t.context.api.app.setRef(name, 'a-branch'))
   .catch(error => t.is(error.statusCode, 409))
 })

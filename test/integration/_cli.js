@@ -1,15 +1,23 @@
 'use strict'
 
 const test = require('ava')
+const faker = require('faker')
 const cli = require('./fixtures/cli')
+const api = require('./fixtures/api')
+const utils = require('./fixtures/utils')
 const winston = require('winston')
 winston.level = 'debug'
 winston.cli()
 
 test.beforeEach(t => {
-  return cli.then(cli => {
-    t.context.cli = cli
-  })
+  return Promise.all([
+    cli.then(cli => {
+      t.context.cli = cli
+    }),
+    api.then(api => {
+      t.context.api = api
+    })
+  ])
 })
 
 test('CLI should return a process list', t => {
@@ -21,23 +29,22 @@ test('CLI should return a process list', t => {
 
 test('CLI should return a process list as JSON', t => {
   return t.context.cli(['list', '--json'])
-  .then(stdout => {
-    t.is(Array.isArray(JSON.parse(stdout)), true)
-  })
+  .then(() => t.context.cli(['list', '--json']))
+  .then(stdout => JSON.parse(stdout))
+  .then(procs => t.is(Array.isArray(procs), true))
 })
 
-test.skip('CLI should start a process', t => {
-  var script = path.resolve(path.join(__dirname, '..', 'fixtures', 'hello-world.js'))
+test('CLI should start a process', t => {
+  const script = '/opt/guvnor/test/fixtures/hello-world.js'
+  const name = `${faker.lorem.word()}_${faker.lorem.word()}`
 
-  runCli(['start', script], 1, done, function (stdout) {
-    expect(stdout).to.contain('Process hello-world.js started')
-
-    runCli(['list', '--json'], 1, done, function (stdout) {
-      var procs = JSON.parse(stdout)
-      expect(procs.length).to.equal(1)
-      expect(procs[0].name).to.equal('hello-world.js')
-    })
-  })
+  return t.context.cli(['start', script, '-n', name])
+  .then(stdout => t.falsy(stdout.indexOf(`Process ${name} started`, -1)))
+  .then(utils.onProcessEvent('process:started', name, t.context.api))
+  .then(() => t.context.cli(['list', '--json']))
+  .then(stdout => JSON.parse(stdout))
+  .then(procs => procs.find(proc => proc.name === name))
+  .then(proc => utils.isProc(t, name, 'running', proc))
 })
 
 test.skip('CLI should stop a process', t => {
