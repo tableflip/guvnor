@@ -10,7 +10,7 @@ test.beforeEach(t => {
 })
 
 test.skip('CLI should show no processes', t => {
-  return t.context.cli(['list'], 1)
+  return t.context.cli(['list'])
   .then(stdout => {
     console.info('---> got output')
     t.is(stdout.trim(), '')

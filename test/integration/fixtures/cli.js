@@ -3,6 +3,7 @@
 const logger = require('winston')
 const daemon = require('./daemon')
 const cli = require('../../../lib/cli')
+const EventEmitter = require('events').EventEmitter
 
 module.exports = daemon
 .then(credentials => {
@@ -15,6 +16,8 @@ module.exports = daemon
     return new Promise((resolve, reject) => {
       args.unshift('/path/to/guvnor')
       args.unshift('/path/to/node')
+
+      console.info('---> cli running', args)
 /*
       let output = ''
       let seen = 0
@@ -39,9 +42,28 @@ module.exports = daemon
           }
         }
       }
-
-      cli(args)
 */
+      const process = new EventEmitter()
+      process.stdin = new EventEmitter()
+      process.stdin.destroy = () => {}
+      process.stdout = {
+        write: (line) => {
+          console.info('---> stdout saw', line)
+        }
+      }
+      process.stderr = {
+        write: (line) => {
+          console.info('---> stderr saw', line)
+        }
+      }
+      process.argv = args
+      process.exit = (code) => {}
+
+      cli(process)
+
+      process.stdin.read = () => args
+      process.stdin.emit('readable')
+      process.stdin.emit('end')
     })
   }
 })
