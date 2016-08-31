@@ -4,7 +4,7 @@ const runner = require('./fixtures/runner')
 const commands = require('./fixtures/commands')
 
 runner()
-.then((runner) => {
+.then(runner => {
   return commands.stopContainers(runner)
   .then(() => commands.removeContainers(runner))
   .then(() => commands.buildDaemon(runner))

@@ -7,6 +7,7 @@ const retry = require('./retry')
 const DOCKER_FILE_DIRECTORY = path.resolve(path.join(__dirname, '..', '..', '..'))
 
 module.exports.printVersion = (runner) => {
+  console.info('Printing the docker version')
   return runner([
     'docker', '--version'
   ], {
@@ -15,24 +16,28 @@ module.exports.printVersion = (runner) => {
 }
 
 module.exports.fetchCACertificate = (runner, id) => {
+  console.info('Fetching the CA certificate')
   return retry(() => runner([
     'docker', 'exec', id, 'cat', '/etc/guvnor/ca.crt'
   ]), 10, 1000)
 }
 
 module.exports.fetchRootCertificate = (runner, id) => {
+  console.info('Fetching the root certificate')
   return retry(() => runner([
     'docker', 'exec', id, 'cat', '/root/.config/guvnor/root.pub'
   ]), 10, 1000)
 }
 
 module.exports.fetchRootKey = (runner, id) => {
+  console.info('Fetching the root key')
   return retry(() => runner([
     'docker', 'exec', id, 'cat', '/root/.config/guvnor/root.key'
   ]), 10, 1000)
 }
 
 module.exports.attachLogger = (runner, id) => {
+  console.info('Attaching a logger')
   return runner([
     //'docker', 'logs', id, '-f'
     'docker', 'exec', id, 'journalctl', '-u', 'guvnor.service', '-f'
@@ -42,6 +47,7 @@ module.exports.attachLogger = (runner, id) => {
 }
 
 module.exports.buildDaemon = (runner) => {
+  console.info('Building the daemon')
   return runner([
     'docker', 'build', '-f', 'Dockerfile-guvnor-tests', '-t', 'daemon', '.'
   ], {
@@ -50,6 +56,7 @@ module.exports.buildDaemon = (runner) => {
 }
 
 module.exports.startDaemon = (runner) => {
+  console.info('Starting the daemon')
   return runner([
     'docker', 'run', '--privileged', '--cap-add', 'SYS_ADMIN', '-it',
     '-v', '/run', '-v', '/run/lock', '-v', '/sys/fs/cgroup:/sys/fs/cgroup:ro',
@@ -63,6 +70,7 @@ module.exports.startDaemon = (runner) => {
 }
 
 module.exports.takeHeapSnapshot = (runner, id) => {
+  console.info('Taking a heap snapshot')
   return runner([
     'docker', 'exec', id, 'pidof', 'node'
   ], {
@@ -89,12 +97,15 @@ module.exports.listContainers = (runner) => {
 }
 
 module.exports.stopContainers = (runner) => {
-  console.info('Stopping all docker processes')
-  return listContainers(runner)
-  .then((containers) => {
+  console.info('Stopping all docker containers')
+  return module.exports.listContainers(runner)
+  .then(containers => {
     if (containers.length === 0) {
+      console.info('No containers to stop')
       return
     }
+
+    console.info(`Stopping ${containers.length} docker containers`)
 
     return runner([
       'docker', 'stop'
@@ -106,7 +117,7 @@ module.exports.stopContainers = (runner) => {
 
 module.exports.removeContainers = (runner) => {
   console.info('Removing all docker processes')
-  return listContainers(runner)
+  return module.exports.listContainers(runner)
   .then((containers) => {
     if (containers.length === 0) {
       return
@@ -122,7 +133,6 @@ module.exports.removeContainers = (runner) => {
 
 module.exports.findContainer = (runner) => {
   console.info('Finding docker containers')
-
   return module.exports.listContainers(runner)
   .then(containers => {
     if (containers.length > 1) {

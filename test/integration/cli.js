@@ -104,8 +104,18 @@ test('CLI should restart a process', t => {
   .then(proc => utils.isProc(t, name, 'running', proc))
 })
 
-test.skip('CLI should start a process with arguments', t => {
+test('CLI should start a process with arguments', t => {
+  const script = '/opt/guvnor/test/fixtures/hello-world.js'
+  const name = `${faker.lorem.word()}_${faker.lorem.word()}`
 
+  return t.context.cli(['start', script, '-n', name, '-a', 'one two three'])
+  .then(utils.onProcessEvent('process:started', name, t.context.api))
+  .then(() => t.context.cli(['restart', name]))
+  .then(utils.onProcessEvent('process:started', name, t.context.api))
+  .then(() => t.context.cli(['list', '--json']))
+  .then(stdout => JSON.parse(stdout))
+  .then(procs => procs.find(proc => proc.name === name))
+  .then(proc => t.deepEqual(proc.master.argv.slice(2), ['one', 'two', 'three']))
 })
 
 test.skip('CLI should start a process with exec arguments', t => {
