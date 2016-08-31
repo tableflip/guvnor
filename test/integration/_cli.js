@@ -2,6 +2,9 @@
 
 const test = require('ava')
 const cli = require('./fixtures/cli')
+const winston = require('winston')
+winston.level = 'debug'
+winston.cli()
 
 test.beforeEach(t => {
   return cli.then(cli => {
@@ -9,23 +12,17 @@ test.beforeEach(t => {
   })
 })
 
-test.skip('CLI should show no processes', t => {
+test('CLI should return a process list', t => {
   return t.context.cli(['list'])
   .then(stdout => {
-    console.info('---> got output')
-    t.is(stdout.trim(), '')
+    t.truthy(stdout.trim())
   })
 })
 
-test.skip('CLI should show empty list', t => {
-  runCli(['list', '-d'], 1, done, function (stdout) {
-    expect(stdout).to.contain('No running processes')
-  })
-})
-
-test.skip('CLI should show empty json list', t => {
-  runCli(['list', '--json'], 1, done, function (stdout) {
-    expect(JSON.parse(stdout)).to.be.empty
+test('CLI should return a process list as JSON', t => {
+  return t.context.cli(['list', '--json'])
+  .then(stdout => {
+    t.is(Array.isArray(JSON.parse(stdout)), true)
   })
 })
 

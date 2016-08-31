@@ -5,6 +5,9 @@ const api = require('./fixtures/api')
 const daemon = require('./fixtures/daemon')
 const faker = require('faker')
 const loadApi = require('../../lib/local')
+const winston = require('winston')
+winston.level = 'debug'
+winston.cli()
 
 const DEFAULT_TIMEOUT = 30000
 

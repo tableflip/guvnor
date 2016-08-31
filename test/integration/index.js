@@ -1,8 +1,8 @@
+'use strict'
+
 const test = require('ava')
-const winston = require('winston')
+
 const daemon = require('./fixtures/daemon')
-winston.level = 'debug'
-winston.cli()
 
 require('./_api')
 require('./_cli')
@@ -21,7 +21,7 @@ test.after.always('Print daemon logs', t => {
   }
 })
 
-test.after.always('Take heap snapshot', t => {  
+test.after.always('Take heap snapshot', t => {
   if (daemon.takeHeapSnapshot) {
     return daemon.takeHeapSnapshot()
   }

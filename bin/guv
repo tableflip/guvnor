@@ -1,3 +1,66 @@
 #!/usr/bin/env node
 
-require(`${__dirname}/../lib/cli`)(process)
+const onError = error => {
+  if (error.code === 'EINVALIDCERT') {
+    logger.error('Your user certificate is invalid.')
+    logger.error(`To regenerate your certificate please run 'sudo guv useradd ${user ? user.name : '$YOUR_USER'}'`)
+  } else if (error.code === 'ECONNREFUSED') {
+    logger.error('The daemon is not running.')
+    logger.error('Please run \'sudo guv\' to start it.')
+  } else if (logLevel === 'debug') {
+    logger.error(error.stack)
+  } else if (error.message && error.message !== 'undefined') {
+    logger.error(error.message)
+  } else {
+    logger.error(error)
+  }
+
+  process.exit(1)
+}
+
+process.on('uncaughtException', onError)
+process.on('unhandled-rejection', onError)
+
+const OutputBuffer = require('output-buffer')
+const path = require('path')
+const run = require(path.resolve(path.join(__dirname, '..', 'lib', 'cli')))
+
+const args = process.argv
+
+// to support piping..
+let readData = false
+
+const buffer = new OutputBuffer(line => {
+  line = line.trim()
+
+  if (line) {
+    run(args.concat(line), process.stdout, process.stderr, !process.stdout.isTTY)
+    .then(result => console.info(result))
+    .catch(error => console.error(error))
+  }
+})
+
+process.stdin.on('readable', () => {
+  buffer.append()
+
+  const chunk = this.read()
+
+  if (chunk === null) {
+    if (buffer.size() === 0 && !readData) {
+      // not being piped to
+      run(args, !process.stdout.isTTY)
+      .then(result => console.info(result))
+      .catch(error => console.error(error))
+
+      process.stdin.destroy()
+    } else {
+      buffer.flush()
+    }
+  } else {
+    readData = true
+    buffer.append(chunk)
+  }
+})
+process.stdin.once('end', () => {
+  buffer.flush()
+})
