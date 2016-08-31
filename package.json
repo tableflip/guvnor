@@ -14,7 +14,7 @@
   },
   "scripts": {
     "lint": "standard",
-    "test": "ava test/integration --verbose --serial",
+    "test": "node ./test/integration/_before.js && ava test/integration --verbose --serial && node ./test/integration/_after.js",
     "test:coverage": "COVERAGE=true npm test && nyc report --reporter=html --reporter=lcov",
     "test:coverage:check": "npm run test:coverage && nyc check-coverage --lines 100 --functions 100 --branches 100",
     "coveralls": "cat ./coverage/lcov.info | coveralls",

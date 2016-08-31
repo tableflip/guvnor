@@ -90,11 +90,21 @@ test('CLI should remove a running process', t => {
   .then(proc => t.falsy(proc))
 })
 
-test.skip('CLI should restart a process', function () {
+test('CLI should restart a process', t => {
+  const script = '/opt/guvnor/test/fixtures/hello-world.js'
+  const name = `${faker.lorem.word()}_${faker.lorem.word()}`
 
+  return t.context.cli(['start', script, '-n', name])
+  .then(utils.onProcessEvent('process:started', name, t.context.api))
+  .then(() => t.context.cli(['restart', name]))
+  .then(utils.onProcessEvent('process:started', name, t.context.api))
+  .then(() => t.context.cli(['list', '--json']))
+  .then(stdout => JSON.parse(stdout))
+  .then(procs => procs.find(proc => proc.name === name))
+  .then(proc => utils.isProc(t, name, 'running', proc))
 })
 
-test.skip('CLI should start a process with arguments', function () {
+test.skip('CLI should start a process with arguments', t => {
 
 })
 
