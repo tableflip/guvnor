@@ -39,7 +39,7 @@ test('CLI should start a process', t => {
   const name = `${faker.lorem.word()}_${faker.lorem.word()}`
 
   return t.context.cli(['start', script, '-n', name])
-  .then(stdout => t.falsy(stdout.indexOf(`Process ${name} started`, -1)))
+  .then(stdout => t.truthy(stdout.indexOf(`Process ${name} started`) > -1))
   .then(utils.onProcessEvent('process:started', name, t.context.api))
   .then(() => t.context.cli(['list', '--json']))
   .then(stdout => JSON.parse(stdout))
@@ -47,105 +47,47 @@ test('CLI should start a process', t => {
   .then(proc => utils.isProc(t, name, 'running', proc))
 })
 
-test.skip('CLI should stop a process', t => {
-  var script = path.resolve(path.join(__dirname, '..', 'fixtures', 'hello-world.js'))
+test('CLI should stop a process', t => {
+  const script = '/opt/guvnor/test/fixtures/hello-world.js'
+  const name = `${faker.lorem.word()}_${faker.lorem.word()}`
 
-  runCli(['start', script], 1, done, function (stdout) {
-    expect(stdout).to.contain('Process hello-world.js started')
-
-    runCli(['list', '--json'], 1, done, function (stdout) {
-      var procs = JSON.parse(stdout)
-      expect(procs.length).to.equal(1)
-      expect(procs[0].name).to.equal('hello-world.js')
-//        expect(procs[0].status).to.equal('running')
-
-      runCli(['stop', 'hello-world.js'], 1, done, function (stdout) {
-        expect(stdout).to.contain('Process hello-world.js stopped')
-
-        runCli(['list', '--json'], 1, done, function (stdout) {
-          var procs = JSON.parse(stdout)
-          expect(procs.length).to.equal(1)
-          expect(procs[0].name).to.equal('hello-world.js')
-          expect(procs[0].status).to.equal('stopped')
-        })
-      })
-    })
-  })
+  return t.context.cli(['start', script, '-n', name])
+  .then(utils.onProcessEvent('process:started', name, t.context.api))
+  .then(() => t.context.cli(['stop', name]))
+  .then(stdout => t.truthy(stdout.indexOf(`Process ${name} stopped`) > -1))
+  .then(utils.onProcessEvent('process:stopped', name, t.context.api))
+  .then(() => t.context.cli(['list', '--json']))
+  .then(stdout => JSON.parse(stdout))
+  .then(procs => procs.find(proc => proc.name === name))
+  .then(proc => utils.isProc(t, name, 'stopped', proc))
 })
 
-test.skip('CLI should remove a stopped process', t => {
-  var script = path.resolve(path.join(__dirname, '..', 'fixtures', 'hello-world.js'))
+test('CLI should remove a stopped process', t => {
+  const script = '/opt/guvnor/test/fixtures/hello-world.js'
+  const name = `${faker.lorem.word()}_${faker.lorem.word()}`
 
-  runCli(['start', script], 1, done, function (stdout) {
-    expect(stdout).to.contain('Process hello-world.js started')
-
-    runCli(['list', '--json'], 1, done, function (stdout) {
-      var procs = JSON.parse(stdout)
-      expect(procs.length).to.equal(1)
-      expect(procs[0].name).to.equal('hello-world.js')
-
-      runCli(['stop', 'hello-world.js'], 1, done, function (stdout) {
-        expect(stdout).to.contain('Process hello-world.js stopped')
-
-        runCli(['list', '--json'], 1, done, function (stdout) {
-          var procs = JSON.parse(stdout)
-          expect(procs.length).to.equal(1)
-          expect(procs[0].name).to.equal('hello-world.js')
-          expect(procs[0].status).to.equal('stopped')
-
-          runCli(['remove', 'hello-world.js'], 1, done, function (stdout) {
-            expect(stdout).to.contain('Process hello-world.js removed')
-
-            runCli(['list', '--json'], 1, done, function (stdout) {
-              var procs = JSON.parse(stdout)
-              expect(procs).to.be.empty
-            })
-          })
-        })
-      })
-    })
-  })
+  return t.context.cli(['start', script, '-n', name])
+  .then(utils.onProcessEvent('process:started', name, t.context.api))
+  .then(() => t.context.cli(['stop', name]))
+  .then(utils.onProcessEvent('process:stopped', name, t.context.api))
+  .then(() => t.context.cli(['remove', name]))
+  .then(() => t.context.cli(['list', '--json']))
+  .then(stdout => JSON.parse(stdout))
+  .then(procs => procs.find(proc => proc.name === name))
+  .then(proc => t.falsy(proc))
 })
 
-test.skip('CLI should remove a running process', t => {
-  var script = path.resolve(path.join(__dirname, '..', 'fixtures', 'hello-world.js'))
+test('CLI should remove a running process', t => {
+  const script = '/opt/guvnor/test/fixtures/hello-world.js'
+  const name = `${faker.lorem.word()}_${faker.lorem.word()}`
 
-  runCli(['start', script], 1, done, function (stdout) {
-    expect(stdout).to.contain('Process hello-world.js started')
-
-    runCli(['list', '--json'], 1, done, function (stdout) {
-      var procs = JSON.parse(stdout)
-      expect(procs.length).to.equal(1)
-      expect(procs[0].name).to.equal('hello-world.js')
-
-      runCli(['remove', 'hello-world.js'], 1, done, function (stdout) {
-        expect(stdout).to.contain('Process hello-world.js removed')
-
-        runCli(['list', '--json'], 1, done, function (stdout) {
-          var procs = JSON.parse(stdout)
-          expect(procs).to.be.empty
-        })
-      })
-    })
-  })
-})
-
-test.skip('CLI should start a process and override the name', t => {
-  var script = path.resolve(path.join(__dirname, '..', 'fixtures', 'hello-world.js'))
-
-  runCli(['start', script, '-n', 'foo'], 1, done, function (stdout) {
-    expect(stdout).to.contain('Process foo started')
-
-    runCli(['list', '--json'], 1, done, function (stdout) {
-      var procs = JSON.parse(stdout)
-      expect(procs.length).to.equal(1)
-      expect(procs[0].name).to.equal('foo')
-    })
-  })
-})
-
-test.skip('CLI should start a process in debug mode', function () {
-
+  return t.context.cli(['start', script, '-n', name])
+  .then(utils.onProcessEvent('process:started', name, t.context.api))
+  .then(() => t.context.cli(['remove', name]))
+  .then(() => t.context.cli(['list', '--json']))
+  .then(stdout => JSON.parse(stdout))
+  .then(procs => procs.find(proc => proc.name === name))
+  .then(proc => t.falsy(proc))
 })
 
 test.skip('CLI should restart a process', function () {
