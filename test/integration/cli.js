@@ -20,21 +20,25 @@ test.beforeEach(t => {
   ])
 })
 
-test('CLI should return a process list', t => {
+test.afterEach(t => {
+  //t.context.api.disconnect()
+})
+
+test('Should return a process list', t => {
   return t.context.cli(['list'])
   .then(stdout => {
     t.truthy(stdout.trim())
   })
 })
 
-test('CLI should return a process list as JSON', t => {
+test('Should return a process list as JSON', t => {
   return t.context.cli(['list', '--json'])
   .then(() => t.context.cli(['list', '--json']))
   .then(stdout => JSON.parse(stdout))
   .then(procs => t.is(Array.isArray(procs), true))
 })
 
-test('CLI should start a process', t => {
+test('Should start a process', t => {
   const script = '/opt/guvnor/test/fixtures/hello-world.js'
   const name = `${faker.lorem.word()}_${faker.lorem.word()}`
 
@@ -47,7 +51,7 @@ test('CLI should start a process', t => {
   .then(proc => utils.isProc(t, name, 'running', proc))
 })
 
-test('CLI should stop a process', t => {
+test('Should stop a process', t => {
   const script = '/opt/guvnor/test/fixtures/hello-world.js'
   const name = `${faker.lorem.word()}_${faker.lorem.word()}`
 
@@ -62,7 +66,7 @@ test('CLI should stop a process', t => {
   .then(proc => utils.isProc(t, name, 'stopped', proc))
 })
 
-test('CLI should remove a stopped process', t => {
+test('Should remove a stopped process', t => {
   const script = '/opt/guvnor/test/fixtures/hello-world.js'
   const name = `${faker.lorem.word()}_${faker.lorem.word()}`
 
@@ -77,7 +81,7 @@ test('CLI should remove a stopped process', t => {
   .then(proc => t.falsy(proc))
 })
 
-test('CLI should remove a running process', t => {
+test('Should remove a running process', t => {
   const script = '/opt/guvnor/test/fixtures/hello-world.js'
   const name = `${faker.lorem.word()}_${faker.lorem.word()}`
 
@@ -90,7 +94,7 @@ test('CLI should remove a running process', t => {
   .then(proc => t.falsy(proc))
 })
 
-test('CLI should restart a process', t => {
+test('Should restart a process', t => {
   const script = '/opt/guvnor/test/fixtures/hello-world.js'
   const name = `${faker.lorem.word()}_${faker.lorem.word()}`
 
@@ -107,23 +111,41 @@ test('CLI should restart a process', t => {
 test('CLI should start a process with arguments', t => {
   const script = '/opt/guvnor/test/fixtures/hello-world.js'
   const name = `${faker.lorem.word()}_${faker.lorem.word()}`
+  const argv = ['one', 'two', 'three']
 
-  return t.context.cli(['start', script, '-n', name, '-a', 'one two three'])
-  .then(utils.onProcessEvent('process:started', name, t.context.api))
-  .then(() => t.context.cli(['restart', name]))
+  return t.context.cli(['start', script, '-n', name, '-a', argv.join(' ')])
   .then(utils.onProcessEvent('process:started', name, t.context.api))
   .then(() => t.context.cli(['list', '--json']))
   .then(stdout => JSON.parse(stdout))
   .then(procs => procs.find(proc => proc.name === name))
-  .then(proc => t.deepEqual(proc.master.argv.slice(2), ['one', 'two', 'three']))
+  .then(proc => t.deepEqual(proc.master.argv.slice(2), argv))
 })
 
-test.skip('CLI should start a process with exec arguments', t => {
+test('CLI should start a process with arguments passed without delimiters', t => {
+  const script = '/opt/guvnor/test/fixtures/hello-world.js'
+  const name = `${faker.lorem.word()}_${faker.lorem.word()}`
+  const argv = ['one', 'two', 'three']
 
+  return t.context.cli(['start', script, '-n', name, '-a', argv[0], argv[1], argv[2]])
+  .then(utils.onProcessEvent('process:started', name, t.context.api))
+  .then(() => t.context.cli(['list', '--json']))
+  .then(stdout => JSON.parse(stdout))
+  .then(procs => procs.find(proc => proc.name === name))
+  .then(proc => t.deepEqual(proc.master.argv.slice(2), argv))
 })
 
-test.skip('CLI should start a process as a cluster', t => {
+test.skip('Should start a process with exec arguments', t => {
+  // see https://github.com/yargs/yargs/issues/360
+  const script = '/opt/guvnor/test/fixtures/hello-world.js'
+  const name = `${faker.lorem.word()}_${faker.lorem.word()}`
+  const execArgv = ['--log_gc', '--trace_code_flushing', '--trace_stub_failures']
 
+  return t.context.cli(['start', script, '-n', name, '-e', execArgv.join(' ')])
+  .then(utils.onProcessEvent('process:started', name, t.context.api))
+  .then(() => t.context.cli(['list', '--json']))
+  .then(stdout => JSON.parse(stdout))
+  .then(procs => procs.find(proc => proc.name === name))
+  .then(proc => t.deepEqual(proc.master.execArgv.slice(2), execArgv))
 })
 
 test.skip('CLI should increase number of cluster workers', t => {
