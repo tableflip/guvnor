@@ -148,16 +148,109 @@ test.skip('Should start a process with exec arguments', t => {
   .then(proc => t.deepEqual(proc.master.execArgv.slice(2), execArgv))
 })
 
-test.skip('CLI should increase number of cluster workers', t => {
+test('CLI should increase number of cluster workers', t => {
+  const script = '/opt/guvnor/test/fixtures/hello-world.js'
+  const name = `${faker.lorem.word()}_${faker.lorem.word()}`
 
+  // check that we can actually run this test..
+  return t.context.api.status()
+  .then(status => {
+    if (status.cpus.length < 2) {
+      console.warn('!!!!!! There are not enough CPUs available to run process worker tests')
+      return t.pass()
+    }
+
+    // start the process
+    return t.context.cli(['start', script, '-n', name, '-w', '1'])
+    // when it's started
+    .then(utils.onProcessEvent('process:started', name, t.context.api))
+    .then(() => t.context.api.process.list())
+    .then(procs => procs.find((proc) => proc.name === name))
+    .then(proc => t.is(proc.workers.length, 1))
+    .then(() => {
+      t.context.cli(['workers', name, '2'])
+
+      // when the new worker starts
+      return utils.onProcessEvent('process:worker:started', name, t.context.api)()
+    })
+    // make sure the number of workers are alive
+    .then(() => t.context.api.process.list())
+    .then(procs => procs.find((proc) => proc.name === name))
+    .then(proc => {
+      t.is(proc.workers.length, 2)
+    })
+  })
 })
 
-test.skip('CLI should decrease number of cluster workers', t => {
+test('CLI should decrease number of cluster workers', t => {
+  const script = '/opt/guvnor/test/fixtures/hello-world.js'
+  const name = `${faker.lorem.word()}_${faker.lorem.word()}`
 
+  // check that we can actually run this test..
+  return t.context.api.status()
+  .then(status => {
+    if (status.cpus.length < 2) {
+      console.warn('!!!!!! There are not enough CPUs available to run process worker tests')
+      return t.pass()
+    }
+
+    // start the process
+    return t.context.cli(['start', script, '-n', name, '-w', '2'])
+    // when it's started
+    .then(utils.onProcessEvent('process:started', name, t.context.api))
+    .then(() => t.context.api.process.list())
+    .then(procs => procs.find((proc) => proc.name === name))
+    .then(proc => t.is(proc.workers.length, 2))
+    .then(() => {
+      t.context.cli(['workers', name, '1'])
+
+      // when the new worker stops
+      return utils.onProcessEvent('process:worker:exit', name, t.context.api)()
+    })
+    // make sure the number of workers are alive
+    .then(() => t.context.api.process.list())
+    .then(procs => procs.find((proc) => proc.name === name))
+    .then(proc => {
+      t.is(proc.workers.length, 1)
+    })
+  })
 })
 
-test.skip('CLI should send an event to a process', t => {
+test('CLI should send an event to a process', t => {
+  const script = '/opt/guvnor/test/fixtures/receive-event.js'
+  const name = `${faker.lorem.word()}_${faker.lorem.word()}`
+  const args = ['arg1', 'arg2', 'arg3']
 
+  return t.context.api.process.start(script, {
+    name: name,
+    workers: 1
+  })
+  // when it's started
+  .then(utils.onProcessEvent('process:started', name, t.context.api))
+  // send an event
+  .then(() => t.context.cli(['send', name, 'custom:event:sent', 'arg1', 'arg2', 'arg3']))
+  // when we get a response
+  .then(utils.onProcessEvent('custom:event:received', name, t.context.api))
+  // should have echoed our args back to us
+  .then(event => t.deepEqual(event.args, args))
+})
+
+test('CLI should send a signal to a process', t => {
+  const script = '/opt/guvnor/test/fixtures/receive-signal.js'
+  const name = `${faker.lorem.word()}_${faker.lorem.word()}`
+
+  return t.context.api.process.start(script, {
+    name: name,
+    workers: 1
+  })
+  // when it's started
+  .then(utils.onProcessEvent('process:started', name, t.context.api))
+  // send a signal
+  .then(() => t.context.cli(['signal', name, 'SIGUSR1']))
+  // when we get a response
+  .then(utils.onProcessEvent('signal:received', name, t.context.api))
+  // should have echoed our args back to us
+  .then(event => t.deepEqual(event.args, ['SIGUSR1']))
 })
 
 test.skip('CLI should make a process dump heap', t => {
@@ -165,10 +258,6 @@ test.skip('CLI should make a process dump heap', t => {
 })
 
 test.skip('CLI should make a process collect garbage', t => {
-
-})
-
-test.skip('CLI should send a signal to a process', t => {
 
 })
 
