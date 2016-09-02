@@ -7,7 +7,11 @@ const faker = require('faker')
 const loadApi = require('../../lib/local')
 const utils = require('./fixtures/utils')
 const winston = require('winston')
-winston.level = 'debug'
+
+if (!process.env.QUIET) {
+  winston.level = 'debug'
+}
+
 winston.cli()
 
 const DEFAULT_TIMEOUT = 30000

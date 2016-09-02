@@ -14,8 +14,9 @@
   },
   "scripts": {
     "lint": "standard",
-    "test": "node ./test/integration/_before.js && ava test/integration --verbose --serial && node ./test/integration/_after.js",
-    "test:coverage": "COVERAGE=true npm test && nyc report --reporter=html --reporter=lcov",
+    "test": "node ./test/integration/_before.js && ava test/integration --verbose --serial && node ./test/integration/_after-success.js || node ./test/integration/_after-failure.js",
+    "test:ci": "COVERAGE=true QUIET=true npm test && nyc report --reporter=lcov",
+    "test:coverage": "COVERAGE=true npm test && nyc report --reporter=html",
     "test:coverage:check": "npm run test:coverage && nyc check-coverage --lines 100 --functions 100 --branches 100",
     "coveralls": "cat ./coverage/lcov.info | coveralls",
     "docker": "npm run docker:build && npm run docker:deploy",

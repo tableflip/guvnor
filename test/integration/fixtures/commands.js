@@ -3,11 +3,12 @@
 const path = require('path')
 const fs = require('fs-promise')
 const retry = require('./retry')
+const logger = require('winston')
 
 const DOCKER_FILE_DIRECTORY = path.resolve(path.join(__dirname, '..', '..', '..'))
 
 module.exports.printVersion = (runner) => {
-  console.info('Printing the docker version')
+  logger.debug('Printing the docker version')
   return runner([
     'docker', '--version'
   ], {
@@ -16,28 +17,28 @@ module.exports.printVersion = (runner) => {
 }
 
 module.exports.fetchCACertificate = (runner, id) => {
-  console.info('Fetching the CA certificate')
+  logger.debug('Fetching the CA certificate')
   return retry(() => runner([
     'docker', 'exec', id, 'cat', '/etc/guvnor/ca.crt'
   ]), 10, 1000)
 }
 
 module.exports.fetchRootCertificate = (runner, id) => {
-  console.info('Fetching the root certificate')
+  logger.debug('Fetching the root certificate')
   return retry(() => runner([
     'docker', 'exec', id, 'cat', '/root/.config/guvnor/root.pub'
   ]), 10, 1000)
 }
 
 module.exports.fetchRootKey = (runner, id) => {
-  console.info('Fetching the root key')
+  logger.debug('Fetching the root key')
   return retry(() => runner([
     'docker', 'exec', id, 'cat', '/root/.config/guvnor/root.key'
   ]), 10, 1000)
 }
 
 module.exports.attachLogger = (runner, id) => {
-  console.info('Attaching a logger')
+  logger.debug('Attaching a logger')
   return runner([
     //'docker', 'logs', id, '-f'
     'docker', 'exec', id, 'journalctl', '-u', 'guvnor.service', '-f'
@@ -47,7 +48,7 @@ module.exports.attachLogger = (runner, id) => {
 }
 
 module.exports.buildDaemon = (runner) => {
-  console.info('Building the daemon')
+  logger.debug('Building the daemon')
   return runner([
     'docker', 'build', '-f', 'Dockerfile-guvnor-tests', '-t', 'daemon', '.'
   ], {
@@ -56,7 +57,7 @@ module.exports.buildDaemon = (runner) => {
 }
 
 module.exports.startDaemon = (runner) => {
-  console.info('Starting the daemon')
+  logger.debug('Starting the daemon')
   return runner([
     'docker', 'run', '--privileged', '--cap-add', 'SYS_ADMIN', '-it',
     '-v', '/run', '-v', '/run/lock', '-v', '/sys/fs/cgroup:/sys/fs/cgroup:ro',
@@ -70,7 +71,7 @@ module.exports.startDaemon = (runner) => {
 }
 
 module.exports.takeHeapSnapshot = (runner, id) => {
-  console.info('Taking a heap snapshot')
+  logger.debug('Taking a heap snapshot')
   return runner([
     'docker', 'exec', id, 'pidof', 'node'
   ], {
@@ -85,7 +86,7 @@ module.exports.takeHeapSnapshot = (runner, id) => {
 }
 
 module.exports.listContainers = (runner) => {
-  console.info('Listing docker containers')
+  logger.debug('Listing docker containers')
   return runner([
     'docker', 'ps', '-aq'
   ], {
@@ -97,15 +98,15 @@ module.exports.listContainers = (runner) => {
 }
 
 module.exports.stopContainers = (runner) => {
-  console.info('Stopping all docker containers')
+  logger.debug('Stopping all docker containers')
   return module.exports.listContainers(runner)
   .then(containers => {
     if (containers.length === 0) {
-      console.info('No containers to stop')
+      logger.debug('No containers to stop')
       return
     }
 
-    console.info(`Stopping ${containers.length} docker containers`)
+    logger.debug(`Stopping ${containers.length} docker containers`)
 
     return runner([
       'docker', 'stop'
@@ -116,7 +117,7 @@ module.exports.stopContainers = (runner) => {
 }
 
 module.exports.removeContainers = (runner) => {
-  console.info('Removing all docker processes')
+  logger.debug('Removing all docker processes')
   return module.exports.listContainers(runner)
   .then((containers) => {
     if (containers.length === 0) {
@@ -132,7 +133,7 @@ module.exports.removeContainers = (runner) => {
 }
 
 module.exports.findContainer = (runner) => {
-  console.info('Finding docker containers')
+  logger.debug('Finding docker containers')
   return module.exports.listContainers(runner)
   .then(containers => {
     if (containers.length > 1) {
@@ -144,9 +145,9 @@ module.exports.findContainer = (runner) => {
 }
 
 module.exports.printLogs = (runner, id) => {
-  console.info('')
-  console.info('---- Start test logs -----')
-  console.info('')
+  logger.debug('')
+  logger.debug('---- Start test logs -----')
+  logger.debug('')
 
   return runner([
     'docker', 'exec', id, 'journalctl', '-u', 'guvnor.service'
@@ -154,9 +155,9 @@ module.exports.printLogs = (runner, id) => {
     cwd: DOCKER_FILE_DIRECTORY
   })
   .then(() => {
-    console.info('')
-    console.info('---- End test logs -----')
-    console.info('')
+    logger.debug('')
+    logger.debug('---- End test logs -----')
+    logger.debug('')
   })
 }
 
@@ -189,7 +190,7 @@ module.exports.fetchCoverage = (runner, id) => {
       coverageFile = coverageFile.trim()
 
       return () => {
-        console.info(`Fetching coverage file ${coverageFile}`)
+        logger.debug(`Fetching coverage file ${coverageFile}`)
 
         // cat it
         return runner([
@@ -199,12 +200,12 @@ module.exports.fetchCoverage = (runner, id) => {
           hideOutput: true
         })
         .then(coverageFileContents => {
-          console.info(`Reading coverage`)
+          logger.debug(`Reading coverage`)
 
           // rewrite coverage with correct file paths
           const coverage = JSON.parse(coverageFileContents)
 
-          console.info(`Replacing coverage keys`)
+          logger.debug(`Replacing coverage keys`)
 
           Object.keys(coverage).forEach(key => {
             const file = coverage[key]
@@ -216,7 +217,7 @@ module.exports.fetchCoverage = (runner, id) => {
 
           const modifiedCoverageFile = path.join(nycTmpDir, coverageFile)
 
-          console.info(`Writing coverage out to ${modifiedCoverageFile}`)
+          logger.debug(`Writing coverage out to ${modifiedCoverageFile}`)
 
           // put the coverage file in the local directory
           return fs.writeFile(modifiedCoverageFile, JSON.stringify(coverage, null, 2), {

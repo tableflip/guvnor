@@ -3,6 +3,7 @@
 const path = require('path')
 const run = require('./run')
 const find = require('./find')
+const logger = require('winston')
 const VM_NAME = 'virtualbox'
 const VAGRANT_FILE_DIRECTORY = path.resolve(path.join(__dirname, '..', '..', '..'))
 
@@ -16,17 +17,17 @@ const isVagrantRunning = (vagrant) => {
 }
 
 const installVbGuestPlugin = (vagrant) => {
-  console.info('Looking for vbguest plugin')
+  logger.debug('Looking for vbguest plugin')
   return run(vagrant, ['plugin', 'list'], {
     cwd: VAGRANT_FILE_DIRECTORY
   })
   .then((stdout) => {
     if (stdout.indexOf('vagrant-vbguest (0.12.0)') === -1) {
-      console.info('vbguest plugin was already installed')
+      logger.debug('vbguest plugin was already installed')
       return
     }
 
-    console.info('Installing vbguest plugin')
+    logger.debug('Installing vbguest plugin')
     return run(vagrant, ['plugin', 'install', 'vagrant-vbguest'], {
       cwd: VAGRANT_FILE_DIRECTORY
     })
@@ -43,11 +44,11 @@ const ensureVagrantIsRunning = (vagrant) => {
   return isVagrantRunning(vagrant)
     .then((running) => {
       if (running) {
-        console.info('Vagrant was already running')
+        logger.debug('Vagrant was already running')
         return
       }
 
-      console.info('Vagrant was not running')
+      logger.debug('Vagrant was not running')
 
       return installVbGuestPlugin(vagrant)
       .then(startVagrant.bind(null, vagrant))

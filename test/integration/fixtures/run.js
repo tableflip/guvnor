@@ -1,6 +1,7 @@
 'use strict'
 
 const child_process = require('child_process')
+const logger = require('winston')
 
 const run = (cmd, args, options) => {
   options = options || {}
@@ -9,7 +10,7 @@ const run = (cmd, args, options) => {
     let stdout = ''
     let stderr = ''
 
-    console.info('$', cmd, args.join(' '))
+    logger.debug('$', cmd, args.join(' '))
 
     const proc = child_process.spawn(cmd, args, options)
     proc.stdout.on('data', (data) => {
@@ -17,15 +18,15 @@ const run = (cmd, args, options) => {
       stdout += str
 
       if (!options.hideOutput) {
-        console.info(`${str.trim()}`)
+        logger.debug(`${str.trim()}`)
       }
     });
     proc.stderr.on('data', (data) => {
       const str = data.toString('utf8')
       stderr += str
 
-      if (!options.hideOutput) {
-        console.error(`${str.trim()}`);
+      if (!options.hideOutput && !process.env.QUIET) {
+        logger.info(`${str.trim()}`);
       }
     });
 

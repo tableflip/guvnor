@@ -6,7 +6,11 @@ const cli = require('./fixtures/cli')
 const api = require('./fixtures/api')
 const utils = require('./fixtures/utils')
 const winston = require('winston')
-winston.level = 'debug'
+
+if (!process.env.QUIET) {
+  winston.level = 'debug'
+}
+
 winston.cli()
 
 test.beforeEach(t => {
@@ -253,8 +257,20 @@ test('CLI should send a signal to a process', t => {
   .then(event => t.deepEqual(event.args, ['SIGUSR1']))
 })
 
-test.skip('CLI should make a process dump heap', t => {
+test('CLI should make a process dump heap', t => {
+  const script = '/opt/guvnor/test/fixtures/hello-world.js'
+  const name = `${faker.lorem.word()}_${faker.lorem.word()}`
 
+  return t.context.api.process.start(script, {
+    name: name,
+    workers: 1
+  })
+  // when it's started
+  .then(utils.onProcessEvent('process:started', name, t.context.api))
+  // send a signal
+  .then(() => t.context.cli(['heap', name]))
+  // when we get a response
+  .then(stdout => t.regex(stdout, /took a heap snapshot/g))
 })
 
 test.skip('CLI should make a process collect garbage', t => {
