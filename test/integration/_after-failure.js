@@ -1,14 +1,16 @@
 'use strict'
 
-const runner = require('./fixtures/runner')
-const commands = require('./fixtures/commands')
-
 if (process.env.QUIET) {
   return
 }
 
-console.info('---- Tests failed! ----')
-console.info('')
+const runner = require('./fixtures/runner')
+const commands = require('./fixtures/commands')
+const winston = require('winston')
+winston.level = 'debug'
+winston.cli()
+winston.error('---- Tests failed! ----')
+winston.error('')
 
 runner()
 .then((runner) => {

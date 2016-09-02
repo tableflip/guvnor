@@ -14,6 +14,14 @@ if (!process.env.QUIET) {
 winston.cli()
 
 test.beforeEach(t => {
+  t.context._procNames = []
+  t.context.procName = () => {
+    const name =  `${faker.lorem.word()}_${faker.lorem.word()}_${faker.lorem.word()}_${faker.lorem.word()}`
+    t.context._procNames.push(name)
+
+    return name
+  }
+
   return Promise.all([
     cli.then(cli => {
       t.context.cli = cli
@@ -44,7 +52,7 @@ test('Should return a process list as JSON', t => {
 
 test('Should start a process', t => {
   const script = '/opt/guvnor/test/fixtures/hello-world.js'
-  const name = `${faker.lorem.word()}_${faker.lorem.word()}`
+  const name = t.context.procName()
 
   return t.context.cli(['start', script, '-n', name])
   .then(stdout => t.truthy(stdout.indexOf(`Process ${name} started`) > -1))
@@ -57,7 +65,7 @@ test('Should start a process', t => {
 
 test('Should stop a process', t => {
   const script = '/opt/guvnor/test/fixtures/hello-world.js'
-  const name = `${faker.lorem.word()}_${faker.lorem.word()}`
+  const name = t.context.procName()
 
   return t.context.cli(['start', script, '-n', name])
   .then(utils.onProcessEvent('process:started', name, t.context.api))
@@ -72,7 +80,7 @@ test('Should stop a process', t => {
 
 test('Should remove a stopped process', t => {
   const script = '/opt/guvnor/test/fixtures/hello-world.js'
-  const name = `${faker.lorem.word()}_${faker.lorem.word()}`
+  const name = t.context.procName()
 
   return t.context.cli(['start', script, '-n', name])
   .then(utils.onProcessEvent('process:started', name, t.context.api))
@@ -87,7 +95,7 @@ test('Should remove a stopped process', t => {
 
 test('Should remove a running process', t => {
   const script = '/opt/guvnor/test/fixtures/hello-world.js'
-  const name = `${faker.lorem.word()}_${faker.lorem.word()}`
+  const name = t.context.procName()
 
   return t.context.cli(['start', script, '-n', name])
   .then(utils.onProcessEvent('process:started', name, t.context.api))
@@ -100,7 +108,7 @@ test('Should remove a running process', t => {
 
 test('Should restart a process', t => {
   const script = '/opt/guvnor/test/fixtures/hello-world.js'
-  const name = `${faker.lorem.word()}_${faker.lorem.word()}`
+  const name = t.context.procName()
 
   return t.context.cli(['start', script, '-n', name])
   .then(utils.onProcessEvent('process:started', name, t.context.api))
@@ -114,7 +122,7 @@ test('Should restart a process', t => {
 
 test('CLI should start a process with arguments', t => {
   const script = '/opt/guvnor/test/fixtures/hello-world.js'
-  const name = `${faker.lorem.word()}_${faker.lorem.word()}`
+  const name = t.context.procName()
   const argv = ['one', 'two', 'three']
 
   return t.context.cli(['start', script, '-n', name, '-a', argv.join(' ')])
@@ -127,7 +135,7 @@ test('CLI should start a process with arguments', t => {
 
 test('CLI should start a process with arguments passed without delimiters', t => {
   const script = '/opt/guvnor/test/fixtures/hello-world.js'
-  const name = `${faker.lorem.word()}_${faker.lorem.word()}`
+  const name = t.context.procName()
   const argv = ['one', 'two', 'three']
 
   return t.context.cli(['start', script, '-n', name, '-a', argv[0], argv[1], argv[2]])
@@ -141,7 +149,7 @@ test('CLI should start a process with arguments passed without delimiters', t =>
 test.skip('Should start a process with exec arguments', t => {
   // see https://github.com/yargs/yargs/issues/360
   const script = '/opt/guvnor/test/fixtures/hello-world.js'
-  const name = `${faker.lorem.word()}_${faker.lorem.word()}`
+  const name = t.context.procName()
   const execArgv = ['--log_gc', '--trace_code_flushing', '--trace_stub_failures']
 
   return t.context.cli(['start', script, '-n', name, '-e', execArgv.join(' ')])
@@ -154,7 +162,7 @@ test.skip('Should start a process with exec arguments', t => {
 
 test('CLI should increase number of cluster workers', t => {
   const script = '/opt/guvnor/test/fixtures/hello-world.js'
-  const name = `${faker.lorem.word()}_${faker.lorem.word()}`
+  const name = t.context.procName()
 
   // check that we can actually run this test..
   return t.context.api.status()
@@ -188,7 +196,7 @@ test('CLI should increase number of cluster workers', t => {
 
 test('CLI should decrease number of cluster workers', t => {
   const script = '/opt/guvnor/test/fixtures/hello-world.js'
-  const name = `${faker.lorem.word()}_${faker.lorem.word()}`
+  const name = t.context.procName()
 
   // check that we can actually run this test..
   return t.context.api.status()
@@ -222,7 +230,7 @@ test('CLI should decrease number of cluster workers', t => {
 
 test('CLI should send an event to a process', t => {
   const script = '/opt/guvnor/test/fixtures/receive-event.js'
-  const name = `${faker.lorem.word()}_${faker.lorem.word()}`
+  const name = t.context.procName()
   const args = ['arg1', 'arg2', 'arg3']
 
   return t.context.api.process.start(script, {
@@ -241,7 +249,7 @@ test('CLI should send an event to a process', t => {
 
 test('CLI should send a signal to a process', t => {
   const script = '/opt/guvnor/test/fixtures/receive-signal.js'
-  const name = `${faker.lorem.word()}_${faker.lorem.word()}`
+  const name = t.context.procName()
 
   return t.context.api.process.start(script, {
     name: name,
@@ -259,7 +267,7 @@ test('CLI should send a signal to a process', t => {
 
 test('CLI should make a process dump heap', t => {
   const script = '/opt/guvnor/test/fixtures/hello-world.js'
-  const name = `${faker.lorem.word()}_${faker.lorem.word()}`
+  const name = t.context.procName()
 
   return t.context.api.process.start(script, {
     name: name,
@@ -273,39 +281,61 @@ test('CLI should make a process dump heap', t => {
   .then(stdout => t.regex(stdout, /took a heap snapshot/g))
 })
 
-test.skip('CLI should make a process collect garbage', t => {
+test('CLI should make a process collect garbage', t => {
+  const script = '/opt/guvnor/test/fixtures/hello-world.js'
+  const name = t.context.procName()
 
-})
-
-test.skip('CLI should write to a processes stdin', t => {
-
+  return t.context.api.process.start(script, {
+    name: name,
+    workers: 1
+  })
+  // when it's started
+  .then(utils.onProcessEvent('process:started', name, t.context.api))
+  // send a signal
+  .then(() => t.context.cli(['gc', name]))
+  // when we get a response
+  .then(stdout => t.regex(stdout, /collected garbage/g))
 })
 
 test.skip('CLI should show logs', t => {
 
 })
 
-test.skip('CLI should only show logs for one process', t => {
+test('CLI should only show logs for one process', t => {
+  const script = '/opt/guvnor/test/fixtures/hello-world.js'
+  const name = t.context.procName()
 
+  return t.context.api.process.start(script, {
+    name: name,
+    workers: 1
+  })
+  // when it's started
+  .then(utils.onProcessEvent('process:started', name, t.context.api))
+  // send a signal
+  .then(() => t.context.cli(['logs', name]))
+  // when we get a response
+  .then(stdout => t.regex(stdout, new RegExp(`Process logs for ${name}`, 'g')))
 })
 
-test.skip('CLI should stop the daemon', t => {
-
-})
+test.todo('CLI should stop the daemon')
 
 test.skip('CLI should print config options', t => {
 
 })
 
-test.skip('CLI should report daemon status', t => {
+test('CLI should report daemon status', t => {
+  const script = '/opt/guvnor/test/fixtures/hello-world.js'
+  const name = t.context.procName()
 
+  return t.context.cli(['status'])
+  .then(stdout => t.regex(stdout, /Daemon is running/))
 })
 
 test.skip('CLI should print config for the web monitor', t => {
 
 })
 
-test.skip('CLI should list users for the web monitor', t => {
+test.skip('CLI should list users', t => {
 
 })
 

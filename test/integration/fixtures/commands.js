@@ -161,18 +161,35 @@ module.exports.printLogs = (runner, id) => {
   })
 }
 
+module.exports.removeCoverageDirectory = () => {
+  if (!process.env.COVERAGE) { // set in package.json
+    logger.debug('Not removing coverage directory')
+
+    return Promise.resolve()
+  }
+
+  logger.debug('Removing coverage directory')
+
+  const projectDir = path.resolve(path.join(__dirname, '../../../'))
+  const nycTmpDir = path.join(projectDir, '.nyc_output')
+
+  return fs.remove(nycTmpDir)
+}
+
 module.exports.fetchCoverage = (runner, id) => {
   if (!process.env.COVERAGE) { // set in package.json
-    return
+    logger.debug('Not fetching coverage')
+
+    return Promise.resolve()
   }
+
+  logger.debug('Fetching coverage')
 
   const projectDir = path.resolve(path.join(__dirname, '../../../'))
   const nycTmpDir = path.join(projectDir, '.nyc_output')
   const libDir = path.join(projectDir, 'lib')
 
-  // make the nyc temp dir if it doesn't exist already
-  return fs.remove(nycTmpDir)
-  .then(() => fs.ensureDir(nycTmpDir))
+  return fs.ensureDir(nycTmpDir)
   // stop the daemon so it writes coverage info out
   .then(() => runner([
     'docker', 'exec', id, 'systemctl', 'stop', 'guvnor.service'
