@@ -71,7 +71,14 @@ module.exports.startDaemon = (runner) => {
 }
 
 module.exports.takeHeapSnapshot = (runner, id) => {
+  if (process.env.COVERAGE) { // set in package.json
+    logger.debug('Not taking a heap snapshot as coverage is enabled')
+
+    return Promise.resolve()
+  }
+
   logger.debug('Taking a heap snapshot')
+
   return runner([
     'docker', 'exec', id, 'pidof', 'node'
   ], {
@@ -79,7 +86,7 @@ module.exports.takeHeapSnapshot = (runner, id) => {
   })
   .then(result => result.trim().split(' ').reduce((last, current) => current > last ? current : last, 0))
   .then(pid => runner([
-    'docker', 'exec', id, 'kill', '-s', 'USR2', pid
+    'docker', 'exec', id, 'kill', '-USR2', pid
   ], {
     cwd: DOCKER_FILE_DIRECTORY
   }))
