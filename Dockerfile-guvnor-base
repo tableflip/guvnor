@@ -49,9 +49,16 @@ RUN ln -s /usr/local/node-v4.4.7-linux-x64 /usr/local/node
 ENV PATH $PATH:/usr/local/node/bin
 
 # Add users used in tests
+RUN useradd -m -d /home/guvnor-user-0 -g users -G staff,plugdev,games -s /bin/bash -p guvnor-user-3 guvnor-user-0
 RUN useradd -m -d /home/guvnor-user-1 -g users -G staff,plugdev,games -s /bin/bash -p guvnor-user-1 guvnor-user-1
 RUN useradd -m -d /home/guvnor-user-2 -g users -G staff,plugdev,games -s /bin/bash -p guvnor-user-2 guvnor-user-2
 RUN useradd -m -d /home/guvnor-user-3 -g users -G staff,plugdev,games -s /bin/bash -p guvnor-user-3 guvnor-user-3
+RUN useradd -m -d /home/guvnor-user-4 -g users -G staff,plugdev,games -s /bin/bash -p guvnor-user-3 guvnor-user-4
+RUN useradd -m -d /home/guvnor-user-5 -g users -G staff,plugdev,games -s /bin/bash -p guvnor-user-3 guvnor-user-5
+RUN useradd -m -d /home/guvnor-user-6 -g users -G staff,plugdev,games -s /bin/bash -p guvnor-user-3 guvnor-user-6
+RUN useradd -m -d /home/guvnor-user-7 -g users -G staff,plugdev,games -s /bin/bash -p guvnor-user-3 guvnor-user-7
+RUN useradd -m -d /home/guvnor-user-8 -g users -G staff,plugdev,games -s /bin/bash -p guvnor-user-3 guvnor-user-8
+RUN useradd -m -d /home/guvnor-user-9 -g users -G staff,plugdev,games -s /bin/bash -p guvnor-user-3 guvnor-user-9
 
 # Create directories
 RUN mkdir /opt/guvnor

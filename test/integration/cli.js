@@ -120,7 +120,7 @@ test('Should restart a process', t => {
   .then(proc => utils.isProc(t, name, 'running', proc))
 })
 
-test('CLI should start a process with arguments', t => {
+test('Should start a process with arguments', t => {
   const script = '/opt/guvnor/test/fixtures/hello-world.js'
   const name = t.context.procName()
   const argv = ['one', 'two', 'three']
@@ -133,7 +133,7 @@ test('CLI should start a process with arguments', t => {
   .then(proc => t.deepEqual(proc.master.argv.slice(2), argv))
 })
 
-test('CLI should start a process with arguments passed without delimiters', t => {
+test('Should start a process with arguments passed without delimiters', t => {
   const script = '/opt/guvnor/test/fixtures/hello-world.js'
   const name = t.context.procName()
   const argv = ['one', 'two', 'three']
@@ -160,7 +160,7 @@ test.skip('Should start a process with exec arguments', t => {
   .then(proc => t.deepEqual(proc.master.execArgv.slice(2), execArgv))
 })
 
-test('CLI should increase number of cluster workers', t => {
+test('Should increase number of cluster workers', t => {
   const script = '/opt/guvnor/test/fixtures/hello-world.js'
   const name = t.context.procName()
 
@@ -194,7 +194,7 @@ test('CLI should increase number of cluster workers', t => {
   })
 })
 
-test('CLI should decrease number of cluster workers', t => {
+test('Should decrease number of cluster workers', t => {
   const script = '/opt/guvnor/test/fixtures/hello-world.js'
   const name = t.context.procName()
 
@@ -228,7 +228,7 @@ test('CLI should decrease number of cluster workers', t => {
   })
 })
 
-test('CLI should send an event to a process', t => {
+test('Should send an event to a process', t => {
   const script = '/opt/guvnor/test/fixtures/receive-event.js'
   const name = t.context.procName()
   const args = ['arg1', 'arg2', 'arg3']
@@ -247,7 +247,7 @@ test('CLI should send an event to a process', t => {
   .then(event => t.deepEqual(event.args, args))
 })
 
-test('CLI should send a signal to a process', t => {
+test('Should send a signal to a process', t => {
   const script = '/opt/guvnor/test/fixtures/receive-signal.js'
   const name = t.context.procName()
 
@@ -265,7 +265,7 @@ test('CLI should send a signal to a process', t => {
   .then(event => t.deepEqual(event.args, ['SIGUSR1']))
 })
 
-test('CLI should make a process dump heap', t => {
+test('Should make a process dump heap', t => {
   const script = '/opt/guvnor/test/fixtures/hello-world.js'
   const name = t.context.procName()
 
@@ -281,7 +281,7 @@ test('CLI should make a process dump heap', t => {
   .then(stdout => t.regex(stdout, /took a heap snapshot/g))
 })
 
-test('CLI should make a process collect garbage', t => {
+test('Should make a process collect garbage', t => {
   const script = '/opt/guvnor/test/fixtures/hello-world.js'
   const name = t.context.procName()
 
@@ -297,11 +297,11 @@ test('CLI should make a process collect garbage', t => {
   .then(stdout => t.regex(stdout, /collected garbage/g))
 })
 
-test.skip('CLI should show logs', t => {
+test.skip('Should show logs', t => {
 
 })
 
-test('CLI should only show logs for one process', t => {
+test('Should only show logs for one process', t => {
   const script = '/opt/guvnor/test/fixtures/hello-world.js'
   const name = t.context.procName()
 
@@ -317,13 +317,7 @@ test('CLI should only show logs for one process', t => {
   .then(stdout => t.regex(stdout, new RegExp(`Process logs for ${name}`, 'g')))
 })
 
-test.todo('CLI should stop the daemon')
-
-test.skip('CLI should print config options', t => {
-
-})
-
-test('CLI should report daemon status', t => {
+test('Should report daemon status', t => {
   const script = '/opt/guvnor/test/fixtures/hello-world.js'
   const name = t.context.procName()
 
@@ -331,41 +325,45 @@ test('CLI should report daemon status', t => {
   .then(stdout => t.regex(stdout, /Daemon is running/))
 })
 
-test.skip('CLI should print config for the web monitor', t => {
+test('Should set up certificates for a user', t => {
+  return t.context.cli(['adduser', 'guvnor-user-4'])
+  .then(stdout => t.regex(stdout, /User guvnor-user-4 added/))
+})
+
+test('Should not set up certificates for a user twice', t => {
+  return t.context.cli(['adduser', 'guvnor-user-5'])
+  .then(stdout => t.regex(stdout, /User guvnor-user-5 added/))
+  .then(() => t.context.cli(['adduser', 'guvnor-user-5']))
+  .catch(error => t.is(error.statusCode, 409))
+})
+
+test.skip('Should remove certificates for a user', t => {
 
 })
 
-test.skip('CLI should list users', t => {
+test.skip('Should not create certificates for a non-existant user', t => {
 
 })
 
-test.skip('CLI should reset users password for the web monitor', t => {
-
-})
-
-test.skip('CLI should generate ssl certificates', t => {
-
-})
-
-test.skip('CLI should not show installed apps', t => {
+test.skip('Should not show installed apps', t => {
   runCli(['lsapps'], 1, done, function (stdout) {
     expect(stdout.trim()).to.equal('')
   })
 })
 
-test.skip('CLI should deploy an application', t => {
+test.skip('Should deploy an application', t => {
   runCli(['install', 'https://github.com/achingbrain/http-test.git'], 6, done, function (stdout) {
     expect(stdout.trim()).to.contain('Installed http-test from https://github.com/achingbrain/http-test.git')
   })
 })
 
-test.skip('CLI should deploy an application and override name', t => {
+test.skip('Should deploy an application and override name', t => {
   runCli(['install', 'https://github.com/achingbrain/http-test.git', '-n', 'foo'], 6, done, function (stdout) {
     expect(stdout.trim()).to.contain('Installed foo from https://github.com/achingbrain/http-test.git')
   })
 })
 
-test.skip('CLI should list deployed applications', t => {
+test.skip('Should list deployed applications', t => {
   runCli(['install', 'https://github.com/achingbrain/http-test.git'], 6, done, function (stdout) {
     runCli(['lsapps', '--json'], 1, done, function (stdout) {
       var apps = JSON.parse(stdout)
@@ -375,7 +373,7 @@ test.skip('CLI should list deployed applications', t => {
   })
 })
 
-test.skip('CLI should remove deployed applications', t => {
+test.skip('Should remove deployed applications', t => {
   runCli(['install', 'https://github.com/achingbrain/http-test.git'], 6, done, function (stdout) {
     runCli(['rmapp', 'http-test'], 1, done, function (stdout) {
       expect(stdout).to.contain('Removed app http-test')
@@ -388,7 +386,7 @@ test.skip('CLI should remove deployed applications', t => {
   })
 })
 
-test.skip('CLI should report the current application ref', t => {
+test.skip('Should report the current application ref', t => {
   runCli(['install', 'https://github.com/achingbrain/http-test.git'], 6, done, function (stdout) {
     runCli(['lsref', 'http-test', '--json'], 1, done, function (stdout) {
       var ref = JSON.parse(stdout)
@@ -400,7 +398,7 @@ test.skip('CLI should report the current application ref', t => {
   })
 })
 
-test.skip('CLI should list available application refs', t => {
+test.skip('Should list available application refs', t => {
   runCli(['install', 'https://github.com/achingbrain/http-test.git'], 6, done, function (stdout) {
     runCli(['lsrefs', 'http-test', '--json'], 1, done, function (stdout) {
       var refs = JSON.parse(stdout)
@@ -413,14 +411,16 @@ test.skip('CLI should list available application refs', t => {
   })
 })
 
-test.skip('CLI should update application refs', t => {
+test.skip('Should update application refs', t => {
 
 })
 
-test.skip('CLI should switch an application ref', t => {
+test.skip('Should switch an application ref', t => {
 
 })
 
-test.skip('CLI should start an app', t => {
+test.skip('Should start an app', t => {
 
 })
+
+test.todo('Should stop the daemon')
