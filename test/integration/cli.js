@@ -37,15 +37,15 @@ test.afterEach(t => {
 })
 
 test('Should return a process list', t => {
-  return t.context.cli(['list'])
+  return t.context.cli('guv list')
   .then(stdout => {
     t.truthy(stdout.trim())
   })
 })
 
 test('Should return a process list as JSON', t => {
-  return t.context.cli(['list', '--json'])
-  .then(() => t.context.cli(['list', '--json']))
+  return t.context.cli('guv list --json')
+  .then(() => t.context.cli('guv list --json'))
   .then(stdout => JSON.parse(stdout))
   .then(procs => t.is(Array.isArray(procs), true))
 })
@@ -54,10 +54,10 @@ test('Should start a process', t => {
   const script = '/opt/guvnor/test/fixtures/hello-world.js'
   const name = t.context.procName()
 
-  return t.context.cli(['start', script, '-n', name])
+  return t.context.cli(`guv start ${script} -n ${name}`)
   .then(stdout => t.truthy(stdout.indexOf(`Process ${name} started`) > -1))
   .then(utils.onProcessEvent('process:started', name, t.context.api))
-  .then(() => t.context.cli(['list', '--json']))
+  .then(() => t.context.cli('guv list --json'))
   .then(stdout => JSON.parse(stdout))
   .then(procs => procs.find(proc => proc.name === name))
   .then(proc => utils.isProc(t, name, 'running', proc))
@@ -67,12 +67,12 @@ test('Should stop a process', t => {
   const script = '/opt/guvnor/test/fixtures/hello-world.js'
   const name = t.context.procName()
 
-  return t.context.cli(['start', script, '-n', name])
+  return t.context.cli(`guv start ${script} -n ${name}`)
   .then(utils.onProcessEvent('process:started', name, t.context.api))
-  .then(() => t.context.cli(['stop', name]))
+  .then(() => t.context.cli(`guv stop ${name}`))
   .then(stdout => t.truthy(stdout.indexOf(`Process ${name} stopped`) > -1))
   .then(utils.onProcessEvent('process:stopped', name, t.context.api))
-  .then(() => t.context.cli(['list', '--json']))
+  .then(() => t.context.cli('guv list --json'))
   .then(stdout => JSON.parse(stdout))
   .then(procs => procs.find(proc => proc.name === name))
   .then(proc => utils.isProc(t, name, 'stopped', proc))
@@ -82,12 +82,12 @@ test('Should remove a stopped process', t => {
   const script = '/opt/guvnor/test/fixtures/hello-world.js'
   const name = t.context.procName()
 
-  return t.context.cli(['start', script, '-n', name])
+  return t.context.cli(`guv start ${script} -n ${name}`)
   .then(utils.onProcessEvent('process:started', name, t.context.api))
-  .then(() => t.context.cli(['stop', name]))
+  .then(() => t.context.cli(`guv stop ${name}`))
   .then(utils.onProcessEvent('process:stopped', name, t.context.api))
-  .then(() => t.context.cli(['remove', name]))
-  .then(() => t.context.cli(['list', '--json']))
+  .then(() => t.context.cli(`guv remove ${name}`))
+  .then(() => t.context.cli('guv list --json'))
   .then(stdout => JSON.parse(stdout))
   .then(procs => procs.find(proc => proc.name === name))
   .then(proc => t.falsy(proc))
@@ -97,10 +97,10 @@ test('Should remove a running process', t => {
   const script = '/opt/guvnor/test/fixtures/hello-world.js'
   const name = t.context.procName()
 
-  return t.context.cli(['start', script, '-n', name])
+  return t.context.cli(`guv start ${script} -n ${name}`)
   .then(utils.onProcessEvent('process:started', name, t.context.api))
-  .then(() => t.context.cli(['remove', name]))
-  .then(() => t.context.cli(['list', '--json']))
+  .then(() => t.context.cli(`guv remove ${name}`))
+  .then(() => t.context.cli('guv list --json'))
   .then(stdout => JSON.parse(stdout))
   .then(procs => procs.find(proc => proc.name === name))
   .then(proc => t.falsy(proc))
@@ -110,11 +110,11 @@ test('Should restart a process', t => {
   const script = '/opt/guvnor/test/fixtures/hello-world.js'
   const name = t.context.procName()
 
-  return t.context.cli(['start', script, '-n', name])
+  return t.context.cli(`guv start ${script} -n ${name}`)
   .then(utils.onProcessEvent('process:started', name, t.context.api))
-  .then(() => t.context.cli(['restart', name]))
+  .then(() => t.context.cli(`guv restart ${name}`))
   .then(utils.onProcessEvent('process:started', name, t.context.api))
-  .then(() => t.context.cli(['list', '--json']))
+  .then(() => t.context.cli('guv list --json'))
   .then(stdout => JSON.parse(stdout))
   .then(procs => procs.find(proc => proc.name === name))
   .then(proc => utils.isProc(t, name, 'running', proc))
@@ -125,9 +125,9 @@ test('Should start a process with arguments', t => {
   const name = t.context.procName()
   const argv = ['one', 'two', 'three']
 
-  return t.context.cli(['start', script, '-n', name, '-a', argv.join(' ')])
+  return t.context.cli(`guv start ${script} -n ${name} -a ${argv[0]} -a ${argv[1]} -a ${argv[2]}`)
   .then(utils.onProcessEvent('process:started', name, t.context.api))
-  .then(() => t.context.cli(['list', '--json']))
+  .then(() => t.context.cli('guv list --json'))
   .then(stdout => JSON.parse(stdout))
   .then(procs => procs.find(proc => proc.name === name))
   .then(proc => t.deepEqual(proc.master.argv.slice(2), argv))
@@ -138,9 +138,9 @@ test('Should start a process with arguments passed without delimiters', t => {
   const name = t.context.procName()
   const argv = ['one', 'two', 'three']
 
-  return t.context.cli(['start', script, '-n', name, '-a', argv[0], argv[1], argv[2]])
+  return t.context.cli(`guv start ${script} -n ${name} -a ${argv[0]} ${argv[1]} ${argv[2]}`)
   .then(utils.onProcessEvent('process:started', name, t.context.api))
-  .then(() => t.context.cli(['list', '--json']))
+  .then(() => t.context.cli('guv list --json'))
   .then(stdout => JSON.parse(stdout))
   .then(procs => procs.find(proc => proc.name === name))
   .then(proc => t.deepEqual(proc.master.argv.slice(2), argv))
@@ -152,9 +152,9 @@ test.skip('Should start a process with exec arguments', t => {
   const name = t.context.procName()
   const execArgv = ['--log_gc', '--trace_code_flushing', '--trace_stub_failures']
 
-  return t.context.cli(['start', script, '-n', name, '-e', execArgv.join(' ')])
+  return t.context.cli(`guv start ${script} -n ${name} -e ${execArgv[0]} ${execArgv[1]} ${execArgv[2]}`)
   .then(utils.onProcessEvent('process:started', name, t.context.api))
-  .then(() => t.context.cli(['list', '--json']))
+  .then(() => t.context.cli('guv list --json'))
   .then(stdout => JSON.parse(stdout))
   .then(procs => procs.find(proc => proc.name === name))
   .then(proc => t.deepEqual(proc.master.execArgv.slice(2), execArgv))
@@ -173,14 +173,14 @@ test('Should increase number of cluster workers', t => {
     }
 
     // start the process
-    return t.context.cli(['start', script, '-n', name, '-w', '1'])
+    return t.context.cli(`guv start ${script} -n ${name} -w 1`)
     // when it's started
     .then(utils.onProcessEvent('process:started', name, t.context.api))
     .then(() => t.context.api.process.list())
     .then(procs => procs.find((proc) => proc.name === name))
     .then(proc => t.is(proc.workers.length, 1))
     .then(() => {
-      t.context.cli(['workers', name, '2'])
+      t.context.cli(`guv workers ${name} 2`)
 
       // when the new worker starts
       return utils.onProcessEvent('process:worker:started', name, t.context.api)()
@@ -207,14 +207,14 @@ test('Should decrease number of cluster workers', t => {
     }
 
     // start the process
-    return t.context.cli(['start', script, '-n', name, '-w', '2'])
+    return t.context.cli(`guv start ${script} -n ${name} -w 2`)
     // when it's started
     .then(utils.onProcessEvent('process:started', name, t.context.api))
     .then(() => t.context.api.process.list())
     .then(procs => procs.find((proc) => proc.name === name))
     .then(proc => t.is(proc.workers.length, 2))
     .then(() => {
-      t.context.cli(['workers', name, '1'])
+      t.context.cli(`guv workers ${name} 1`)
 
       // when the new worker stops
       return utils.onProcessEvent('process:worker:exit', name, t.context.api)()
@@ -240,7 +240,7 @@ test('Should send an event to a process', t => {
   // when it's started
   .then(utils.onProcessEvent('process:started', name, t.context.api))
   // send an event
-  .then(() => t.context.cli(['send', name, 'custom:event:sent', 'arg1', 'arg2', 'arg3']))
+  .then(() => t.context.cli(`guv send ${name} custom:event:sent arg1 arg2 arg3`))
   // when we get a response
   .then(utils.onProcessEvent('custom:event:received', name, t.context.api))
   // should have echoed our args back to us
@@ -258,7 +258,7 @@ test('Should send a signal to a process', t => {
   // when it's started
   .then(utils.onProcessEvent('process:started', name, t.context.api))
   // send a signal
-  .then(() => t.context.cli(['signal', name, 'SIGUSR1']))
+  .then(() => t.context.cli(`guv signal ${name} SIGUSR1`))
   // when we get a response
   .then(utils.onProcessEvent('signal:received', name, t.context.api))
   // should have echoed our args back to us
@@ -276,7 +276,7 @@ test('Should make a process dump heap', t => {
   // when it's started
   .then(utils.onProcessEvent('process:started', name, t.context.api))
   // send a signal
-  .then(() => t.context.cli(['heap', name]))
+  .then(() => t.context.cli(`guv heap ${name}`))
   // when we get a response
   .then(stdout => t.regex(stdout, /took a heap snapshot/g))
 })
@@ -292,7 +292,7 @@ test('Should make a process collect garbage', t => {
   // when it's started
   .then(utils.onProcessEvent('process:started', name, t.context.api))
   // send a signal
-  .then(() => t.context.cli(['gc', name]))
+  .then(() => t.context.cli(`guv gc ${name}`))
   // when we get a response
   .then(stdout => t.regex(stdout, /collected garbage/g))
 })
@@ -301,7 +301,7 @@ test.skip('Should show logs', t => {
 
 })
 
-test('Should only show logs for one process', t => {
+test.skip('Should only show logs for one process', t => {
   const script = '/opt/guvnor/test/fixtures/hello-world.js'
   const name = t.context.procName()
 
@@ -312,7 +312,7 @@ test('Should only show logs for one process', t => {
   // when it's started
   .then(utils.onProcessEvent('process:started', name, t.context.api))
   // send a signal
-  .then(() => t.context.cli(['logs', name]))
+  .then(() => t.context.cli(`guv logs ${name}`))
   // when we get a response
   .then(stdout => t.regex(stdout, new RegExp(`Process logs for ${name}`, 'g')))
 })
@@ -321,36 +321,37 @@ test('Should report daemon status', t => {
   const script = '/opt/guvnor/test/fixtures/hello-world.js'
   const name = t.context.procName()
 
-  return t.context.cli(['status'])
+  return t.context.cli('guv status')
   .then(stdout => t.regex(stdout, /Daemon is running/))
 })
 
 test('Should set up certificates for a user', t => {
-  return t.context.cli(['adduser', 'guvnor-user-4'])
+  return t.context.cli('guv adduser guvnor-user-4')
   .then(stdout => t.regex(stdout, /User guvnor-user-4 added/))
 })
 
 test('Should not set up certificates for a user twice', t => {
-  return t.context.cli(['adduser', 'guvnor-user-5'])
+  return t.context.cli('guv adduser guvnor-user-5')
   .then(stdout => t.regex(stdout, /User guvnor-user-5 added/))
-  .then(() => t.context.cli(['adduser', 'guvnor-user-5']))
-  .then(stdout => t.regex(stdout, /A certificate already exists for that user/))
+  .then(() => t.context.cli('guv adduser guvnor-user-5'))
+  .catch(error => t.regex(error.message, /A certificate already exists for that user/))
 })
 
-test.skip('Should remove certificates for a user', t => {
-  return t.context.cli(['adduser', 'guvnor-user-6'])
+test('Should remove certificates for a user', t => {
+  return t.context.cli('guv adduser guvnor-user-6')
   .then(stdout => t.regex(stdout, /User guvnor-user-6 added/))
-  .then(() => t.context.cli(['rmuser', 'guvnor-user-6']))
+  .then(() => t.context.cli('guv rmuser guvnor-user-6'))
   .then(stdout => t.regex(stdout, /User guvnor-user-6 removed/))
 })
 
-test.skip('Should not create certificates for a non-existant user', t => {
-
+test('Should not create certificates for a non-existant user', t => {
+  return t.context.cli('guv adduser i-do-not-exist')
+  .catch(error => t.regex(error.message, /No user was found with the name i-do-not-exist/))
 })
 
 test('Should not remove certificates for a non-existant user', t => {
-  return t.context.cli(['adduser', 'guvnor-user-4'])
-  .then(stdout => t.regex(stdout, /No user was found with the name guvnor-user-4/))
+  return t.context.cli('guv rmuser i-do-not-exist')
+  .catch(error => t.regex(error.message, /No user was found with the name i-do-not-exist/))
 })
 
 test.skip('Should not show installed apps', t => {

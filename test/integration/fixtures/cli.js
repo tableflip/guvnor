@@ -8,10 +8,9 @@ const EventEmitter = require('events').EventEmitter
 
 module.exports = daemon
 .then(credentials => (args, piped) => {
-  args.unshift('/path/to/guvnor')
-  args.unshift('/path/to/node')
+  args = `/path/to/node ${args}`
 
-  logger.debug(`CLI running ${stringify(args)}`)
+  logger.debug(`CLI running ${args}`)
 
   return cli(credentials, args, piped)
   .then(stdout => {
@@ -20,7 +19,9 @@ module.exports = daemon
     return stdout
   })
   .catch(error => {
-    logger.error(`CLI error: ${error.stack}`)
+    if (error.code !== 'OVERRIDDEN') {
+      logger.error(`CLI error: ${error.stack}`)
+    }
 
     throw error
   })
