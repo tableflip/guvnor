@@ -334,15 +334,23 @@ test('Should not set up certificates for a user twice', t => {
   return t.context.cli(['adduser', 'guvnor-user-5'])
   .then(stdout => t.regex(stdout, /User guvnor-user-5 added/))
   .then(() => t.context.cli(['adduser', 'guvnor-user-5']))
-  .catch(error => t.is(error.statusCode, 409))
+  .then(stdout => t.regex(stdout, /A certificate already exists for that user/))
 })
 
 test.skip('Should remove certificates for a user', t => {
-
+  return t.context.cli(['adduser', 'guvnor-user-6'])
+  .then(stdout => t.regex(stdout, /User guvnor-user-6 added/))
+  .then(() => t.context.cli(['rmuser', 'guvnor-user-6']))
+  .then(stdout => t.regex(stdout, /User guvnor-user-6 removed/))
 })
 
 test.skip('Should not create certificates for a non-existant user', t => {
 
+})
+
+test('Should not remove certificates for a non-existant user', t => {
+  return t.context.cli(['adduser', 'guvnor-user-4'])
+  .then(stdout => t.regex(stdout, /No user was found with the name guvnor-user-4/))
 })
 
 test.skip('Should not show installed apps', t => {
