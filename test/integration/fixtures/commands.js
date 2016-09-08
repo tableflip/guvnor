@@ -77,6 +77,12 @@ module.exports.takeHeapSnapshot = (runner, id) => {
     return Promise.resolve()
   }
 
+  if (!process.env.TRACK_HEAP) { // set in package.json
+    logger.debug('Not taking a heap snapshot as TRACK_HEAP was not set in the environment')
+
+    return Promise.resolve()
+  }
+
   logger.debug('Taking a heap snapshot')
 
   return runner([

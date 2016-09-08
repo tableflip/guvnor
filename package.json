@@ -18,6 +18,7 @@
     "test:ci": "COVERAGE=true QUIET=true npm test && nyc report --reporter=lcov",
     "test:coverage": "COVERAGE=true npm test && nyc report --reporter=html",
     "test:coverage:check": "npm run test:coverage && nyc check-coverage --lines 100 --functions 100 --branches 100",
+    "test:heap": "TRACK_HEAP=true npm test",
     "coveralls": "cat ./coverage/lcov.info | coveralls",
     "docker": "npm run docker:build && npm run docker:deploy",
     "docker:build": "docker build -f Dockerfile-guvnor-base -t achingbrain/guvnor-base .",
