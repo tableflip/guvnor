@@ -25,6 +25,14 @@ test.beforeEach(t => {
     return name
   }
 
+  t.context._appNames = []
+  t.context.appName = () => {
+    const name =  `${faker.lorem.word()}_${faker.lorem.word()}_${faker.lorem.word()}_${faker.lorem.word()}`
+    t.context._appNames.push(name)
+
+    return name
+  }
+
   return api.then(api => {
     t.context.api = api
   })
@@ -660,7 +668,7 @@ test('Should deploy an application', t => {
 
 test('Should deploy an application and override name', t => {
   const url = 'https://github.com/achingbrain/http-test.git'
-  const name = t.context.procName()
+  const name = t.context.appName()
 
   return t.context.api.app.install(url, name, () => {})
   .then(() => t.context.api.app.get(name))
@@ -672,7 +680,7 @@ test('Should deploy an application and override name', t => {
 
 test('Should not deploy an application with the same name twice', t => {
   const url = 'https://github.com/achingbrain/http-test.git'
-  const name = t.context.procName()
+  const name = t.context.appName()
 
   return t.context.api.app.install(url, name, () => {})
   .then(() => t.context.api.app.install(url, name, () => {}))
@@ -681,7 +689,7 @@ test('Should not deploy an application with the same name twice', t => {
 
 test('Should list deployed applications', t => {
   const url = 'https://github.com/achingbrain/http-test.git'
-  const name = t.context.procName()
+  const name = t.context.appName()
 
   return t.context.api.app.install(url, name, () => {})
   .then(() => t.context.api.app.list())
@@ -690,7 +698,7 @@ test('Should list deployed applications', t => {
 
 test('Should remove deployed applications', t => {
   const url = 'https://github.com/achingbrain/http-test.git'
-  const name = t.context.procName()
+  const name = t.context.appName()
 
   return t.context.api.app.install(url, name, () => {})
   .then(() => t.context.api.app.list())
@@ -701,7 +709,7 @@ test('Should remove deployed applications', t => {
 })
 
 test('Should return a 404 for a non-existant app', t => {
-  const name = t.context.procName()
+  const name = t.context.appName()
 
   return t.context.api.app.get(name)
   .catch(error => {
@@ -711,7 +719,7 @@ test('Should return a 404 for a non-existant app', t => {
 
 test('Should report the current application ref', t => {
   const url = 'https://github.com/achingbrain/http-test.git'
-  const name = t.context.procName()
+  const name = t.context.appName()
 
   return t.context.api.app.install(url, name, () => {})
   .then(() => t.context.api.app.ref(name))
@@ -724,7 +732,7 @@ test('Should report the current application ref', t => {
 
 test('Should list available application refs', t => {
   const url = 'https://github.com/achingbrain/http-test.git'
-  const name = t.context.procName()
+  const name = t.context.appName()
 
   return t.context.api.app.install(url, name, () => {})
   .then(() => t.context.api.app.refs(name))
@@ -738,7 +746,7 @@ test('Should list available application refs', t => {
 
 test('Should update application refs', t => {
   const url = 'https://github.com/achingbrain/http-test.git'
-  const name = t.context.procName()
+  const name = t.context.appName()
 
   return t.context.api.app.install(url, name, () => {})
   .then(() => t.context.api.app.update(name, () => {}))
@@ -747,7 +755,7 @@ test('Should update application refs', t => {
 
 test('Should switch an application ref', t => {
   const url = 'https://github.com/achingbrain/http-test.git'
-  const name = t.context.procName()
+  const name = t.context.appName()
 
   return t.context.api.app.install(url, name, () => {})
   .then(() => t.context.api.app.ref(name))
@@ -767,7 +775,7 @@ test('Should switch an application ref', t => {
 
 test('Should refuse to switch to an invalid ref', t => {
   const url = 'https://github.com/achingbrain/http-test.git'
-  const name = t.context.procName()
+  const name = t.context.appName()
 
   return t.context.api.app.install(url, name, () => {})
   .then(() => t.context.api.app.setRef(name, 'i do not exist'))
@@ -776,7 +784,7 @@ test('Should refuse to switch to an invalid ref', t => {
 
 test('Should start an app', t => {
   const url = 'https://github.com/achingbrain/http-test.git'
-  const name = t.context.procName()
+  const name = t.context.appName()
 
   return t.context.api.app.install(url, name, () => {})
   .then(() => t.context.api.process.start(name))
@@ -789,7 +797,7 @@ test('Should start an app', t => {
 
 test('Should refuse to update a running app', t => {
   const url = 'https://github.com/achingbrain/http-test.git'
-  const name = t.context.procName()
+  const name = t.context.appName()
 
   return t.context.api.app.install(url, name, () => {})
   .then(() => t.context.api.process.start(name))
@@ -801,7 +809,7 @@ test('Should refuse to update a running app', t => {
 
 test('Should refuse to switch refs for a running app', t => {
   const url = 'https://github.com/achingbrain/http-test.git'
-  const name = t.context.procName()
+  const name = t.context.appName()
 
   return t.context.api.app.install(url, name, () => {})
   .then(() => t.context.api.process.start(name))
@@ -857,6 +865,6 @@ test('Should remove a user', t => {
   .then(processes => t.truthy(Array.isArray(processes)))
 })
 
-test.todo('API should start a process in debug mode')
+test.todo('Should start a process in debug mode')
 
-test.todo('API should stop the daemon')
+test.todo('Should stop the daemon')

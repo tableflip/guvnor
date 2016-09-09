@@ -22,6 +22,14 @@ test.beforeEach(t => {
     return name
   }
 
+  t.context._appNames = []
+  t.context.appName = () => {
+    const name =  `${faker.lorem.word()}_${faker.lorem.word()}_${faker.lorem.word()}_${faker.lorem.word()}`
+    t.context._appNames.push(name)
+
+    return name
+  }
+
   return Promise.all([
     cli.then(cli => {
       t.context.cli = cli
@@ -354,82 +362,125 @@ test('Should not remove certificates for a non-existant user', t => {
   .catch(error => t.regex(error.message, /No user was found with the name i-do-not-exist/))
 })
 
-test.skip('Should not show installed apps', t => {
-  runCli(['lsapps'], 1, done, function (stdout) {
-    expect(stdout.trim()).to.equal('')
+test('Should list deployed applications', t => {
+  return t.context.cli('guv lsapps --json')
+  .then(stdout => JSON.parse(stdout))
+  .then(apps => t.truthy(Array.isArray(apps)))
+})
+
+test('Should deploy an application', t => {
+  const name = t.context.appName()
+  const url = 'https://github.com/achingbrain/http-test.git'
+
+  return t.context.cli(`guv install ${url} -n ${name}`)
+  .then(stdout => t.is(stdout, `Installed ${name} from ${url}`))
+  .then(() => t.context.cli('guv lsapps --json'))
+  .then(stdout => JSON.parse(stdout))
+  .then(apps => t.truthy(apps.some(app => app.name === name)))
+})
+
+test('Should remove deployed applications', t => {
+  const name = t.context.appName()
+  const url = 'https://github.com/achingbrain/http-test.git'
+
+  return t.context.cli(`guv install ${url} -n ${name}`)
+  .then(() => t.context.cli('guv lsapps --json'))
+  .then(stdout => JSON.parse(stdout))
+  .then(apps => t.truthy(apps.some(app => app.name === name)))
+  .then(() => t.context.cli(`guv rmapp ${name}`))
+  .then(stdout => t.is(stdout, `Removed app ${name}`))
+  .then(() => t.context.cli('guv lsapps --json'))
+  .then(stdout => JSON.parse(stdout))
+  .then(apps => t.falsy(apps.some(app => app.name === name)))
+})
+
+test('Should report the current application ref', t => {
+  const name = t.context.appName()
+  const url = 'https://github.com/achingbrain/http-test.git'
+
+  return t.context.cli(`guv install ${url} -n ${name}`)
+  .then(() => t.context.cli(`guv lsref ${name} --json`))
+  .then(stdout => JSON.parse(stdout))
+  .then(ref => {
+    t.is(ref.name, 'master')
+    t.is(ref.type, 'branch')
+    t.truthy(ref.commit)
   })
 })
 
-test.skip('Should deploy an application', t => {
-  runCli(['install', 'https://github.com/achingbrain/http-test.git'], 6, done, function (stdout) {
-    expect(stdout.trim()).to.contain('Installed http-test from https://github.com/achingbrain/http-test.git')
+test('Should list available application refs', t => {
+  const name = t.context.appName()
+  const url = 'https://github.com/achingbrain/http-test.git'
+
+  return t.context.cli(`guv install ${url} -n ${name}`)
+  .then(() => t.context.cli(`guv lsrefs ${name} --json`))
+  .then(stdout => JSON.parse(stdout))
+  .then(refs => {
+    t.is(refs.length, 5)
+    t.is(refs[0].name, 'a-branch')
+    t.is(refs[0].type, 'branch')
+    t.truthy(refs[0].commit)
   })
 })
 
-test.skip('Should deploy an application and override name', t => {
-  runCli(['install', 'https://github.com/achingbrain/http-test.git', '-n', 'foo'], 6, done, function (stdout) {
-    expect(stdout.trim()).to.contain('Installed foo from https://github.com/achingbrain/http-test.git')
+test('Should update application refs', t => {
+  const name = t.context.appName()
+  const url = 'https://github.com/achingbrain/http-test.git'
+
+  return t.context.cli(`guv install ${url} -n ${name}`)
+  .then(() => t.context.cli(`guv update ${name} --json`))
+  .then(stdout => t.is(stdout, `Updated ${name}`))
+})
+
+test('Should switch an application ref', t => {
+  const name = t.context.appName()
+  const url = 'https://github.com/achingbrain/http-test.git'
+
+  return t.context.cli(`guv install ${url} -n ${name}`)
+  .then(() => t.context.cli(`guv lsref ${name} --json`))
+  .then(stdout => JSON.parse(stdout))
+  .then(ref => {
+    t.is(ref.name, 'master')
+    t.is(ref.type, 'branch')
+    t.truthy(ref.commit)
+  })
+  .then(() => t.context.cli(`guv setref ${name} a-branch`))
+  .then(stdout => t.is(stdout, `Set ${name} ref to a-branch`))
+  .then(() => t.context.cli(`guv lsref ${name} --json`))
+  .then(stdout => JSON.parse(stdout))
+  .then(ref => {
+    t.is(ref.name, 'a-branch')
+    t.is(ref.type, 'branch')
+    t.truthy(ref.commit)
   })
 })
 
-test.skip('Should list deployed applications', t => {
-  runCli(['install', 'https://github.com/achingbrain/http-test.git'], 6, done, function (stdout) {
-    runCli(['lsapps', '--json'], 1, done, function (stdout) {
-      var apps = JSON.parse(stdout)
-      expect(apps.length).to.equal(1)
-      expect(apps[0].name).to.equal('http-test')
-    })
-  })
+test('Should start an app', t => {
+  const name = t.context.appName()
+  const url = 'https://github.com/achingbrain/http-test.git'
+
+  return t.context.cli(`guv install ${url} -n ${name}`)
+  .then(() => t.context.cli(`guv start ${name}`))
+  .then(stdout => t.truthy(stdout.indexOf(`Process ${name} started`) > -1))
+  .then(utils.onProcessEvent('process:started', name, t.context.api))
+  .then(() => t.context.cli('guv list --json'))
+  .then(stdout => JSON.parse(stdout))
+  .then(procs => procs.find(proc => proc.name === name))
+  .then(proc => utils.isProc(t, name, 'running', proc))
 })
 
-test.skip('Should remove deployed applications', t => {
-  runCli(['install', 'https://github.com/achingbrain/http-test.git'], 6, done, function (stdout) {
-    runCli(['rmapp', 'http-test'], 1, done, function (stdout) {
-      expect(stdout).to.contain('Removed app http-test')
-
-      runCli(['lsapps', '--json'], 1, done, function (stdout) {
-        var apps = JSON.parse(stdout)
-        expect(apps.length).to.equal(0)
-      })
-    })
-  })
-})
-
-test.skip('Should report the current application ref', t => {
-  runCli(['install', 'https://github.com/achingbrain/http-test.git'], 6, done, function (stdout) {
-    runCli(['lsref', 'http-test', '--json'], 1, done, function (stdout) {
-      var ref = JSON.parse(stdout)
-
-      expect(ref.name).to.equal('master')
-      expect(ref.type).to.equal('branch')
-      expect(ref.commit).to.be.ok
-    })
-  })
-})
-
-test.skip('Should list available application refs', t => {
-  runCli(['install', 'https://github.com/achingbrain/http-test.git'], 6, done, function (stdout) {
-    runCli(['lsrefs', 'http-test', '--json'], 1, done, function (stdout) {
-      var refs = JSON.parse(stdout)
-
-      expect(refs.length).to.equal(5)
-      expect(refs[0].type).to.equal('branch')
-      expect(refs[0].name).to.equal('a-branch')
-      expect(refs[0].commit).to.be.ok
-    })
-  })
-})
-
-test.skip('Should update application refs', t => {
+test.skip('Should not start an app twice with the same name', t => {
 
 })
 
-test.skip('Should switch an application ref', t => {
+test.skip('Should start an app twice with different names', t => {
 
 })
 
-test.skip('Should start an app', t => {
+test.skip('Should not update application refs for a running app', t => {
 
 })
 
-test.todo('Should stop the daemon')
+test.skip('Should stop the daemon', t => {
+
+})
