@@ -6,6 +6,8 @@ lib-cov
 *.out
 *.pid
 *.gz
+*.heapsnapshot
+*.p12
 
 pids
 ./logs

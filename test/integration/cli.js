@@ -6,6 +6,7 @@ const cli = require('./fixtures/cli')
 const api = require('./fixtures/api')
 const utils = require('./fixtures/utils')
 const winston = require('winston')
+const fs = require('fs-promise')
 
 if (!process.env.QUIET) {
   winston.level = 'debug'
@@ -46,6 +47,13 @@ test.afterEach(t => {
 
 test('Should return a process list', t => {
   return t.context.cli('guv list')
+  .then(stdout => {
+    t.truthy(stdout.trim())
+  })
+})
+
+test('Should return an app list', t => {
+  return t.context.cli('guv lsapps')
   .then(stdout => {
     t.truthy(stdout.trim())
   })
@@ -325,14 +333,6 @@ test.skip('Should only show logs for one process', t => {
   .then(stdout => t.regex(stdout, new RegExp(`Process logs for ${name}`, 'g')))
 })
 
-test('Should report daemon status', t => {
-  const script = '/opt/guvnor/test/fixtures/hello-world.js'
-  const name = t.context.procName()
-
-  return t.context.cli('guv status')
-  .then(stdout => t.regex(stdout, /Daemon is running/))
-})
-
 test('Should set up certificates for a user', t => {
   return t.context.cli('guv adduser guvnor-user-4')
   .then(stdout => t.regex(stdout, /User guvnor-user-4 added/))
@@ -394,7 +394,7 @@ test('Should remove deployed applications', t => {
   .then(apps => t.falsy(apps.some(app => app.name === name)))
 })
 
-test('Should report the current application ref', t => {
+test('Should report the current application ref as JSON', t => {
   const name = t.context.appName()
   const url = 'https://github.com/achingbrain/http-test.git'
 
@@ -408,7 +408,19 @@ test('Should report the current application ref', t => {
   })
 })
 
-test('Should list available application refs', t => {
+test('Should report the current application ref', t => {
+  const name = t.context.appName()
+  const url = 'https://github.com/achingbrain/http-test.git'
+
+  return t.context.cli(`guv install ${url} -n ${name}`)
+  .then(() => t.context.cli(`guv lsref ${name}`))
+  .then(stdout => {
+    t.not(stdout.indexOf('master'), -1)
+    t.not(stdout.indexOf('branch'), -1)
+  })
+})
+
+test('Should list available application refs as JSON', t => {
   const name = t.context.appName()
   const url = 'https://github.com/achingbrain/http-test.git'
 
@@ -420,6 +432,17 @@ test('Should list available application refs', t => {
     t.is(refs[0].name, 'a-branch')
     t.is(refs[0].type, 'branch')
     t.truthy(refs[0].commit)
+  })
+})
+
+test('Should list available application refs', t => {
+  const name = t.context.appName()
+  const url = 'https://github.com/achingbrain/http-test.git'
+
+  return t.context.cli(`guv install ${url} -n ${name}`)
+  .then(() => t.context.cli(`guv lsrefs ${name}`))
+  .then(stdout => {
+    t.not(stdout.indexOf('a-branch'), -1)
   })
 })
 
@@ -469,18 +492,43 @@ test('Should start an app', t => {
   .then(proc => utils.isProc(t, name, 'running', proc))
 })
 
-test.skip('Should not start an app twice with the same name', t => {
+test('Should not start an app twice', t => {
+  const name = t.context.appName()
+  const url = 'https://github.com/achingbrain/http-test.git'
 
+  return t.context.cli(`guv install ${url} -n ${name}`)
+  .then(() => t.context.cli(`guv start ${name}`))
+  .then(stdout => t.truthy(stdout.indexOf(`Process ${name} started`) > -1))
+  .then(utils.onProcessEvent('process:started', name, t.context.api))
+  .then(() => t.context.cli(`guv start ${name}`))
+  .catch(error => t.is(error.message, `${name} is already running`))
 })
 
-test.skip('Should start an app twice with different names', t => {
+test('Should not update application refs for a running app', t => {
+  const name = t.context.appName()
+  const url = 'https://github.com/achingbrain/http-test.git'
 
+  return t.context.cli(`guv install ${url} -n ${name}`)
+  .then(() => t.context.cli(`guv start ${name}`))
+  .then(stdout => t.truthy(stdout.indexOf(`Process ${name} started`) > -1))
+  .then(utils.onProcessEvent('process:started', name, t.context.api))
+  .then(() => t.context.cli(`guv update ${name}`))
+  .catch(error => t.is(error.message, `App ${name} was running`))
 })
 
-test.skip('Should not update application refs for a running app', t => {
-
+test('Should report daemon status', t => {
+  return t.context.cli('guv status')
+  .then(stdout => t.regex(stdout, /Daemon is running/))
 })
 
-test.skip('Should stop the daemon', t => {
-
+test('Should create certificate file for web interface', t => {
+  return t.context.cli('guv webkey -p foobar')
+  .then(stdout => {
+    t.regex(stdout, /Created (.*).p12/)
+    t.is(fs.existsSync(stdout.split('Created ')[1]), true)
+  })
 })
+
+test.todo('Should start the daemon')
+
+test.todo('Should stop the daemon')
