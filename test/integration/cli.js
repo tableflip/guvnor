@@ -7,6 +7,8 @@ const api = require('./fixtures/api')
 const utils = require('./fixtures/utils')
 const winston = require('winston')
 const fs = require('fs-promise')
+const pem = require('pem-promise')
+const loadApi = require('../../lib/local')
 
 if (!process.env.QUIET) {
   winston.level = 'debug'
@@ -521,12 +523,21 @@ test('Should report daemon status', t => {
   .then(stdout => t.regex(stdout, /Daemon is running/))
 })
 
-test('Should create certificate file for web interface', t => {
-  return t.context.cli('guv webkey -p foobar')
+test.skip('Should create certificate file for web interface', t => {
+  const password = 'foobar'
+
+  return t.context.cli(`guv webkey -p ${password}`)
   .then(stdout => {
     t.regex(stdout, /Created (.*).p12/)
-    t.is(fs.existsSync(stdout.split('Created ')[1]), true)
+    const p12 = stdout.split('Created ')[1]
+
+    return pem.readPkcs12(p12, {
+      p12Password: password
+    })
   })
+  .then(certs => loadApi(certs))
+  .then(api => api.process.list())
+  .then(processes => t.truthy(Array.isArray(processes)))
 })
 
 test.todo('Should start the daemon')

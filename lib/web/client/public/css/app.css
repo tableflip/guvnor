@@ -9248,8 +9248,14 @@ h1 {
 .alert ol {
   margin-top: 6px;
 }
+.alert p {
+  margin: 1em 0;
+}
 .alert button {
   margin-top: 10px;
+}
+.alert *:last-child {
+  margin-bottom: 0;
 }
 .navbar-header small {
   padding-right: 31px;

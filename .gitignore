@@ -8,6 +8,7 @@ lib-cov
 *.gz
 *.heapsnapshot
 *.p12
+*.crt
 
 pids
 ./logs

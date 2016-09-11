@@ -23,12 +23,14 @@ Vagrant.configure("2") do |config|
   config.vm.network :forwarded_port, guest: 8003, host: 8003
 
   config.vm.synced_folder "lib", "%s/lib" % $path,
-    #:type => "rsync",
     :owner => $user,
     :group => $group,
     :mount_options => ["dmode=775","fmode=664"]
   config.vm.synced_folder "test", "%s/test" % $path,
-    #:type => "rsync",
+    :owner => $user,
+    :group => $group,
+    :mount_options => ["dmode=775","fmode=664"]
+  config.vm.synced_folder "bin", "%s/bin" % $path,
     :owner => $user,
     :group => $group,
     :mount_options => ["dmode=775","fmode=664"]

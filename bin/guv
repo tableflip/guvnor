@@ -1,5 +1,10 @@
 #!/usr/bin/env node
 
+'use strict'
+
+const logger = require('winston')
+const logLevel = 'debug'
+
 const onError = error => {
   if (error.code === 'EINVALIDCERT') {
     logger.error('Your user certificate is invalid.')
@@ -24,6 +29,13 @@ process.on('unhandled-rejection', onError)
 const OutputBuffer = require('output-buffer')
 const path = require('path')
 const run = require(path.resolve(path.join(__dirname, '..', 'lib', 'cli')))
+const config = require('../lib/cli/config')
+
+const certs = {
+  ca: config.CA,
+  cert: config.USER_CERT,
+  key: config.USER_KEY
+}
 
 const args = process.argv
 
@@ -34,13 +46,13 @@ const buffer = new OutputBuffer(line => {
   line = line.trim()
 
   if (line) {
-    run(args.concat(line), process.stdout, process.stderr, !process.stdout.isTTY)
+    run(certs, args.concat(line), process.stdout, process.stderr, !process.stdout.isTTY)
     .then(result => console.info(result))
     .catch(error => console.error(error))
   }
 })
 
-process.stdin.on('readable', () => {
+process.stdin.on('readable', function () {
   buffer.append()
 
   const chunk = this.read()
@@ -48,7 +60,7 @@ process.stdin.on('readable', () => {
   if (chunk === null) {
     if (buffer.size() === 0 && !readData) {
       // not being piped to
-      run(args, !process.stdout.isTTY)
+      run(certs, args, !process.stdout.isTTY)
       .then(result => console.info(result))
       .catch(error => console.error(error))
 

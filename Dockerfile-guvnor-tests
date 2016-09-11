@@ -9,6 +9,12 @@ ADD . /opt/guvnor
 
 ADD guvnor.service /etc/systemd/system/guvnor.service
 
+# Enable CLI
+RUN chmod +x /opt/guvnor/bin/guv
+
+# Add CLI to the path
+ENV PATH $PATH:/opt/guvnor/bin
+
 # Create unit file
 RUN systemctl enable guvnor.service
 

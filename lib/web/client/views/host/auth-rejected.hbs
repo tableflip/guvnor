@@ -1,0 +1,15 @@
+<section class="page uknown">
+  <div class="alert alert-warning" role="alert">
+    <h4>Authentication rejected</h4>
+    <p>The connection to <strong>{{model.name}}</strong> was rejected.</p>
+    <p>You have an invalid certificate or you do not have permissions to access this host.</p>
+    <h4>If you do not have a certificate</h4>
+    <ol>
+      <li>Run <code>guv webkey</code> on the server you wish to access</li>
+      <li>Import the generated .p12 file into your keychain or browser on this computer</li>
+      <li>Reload guv-web to be prompted to choose a certificate</li>
+    </ol>
+    <h4>If you have already installed the certificate</h4>
+    <p>Please try connecting to <a href="{{model.url}}" target="_blank">{{model.url}}</a> directly and ensure that you can see the output.</p>
+  </div>
+</section>
