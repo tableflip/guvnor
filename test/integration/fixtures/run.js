@@ -21,7 +21,7 @@ const run = (cmd, args, options) => {
       }
 
       if (!options.hideOutput) {
-        logger.info(`${str.trim()}`)
+        `${str.trim()}`.split('\n').forEach(line => logger.info(line))
       }
     })
     proc.stderr.on('data', (data) => {
@@ -33,7 +33,7 @@ const run = (cmd, args, options) => {
       }
 
       if (!options.hideOutput && !process.env.QUIET) {
-        logger.error(`${str.trim()}`);
+        `${str.trim()}`.split('\n').forEach(line => logger.error(line))
       }
     })
 

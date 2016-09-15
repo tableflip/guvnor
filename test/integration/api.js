@@ -243,7 +243,7 @@ test('Should start a process with arguments', t => {
 test('Should start a process with exec arguments', t => {
   const script = '/opt/guvnor/test/fixtures/hello-world.js'
   const name = t.context.procName()
-  const execArgv = ['--log_gc', '--trace_code_flushing', '--trace_stub_failures']
+  const execArgv = ['--log_gc', '--trace_code_flushing', '--disable_old_api_accessors']
 
   // start the process
   return t.context.api.process.start(script, {
@@ -263,7 +263,7 @@ test('Should start a process with exec arguments', t => {
 test('Should strip invalid exec arguments', t => {
   const script = '/opt/guvnor/test/fixtures/hello-world.js'
   const name = t.context.procName()
-  const execArgv = ['--log_gc', '--trace_code_flushing', '--trace_stub_failures']
+  const execArgv = ['--log_gc', '--trace_code_flushing', '--disable_old_api_accessors']
 
   // start the process
   return t.context.api.process.start(script, {

@@ -168,7 +168,7 @@ test.skip('Should start a process with exec arguments', t => {
   // see https://github.com/yargs/yargs/issues/360
   const script = '/opt/guvnor/test/fixtures/hello-world.js'
   const name = t.context.procName()
-  const execArgv = ['--log_gc', '--trace_code_flushing', '--trace_stub_failures']
+  const execArgv = ['--log_gc', '--trace_code_flushing', '--disable_old_api_accessors']
 
   return t.context.cli(`guv start ${script} -n ${name} -e ${execArgv[0]} ${execArgv[1]} ${execArgv[2]}`)
   .then(utils.onProcessEvent('process:started', name, t.context.api))
