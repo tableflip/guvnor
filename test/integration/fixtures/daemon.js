@@ -20,9 +20,13 @@ module.exports = runner()
     ])
     .then(results => {
       return {
-        ca: results[0],
-        certificate: results[1],
-        key: results[2]
+        certs: {
+          ca: results[0],
+          certificate: results[1],
+          key: results[2]
+        },
+        runner: runner,
+        id: id
       }
     })
   })

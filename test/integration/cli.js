@@ -344,7 +344,7 @@ test('Should not set up certificates for a user twice', t => {
   return t.context.cli('guv adduser guvnor-user-5')
   .then(stdout => t.regex(stdout, /User guvnor-user-5 added/))
   .then(() => t.context.cli('guv adduser guvnor-user-5'))
-  .catch(error => t.regex(error.message, /A certificate already exists for that user/))
+  .catch(error => t.regex(error.stdout, /A certificate already exists for that user/))
 })
 
 test('Should remove certificates for a user', t => {
@@ -356,12 +356,12 @@ test('Should remove certificates for a user', t => {
 
 test('Should not create certificates for a non-existant user', t => {
   return t.context.cli('guv adduser i-do-not-exist')
-  .catch(error => t.regex(error.message, /No user was found with the name i-do-not-exist/))
+  .catch(error => t.regex(error.stdout, /No user was found with the name i-do-not-exist/))
 })
 
 test('Should not remove certificates for a non-existant user', t => {
   return t.context.cli('guv rmuser i-do-not-exist')
-  .catch(error => t.regex(error.message, /No user was found with the name i-do-not-exist/))
+  .catch(error => t.regex(error.stdout, /No user was found with the name i-do-not-exist/))
 })
 
 test('Should list deployed applications', t => {
@@ -375,7 +375,7 @@ test('Should deploy an application', t => {
   const url = 'https://github.com/achingbrain/http-test.git'
 
   return t.context.cli(`guv install ${url} -n ${name}`)
-  .then(stdout => t.is(stdout, `Installed ${name} from ${url}`))
+  .then(stdout => t.truthy(stdout.includes(`Installed ${name} from ${url}`)))
   .then(() => t.context.cli('guv lsapps --json'))
   .then(stdout => JSON.parse(stdout))
   .then(apps => t.truthy(apps.some(app => app.name === name)))
@@ -454,7 +454,7 @@ test('Should update application refs', t => {
 
   return t.context.cli(`guv install ${url} -n ${name}`)
   .then(() => t.context.cli(`guv update ${name} --json`))
-  .then(stdout => t.is(stdout, `Updated ${name}`))
+  .then(stdout => t.regex(stdout, new RegExp(`Updated ${name}`)))
 })
 
 test('Should switch an application ref', t => {
@@ -470,7 +470,7 @@ test('Should switch an application ref', t => {
     t.truthy(ref.commit)
   })
   .then(() => t.context.cli(`guv setref ${name} a-branch`))
-  .then(stdout => t.is(stdout, `Set ${name} ref to a-branch`))
+  .then(stdout => t.truthy(stdout.includes(`Set ${name} ref to a-branch`)))
   .then(() => t.context.cli(`guv lsref ${name} --json`))
   .then(stdout => JSON.parse(stdout))
   .then(ref => {
@@ -503,7 +503,7 @@ test('Should not start an app twice', t => {
   .then(stdout => t.truthy(stdout.indexOf(`Process ${name} started`) > -1))
   .then(utils.onProcessEvent('process:started', name, t.context.api))
   .then(() => t.context.cli(`guv start ${name}`))
-  .catch(error => t.is(error.message, `${name} is already running`))
+  .catch(error => t.is(error.stdout, `${name} is already running`))
 })
 
 test('Should not update application refs for a running app', t => {
@@ -515,7 +515,7 @@ test('Should not update application refs for a running app', t => {
   .then(stdout => t.truthy(stdout.indexOf(`Process ${name} started`) > -1))
   .then(utils.onProcessEvent('process:started', name, t.context.api))
   .then(() => t.context.cli(`guv update ${name}`))
-  .catch(error => t.is(error.message, `App ${name} was running`))
+  .catch(error => t.is(error.stdout, `App ${name} was running`))
 })
 
 test('Should report daemon status', t => {

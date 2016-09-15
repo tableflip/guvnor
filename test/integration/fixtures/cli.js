@@ -5,24 +5,20 @@ const daemon = require('./daemon')
 const stringify = require('json-stringify-safe')
 const cli = require('../../../lib/cli')
 const EventEmitter = require('events').EventEmitter
+const path = require('path')
+
+const DOCKER_FILE_DIRECTORY = path.resolve(path.join(__dirname, '..', '..', '..'))
 
 module.exports = daemon
-.then(credentials => (args, piped) => {
-  args = `/path/to/node ${args}`
-
+.then(result => (args, piped) => {
   logger.debug(`CLI running ${args}`)
 
-  return cli(credentials, args, piped)
-  .then(stdout => {
-    logger.debug(`CLI output: ${stdout}`)
+  const command = ['docker', 'exec', '-t', result.id, args]
 
-    return stdout
+  return result.runner(command, {
+    cwd: DOCKER_FILE_DIRECTORY
   })
-  .catch(error => {
-    if (error.code !== 'OVERRIDDEN') {
-      logger.error(`CLI error: ${error.stack}`)
-    }
-
-    throw error
+  .then(stdout => {
+    return stdout
   })
 })

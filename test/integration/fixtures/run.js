@@ -15,27 +15,34 @@ const run = (cmd, args, options) => {
     const proc = child_process.spawn(cmd, args, options)
     proc.stdout.on('data', (data) => {
       const str = data.toString('utf8')
-      stdout += str
+
+      if (str.trim()) {
+        stdout += str
+      }
 
       if (!options.hideOutput) {
-        logger.debug(`${str.trim()}`)
+        logger.info(`${str.trim()}`)
       }
-    });
+    })
     proc.stderr.on('data', (data) => {
       const str = data.toString('utf8')
       stderr += str
 
-      if (!options.hideOutput && !process.env.QUIET) {
-        logger.info(`${str.trim()}`);
+      if (str.trim()) {
+        stderr += str
       }
-    });
+
+      if (!options.hideOutput && !process.env.QUIET) {
+        logger.error(`${str.trim()}`);
+      }
+    })
 
     if (options.ignoreExit) {
       proc.unref()
       return resolve()
     }
 
-    proc.on('close', (code) => {
+    proc.on('close', code => {
       if (code === 0) {
         return resolve(stdout.trim())
       }
@@ -46,6 +53,7 @@ const run = (cmd, args, options) => {
 
       const error = new Error(`Child process ${cmd} ${args.join(' ')} exited with code ${code}`)
       error.code = code
+      error.stdout = stdout.trim()
       error.stderr = stderr.trim()
 
       reject(error)

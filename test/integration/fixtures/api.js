@@ -5,7 +5,7 @@ const daemon = require('./daemon')
 const loadApi = require('../../../lib/local')
 
 module.exports = daemon
-.then(certs => loadApi(certs))
+.then(result => loadApi(result.certs))
 .then(api => {
   api.on('*', (event) => {
     logger.debug(`Incoming event: ${JSON.stringify(event.data)}`)
