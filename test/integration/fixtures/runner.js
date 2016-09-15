@@ -24,6 +24,9 @@ const dockerWrapper = (docker, command, options) => {
   // remove 'docker' from start of command
   command.shift()
 
+  // make sure the command is formatted properly
+  command = command.concat(command.pop().split(' '))
+
   return run(docker, command, options)
 }
 
