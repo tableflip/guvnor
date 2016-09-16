@@ -10,11 +10,6 @@ const run = (cmd, args, options) => {
     let stdout = ''
     let stderr = ''
 
-    args.unshift(cmd)
-    cmd = '/bin/sh'
-
-    args = ['-c', args.join(' ')]
-
     logger.debug('$', cmd, args.join(' '))
 
     const proc = child_process.spawn(cmd, args, options)
