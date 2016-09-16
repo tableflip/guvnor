@@ -20,21 +20,21 @@ module.exports.fetchCACertificate = (runner, id) => {
   logger.debug('Fetching the CA certificate')
   return retry(() => runner([
     'docker', 'exec', id, 'cat', '/etc/guvnor/ca.crt'
-  ]), 10, 1000)
+  ]), 20, 1000)
 }
 
 module.exports.fetchRootCertificate = (runner, id) => {
   logger.debug('Fetching the root certificate')
   return retry(() => runner([
     'docker', 'exec', id, 'cat', '/root/.config/guvnor/root.pub'
-  ]), 10, 1000)
+  ]), 20, 1000)
 }
 
 module.exports.fetchRootKey = (runner, id) => {
   logger.debug('Fetching the root key')
   return retry(() => runner([
     'docker', 'exec', id, 'cat', '/root/.config/guvnor/root.key'
-  ]), 10, 1000)
+  ]), 20, 1000)
 }
 
 module.exports.attachLogger = (runner, id) => {
@@ -59,9 +59,9 @@ module.exports.buildDaemon = (runner) => {
 module.exports.startDaemon = (runner) => {
   logger.debug('Starting the daemon')
   return runner([
-    'docker', 'run', '--privileged', '--cap-add', 'SYS_ADMIN', '-it',
+    'docker', 'run', '--privileged', '--cap-add', 'SYS_ADMIN', '-t',
     '-v', '/run', '-v', '/run/lock', '-v', '/sys/fs/cgroup:/sys/fs/cgroup:ro',
-    '-p', '8000:8000', '-p', '8001:8001', '-p', '8002:8080', /* '-d', */ 'daemon'
+    '-p', '8000:8000', '-p', '8001:8001', '-p', '8002:8080', '-d', 'daemon'
   ], {
     cwd: DOCKER_FILE_DIRECTORY
   })
