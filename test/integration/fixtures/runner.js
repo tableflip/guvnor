@@ -21,7 +21,7 @@ const vagrantWrapper = (vagrant, command, options) => {
   options = options || {}
 
   command = replace(command, {
-    DAEMON_PATH: '/home/vagrant'
+    PROJECT_ROOT: '/home/vagrant'
   })
     .join(' ')
 
@@ -42,7 +42,7 @@ const dockerWrapper = (docker, command, options) => {
   command = command.concat(command.pop().split(' '))
 
   command = replace(command, {
-    DAEMON_PATH: '/opt/guvnor'
+    PROJECT_ROOT: PROJECT_ROOT
   })
 
   return run(docker, command, options)

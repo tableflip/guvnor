@@ -546,9 +546,9 @@ test('Should create certificate file for web interface', t => {
       t.context.runner,
       t.context.id,
       p12Path,
-      'DAEMON_PATH/lib'
+      '/tmp'
     )
-    .then(() => pem.readPkcs12(targetPath, {
+    .then(() => pem.readPkcs12(`/tmp/${p12File}`, {
         p12Password: password
     }))
   })
