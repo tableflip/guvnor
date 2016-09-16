@@ -139,7 +139,8 @@
     "sinon": "^1.8",
     "standard": "^7.1.2",
     "tamarin-world": "0.0.31",
-    "tap-nyan": "0.0.2"
+    "tap-nyan": "0.0.2",
+    "which": "^1.2.11"
   },
   "bin": {
     "guv": "bin/guv",

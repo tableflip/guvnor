@@ -5,11 +5,15 @@ const logger = require('winston')
 
 const run = (cmd, args, options) => {
   options = options || {}
-  options.stdio = 'inherit'
 
   return new Promise((resolve, reject) => {
     let stdout = ''
     let stderr = ''
+
+    args.unshift(cmd)
+    cmd = '/bin/sh'
+
+    args = ['-c', args.join(' ')]
 
     logger.debug('$', cmd, args.join(' '))
 
