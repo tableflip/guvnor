@@ -31,3 +31,9 @@ module.exports = runner()
     })
   })
 })
+.catch(error => {
+  logger.error('Starting the daemon failed')
+  logger.error(error)
+
+  process.exit(1)
+})

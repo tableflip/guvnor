@@ -11,7 +11,7 @@ const PROJECT_ROOT = path.resolve(path.join(__dirname, '..', '..', '..'))
 const replace = (arr, values) => {
   for (var key in values) {
     arr = arr
-      .map(str => str.replace(new RegExp(key, 'g'), values[key]))
+      .map(str => (str || '').replace(new RegExp(key, 'g'), values[key]))
   }
 
   return arr
