@@ -5,6 +5,7 @@ const logger = require('winston')
 
 const run = (cmd, args, options) => {
   options = options || {}
+  options.stdio = 'inherit'
 
   return new Promise((resolve, reject) => {
     let stdout = ''
