@@ -8,10 +8,24 @@ const run = require('./run')
 const logger = require('winston')
 const PROJECT_ROOT = path.resolve(path.join(__dirname, '..', '..', '..'))
 
+const replace = (arr, values) => {
+  for (var key in values) {
+    arr = arr
+      .map(str => str.replace(new RegExp(key, 'g'), values[key]))
+  }
+
+  return arr
+}
+
 const vagrantWrapper = (vagrant, command, options) => {
   options = options || {}
 
-  return run(vagrant, ['ssh', '-c', command.join(' ')], {
+  command = replace(command, {
+    DAEMON_PATH: '/home/vagrant'
+  })
+    .join(' ')
+
+  return run(vagrant, ['ssh', '-c', command], {
     cwd: PROJECT_ROOT,
     ignoreExit: options.ignoreExit,
     hideOutput: options.hideOutput
@@ -26,6 +40,10 @@ const dockerWrapper = (docker, command, options) => {
 
   // make sure the command is formatted properly
   command = command.concat(command.pop().split(' '))
+
+  command = replace(command, {
+    DAEMON_PATH: '/opt/guvnor'
+  })
 
   return run(docker, command, options)
 }

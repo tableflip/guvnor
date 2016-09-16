@@ -2,12 +2,15 @@
 
 const test = require('ava')
 const faker = require('faker')
+const daemon = require('./fixtures/daemon')
+const commands = require('./fixtures/commands')
 const cli = require('./fixtures/cli')
 const api = require('./fixtures/api')
 const utils = require('./fixtures/utils')
 const winston = require('winston')
 const fs = require('fs-promise')
 const pem = require('pem-promise')
+const path = require('path')
 const loadApi = require('../../lib/local')
 
 if (!process.env.QUIET) {
@@ -33,12 +36,18 @@ test.beforeEach(t => {
     return name
   }
 
+  t.context.commands = commands
+
   return Promise.all([
     cli.then(cli => {
       t.context.cli = cli
     }),
     api.then(api => {
       t.context.api = api
+    }),
+    daemon.then(result => {
+      t.context.runner = result.runner
+      t.context.id = result.id
     })
   ])
 })
@@ -523,17 +532,25 @@ test('Should report daemon status', t => {
   .then(stdout => t.regex(stdout, /Daemon is running/))
 })
 
-test.skip('Should create certificate file for web interface', t => {
+test('Should create certificate file for web interface', t => {
   const password = 'foobar'
 
   return t.context.cli(`guv webkey -p ${password}`)
   .then(stdout => {
     t.regex(stdout, /Created (.*).p12/)
-    const p12 = stdout.split('Created ')[1]
+    const p12Path = stdout.split('Created ')[1]
+    const p12File = p12Path.split('/').pop()
+    const targetPath = path.resolve(path.join(__dirname, '..', '..', 'lib', p12File))
 
-    return pem.readPkcs12(p12, {
-      p12Password: password
-    })
+    return t.context.commands.copyFile(
+      t.context.runner,
+      t.context.id,
+      p12Path,
+      'DAEMON_PATH/lib'
+    )
+    .then(() => pem.readPkcs12(targetPath, {
+        p12Password: password
+    }))
   })
   .then(certs => loadApi(certs))
   .then(api => api.process.list())

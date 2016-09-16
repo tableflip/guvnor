@@ -260,3 +260,11 @@ module.exports.fetchCoverage = (runner, id) => {
     return files.reduce((pacc, fn) => pacc.then(fn), Promise.resolve())
   })
 }
+
+module.exports.copyFile = (runner, id, source, destination) => {
+  return runner([
+    'docker', 'cp', `${id}:${source}`, destination
+  ], {
+    cwd: DOCKER_FILE_DIRECTORY
+  })
+}
