@@ -13,7 +13,7 @@ const run = (cmd, args, options) => {
     logger.debug('$', cmd, args.join(' '))
 
     const proc = child_process.spawn(cmd, args, options)
-    proc.stdout.on('data', (data) => {
+    proc.stdout.on('data', data => {
       const str = data.toString('utf8')
 
       if (str.trim()) {
@@ -24,7 +24,7 @@ const run = (cmd, args, options) => {
         `${str.trim()}`.split('\n').forEach(line => logger.info(line))
       }
     })
-    proc.stderr.on('data', (data) => {
+    proc.stderr.on('data', data => {
       const str = data.toString('utf8')
       stderr += str
 

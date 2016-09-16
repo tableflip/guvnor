@@ -2,7 +2,7 @@
 
 const retry = (operation, retries, delay) => {
     return operation().
-      catch((error) => {
+      catch(error => {
         if (retries === 0) {
           throw error
         }

@@ -57,7 +57,7 @@ module.exports = () => {
     .catch((error) => {
       throw new Error('Could not find vagrant, is it installed and on the $PATH? - ' + error.message)
     })
-    .then((vagrant) => {
+    .then(vagrant => {
       return ensureVagrantIsRunning(vagrant)
       .then(() => vagrantWrapper.bind(null, vagrant))
     })
@@ -67,7 +67,7 @@ module.exports = () => {
     .catch((error) => {
       throw new Error('Could not find docker, is it installed and on the $PATH? - ' + error.message)
     })
-    .then((docker) => {
+    .then(docker => {
       return dockerWrapper.bind(null, docker)
     })
   } else {

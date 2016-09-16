@@ -7,7 +7,7 @@ const logger = require('winston')
 const VM_NAME = 'virtualbox'
 const VAGRANT_FILE_DIRECTORY = path.resolve(path.join(__dirname, '..', '..', '..'))
 
-const isVagrantRunning = (vagrant) => {
+const isVagrantRunning = vagrant => {
   return run(vagrant, ['status'], {
     cwd: VAGRANT_FILE_DIRECTORY
   })
@@ -16,7 +16,7 @@ const isVagrantRunning = (vagrant) => {
   })
 }
 
-const installVbGuestPlugin = (vagrant) => {
+const installVbGuestPlugin = vagrant => {
   logger.debug('Looking for vbguest plugin')
   return run(vagrant, ['plugin', 'list'], {
     cwd: VAGRANT_FILE_DIRECTORY
@@ -34,15 +34,15 @@ const installVbGuestPlugin = (vagrant) => {
   })
 }
 
-const startVagrant = (vagrant) => {
+const startVagrant = vagrant => {
   return run(vagrant, ['up', '--provider', 'virtualbox'], {
     cwd: VAGRANT_FILE_DIRECTORY
   })
 }
 
-const ensureVagrantIsRunning = (vagrant) => {
+const ensureVagrantIsRunning = vagrant => {
   return isVagrantRunning(vagrant)
-    .then((running) => {
+    .then(running => {
       if (running) {
         logger.debug('Vagrant was already running')
         return
@@ -53,7 +53,7 @@ const ensureVagrantIsRunning = (vagrant) => {
       return installVbGuestPlugin(vagrant)
       .then(startVagrant.bind(null, vagrant))
       .then(isVagrantRunning.bind(null, vagrant))
-      .then((running) => {
+      .then(running => {
         if (!running) {
           throw new Error('Could not start Vagrant!')
         }

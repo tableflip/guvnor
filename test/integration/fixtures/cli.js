@@ -18,7 +18,4 @@ module.exports = daemon
   return result.runner(command, {
     cwd: DOCKER_FILE_DIRECTORY
   })
-  .then(stdout => {
-    return stdout
-  })
 })

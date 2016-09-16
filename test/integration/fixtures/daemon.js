@@ -10,9 +10,9 @@ const fs = require('fs-promise')
 const commands = require('./commands')
 
 module.exports = runner()
-.then((runner) => {
+.then(runner => {
   return commands.findContainer(runner)
-  .then((id) => {
+  .then(id => {
     return Promise.all([
       commands.fetchCACertificate(runner, id),
       commands.fetchRootCertificate(runner, id),
