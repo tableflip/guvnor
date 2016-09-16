@@ -3,7 +3,6 @@
 const path = require('path')
 const Wreck = require('wreck')
 const runner = require('./runner')
-const test = require('ava')
 const os = require('os')
 const logger = require('winston')
 const fs = require('fs-promise')

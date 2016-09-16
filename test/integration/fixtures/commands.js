@@ -5,6 +5,8 @@ const fs = require('fs-promise')
 const retry = require('./retry')
 const logger = require('winston')
 
+const CERT_RETRIES = 10
+const CERT_RETRY_DELAY = 5000
 const DOCKER_FILE_DIRECTORY = path.resolve(path.join(__dirname, '..', '..', '..'))
 
 module.exports.printVersion = (runner) => {
@@ -20,21 +22,21 @@ module.exports.fetchCACertificate = (runner, id) => {
   logger.debug('Fetching the CA certificate')
   return retry(() => runner([
     'docker', 'exec', id, 'cat', '/etc/guvnor/ca.crt'
-  ]), 20, 1000)
+  ]), CERT_RETRIES, CERT_RETRY_DELAY)
 }
 
 module.exports.fetchRootCertificate = (runner, id) => {
   logger.debug('Fetching the root certificate')
   return retry(() => runner([
     'docker', 'exec', id, 'cat', '/root/.config/guvnor/root.pub'
-  ]), 20, 1000)
+  ]), CERT_RETRIES, CERT_RETRY_DELAY)
 }
 
 module.exports.fetchRootKey = (runner, id) => {
   logger.debug('Fetching the root key')
   return retry(() => runner([
     'docker', 'exec', id, 'cat', '/root/.config/guvnor/root.key'
-  ]), 20, 1000)
+  ]), CERT_RETRIES, CERT_RETRY_DELAY)
 }
 
 module.exports.attachLogger = (runner, id) => {
