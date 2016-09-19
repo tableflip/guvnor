@@ -546,15 +546,26 @@ test('Should create certificate file for web interface', t => {
       t.context.runner,
       t.context.id,
       p12Path,
-      '/tmp'
+      'PROJECT_ROOT/lib'
     )
-    .then(() => pem.readPkcs12(`/tmp/${p12File}`, {
+    .then(() => pem.readPkcs12(targetPath, {
         p12Password: password
     }))
   })
   .then(certs => loadApi(certs))
   .then(api => api.process.list())
   .then(processes => t.truthy(Array.isArray(processes)))
+})
+
+test('Should start the web interface', t => {
+  const name = 'guv-web'
+
+  return t.context.cli(`guv web`)
+  .then(utils.onProcessEvent('process:started', name, t.context.api))
+  .then(() => t.context.cli('guv list --json'))
+  .then(stdout => JSON.parse(stdout))
+  .then(procs => procs.find(proc => proc.name === name))
+  .then(proc => utils.isProc(t, name, 'running', proc))
 })
 
 test.todo('Should start the daemon')
