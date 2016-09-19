@@ -1,12 +1,18 @@
 <img src="./img/guvnor.png" alt="Control your processes like a boss" width="20%"/>
 
-# The Guv'nor
+# The Guvnor
 
 [![Discuss](http://img.shields.io/badge/discuss-gitter-brightgreen.svg?style=flat)](https://gitter.im/tableflip/guvnor/discuss) [![Tasks](http://img.shields.io/badge/tasks-waffle-brightgreen.svg?style=flat)](https://waffle.io/tableflip/guvnor) [![Build Status](https://travis-ci.org/tableflip/guvnor.svg)](https://travis-ci.org/tableflip/guvnor) [![Dependency Status](https://david-dm.org/tableflip/guvnor.svg)](https://david-dm.org/tableflip/guvnor) [![Coverage Status](https://img.shields.io/coveralls/tableflip/guvnor/master.svg?style=flat)](https://coveralls.io/r/tableflip/guvnor)
 
 > Noun 1. guvnor - (British slang) boss
 
-A node process manager that isn't spanners all the way down.
+A node process manager that wraps your platform's process manager (e.g. systemd, launchd, etc) and adds process monitoring & statistics with a neat web monitor.
+
+### Why?
+
+Most node process managers spawn detached child processes to run your scripts either from node or a native module. This means that if the process manager dies or otherwise crashes, your process either goes with it or becomes a zombie process, neither of which are good places to be.
+
+Most operating systems already provide mechanisms for running long-lived processes - systemd on Linux, launchd on Mac OS X, etc.  Processes spawned by these systems are owned by the kernel so do not have the same problem.
 
 ## Features
 
@@ -28,14 +34,7 @@ Use `guv` (or `guvnor` if you're not into the whole brevity thing).
 
 ## Web interface
 
-Start the web interface with (can be run without guvnor running in the background - for example
-if you want to monitor one or more guvnor servers from a different machine that is not running guvnor):
-
-```sh
-$ guv-web
-```
-
-or run the web interface under guvnor itself (please read the [guvnor web setup](./docs/web.md#prerequisites) section first!):
+Start the web interface under guvnor:
 
 ```sh
 $ guv web
@@ -59,7 +58,7 @@ npm's upgrade command is [a big angry box of wasps](https://github.com/npm/npm/i
 guv kill
 npm remove -g guvnor
 npm install -g guvnor
-guv
+guv list
 ```
 
 For instructions on how to move between breaking versions, see [upgrading](UPGRADING.md)

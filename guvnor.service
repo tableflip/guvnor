@@ -5,6 +5,7 @@ Description=The Guvnor
 WorkingDirectory=/opt/guvnor
 ExecStart=/opt/guvnor/node_modules/.bin/nyc /usr/local/node/bin/node /opt/guvnor/lib/daemon
 Environment="PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/local/node/bin"
+Environment=HTTP_HOST=localhost
 
 [Install]
 WantedBy=multi-user.target
