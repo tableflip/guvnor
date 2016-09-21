@@ -9,6 +9,7 @@ if (!process.env.QUIET) {
 winston.cli()
 
 const configureBrowser = require('../fixtures/browser')
+const DEFAULT_TIMEOUT = 30000
 
 module.exports = {
   before: (browser, done) => {
@@ -18,9 +19,9 @@ module.exports = {
   'Should list processes' : (browser) => {
     browser
       .url('http://localhost:8002')
-      .waitForElementVisible('a[href="/host/localhost:8001/processes"]', 1000)
+      .waitForElementVisible('a[href="/host/localhost:8001/processes"]', DEFAULT_TIMEOUT)
       .click('a[href="/host/localhost:8001/processes"]')
-      .waitForElementVisible('.process-list', 1000)
+      .waitForElementVisible('.process-list', DEFAULT_TIMEOUT)
       .assert.containsText('.processes .panel-title', 'Processes')
       .end()
   }
