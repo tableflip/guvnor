@@ -63,7 +63,7 @@ module.exports.startDaemon = (runner) => {
   return runner([
     'docker', 'run', '--privileged', '--cap-add', 'SYS_ADMIN', '-t',
     '-v', '/run', '-v', '/run/lock', '-v', '/sys/fs/cgroup:/sys/fs/cgroup:ro',
-    '-p', '8000:8000', '-p', '8001:8001', '-p', '8002:8080', '-d', 'daemon'
+    '-p', '8000:8000', '-p', '8001:8001', '-p', '8002:8002', '-d', 'daemon'
   ], {
     cwd: DOCKER_FILE_DIRECTORY
   })

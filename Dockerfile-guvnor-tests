@@ -25,6 +25,6 @@ EXPOSE 8000
 EXPOSE 8001
 
 # Expose guv-web port
-EXPOSE 8080
+EXPOSE 8002
 
 CMD ["/sbin/init"]
