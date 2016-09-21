@@ -1,18 +1,10 @@
 'use strict'
 
 const run = require('./run')
-const which = require('which')
+const which = require('which-promise')
 
 const find = command => {
-  return new Promise((resolve, reject) => {
-    which(command, (error, result) => {
-      if (error) {
-        reject(error)
-      }
-
-      return resolve(result)
-    })
-  })
+  return which(command)
 }
 
 module.exports = find

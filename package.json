@@ -117,6 +117,7 @@
     "uuid": "^2.0",
     "wantsit": "^2.0",
     "watch": "^0.19.1",
+    "which-promise": "^1.0.0",
     "wildemitter": "^1.0",
     "winston": "^2.1.0",
     "wreck": "^9.0.0",

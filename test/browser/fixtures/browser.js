@@ -7,6 +7,7 @@ const daemon = require('../../integration/fixtures/daemon')
 const commands = require('../../integration/fixtures/commands')
 const nss = require('@achingbrain/nss')
 const execFile = require('mz/child_process').execFile
+const which = require('which-promise')
 
 const PROFILE_DIRECTORY = path.resolve(path.join(__dirname, 'profile'))
 
@@ -48,7 +49,9 @@ const fetchCertificate = (password, cli, runner, id) => {
 }
 
 const addCertificate = (nss, p12Path, password) => {
-  return execFile(nss.pk12util, ['-i', p12Path, '-d', PROFILE_DIRECTORY, '-W', password])
+  return which('pk12util')
+  .catch(() => nss.pk12util)
+  .then(pk12util => execFile(pk12util, ['-i', p12Path, '-d', PROFILE_DIRECTORY, '-W', password]))
 }
 
 module.exports = (browser, done) => {
