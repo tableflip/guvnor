@@ -18,11 +18,10 @@ module.exports = {
   'Should list processes' : (browser) => {
     browser
       .url('http://localhost:8002')
-      //.waitForElementVisible('body', 1000)
       .waitForElementVisible('a[href="/host/localhost:8001/processes"]', 1000)
       .click('a[href="/host/localhost:8001/processes"]')
-      .pause(360000)
-      //.assert.containsText('.page', 'Processes')
+      .waitForElementVisible('.process-list', 1000)
+      .assert.containsText('.processes .panel-title', 'Processes')
       .end()
   }
 }

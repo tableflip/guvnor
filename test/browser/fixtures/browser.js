@@ -5,21 +5,21 @@ const path = require('path')
 const cli = require('../../integration/fixtures/cli')
 const daemon = require('../../integration/fixtures/daemon')
 const commands = require('../../integration/fixtures/commands')
+const nss = require('@achingbrain/nss')
+const execFile = require('mz/child_process').execFile
 
-const configureProfile = (browser, certificate) => {
+const PROFILE_DIRECTORY = path.resolve(path.join(__dirname, 'profile'))
+
+const configureProfile = browser => {
   return new Promise((resolve, reject) => {
     try {
-      const profileDirectory = path.resolve(path.join(__dirname, 'profile', 'anonymous621296964789239276webdriver-profile'))
-
       const profile = new FirefoxProfile({
-        profileDirectory: profileDirectory
+        profileDirectory: PROFILE_DIRECTORY
       })
-      profile.setPreference('geo.prompt.testing', true)
-      profile.setPreference('geo.prompt.testing.allow', true)
 
       profile.setPreference('security.default_personal_cert', 'Select Automatically')
 
-      profile.encoded((encodedProfile) => {
+      profile.encoded(encodedProfile => {
         browser.options.desiredCapabilities['firefox_profile'] = encodedProfile
 
         resolve()
@@ -30,14 +30,12 @@ const configureProfile = (browser, certificate) => {
   })
 }
 
-const fetchCertificate = (cli, runner, id) => {
-  const password = 'foobar'
-
+const fetchCertificate = (password, cli, runner, id) => {
   return cli(`guv webkey -p ${password}`)
   .then(stdout => {
     const p12Path = stdout.split('Created ')[1]
     const p12File = p12Path.split('/').pop()
-    const targetPath = path.resolve(path.join(__dirname, '..', '..', 'lib', p12File))
+    const targetPath = path.resolve(path.join(__dirname, '..', '..', '..', 'lib', p12File))
 
     return commands.copyFile(
       runner,
@@ -45,22 +43,24 @@ const fetchCertificate = (cli, runner, id) => {
       p12Path,
       'PROJECT_ROOT/lib'
     )
-    //.then(() => pem.readPkcs12(targetPath, {
-    //    p12Password: password
-    //}))
+    .then(() => targetPath)
   })
-  //.then(certs => loadApi(certs))
-  //.then(api => api.process.list())
-  //.then(processes => t.truthy(Array.isArray(processes)))
+}
+
+const addCertificate = (nss, p12Path, password) => {
+  return execFile(nss.pk12util, ['-i', p12Path, '-d', PROFILE_DIRECTORY, '-W', password])
 }
 
 module.exports = (browser, done) => {
   Promise.all([
-    cli, daemon
+    cli, daemon, nss()
   ])
   .then(results => {
-    return fetchCertificate(results[0], results[1].runner, results[1].id)
-    .then(certifcate => configureProfile(browser, certifcate))
+    const password = 'foobar'
+
+    return fetchCertificate(password, results[0], results[1].runner, results[1].id)
+    .then(p12Path => addCertificate(results[2], p12Path, password))
+    .then(() => configureProfile(browser))
   })
   .then(done)
   .catch(error => {
