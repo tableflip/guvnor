@@ -2,7 +2,6 @@
 
 const path = require('path')
 const run = require('./run')
-const find = require('./find')
 const logger = require('winston')
 const VM_NAME = 'virtualbox'
 const VAGRANT_FILE_DIRECTORY = path.resolve(path.join(__dirname, '..', '..', '..'))

@@ -8,6 +8,7 @@ const commands = require('../../integration/fixtures/commands')
 const nss = require('@achingbrain/nss')
 const execFile = require('mz/child_process').execFile
 const which = require('which-promise')
+const logger = require('winston')
 
 const PROFILE_DIRECTORY = path.resolve(path.join(__dirname, 'profile'))
 
@@ -19,6 +20,7 @@ const configureProfile = browser => {
       })
 
       profile.setPreference('security.default_personal_cert', 'Select Automatically')
+      profile.setPreference('browser.fixup.alternate.enabled', false)
 
       profile.encoded(encodedProfile => {
         browser.options.desiredCapabilities['firefox_profile'] = encodedProfile
@@ -51,7 +53,12 @@ const fetchCertificate = (password, cli, runner, id) => {
 const addCertificate = (nss, p12Path, password) => {
   return which('pk12util')
   .catch(() => nss.pk12util)
-  .then(pk12util => execFile(pk12util, ['-i', p12Path, '-d', PROFILE_DIRECTORY, '-W', password]))
+  .then(pk12util => {
+    logger.debug('Installing certificate')
+    logger.debug(pk12util, '-i', p12Path, '-d', PROFILE_DIRECTORY, '-W', password)
+
+    return execFile(pk12util, ['-i', p12Path, '-d', PROFILE_DIRECTORY, '-W', password])
+  })
 }
 
 module.exports = (browser, done) => {

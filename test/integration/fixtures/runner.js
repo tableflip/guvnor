@@ -2,7 +2,7 @@
 
 const path = require('path')
 const ensureVagrantIsRunning = require('./vagrant')
-const find = require('./find')
+const which = require('which-promise')
 const retry = require('./retry')
 const run = require('./run')
 const logger = require('winston')
@@ -53,7 +53,7 @@ module.exports = () => {
     logger.debug('Running on OS X, starting Vagrant if necessary')
     logger.debug(`Working directory ${PROJECT_ROOT}`)
 
-    return find('vagrant')
+    return which('vagrant')
     .catch((error) => {
       throw new Error('Could not find vagrant, is it installed and on the $PATH? - ' + error.message)
     })
@@ -63,7 +63,7 @@ module.exports = () => {
     })
   } else if (process.platform === 'linux') {
     logger.debug('Running on Linux, using Docker directly')
-    return find('docker')
+    return which('docker')
     .catch((error) => {
       throw new Error('Could not find docker, is it installed and on the $PATH? - ' + error.message)
     })

@@ -1,5 +1,6 @@
 'use strict'
 
+const promise = require('../../../lib/common/promise')
 const path = require('path')
 const Wreck = require('wreck')
 const runner = require('./runner')
@@ -12,22 +13,27 @@ module.exports = runner()
 .then(runner => {
   return commands.findContainer(runner)
   .then(id => {
-    return Promise.all([
-      commands.fetchCACertificate(runner, id),
-      commands.fetchRootCertificate(runner, id),
-      commands.fetchRootKey(runner, id)
+    logger.debug('Daemon container ID', id)
+    logger.debug('Loading certificates')
+
+    return promise.mapSeries([
+      () => commands.fetchCACertificate(runner, id),
+      () => commands.fetchRootCertificate(runner, id),
+      () => commands.fetchRootKey(runner, id)
     ])
-    .then(results => {
+    .then(result => promise.spread(result, (ca, certificate, key) => {
+      logger.debug('Spread certificates', ca, certificate, key)
+
       return {
         certs: {
-          ca: results[0],
-          certificate: results[1],
-          key: results[2]
+          ca: ca,
+          certificate: certificate,
+          key: key
         },
         runner: runner,
         id: id
       }
-    })
+    }))
   })
 })
 .catch(error => {

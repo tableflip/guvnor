@@ -1,13 +1,6 @@
 'use strict'
 
 const winston = require('winston')
-
-if (!process.env.QUIET) {
-  winston.level = 'debug'
-}
-
-winston.cli()
-
 const removeProcesses = require('../fixtures/remove-processes')
 const startWeb = require('../fixtures/start-web')
 const configureBrowser = require('../fixtures/configure-browser')
@@ -16,6 +9,12 @@ const DEFAULT_TIMEOUT = 30000
 
 module.exports = {
   before: (browser, done) => {
+    if (!process.env.QUIET) {
+      winston.level = 'debug'
+    }
+
+    winston.cli()
+
     removeProcesses()
     .then(() => startWeb())
     .then(() => configureBrowser(browser, done))
@@ -30,6 +29,7 @@ module.exports = {
   'Should list processes': browser => browser
     .url('http://localhost:8002')
     .waitForElementVisible('a[href="/host/localhost:8001/processes"]', DEFAULT_TIMEOUT)
+    //.pause(3600000)
     .click('a[href="/host/localhost:8001/processes"]')
     .waitForElementVisible('.process-list', DEFAULT_TIMEOUT)
     .assert.containsText('.processes .panel-title', 'Processes')

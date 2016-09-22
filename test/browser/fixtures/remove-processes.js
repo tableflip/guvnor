@@ -1,5 +1,6 @@
 'use strict'
 
+const promise = require('../../../lib/common/promise')
 const cli = require('../../integration/fixtures/cli')
 
 module.exports = () => {
@@ -7,6 +8,6 @@ module.exports = () => {
   .then(cli => {
     return cli('guv list --json')
     .then(stdout => JSON.parse(stdout))
-    .then(procs => Promise.all(procs.map(proc => cli(`guv rm ${proc.name}`))))
+    .then(procs => promise.series(procs.map(proc => () => cli(`guv rm ${proc.name}`))))
   })
 }
