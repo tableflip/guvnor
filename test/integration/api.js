@@ -39,7 +39,10 @@ test.beforeEach(t => {
 })
 
 test.afterEach(t => {
-  //t.context.api.disconnect()
+  return Promise.all(
+    t.context._procNames.map(name => t.context.api.process.remove(name))
+    .concat(t.context._appNames.map(name => t.context.api.app.remove(name)))
+  )
 })
 
 test('Should return a process list', t => {
@@ -57,7 +60,7 @@ test('Should return an app list', t => {
 })
 
 test('Should return a 404 for a non-existant process', t => {
-  const name = t.context.procName()
+  const name = 'i-do-not-exist'
 
   return t.context.api.process.get(name)
   .catch(error => {
@@ -184,7 +187,7 @@ test.cb('Should emit a process:started event when starting a process', t => {
 
 test('Should remove a stopped process', t => {
   const script = '/opt/guvnor/test/fixtures/hello-world.js'
-  const name = t.context.procName()
+  const name = `${faker.lorem.word()}_${faker.lorem.word()}_${faker.lorem.word()}_${faker.lorem.word()}`
 
   // start the process
   return t.context.api.process.start(script, {
@@ -204,7 +207,7 @@ test('Should remove a stopped process', t => {
 
 test('Should remove a running process', t => {
   const script = '/opt/guvnor/test/fixtures/hello-world.js'
-  const name = t.context.procName()
+  const name = `${faker.lorem.word()}_${faker.lorem.word()}_${faker.lorem.word()}_${faker.lorem.word()}`
 
   // start the process
   return t.context.api.process.start(script, {
@@ -698,7 +701,7 @@ test('Should list deployed applications', t => {
 
 test('Should remove deployed applications', t => {
   const url = 'https://github.com/achingbrain/http-test.git'
-  const name = t.context.appName()
+  const name = `${faker.lorem.word()}_${faker.lorem.word()}_${faker.lorem.word()}_${faker.lorem.word()}`
 
   return t.context.api.app.install(url, name, () => {})
   .then(() => t.context.api.app.list())
@@ -709,7 +712,7 @@ test('Should remove deployed applications', t => {
 })
 
 test('Should return a 404 for a non-existant app', t => {
-  const name = t.context.appName()
+  const name = 'i-do-not-exist'
 
   return t.context.api.app.get(name)
   .catch(error => {

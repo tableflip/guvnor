@@ -53,7 +53,10 @@ test.beforeEach(t => {
 })
 
 test.afterEach(t => {
-  //t.context.api.disconnect()
+  return Promise.all(
+    t.context._procNames.map(name => t.context.api.process.remove(name).catch(() => {}))
+    .concat(t.context._appNames.map(name => t.context.api.app.remove(name).catch(() => {})))
+  )
 })
 
 test('Should return a process list', t => {
@@ -107,7 +110,7 @@ test('Should stop a process', t => {
 
 test('Should remove a stopped process', t => {
   const script = '/opt/guvnor/test/fixtures/hello-world.js'
-  const name = t.context.procName()
+  const name = `${faker.lorem.word()}_${faker.lorem.word()}_${faker.lorem.word()}_${faker.lorem.word()}`
 
   return t.context.cli(`guv start ${script} -n ${name}`)
   .then(utils.onProcessEvent('process:started', name, t.context.api))
@@ -122,7 +125,7 @@ test('Should remove a stopped process', t => {
 
 test('Should remove a running process', t => {
   const script = '/opt/guvnor/test/fixtures/hello-world.js'
-  const name = t.context.procName()
+  const name = `${faker.lorem.word()}_${faker.lorem.word()}_${faker.lorem.word()}_${faker.lorem.word()}`
 
   return t.context.cli(`guv start ${script} -n ${name}`)
   .then(utils.onProcessEvent('process:started', name, t.context.api))
@@ -391,7 +394,7 @@ test('Should deploy an application', t => {
 })
 
 test('Should remove deployed applications', t => {
-  const name = t.context.appName()
+  const name = `${faker.lorem.word()}_${faker.lorem.word()}_${faker.lorem.word()}_${faker.lorem.word()}`
   const url = 'https://github.com/achingbrain/http-test.git'
 
   return t.context.cli(`guv install ${url} -n ${name}`)
