@@ -7,7 +7,7 @@ const configureBrowser = require('../fixtures/configure-browser')
 const api = require('../../integration/fixtures/api')
 const DEFAULT_TIMEOUT = 30000
 
-module.exports = {
+const test = {
   before: (browser, done) => {
     if (!process.env.QUIET) {
       winston.level = 'debug'
@@ -18,6 +18,15 @@ module.exports = {
     removeProcesses()
     .then(() => startWeb())
     .then(() => configureBrowser(browser, done))
+    .then(() => api)
+    .then(result => {
+      test.api = result
+
+      return test.api.status()
+      .then(status => {
+        test.server = status
+      })
+    })
   },
 
   after: (browser, done) => {
@@ -29,7 +38,6 @@ module.exports = {
   'Should list processes': browser => browser
     .url('http://localhost:8002')
     .waitForElementVisible('a[href="/host/localhost:8001/processes"]', DEFAULT_TIMEOUT)
-    //.pause(3600000)
     .click('a[href="/host/localhost:8001/processes"]')
     .waitForElementVisible('.process-list', DEFAULT_TIMEOUT)
     .assert.containsText('.processes .panel-title', 'Processes')
@@ -41,5 +49,17 @@ module.exports = {
     .click('a[href="/host/localhost:8001/apps"]')
     .waitForElementVisible('.app-list', DEFAULT_TIMEOUT)
     .assert.containsText('.apps .panel-title', 'Apps')
+    .end(),
+
+  'Should show server info': browser => browser
+    .url('http://localhost:8002')
+    .waitForElementVisible('td.hostname', DEFAULT_TIMEOUT)
+    .assert.containsText('td.hostname', test.server.hostname)
+    .assert.containsText('td.platform', test.server.platform)
+    .assert.containsText('td.arch', test.server.arch)
+    .assert.containsText('td.release', test.server.release)
+    .assert.containsText('td.daemon', test.server.daemon)
     .end()
 }
+
+module.exports = test

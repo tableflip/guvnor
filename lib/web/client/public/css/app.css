@@ -9035,7 +9035,7 @@ Copyright (c) 2014 Daniel Eden
 .system-details .platform,
 .system-details .arch,
 .system-details .release,
-.system-details .guvnor,
+.system-details .daemon,
 .system-details .uptime {
   width: 80px;
 }
