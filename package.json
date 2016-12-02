@@ -127,17 +127,17 @@
   },
   "devDependencies": {
     "@achingbrain/nss": "0.0.1",
-    "ava": "^0.16.0",
+    "ava": "^0.17.0",
     "coveralls": "^2.8",
     "faker": "^3.1.0",
     "firefox-profile": "^0.4.2",
     "istanbul": "^0.4.0",
-    "nightwatch": "^0.9.8",
+    "nightwatch": "^0.9.9",
     "nyc": "^7.1.0",
     "pre-commit": "^1.0.4",
     "selenium-server": "^2.53.1",
-    "standard": "^7.1.2",
-    "tap-nyan": "0.0.2",
+    "standard": "^8.6.0",
+    "tap-nyan": "^1.1.0",
     "which": "^1.2.11"
   },
   "bin": {

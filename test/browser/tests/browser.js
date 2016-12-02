@@ -25,6 +25,10 @@ const SELECTORS = {
     PANEL: '.panel.processes',
     PANEL_TITLE: '.panel.processes .panel-title'
   },
+  PROCESS: {
+    PANEL: '.panel.process',
+    PANEL_TITLE: '.panel.process .panel-title'
+  },
   APPS: {
     PANEL: '.panel.apps',
     PANEL_TITLE: '.panel.apps .panel-title'
@@ -65,7 +69,7 @@ const test = {
     .waitForElementVisible(SELECTORS.HOSTS.PROCESSES_LINK, DEFAULT_TIMEOUT)
     .click(SELECTORS.HOSTS.PROCESSES_LINK)
     .waitForElementVisible(SELECTORS.PROCESSES.PANEL, DEFAULT_TIMEOUT)
-    .assert.containsText(SELECTORS.PROCESSES.PANEL_TITLE, 'Processes')
+    .assert.containsText(SELECTORS.PROCESSES.PANEL_TITLE, 'Processes', 'Processes was not shown as the title of the processes panel')
     .end(),
 
   'Should list apps': browser => browser
@@ -74,17 +78,26 @@ const test = {
     .waitForElementVisible(SELECTORS.HOSTS.APPS_LINK, DEFAULT_TIMEOUT)
     .click(SELECTORS.HOSTS.APPS_LINK)
     .waitForElementVisible(SELECTORS.APPS.PANEL, DEFAULT_TIMEOUT)
-    .assert.containsText(SELECTORS.APPS.PANEL_TITLE, 'Apps')
+    .assert.containsText(SELECTORS.APPS.PANEL_TITLE, 'Apps', 'Apps was not shown as the title of the apps panel')
     .end(),
 
   'Should show server info': browser => browser
     .url(WEB_URL)
     .waitForElementVisible(SELECTORS.HOST.HOSTNAME, DEFAULT_TIMEOUT)
-    .assert.containsText(SELECTORS.HOST.HOSTNAME, test.server.hostname)
-    .assert.containsText(SELECTORS.HOST.PLATFORM, test.server.platform)
-    .assert.containsText(SELECTORS.HOST.ARCH, test.server.arch)
-    .assert.containsText(SELECTORS.HOST.RELEASE, test.server.release)
-    .assert.containsText(SELECTORS.HOST.DAEMON, test.server.daemon)
+    .assert.containsText(SELECTORS.HOST.HOSTNAME, test.server.hostname, 'Host name was not shown in the host panel')
+    .assert.containsText(SELECTORS.HOST.PLATFORM, test.server.platform, 'Platform was not shown in the host panel')
+    .assert.containsText(SELECTORS.HOST.ARCH, test.server.arch, 'Arch was not shown in the host panel')
+    .assert.containsText(SELECTORS.HOST.RELEASE, test.server.release, 'Release version was not shown in the host panel')
+    .assert.containsText(SELECTORS.HOST.DAEMON, test.server.daemon, 'Daemon version was not shown in the host panel')
+    .end(),
+
+  'Should show process info': browser => browser
+    .url(WEB_URL)
+    .waitForElementVisible(SELECTORS.HOSTS.PROCESS_LINK, DEFAULT_TIMEOUT)
+    .assert.containsText(SELECTORS.HOSTS.PROCESS_LINK, 'guv-web')
+    .click(SELECTORS.HOSTS.PROCESS_LINK)
+    .waitForElementVisible(SELECTORS.PROCESS.PANEL, DEFAULT_TIMEOUT)
+    .assert.containsText(SELECTORS.PROCESS.PANEL_TITLE, 'guv-web', 'Process name was not shown in the process panel')
     .end()
 }
 
