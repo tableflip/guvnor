@@ -1,6 +1,7 @@
 'use strict'
 
 const winston = require('winston')
+const faker = require('faker')
 const removeProcesses = require('../fixtures/remove-processes')
 const startWeb = require('../fixtures/start-web')
 const configureBrowser = require('../fixtures/configure-browser')
@@ -33,6 +34,12 @@ const SELECTORS = {
     PANEL: '.panel.apps',
     PANEL_TITLE: '.panel.apps .panel-title'
   }
+}
+
+const procName = () => {
+  const name =  `${faker.lorem.word()}_${faker.lorem.word()}_${faker.lorem.word()}_${faker.lorem.word()}`
+
+  return name
 }
 
 const test = {
@@ -91,14 +98,28 @@ const test = {
     .assert.containsText(SELECTORS.HOST.DAEMON, test.server.daemon, 'Daemon version was not shown in the host panel')
     .end(),
 
-  'Should show process info': browser => browser
-    .url(WEB_URL)
-    .waitForElementVisible(SELECTORS.HOSTS.PROCESS_LINK, DEFAULT_TIMEOUT)
-    .assert.containsText(SELECTORS.HOSTS.PROCESS_LINK, 'guv-web')
-    .click(SELECTORS.HOSTS.PROCESS_LINK)
-    .waitForElementVisible(SELECTORS.PROCESS.PANEL, DEFAULT_TIMEOUT)
-    .assert.containsText(SELECTORS.PROCESS.PANEL_TITLE, 'guv-web', 'Process name was not shown in the process panel')
-    .end()
+  'Should show process info': function (browser) {
+    const script = '/opt/guvnor/test/fixtures/hello-world.js'
+    const name = procName()
+
+    browser
+      .perform(function (done) {
+        test.api.process.start(script, {
+          name: name,
+          workers: 1
+        })
+        .then(() => {
+          done()
+        })
+      })
+
+    browser.page.index()
+      .navigate()
+      .selectProcessFromHostList(name)
+      //.assert.containsText('@processPanelTitle', name, `Process name '${name}' was not shown in the process panel`)
+
+    browser.end()
+  }
 }
 
 module.exports = test
