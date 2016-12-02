@@ -6,11 +6,8 @@ const utils = require('../../integration/fixtures/utils')
 
 module.exports = () => {
   return Promise.all([cli, api])
-  .then(results => {
-    const cli = results[0]
-    const api = results[1]
-
+  .then(([cli, api]) => {
     return cli(`guv web`)
-    .then(utils.onProcessEvent('process:started', 'guv-web', api))
+    .then(utils.onProcessEvent('process:worker:listening', 'guv-web', api))
   })
 }

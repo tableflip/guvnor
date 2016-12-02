@@ -33,6 +33,9 @@ const configureProfile = (browser, profileDirectory) => {
 
       profile.setPreference('security.default_personal_cert', 'Select Automatically')
       profile.setPreference('browser.fixup.alternate.enabled', false)
+      profile.setPreference('app.update.auto', false)
+      profile.setPreference('app.update.enabled', false)
+      profile.setPreference('app.update.silent', false)
 
       profile.encoded(encodedProfile => {
         browser.options.desiredCapabilities['firefox_profile'] = encodedProfile
