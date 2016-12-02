@@ -133,9 +133,9 @@
     "firefox-profile": "^0.4.2",
     "istanbul": "^0.4.0",
     "nightwatch": "^0.9.9",
-    "nyc": "^7.1.0",
+    "nyc": "^10.0.0",
     "pre-commit": "^1.0.4",
-    "selenium-server": "^2.53.1",
+    "selenium-server": "2.53.1",
     "standard": "^8.6.0",
     "tap-nyan": "^1.1.0",
     "which": "^1.2.11"
