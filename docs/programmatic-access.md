@@ -15,8 +15,75 @@
 
 ## Programmatic access
 
-It is possible to connect to guvnor from your own program.
+It is possible to connect to guvnor from your own program:
 
-Access is divded into two categories - [remote](programmatic-access-remote.md) and [local](programmatic-access-local.md).
+### From node
 
-If guvnor is running on the same machine as your program, that's local access. If it's on a remote server, it's, well, remote access.
+```javascript
+const fs = require('fs')
+const guvnor = require('guvnor')
+
+const certs = {
+  ca: fs.readFileSync('/etc/guvnor/ca.crt'),
+  cert: fs.readFileSync('/home/me/.config/guvnor/me.pub'),
+  key: fs.readFileSync('/home/me/.config/guvnor/me.key')
+}
+
+guvnor(certs)
+.then(api => {
+  // list processes
+  api.process.list()
+  .then(processes => {
+    api.disconnect()
+  })
+  .catch(error => {
+    api.disconnect()
+  })
+})
+```
+
+### From the browser
+
+
+
+### Processes
+
+#### Listing processes
+
+```javascript
+api.process.list()
+.then(processes => {
+  console.info(processes)
+})
+```
+
+#### Starting a process
+
+```javascript
+api.process.start('/path/to/index.js', {
+  group: 'users',
+  workers: 1,
+  name: 'my proc',
+  argv: ['arg1', 'arg2'],
+  execArgv: ['arg3', 'arg4'],
+  debug: false,
+  env: {
+    KEY: 'value'
+  },
+  chroot: false,
+  cwd: __dirname,
+  interpreter: '/usr/bin/node'
+})
+.then(proc => {
+  console.info(`Process ${proc.name} started`)
+})
+```
+
+#### Stopping a process
+
+```javascript
+api.process.stop('my-proc')
+.then(() => {
+  console.info('Process stopped')
+}))
+```

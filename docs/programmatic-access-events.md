@@ -18,9 +18,9 @@
 The guvnor daemon is a [wildemitter](https://github.com/HenrikJoreteg/wildemitter) so you can use wildcards to listen for events:
 
 ```javascript
-guvnor.on('*', function() {
-  var type = arguments[0]
-  var args = Array.prototype.slice.call(arguments, 1)
+guvnor.on('*', () => {
+  const type = arguments[0]
+  const args = Array.prototype.slice.call(arguments, 1)
 
   console.info(type, 'emitted with args', args)
 })
@@ -31,15 +31,15 @@ guvnor.on('*', function() {
 These are events that are to do with managed processes.  They are emitted by processes, cluster managers and workers.  For example:
 
 ```javascript
-guvnor.on('process:starting', function(processInfo) {
+guvnor.on('process:starting', (processInfo) => {
   console.info('process %s is starting', processInfo.name)
 })
 
-guvnor.on('cluster:starting', function(clusterInfo) {
+guvnor.on('cluster:starting', (clusterInfo) => {
   console.info('cluster %s is starting', clusterInfo.name)
 })
 
-guvnor.on('worker:starting', function(clusterInfo, workerInfo) {
+guvnor.on('worker:starting', (clusterInfo, workerInfo) => {
   console.info('worker %s from cluster %s is starting', workerInfo.id, clusterInfo.name)
 })
 ```
@@ -185,19 +185,19 @@ There are four types of log event: `info`, `warn`, `error` and `debug`.  Log eve
 A process emitted an info log event. The log object contains the time and the message.
 
 ```javascript
-guvnor.on('process:log:info', function(processInfo, log) {
+guvnor.on('process:log:info', (processInfo, log) => {
   console.info('process %s said %s at %s', processInfo.name, log.message, log.date)
 })
 
-guvnor.on('cluster:log:info', function(clusterInfo, log) {
+guvnor.on('cluster:log:info', (clusterInfo, log) => {
   console.info('cluster manager %s said %s at %s', clusterInfo.name, log.message, log.date)
 })
 
-guvnor.on('worker:log:info', function(clusterInfo, workerInfo, log) {
+guvnor.on('worker:log:info', (clusterInfo, workerInfo, log) => {
   console.info('worker %s from cluster %s said %s at %s', workerInfo.id, cluster.name, log.message, log.date)
 })
 
-guvnor.on('daemon:log:info', function(log) {
+guvnor.on('daemon:log:info', (log) => {
   console.info('guvnor said %s at %s', log.message, log.date)
 })
 ```
@@ -207,19 +207,19 @@ guvnor.on('daemon:log:info', function(log) {
 A process emitted an warn log event. The log object contains the time and the message.
 
 ```javascript
-guvnor.on('process:log:warn', function(processInfo, log) {
+guvnor.on('process:log:warn', (processInfo, log) => {
   console.warn('process %s said %s at %s', processInfo.name, log.message, log.date)
 })
 
-guvnor.on('cluster:log:warn', function(clusterInfo, log) {
+guvnor.on('cluster:log:warn', (clusterInfo, log) => {
   console.warn('cluster manager %s said %s at %s', clusterInfo.name, log.message, log.date)
 })
 
-guvnor.on('worker:log:warn', function(clusterInfo, workerInfo, log) {
+guvnor.on('worker:log:warn', (clusterInfo, workerInfo, log) => {
   console.warn('worker %s from cluster %s said %s at %s', workerInfo.id, cluster.name, log.message, log.date)
 })
 
-guvnor.on('daemon:log:warn', function(log) {
+guvnor.on('daemon:log:warn', (log) => {
   console.warn('guvnor said %s at %s', log.message, log.date)
 })
 ```
@@ -229,19 +229,19 @@ guvnor.on('daemon:log:warn', function(log) {
 A process emitted an error log event. The log object contains the time and the message.
 
 ```javascript
-guvnor.on('process:log:error', function(processInfo, log) {
+guvnor.on('process:log:error', (processInfo, log) => {
   console.error('process %s said %s at %s', processInfo.name, log.message, log.date)
 })
 
-guvnor.on('cluster:log:error', function(clusterInfo, log) {
+guvnor.on('cluster:log:error', (clusterInfo, log) => {
   console.error('cluster manager %s said %s at %s', clusterInfo.name, log.message, log.date)
 })
 
-guvnor.on('worker:log:error', function(clusterInfo, workerInfo, log) {
+guvnor.on('worker:log:error', (clusterInfo, workerInfo, log) => {
   console.error('worker %s from cluster %s said %s at %s', workerInfo.id, cluster.name, log.message, log.date)
 })
 
-guvnor.on('daemon:log:error', function(log) {
+guvnor.on('daemon:log:error', (log) => {
   console.error('guvnor said %s at %s', log.message, log.date)
 })
 ```
@@ -251,19 +251,19 @@ guvnor.on('daemon:log:error', function(log) {
 A process emitted an debug log event. The log object contains the time and the message.
 
 ```javascript
-guvnor.on('process:log:debug', function(processInfo, log) {
+guvnor.on('process:log:debug', (processInfo, log) => {
   console.info('process %s said %s at %s', processInfo.name, log.message, log.date)
 })
 
-guvnor.on('cluster:log:debug', function(clusterInfo, log) {
+guvnor.on('cluster:log:debug', (clusterInfo, log) => {
   console.info('cluster manager %s said %s at %s', clusterInfo.name, log.message, log.date)
 })
 
-guvnor.on('worker:log:debug', function(clusterInfo, workerInfo, log) {
+guvnor.on('worker:log:debug', (clusterInfo, workerInfo, log) => {
   console.info('worker %s from cluster %s said %s at %s', workerInfo.id, cluster.name, log.message, log.date)
 })
 
-guvnor.on('daemon:log:debug', function(log) {
+guvnor.on('daemon:log:debug', (log) => {
   console.info('guvnor said %s at %s', log.message, log.date)
 })
 ```

@@ -60,7 +60,7 @@ $ guv start -u alex -g staff -i 2 -argv '-a foo -b bar' http-server.js
 Restart a running process
 
 ```sh
-guv restart <pid>
+guv restart <name>
 ```
 
 ## stop
@@ -68,7 +68,7 @@ guv restart <pid>
 Stop a running process.
 
 ```sh
-guv stop <pid>
+guv stop <name>
 ```
 
 ## list
@@ -84,7 +84,7 @@ Display a list of processes guvnor has started.
 Send an event to a process
 
 ```sh
-guv send <pid> <event> [args...]
+guv send <name> <event> [args...]
 ```
 
 ### e.g.
@@ -107,7 +107,7 @@ $ guv send 39823 my:custom:event 1 2
 Make a process dump a heap snapshot for analysis in Chrome's debug tools.  The file will appear at `process.cwd`
 
 ```sh
-guv heapdump <pid>
+guv heapdump <name>
 ```
 
 ## gc
@@ -115,7 +115,7 @@ guv heapdump <pid>
 Force a process to do garbage collection
 
 ```sh
-guv gc <pid>
+guv gc <name>
 ```
 
 ## signal
@@ -123,7 +123,7 @@ guv gc <pid>
 Send a signal to a process (n.b. unless you have a listener for that signal, your process will most likely exit)
 
 ```sh
-guv signal <pid> <signal>
+guv signal <name> <signal>
 ```
 
 ### e.g.
@@ -137,7 +137,7 @@ $ guv signal 3984 SIGINT
 Writes a string to the stdin of your process
 
 ```sh
-guv write <pid> <string>
+guv write <name> <string>
 ```
 
 ### e.g.

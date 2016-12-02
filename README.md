@@ -101,22 +101,6 @@ A configuration file if run as root can be placed at `/etc/guvnor/guvnor`. Take 
 
 If you create a configuration file, it will be merged with the default configuration, so if you only want to override one property, you need only specify one property in your config file.
 
-## Starting guvnor on boot
-
-Guvnor comes with a sysv init script.  To configure it to run on system boot run the following:
-
-```sh
-$ sudo ln -s /usr/local/lib/node_modules/guvnor/scripts/init/sysv/guvnor /etc/init.d/guvnor
-$ sudo update-rc.d guvnor defaults
-```
-
-To undo this, run:
-
-```sh
-$ sudo update-rc.d guvnor remove
-$ sudo rm /etc/init.d/guvnor
-```
-
 ## apt-get
 
 If you installed node via `apt-get install nodejs`, you should create a symlink to the `nodejs` binary:
@@ -127,78 +111,18 @@ $ sudo ln -s /usr/bin/nodejs /usr/bin/node
 
 Also, the init script is probably stored at `/usr/lib/node_modules/...` instead of `/usr/local/lib/node_modules/...` - please check your filesystem to be sure.
 
-## Docker
-
-See the sample [Dockerfile](docker/Dockerfile) for how to run guvnor with Docker.
-
-In the Dockerfile there are two variables - `GUVNOR_ROOT_SECRET` and `GUVNOR_USER_SECRET` - you should change these to a long random string unique to your install before building the container.
-
-Once you'd done that, build the container and run it with the commands below.  The `-p` option forwards a port used by guv-web to connect to the instance of guvnor in the container, so forward the port as appropriate to your setup.
-
-```
-$ sudo docker build -t guvnor .
-$ sudo docker run -p 57484:57483 -d guvnor
-```
-
-To connect guv-web to your docker container, add something like the below to your `guvnor-web-hosts` file:
-
-```
-[docker]
-  host = localhost
-  port = 57484
-  user = root
-  secret = GUVNOR_ROOT_SECRET
-```
-
-...and to your `guvnor-web-users` file:
-
-```
-[alex.docker]
-  user = guvnor
-  secret = GUVNOR_USER_SECRET
-```
-
-Replace `GUVNOR_ROOT_SECRET` and `GUVNOR_USER_SECRET` with whatever you defined in the Dockerfile.
-
 ## Development
 
 ### Integration tests
 
-```
-$ vagrant plugin install vagrant-port
-```
+Because guvnor leans on operating system support for managing processes, integration testing could hose your machine which would be, you know, sub-optimal.  To avoid this, we wrap guvnor in a docker container which limits the scope of damage caused by failed tests.
 
-### Vagrant setup
+On Linux it's possible to expose the bits of the filesystem required by systemd to run to the Docker container but they do not exist on Mac OS X.  On Mac OS X the test suite will spin up an intermediate Linux VM with Vagrant.
 
-It's useful to be able to set up and tear down fresh VMs to do testing, so a Vagrant file is available. It's configured to run Debian Jessie and install the latest versions of Node and Guvnor.
-
-Once Vagrant is installed, cd into the vagrant directory and run:
-
-```sh
-$ vagrant up
-$ vagrant ssh
-$ sudo npm install -g guvnor
-```
-
-Then when you are done, to shut the machine down exit your SSH session and run:
-
-```sh
-$ vagrant destroy
-```
-
-#### Docker
-
-Install docker on vagrant with
+The test suite is in three parts - the API, the CLI and the web interface.  To run them all:
 
 ```
-wget -qO- https://get.docker.com/ | sh
-```
-
-Then cd to `/docker` and build & run guvnor
-
-```
-sudo docker build -t guvnor .
-sudo docker run -p 60000-60020:60000-60020 -d guvnor
+$ npm test
 ```
 
 ## Changelog
