@@ -6,40 +6,28 @@ const removeProcesses = require('../fixtures/remove-processes')
 const startWeb = require('../fixtures/start-web')
 const configureBrowser = require('../fixtures/configure-browser')
 const api = require('../../integration/fixtures/api')
-const DEFAULT_TIMEOUT = 30000
-const WEB_URL = 'http://localhost:8002'
-
-const SELECTORS = {
-  HOSTS: {
-    PROCESSES_LINK: 'a[href="/host/localhost:8001/processes"]',
-    APPS_LINK: 'a[href="/host/localhost:8001/apps"]',
-    PROCESS_LINK: '.host-list .processName a'
-  },
-  HOST: {
-    HOSTNAME: 'td.hostname',
-    PLATFORM: 'td.platform',
-    ARCH: 'td.arch',
-    RELEASE: 'td.release',
-    DAEMON: 'td.daemon'
-  },
-  PROCESSES: {
-    PANEL: '.panel.processes',
-    PANEL_TITLE: '.panel.processes .panel-title'
-  },
-  PROCESS: {
-    PANEL: '.panel.process',
-    PANEL_TITLE: '.panel.process .panel-title'
-  },
-  APPS: {
-    PANEL: '.panel.apps',
-    PANEL_TITLE: '.panel.apps .panel-title'
-  }
-}
 
 const procName = () => {
   const name =  `${faker.lorem.word()}_${faker.lorem.word()}_${faker.lorem.word()}_${faker.lorem.word()}`
 
   return name
+}
+
+const startProcess = (browser, script) => {
+  const name = procName()
+
+  browser
+    .perform(function (done) {
+      test.api.process.start(script || '/opt/guvnor/test/fixtures/hello-world.js', {
+        name: name,
+        workers: 1
+      })
+      .then(() => {
+        done()
+      })
+    })
+
+    return name
 }
 
 const test = {
@@ -52,7 +40,7 @@ const test = {
 
     removeProcesses()
     .then(() => startWeb())
-    .then(() => configureBrowser(browser, done))
+    .then(() => configureBrowser(browser))
     .then(() => api)
     .then(result => {
       test.api = result
@@ -60,8 +48,11 @@ const test = {
       return test.api.status()
       .then(status => {
         test.server = status
+
+        done()
       })
     })
+    .catch(error => done(error))
   },
 
   after: (browser, done) => {
@@ -70,54 +61,127 @@ const test = {
     .then(() => done())
   },
 
-  'Should list processes': browser => browser
-    .url(WEB_URL)
-    .waitForElementVisible(SELECTORS.HOSTS.PROCESS_LINK, DEFAULT_TIMEOUT)
-    .waitForElementVisible(SELECTORS.HOSTS.PROCESSES_LINK, DEFAULT_TIMEOUT)
-    .click(SELECTORS.HOSTS.PROCESSES_LINK)
-    .waitForElementVisible(SELECTORS.PROCESSES.PANEL, DEFAULT_TIMEOUT)
-    .assert.containsText(SELECTORS.PROCESSES.PANEL_TITLE, 'Processes', 'Processes was not shown as the title of the processes panel')
-    .end(),
+  'Should list processes': function (browser) {
+    browser.page.home()
+      .navigate()
+      .navigateToProcessList()
 
-  'Should list apps': browser => browser
-    .url(WEB_URL)
-    .waitForElementVisible(SELECTORS.HOSTS.PROCESS_LINK, DEFAULT_TIMEOUT)
-    .waitForElementVisible(SELECTORS.HOSTS.APPS_LINK, DEFAULT_TIMEOUT)
-    .click(SELECTORS.HOSTS.APPS_LINK)
-    .waitForElementVisible(SELECTORS.APPS.PANEL, DEFAULT_TIMEOUT)
-    .assert.containsText(SELECTORS.APPS.PANEL_TITLE, 'Apps', 'Apps was not shown as the title of the apps panel')
-    .end(),
+    browser.page.processes()
+      .waitForElementVisible('@panel')
+      .assert.containsText('@panelTitle', 'Processes')
+      .assert.containsText('@processesTable', 'guv-web')
+      .assert.containsText('@userColumn', 'root')
+      .assert.containsText('@groupColumn', 'root')
+      .assert.containsText('@memoryColumn', 'MB')
+      .assert.containsText('@cpuColumn', '%')
 
-  'Should show server info': browser => browser
-    .url(WEB_URL)
-    .waitForElementVisible(SELECTORS.HOST.HOSTNAME, DEFAULT_TIMEOUT)
-    .assert.containsText(SELECTORS.HOST.HOSTNAME, test.server.hostname, 'Host name was not shown in the host panel')
-    .assert.containsText(SELECTORS.HOST.PLATFORM, test.server.platform, 'Platform was not shown in the host panel')
-    .assert.containsText(SELECTORS.HOST.ARCH, test.server.arch, 'Arch was not shown in the host panel')
-    .assert.containsText(SELECTORS.HOST.RELEASE, test.server.release, 'Release version was not shown in the host panel')
-    .assert.containsText(SELECTORS.HOST.DAEMON, test.server.daemon, 'Daemon version was not shown in the host panel')
-    .end(),
+    browser.end()
+  },
+
+  'Should list apps': function (browser) {
+    browser.page.home()
+      .navigate()
+      .navigateToAppList()
+
+    browser.page.apps()
+      .waitForElementVisible('@panel')
+      .assert.containsText('@panelTitle', 'Apps')
+
+    browser.end()
+  },
+
+  'Should show server info': function (browser) {
+    browser.page.home()
+      .navigate()
+
+    browser.page.host()
+      .waitForElementVisible('@panel')
+      .assert.containsText('@hostNameColumn', test.server.hostname)
+      .assert.containsText('@platformColumn', test.server.platform)
+      .assert.containsText('@archColumn', test.server.arch)
+      .assert.containsText('@releaseColumn', test.server.release)
+      .assert.containsText('@daemonColumn', test.server.daemon)
+
+    browser.end()
+  },
 
   'Should show process info': function (browser) {
-    const script = '/opt/guvnor/test/fixtures/hello-world.js'
-    const name = procName()
+    const proc = startProcess(browser)
 
-    browser
-      .perform(function (done) {
-        test.api.process.start(script, {
-          name: name,
-          workers: 1
+    browser.page.home()
+      .navigate()
+      .navigateToProcess(proc)
+
+    browser.page.process()
+      .assert.containsText('@processPanelTitle', proc)
+
+    browser.end()
+  },
+
+  'Should stop and start a process': function (browser) {
+    const proc = startProcess(browser)
+
+    browser.page.home()
+      .navigate()
+      .navigateToProcess(proc)
+
+    let procInfo = null
+
+    browser.perform(function (done) {
+      test.api.process.get(proc)
+      .then(info => {
+        procInfo = info
+
+        done()
+      })
+    })
+
+    browser.page.process()
+      .stopProcess()
+
+    browser.page.home()
+      .shouldShowNotification('Process stopped', `${proc} on localhost:8001 stopped`)
+
+    browser.page.process()
+      .waitForElementVisible('@stoppedPanel')
+      .assert.containsText('@stoppedPanel', `${proc} is not running.`)
+      .click('@startProcessButton')
+      .waitForElementVisible('@startProcessForm')
+
+    browser.perform(function (client, done) {
+        client.page.process().getValue('@startFormWorkers', function (result) {
+          this.assert.equal(result.value, procInfo.workers.length)
         })
-        .then(() => {
-          done()
+        client.page.process().getValue('@startFormUser', function (result) {
+          this.assert.equal(result.value, procInfo.workers[0].user)
         })
+        client.page.process().getValue('@startFormGroup', function (result) {
+          this.assert.equal(result.value, procInfo.workers[0].group)
+        })
+        //client.page.process().getValue('@startFormDebug', function (result) {
+        //  this.assert.equal(result.value, procInfo.debug)
+        //})
+        client.page.process().getValue('@startFormCwd', function (result) {
+          this.assert.equal(result.value, procInfo.workers[0].cwd)
+        })
+        client.page.process().getValue('@startFormExecArgv', function (result) {
+          this.assert.equal(result.value, procInfo.workers[0].execArgv.join(' '))
+        })
+        client.page.process().getValue('@startFormArgv', function (result) {
+          this.assert.equal(result.value, procInfo.workers[0].argv.slice(2).join(' '))
+        })
+        // TODO: assert env is populated correctly
+
+        done()
       })
 
-    browser.page.index()
-      .navigate()
-      .selectProcessFromHostList(name)
-      //.assert.containsText('@processPanelTitle', name, `Process name '${name}' was not shown in the process panel`)
-
+    browser.page.process()
+      .click('@startFormSubmit')
+/*
+    browser.page.process()
+      .waitForElementVisible('@startingPanel')
+      .assert.containsText('@startingPanel', `${proc} starting...`)
+*/
     browser.end()
   }
 }

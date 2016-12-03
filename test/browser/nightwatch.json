@@ -35,7 +35,8 @@
         "acceptSslCerts": true
       },
       "globals": {
-        "asyncHookTimeout": 360000
+        "asyncHookTimeout": 360000,
+        "waitForConditionTimeout": 30000
       }
     },
 

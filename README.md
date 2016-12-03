@@ -125,6 +125,42 @@ The test suite is in three parts - the API, the CLI and the web interface.  To r
 $ npm test
 ```
 
+To run with coverage:
+
+```
+$ npm run test:coverage
+```
+
+To run with memory profilling:
+
+```
+$ npm run test:heap
+```
+
+#### Test phases
+
+There are several phases to the tests.  Each can be run independently with `npm run ${phase}`
+
+##### test:before
+
+This will start the daemon under Docker.  If on Mac OS X it will download and run a Vagrant VM to run Docker first.
+
+##### test:integration
+
+Runs API and CLI tests against the running docker image.
+
+##### test:browser
+
+Runs nightwatch.js tests in FireFox.  These are selenium based tests so you'll need an old version of FireFox installed.
+
+##### test:after:success
+
+Takes a heap snap shot and fetches test coverage.
+
+##### test:after:failure
+
+Dumps the daemon log to the terminal so the user can see what went wrong.
+
 ## Changelog
 
 See the [changelog](CHANGELOG.md)

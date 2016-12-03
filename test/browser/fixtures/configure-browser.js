@@ -76,8 +76,8 @@ const addCertificate = (nss, p12Path, password, profileDirectory) => {
   })
 }
 
-module.exports = (browser, done) => {
-  Promise.all([
+module.exports = browser => {
+  return Promise.all([
     cli, daemon, nss()
   ])
   .then(([cli, daemon, nss]) => {
@@ -91,11 +91,5 @@ module.exports = (browser, done) => {
       return addCertificate(nss, p12Path, password, profileDirectory)
       .then(() => configureProfile(browser, profileDirectory))
     })
-  })
-  .then(done)
-  .catch(error => {
-    console.error(error)
-
-    done(error)
   })
 }
