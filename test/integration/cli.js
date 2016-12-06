@@ -538,7 +538,7 @@ test('Should report daemon status', t => {
 test('Should create certificate file for web interface', t => {
   const password = 'foobar'
 
-  return t.context.cli(`guv webkey -p ${password}`)
+  return t.context.cli(`guv key ${password}`)
   .then(stdout => {
     t.regex(stdout, /Created (.*).p12/)
     const p12Path = stdout.split('Created ')[1]
@@ -555,7 +555,7 @@ test('Should create certificate file for web interface', t => {
         p12Password: password
     }))
   })
-  .then(certs => loadApi(certs))
+  .then(certs => loadApi('https://localhost:8001', certs))
   .then(api => api.process.list())
   .then(processes => t.truthy(Array.isArray(processes)))
 })

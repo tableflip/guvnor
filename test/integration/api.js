@@ -824,7 +824,7 @@ test('Should refuse to switch refs for a running app', t => {
 
 test('Should add a user', t => {
   return t.context.api.user.add('guvnor-user-1')
-  .then(certs => loadApi(certs))
+  .then(certs => loadApi('https://localhost:8001', certs))
   .then(api => api.process.list())
   .then(processes => t.truthy(Array.isArray(processes)))
 })
@@ -852,7 +852,7 @@ test('Should remove a user', t => {
   let api = null
 
   return t.context.api.user.add('guvnor-user-3')
-  .then(certs => loadApi(certs))
+  .then(certs => loadApi('https://localhost:8001', certs))
   .then(result => {
     api = result
 
@@ -863,7 +863,7 @@ test('Should remove a user', t => {
   .then(() => api.process.list())
   .catch(error => t.is(error.statusCode, 401))
   .then(() => t.context.api.user.add('guvnor-user-3'))
-  .then(certs => loadApi(certs))
+  .then(certs => loadApi('https://localhost:8001', certs))
   .then(api => api.process.list())
   .then(processes => t.truthy(Array.isArray(processes)))
 })
