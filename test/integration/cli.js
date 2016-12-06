@@ -540,8 +540,8 @@ test('Should create certificate file for web interface', t => {
 
   return t.context.cli(`guv key ${password}`)
   .then(stdout => {
-    t.regex(stdout, /Created (.*).p12/)
-    const p12Path = stdout.split('Created ')[1]
+    t.regex(stdout, /Created key store at (.*).p12/)
+    const p12Path = stdout.match(/Created key store at (.*p12)/)[1]
     const p12File = p12Path.split('/').pop()
     const targetPath = path.resolve(path.join(__dirname, '..', '..', 'lib', p12File))
 
@@ -569,6 +569,22 @@ test('Should start the web interface', t => {
   .then(stdout => JSON.parse(stdout))
   .then(procs => procs.find(proc => proc.name === name))
   .then(proc => utils.isProc(t, name, 'running', proc))
+})
+
+test('Should print the environment for a process', t => {
+  const script = '/opt/guvnor/test/fixtures/hello-world.js'
+  const name = t.context.procName()
+
+  return t.context.cli(`guv start ${script} -n ${name}`)
+  .then(stdout => t.truthy(stdout.indexOf(`Process ${name} started`) > -1))
+  .then(utils.onProcessEvent('process:started', name, t.context.api))
+  .then(() => t.context.cli(`guv env ${name} --json`))
+  .then(stdout => JSON.parse(stdout))
+  .then(env => t.context.api.process.get(name)
+    .then(proc => {
+      t.deepEqual(proc.workers[0].env, env)
+    })
+  )
 })
 
 test.todo('Should start the daemon')
