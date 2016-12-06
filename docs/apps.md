@@ -6,8 +6,6 @@
 1. Installing and running apps
 1. [Remote access and monitoring (e.g. guv-web)](remote.md)
 1. [Web interface](web.md)
-1. [Web interface - configuration](web-config.md)
-1. [Web interface - user management](web-users.md)
 1. [Programmatic access](programmatic-access.md)
 1. [Programmatic access - local](programmatic-access-local.md)
 1. [Programmatic access - remote](programmatic-access-remote.md)

@@ -1,0 +1,10 @@
+[ req ]
+default_bits        = 2048
+distinguished_name  = req_distinguished_name
+req_extensions          = v3_req
+x509_extensions         = v3_ca
+
+[ v3_req ]
+authorityKeyIdentifier = keyid,issuer
+basicConstraints = CA:FALSE
+keyUsage = digitalSignature,nonRepudiation,keyEncipherment,dataEncipherment

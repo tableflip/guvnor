@@ -61,10 +61,13 @@ process.stdin.on('readable', function () {
     if (buffer.size() === 0 && !readData) {
       // not being piped to
       run(certs, args, !process.stdout.isTTY)
-      .then(result => console.info(result))
+      .then(result => {
+        if (result) {
+          console.info(result)
+        }
+      })
       .catch(error => console.error(error))
-
-      process.stdin.destroy()
+      .then(() => process.stdin.destroy())
     } else {
       buffer.flush()
     }

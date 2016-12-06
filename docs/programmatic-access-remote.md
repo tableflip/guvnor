@@ -6,8 +6,6 @@
 1. [Installing and running apps](apps.md)
 1. [Remote access and monitoring (e.g. guv-web)](remote.md)
 1. [Web interface](web.md)
-1. [Web interface - configuration](web-config.md)
-1. [Web interface - user management](web-users.md)
 1. [Programmatic access](programmatic-access.md)
 1. [Programmatic access - local](programmatic-access-local.md)
 1. Programmatic access - remote
@@ -90,7 +88,7 @@ Start a process
 ```javascript
 guvnor.startProcess(path, opts, function(error, processInfo) {
   // processInfo.id is the process id of the newly started process
-  
+
   guvnor.on('process:ready', function(readyProcessInfo) {
     if(processInfo.id == readyProcessInfo.id) {
       // process has now started
@@ -130,7 +128,7 @@ process.on('custom:event', function(arg1, arg2) {
   console.info('received my custom event type with args', arg1, ar2)
 })
 ```
-  
+
 Functions can be sent too (but note these are executed in the context of the sender, not the receiving process).
 
 ```javascript

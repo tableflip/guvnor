@@ -29,7 +29,7 @@ const certs = {
   key: fs.readFileSync('/home/me/.config/guvnor/me.key')
 }
 
-guvnor(certs)
+guvnor('https://localhost:8001', certs)
 .then(api => {
   // list processes
   api.process.list()
@@ -44,7 +44,23 @@ guvnor(certs)
 
 ### From the browser
 
+In the browser you must first install a PKCS12 keybundle for the server you wish to connect to.
 
+```javascript
+const guvnor = require('guvnor')
+
+guvnor('https://localhost:8001')
+.then(api => {
+  // list processes
+  api.process.list()
+  .then(processes => {
+    api.disconnect()
+  })
+  .catch(error => {
+    api.disconnect()
+  })
+})
+```
 
 ### Processes
 

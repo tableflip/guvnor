@@ -151,7 +151,7 @@ Runs API and CLI tests against the running docker image.
 
 ##### test:browser
 
-Runs nightwatch.js tests in FireFox.  These are selenium based tests so you'll need an old version of FireFox installed.
+Runs nightwatch.js tests in Firefox.  These are selenium based tests so you'll need an old version of Firefox installed.
 
 ##### test:after:success
 
