@@ -1,3 +1,4 @@
+@charset "UTF-8";
 /*
 Animate.css - http://daneden.me/animate
 Licensed under the MIT license - http://opensource.org/licenses/MIT
@@ -9035,7 +9036,7 @@ Copyright (c) 2014 Daniel Eden
 .system-details .platform,
 .system-details .arch,
 .system-details .release,
-.system-details .daemon,
+.system-details .guvnor,
 .system-details .uptime {
   width: 80px;
 }
@@ -9073,10 +9074,10 @@ Copyright (c) 2014 Daniel Eden
 .panel-apps p {
   margin: 0;
 }
-.apps-list .remove {
+.app-list .remove {
   white-space: normal;
 }
-.apps-list .remove button {
+.app-list .remove button {
   margin-bottom: 3px;
 }
 .install-log {
