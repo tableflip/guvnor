@@ -49,9 +49,9 @@ const configureProfile = (browser, profileDirectory) => {
 }
 
 const fetchCertificate = (password, cli, runner, id) => {
-  return cli(`guv webkey -p ${password}`)
+  return cli(`guv key ${password}`)
   .then(stdout => {
-    const p12Path = stdout.split('Created ')[1]
+    const p12Path = stdout.match(/Created key store at (.*p12)/)[1]
     const p12File = p12Path.split('/').pop()
     const targetPath = path.resolve(path.join(__dirname, '..', '..', '..', 'lib', p12File))
 
