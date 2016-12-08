@@ -30,7 +30,7 @@
     "docker:deploy": "docker push achingbrain/guvnor-base"
   },
   "dependencies": {
-    "@achingbrain/ssdp": "^1.0.1",
+    "@achingbrain/ssdp": "^2.0.0",
     "ampersand-app": "^2.0.0",
     "ampersand-array-input-view": "^5.0.0",
     "ampersand-checkbox-view": "^5.0.0",

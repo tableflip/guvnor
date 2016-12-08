@@ -4,11 +4,12 @@
 
 const logger = require('winston')
 const logLevel = 'debug'
+const os = require('os')
 
 const onError = error => {
   if (error.code === 'EINVALIDCERT') {
     logger.error('Your user certificate is invalid.')
-    logger.error(`To regenerate your certificate please run 'sudo guv useradd ${user ? user.name : '$YOUR_USER'}'`)
+    logger.error(`To regenerate your certificate please run 'sudo guv useradd ${os.userInfo().username}'`)
   } else if (error.code === 'ECONNREFUSED') {
     logger.error('The daemon is not running.')
     logger.error('Please run \'sudo guv\' to start it.')
@@ -35,6 +36,13 @@ const certs = {
   ca: config.CA,
   cert: config.USER_CERT,
   key: config.USER_KEY
+}
+
+if (!certs.cert || !certs.key) {
+  const error = new Error('No certs found')
+  error.code = 'EINVALIDCERT'
+
+  throw error
 }
 
 const args = process.argv
