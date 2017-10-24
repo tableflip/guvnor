@@ -26,7 +26,7 @@ A node process manager that isn't spanners all the way down.
 
 Use `guv` (or `guvnor` if you're not into the whole brevity thing).
 
-## Web interface
+## Web interface
 
 Start the web interface with (can be run without guvnor running in the background - for example
 if you want to monitor one or more guvnor servers from a different machine that is not running guvnor):
@@ -64,7 +64,7 @@ guv
 
 For instructions on how to move between breaking versions, see [upgrading](UPGRADING.md)
 
-## Usage
+## Usage
 
 Comprehensive help is available on the command line:
 
